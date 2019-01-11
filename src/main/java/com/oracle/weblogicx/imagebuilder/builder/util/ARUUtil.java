@@ -71,25 +71,27 @@ public class ARUUtil {
     /**
      * Download the latest WLS patches(PSU) for the release
      *
-     * @param release release number
+     * @param version release number
      * @param userId userid for support account
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
      */
-    public static void getLatestWLSPSU(String release, String userId, String password) throws IOException {
-        getLatestPSU("wls", release, userId, password);
+    public static void getLatestWLSPSU(String version, String userId, String password) throws IOException {
+        String releaseNumber = getReleaseNumber("wls", version, userId, password);
+        getLatestPSU("wls", releaseNumber, userId, password);
     }
 
     /**
      * Download the latest FMW patches(PSU) for the release
      *
-     * @param release release number
+     * @param version version number 12.2.1.3.0
      * @param userId userid for support account
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
      */
-    public static  void getLatestFMWPSU(String release, String userId, String password) throws IOException {
-        getLatestPSU("fmw", release, userId, password);
+    public static  void getLatestFMWPSU(String version, String userId, String password) throws IOException {
+        String releaseNumber = getReleaseNumber("wls", version, userId, password);
+        getLatestPSU("fmw", releaseNumber, userId, password);
     }
 
     /**
@@ -188,7 +190,7 @@ public class ARUUtil {
             }
 
             doc.appendChild(element);
-            XPathUtil.prettyPrint(doc);
+            //XPathUtil.prettyPrint(doc);
 
             return doc;
 
@@ -285,7 +287,7 @@ public class ARUUtil {
     }
 
     public static void main(String args[]) throws Exception {
-        ARUUtil.getLatestWLSPSU("600000000073715","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
+        ARUUtil.getLatestWLSPSU("12.2.1.3.0","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
     }
 
 
