@@ -3,17 +3,10 @@ package com.oracle.weblogicx.imagebuilder.builder.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -35,6 +28,15 @@ import org.xml.sax.SAXException;
 
 public class HttpUtil {
 
+    /**
+     * Return the xml result of a GET from the url
+     *
+     * @param url  url of the aru server
+     * @param username userid for support account
+     * @param password password for support account
+     * @return xml dom document
+     * @throws IOException when it fails to access the url
+     */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
 
         RequestConfig.Builder config = RequestConfig.custom();
@@ -60,7 +62,7 @@ public class HttpUtil {
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xmlString));
             Document doc = docBuilder.parse(is);
-            prettyPrint(doc);
+          //  XPathUtil.prettyPrint(doc);
             return doc;
         } catch (ParserConfigurationException ex) {
             throw new IllegalStateException(ex);
@@ -73,14 +75,15 @@ public class HttpUtil {
 
     }
 
-    public static final void prettyPrint(Document xml) throws Exception {
-        Transformer tf = TransformerFactory.newInstance().newTransformer();
-        tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        tf.setOutputProperty(OutputKeys.INDENT, "yes");
-        Writer out = new StringWriter();
-        tf.transform(new DOMSource(xml), new StreamResult(out));
-        System.out.println(out.toString());
-    }
+    /**
+     * Downlod a file from the url
+     *
+     * @param url  url of the aru server
+     * @param destination full path to save the file
+     * @param username userid for support account
+     * @param password password for support account
+     * @throws IOException when it fails to access the url
+     */
 
     public static void downloadFile(String url, String destination, String username, String password)
         throws IOException {
@@ -104,6 +107,17 @@ public class HttpUtil {
 
     }
 
+    /**
+     * Check conflicts
+     *
+     * @param url
+     * @param payload
+     * @param username
+     * @param password
+     * @return
+     * @throws IOException
+     */
+    
     public static String checkConflicts(String url, String payload, String username, String password)
         throws IOException {
         RequestConfig.Builder config = RequestConfig.custom();
