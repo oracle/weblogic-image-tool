@@ -8,11 +8,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -84,6 +87,36 @@ public class HttpUtil {
             .connectTimeout(30000)
             .socketTimeout(30000)).saveContent(new File(destination));
 
+    }
+
+    public static String checkConflicts(String url, String payload, String username, String password) throws
+        IOException {
+        RequestConfig.Builder config = RequestConfig.custom();
+        config.setCircularRedirectsAllowed(true);
+
+        CookieStore cookieStore = new BasicCookieStore();
+
+        CloseableHttpClient client = HttpClientBuilder.create()
+            .setDefaultRequestConfig(config.build())
+            .useSystemProperties()
+            .build();
+
+        Executor httpExecutor = Executor.newInstance(client).auth(username, password);
+        httpExecutor.use(cookieStore);
+
+        HttpEntity entity = MultipartEntityBuilder.create()
+            .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+            .addTextBody("request_xml", payload)
+            .build();
+
+        String result = httpExecutor.execute(Request.Post(url)
+            .connectTimeout(30000)
+            .socketTimeout(30000)
+            .body(entity)
+            ).returnContent().asString();
+
+        System.out.println(result);
+        return result;
     }
 
 
