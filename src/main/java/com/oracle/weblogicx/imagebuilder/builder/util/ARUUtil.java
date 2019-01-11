@@ -1,5 +1,6 @@
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class ARUUtil {
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
      */
-    public static void getLatestWLSPatches(String release, String userId, String password) throws IOException {
+    public static void getLatestWLSPSU(String release, String userId, String password) throws IOException {
         getLatestPSU("wls", release, userId, password);
     }
 
@@ -87,7 +88,7 @@ public class ARUUtil {
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
      */
-    public static  void getLatestFMWPatches(String release, String userId, String password) throws IOException {
+    public static  void getLatestFMWPSU(String release, String userId, String password) throws IOException {
         getLatestPSU("fmw", release, userId, password);
     }
 
@@ -210,7 +211,8 @@ public class ARUUtil {
 
         Document allPatches = HttpUtil.getXMLContent(expression, userId, password);
 
-        savepatch(allPatches, userId, password);
+        //XPathUtil.prettyPrint(allPatches);
+        savePatch(allPatches, userId, password);
     }
 
     private static void getPatch(String category, String patchNumber, String userId, String password) throws
@@ -229,13 +231,13 @@ public class ARUUtil {
 
         Document allPatches = HttpUtil.getXMLContent(url, userId, password);
 
-        savepatch(allPatches, userId, password);
+        savePatch(allPatches, userId, password);
 
 
 
     }
 
-    private static  void savepatch(Document allPatches, String userId, String password) throws IOException {
+    private static void savePatch(Document allPatches, String userId, String password) throws IOException {
         try {
 
             // TODO: needs to make sure there is one and some filtering if not sorting
@@ -243,19 +245,24 @@ public class ARUUtil {
             String downLoadLink = XPathUtil.applyXPathReturnString(allPatches, "string"
                 + "(/results/patch[1]/files/file/download_url/text())");
 
-            String doloadHost = XPathUtil.applyXPathReturnString(allPatches, "string"
+            String downLoadHost = XPathUtil.applyXPathReturnString(allPatches, "string"
                 + "(/results/patch[1]/files/file/download_url/@host)");
 
-            String bugname  = XPathUtil.applyXPathReturnString(allPatches, "string"
-                + "(/results/patch[1]/name");
+            String bugName  = XPathUtil.applyXPathReturnString(allPatches, "/results/patch[1]/name");
 
-            // TODO find the download location
 
-            String fileName = bugname + ".zip";
+            int index = downLoadLink.indexOf("patch_file=");
 
-            HttpUtil.downloadFile(doloadHost+downLoadLink, fileName, userId, password);
+            if (index > 0) {
+                String fileName = CacheDownLoadUtil.getDownloadRoot() + File.separator + downLoadLink.substring
+                    (index+"patch_file=".length());
 
-            // TODO need method to update the cache data table ?
+                if (!CacheDownLoadUtil.existsInCache(bugName, fileName)) {
+                    HttpUtil.downloadFile(downLoadHost+downLoadLink, fileName, userId, password);
+                }
+
+                CacheDownLoadUtil.updateTableOfContext(bugName, fileName);
+            }
 
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
@@ -278,7 +285,7 @@ public class ARUUtil {
     }
 
     public static void main(String args[]) throws Exception {
-        String release = ARUUtil.getWLSReleaseNumber("121.2.1.3.0","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
+        ARUUtil.getLatestWLSPSU("600000000073715","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
     }
 
 

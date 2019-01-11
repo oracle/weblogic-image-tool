@@ -79,13 +79,13 @@ public class HttpUtil {
      * Downlod a file from the url
      *
      * @param url  url of the aru server
-     * @param destination full path to save the file
+     * @param fileName full path to save the file
      * @param username userid for support account
      * @param password password for support account
      * @throws IOException when it fails to access the url
      */
 
-    public static void downloadFile(String url, String destination, String username, String password)
+    public static void downloadFile(String url, String fileName, String username, String password)
         throws IOException {
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
@@ -103,7 +103,7 @@ public class HttpUtil {
         httpExecutor.use(cookieStore);
 
         httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
-            .saveContent(new File(destination));
+            .saveContent(new File(fileName));
 
     }
 
@@ -117,7 +117,7 @@ public class HttpUtil {
      * @return
      * @throws IOException
      */
-    
+
     public static String checkConflicts(String url, String payload, String username, String password)
         throws IOException {
         RequestConfig.Builder config = RequestConfig.custom();
