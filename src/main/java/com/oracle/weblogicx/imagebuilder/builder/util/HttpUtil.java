@@ -3,6 +3,7 @@ package com.oracle.weblogicx.imagebuilder.builder.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Path;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,23 +40,10 @@ public class HttpUtil {
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
 
-        RequestConfig.Builder config = RequestConfig.custom();
-        config.setCircularRedirectsAllowed(true);
+        Executor httpExecutor = getOraHttpExecutor(username, password);
 
-        CookieStore cookieStore = new BasicCookieStore();
-        BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
-        cc.setDomain("edelivery.oracle.com");
-        cookieStore.addCookie(cc);
-
-        CloseableHttpClient client =
-            HttpClientBuilder.create().setDefaultRequestConfig(config.build()).useSystemProperties().build();
-
-        Executor httpExecutor = Executor.newInstance(client).auth(username, password);
-        httpExecutor.use(cookieStore);
-
-        String xmlString =
-            httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000)).returnContent()
-                .asString();
+        String xmlString = httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+                .returnContent().asString();
 
         try {
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
@@ -75,6 +63,23 @@ public class HttpUtil {
 
     }
 
+    private static Executor getOraHttpExecutor(String username, String password) {
+        RequestConfig.Builder config = RequestConfig.custom();
+        config.setCircularRedirectsAllowed(true);
+
+        CookieStore cookieStore = new BasicCookieStore();
+        BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
+        cc.setDomain("edelivery.oracle.com");
+        cookieStore.addCookie(cc);
+
+        CloseableHttpClient client =
+            HttpClientBuilder.create().setDefaultRequestConfig(config.build()).useSystemProperties().build();
+
+        Executor httpExecutor = Executor.newInstance(client).auth(username, password);
+        httpExecutor.use(cookieStore);
+        return httpExecutor;
+    }
+
     /**
      * Downlod a file from the url
      *
@@ -87,20 +92,7 @@ public class HttpUtil {
 
     public static void downloadFile(String url, String fileName, String username, String password)
         throws IOException {
-        RequestConfig.Builder config = RequestConfig.custom();
-        config.setCircularRedirectsAllowed(true);
-        //        config.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY);
-
-        CookieStore cookieStore = new BasicCookieStore();
-        BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
-        cc.setDomain("edelivery.oracle.com");
-        cookieStore.addCookie(cc);
-
-        CloseableHttpClient client =
-            HttpClientBuilder.create().setDefaultRequestConfig(config.build()).useSystemProperties().build();
-
-        Executor httpExecutor = Executor.newInstance(client).auth(username, password);
-        httpExecutor.use(cookieStore);
+        Executor httpExecutor = getOraHttpExecutor(username, password);
 
         httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
             .saveContent(new File(fileName));

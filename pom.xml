@@ -25,16 +25,25 @@
             <artifactId>fluent-hc</artifactId>
             <version>4.5.6</version>
         </dependency>
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
-            <version>1.3.1</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>commons-cli</groupId>-->
+            <!--<artifactId>commons-cli</artifactId>-->
+            <!--<version>1.3.1</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.5.6</version>
         </dependency>
-
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.argparse4j</groupId>
+            <artifactId>argparse4j</artifactId>
+            <version>0.8.1</version>
+        </dependency>
     </dependencies>
 </project>

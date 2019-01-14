@@ -9,10 +9,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpResponseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static com.oracle.weblogicx.imagebuilder.builder.meta.FileMetaDataResolver.META_RESOLVER;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.*;
 
 public class ARUUtil {
 
@@ -162,8 +167,7 @@ public class ARUUtil {
         //HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}'
        // "https://updates.oracle.com/Orion/Services/metadata?table=aru_releases" -o allarus.xml)
 
-        Document allReleases = HttpUtil.getXMLContent("https://updates.oracle"
-            + ".com/Orion/Services/metadata?table=aru_releases", userId, password);
+        Document allReleases = HttpUtil.getXMLContent(REL_URL, userId, password);
 
         try {
 
@@ -203,17 +207,13 @@ public class ARUUtil {
 
     private static  void getLatestPSU(String category, String release, String userId, String password) throws IOException {
 
-        String xpath = "https://updates.oracle"
-            + ".com/Orion/Services/search?product=%s&release=%s";
         String expression;
         if ("wls".equalsIgnoreCase(category))
-            expression = String.format(xpath, "15991", release);
+            expression = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
         else
-            expression = String.format(xpath, "27638", release);
+            expression = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
 
         Document allPatches = HttpUtil.getXMLContent(expression, userId, password);
-
-        //XPathUtil.prettyPrint(allPatches);
         savePatch(allPatches, userId, password);
     }
 
@@ -222,21 +222,15 @@ public class ARUUtil {
 
         //        HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}' "https://updates.oracle.com/Orion/Services/search?product=15991&release=$releaseid&include_prereqs=true" -o latestpsu.xml)
 
-        String urlFormat = "https://updates.oracle"
-            + ".com/Orion/Services/search?product=%s&bug=%s";
         String url;
-
         if ("wls".equalsIgnoreCase(category))
-            url = String.format(urlFormat, "15991", patchNumber);
+            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, patchNumber);
         else
-            url = String.format(urlFormat, "27638", patchNumber);
+            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, patchNumber);
 
         Document allPatches = HttpUtil.getXMLContent(url, userId, password);
 
         savePatch(allPatches, userId, password);
-
-
-
     }
 
     private static void savePatch(Document allPatches, String userId, String password) throws IOException {
@@ -256,14 +250,16 @@ public class ARUUtil {
             int index = downLoadLink.indexOf("patch_file=");
 
             if (index > 0) {
-                String fileName = CacheDownLoadUtil.getDownloadRoot() + File.separator + downLoadLink.substring
-                    (index+"patch_file=".length());
-
-                if (!CacheDownLoadUtil.existsInCache(bugName, fileName)) {
+                String fileName = META_RESOLVER.getCacheDir() + File.separator + downLoadLink.substring(
+                        index+"patch_file=".length());
+                // this hasMatchingKeyValue is to make sure that the file value is same as the intended location.
+                // cache dir can be changed
+                if (!META_RESOLVER.hasMatchingKeyValue(bugName, fileName) || !new File(fileName).exists()) {
                     HttpUtil.downloadFile(downLoadHost+downLoadLink, fileName, userId, password);
+                    META_RESOLVER.addToCache(bugName, fileName);
+                } else {
+                    System.out.println(String.format("patch %s already downloaded for bug %s", fileName, bugName));
                 }
-
-                CacheDownLoadUtil.updateTableOfContext(bugName, fileName);
             }
 
         } catch (XPathExpressionException xpe) {
@@ -286,8 +282,25 @@ public class ARUUtil {
 
     }
 
+    public static boolean checkCredentials(String userId, String password) {
+        boolean retVal = true;
+        try {
+            HttpUtil.getXMLContent(ARU_LANG_URL, userId, password);
+        } catch (IOException e) {
+            Throwable cause = (e.getCause() == null)? e : e.getCause();
+            if (cause.getClass().isAssignableFrom(HttpResponseException.class) &&
+                ((HttpResponseException) cause).getStatusCode() == HttpStatus.SC_UNAUTHORIZED ) {
+                retVal = false;
+            }
+        }
+        return retVal;
+    }
+
     public static void main(String args[]) throws Exception {
-        ARUUtil.getLatestWLSPSU("12.2.1.3.0","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
+//        System.out.println("Credentials isValid: " + ARUUtil.checkCredentials("johnny.shum@oracle.com", "iJCPiUah7jdmLk1E"));
+//        System.out.println("Credentials isValid: " + ARUUtil.checkCredentials("hello@gmail.com", "invalid"));
+        ARUUtil.getLatestWLSPSU("12.2.1.3.0","gopi.suryadevara@oracle.com", "omSAI@123");
+        //ARUUtil.getLatestWLSPSU("12.2.1.3.0","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
     }
 
 
