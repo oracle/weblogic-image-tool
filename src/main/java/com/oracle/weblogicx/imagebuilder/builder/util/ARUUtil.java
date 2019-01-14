@@ -2,6 +2,7 @@ package com.oracle.weblogicx.imagebuilder.builder.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -80,10 +81,11 @@ public class ARUUtil {
      * @param userId userid for support account
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
+     * @return String bug number
      */
-    public static void getLatestWLSPSU(String version, String userId, String password) throws IOException {
+    public static String getLatestWLSPSU(String version, String userId, String password) throws IOException {
         String releaseNumber = getReleaseNumber("wls", version, userId, password);
-        getLatestPSU("wls", releaseNumber, userId, password);
+        return getLatestPSU("wls", releaseNumber, userId, password);
     }
 
     /**
@@ -93,10 +95,11 @@ public class ARUUtil {
      * @param userId userid for support account
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
+     * @return String bug number
      */
-    public static  void getLatestFMWPSU(String version, String userId, String password) throws IOException {
+    public static String getLatestFMWPSU(String version, String userId, String password) throws IOException {
         String releaseNumber = getReleaseNumber("wls", version, userId, password);
-        getLatestPSU("fmw", releaseNumber, userId, password);
+        return getLatestPSU("fmw", releaseNumber, userId, password);
     }
 
     /**
@@ -107,10 +110,16 @@ public class ARUUtil {
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
      */
-    public static  void getWLSPatches(List<String> patches, String userId, String password) throws
+    public static  List<String>  getWLSPatches(List<String> patches, String userId, String password) throws
         IOException {
-        for (String patch : patches)
-            getPatch("wls", patch, userId, password);
+        List<String> results = new ArrayList<>();
+        for (String patch : patches) {
+            String rs = getPatch("wls", patch, userId, password);
+            if (rs != null) {
+                results.add(rs);
+            }
+        }
+        return results;
     }
 
     /**
@@ -121,10 +130,17 @@ public class ARUUtil {
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
      */
-    public static  void getFMWPatches(String category, List<String> patches, String userId, String password) throws
+    public static List<String> getFMWPatches(String category, List<String> patches, String userId, String password)
+        throws
         IOException {
-        for (String patch : patches)
-            getPatch("fmw", patch, userId, password);
+        List<String> results = new ArrayList<>();
+        for (String patch : patches) {
+            String rs = getPatch("fmw", patch, userId, password);
+            if (rs != null) {
+                results.add(rs);
+            }
+        }
+        return results;
     }
 
     /**
@@ -205,7 +221,8 @@ public class ARUUtil {
 
     }
 
-    private static  void getLatestPSU(String category, String release, String userId, String password) throws IOException {
+    private static String getLatestPSU(String category, String release, String userId, String password) throws
+        IOException {
 
         String expression;
         if ("wls".equalsIgnoreCase(category))
@@ -217,7 +234,7 @@ public class ARUUtil {
         savePatch(allPatches, userId, password);
     }
 
-    private static void getPatch(String category, String patchNumber, String userId, String password) throws
+    private static String getPatch(String category, String patchNumber, String userId, String password) throws
         IOException {
 
         //        HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}' "https://updates.oracle.com/Orion/Services/search?product=15991&release=$releaseid&include_prereqs=true" -o latestpsu.xml)
@@ -230,10 +247,10 @@ public class ARUUtil {
 
         Document allPatches = HttpUtil.getXMLContent(url, userId, password);
 
-        savePatch(allPatches, userId, password);
+        return savePatch(allPatches, userId, password);
     }
 
-    private static void savePatch(Document allPatches, String userId, String password) throws IOException {
+    private static String savePatch(Document allPatches, String userId, String password) throws IOException {
         try {
 
             // TODO: needs to make sure there is one and some filtering if not sorting
@@ -260,12 +277,14 @@ public class ARUUtil {
                 } else {
                     System.out.println(String.format("patch %s already downloaded for bug %s", fileName, bugName));
                 }
+                return bugName;
             }
 
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
         }
 
+        return null;
     }
 
     private static String getReleaseNumber(String category, String version, String userId, String password) throws
@@ -297,10 +316,7 @@ public class ARUUtil {
     }
 
     public static void main(String args[]) throws Exception {
-//        System.out.println("Credentials isValid: " + ARUUtil.checkCredentials("johnny.shum@oracle.com", "iJCPiUah7jdmLk1E"));
-//        System.out.println("Credentials isValid: " + ARUUtil.checkCredentials("hello@gmail.com", "invalid"));
-        ARUUtil.getLatestWLSPSU("12.2.1.3.0","gopi.suryadevara@oracle.com", "omSAI@123");
-        //ARUUtil.getLatestWLSPSU("12.2.1.3.0","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
+        ARUUtil.getLatestWLSPSU("12.2.1.3.0","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
     }
 
 
