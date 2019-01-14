@@ -231,7 +231,7 @@ public class ARUUtil {
             expression = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
 
         Document allPatches = HttpUtil.getXMLContent(expression, userId, password);
-        savePatch(allPatches, userId, password);
+        return savePatch(allPatches, userId, password);
     }
 
     private static String getPatch(String category, String patchNumber, String userId, String password) throws
