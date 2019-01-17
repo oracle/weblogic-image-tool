@@ -80,7 +80,7 @@ RUN unzip /u01/app/tools/wdt/weblogic-deploy-tooling/installer/target/weblogic-d
 
 # Cleanup
 
-RUN rm -fr $TMPDIR
+RUN rm -fr $TMPDIR && $MW_HOME/OPatch/opatch util cleanup -silent
 
 ENTRYPOINT /bin/bash
 
