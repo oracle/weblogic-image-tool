@@ -153,17 +153,17 @@ public class HttpUtil {
     }
 
     /**
-     * Check conflicts - probably need to
+     * Check conflicts post method
      *
      * @param url  url for conflict checker api
      * @param payload payload containing patches to check for conflicts
      * @param username user name for support
      * @param password password for support
-     * @return
+     * @return dom document result of the conflict checker
      * @throws IOException
      */
 
-    public static Document checkConflicts(String url, String payload, String username, String password)
+    public static Document postCheckConflictRequest(String url, String payload, String username, String password)
         throws IOException {
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);

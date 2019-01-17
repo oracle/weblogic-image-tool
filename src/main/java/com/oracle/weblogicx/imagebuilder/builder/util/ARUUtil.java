@@ -120,7 +120,7 @@ public class ARUUtil {
         }
         return results;
     }
-    
+
     /**
      *
      * @param patches  A list of patches number
@@ -144,7 +144,7 @@ public class ARUUtil {
         }
         payload.append("</conflict_check_request>");
 
-        Document result = HttpUtil.checkConflicts(CONFLICTCHECKER_URL, payload.toString(), userId, password);
+        Document result = HttpUtil.postCheckConflictRequest(CONFLICTCHECKER_URL, payload.toString(), userId, password);
 
         try {
             NodeList conflictSets = XPathUtil.applyXPathReturnNodeList(result, "/conflict_sets");
