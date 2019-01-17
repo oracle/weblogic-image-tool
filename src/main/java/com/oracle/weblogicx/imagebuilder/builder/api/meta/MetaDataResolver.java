@@ -1,4 +1,4 @@
-package com.oracle.weblogicx.imagebuilder.builder.meta;
+package com.oracle.weblogicx.imagebuilder.builder.api.meta;
 
 import java.util.Map;
 import java.util.Optional;

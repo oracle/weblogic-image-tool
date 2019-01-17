@@ -1,6 +1,6 @@
 package com.oracle.weblogicx.imagebuilder.builder.cli;
 
-import com.oracle.weblogicx.imagebuilder.builder.meta.FileMetaDataResolver;
+import com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 

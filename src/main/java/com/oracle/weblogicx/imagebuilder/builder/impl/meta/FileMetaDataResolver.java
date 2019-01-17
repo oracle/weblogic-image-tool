@@ -1,4 +1,6 @@
-package com.oracle.weblogicx.imagebuilder.builder.meta;
+package com.oracle.weblogicx.imagebuilder.builder.impl.meta;
+
+import com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver;
 
 import java.io.*;
 import java.nio.file.*;

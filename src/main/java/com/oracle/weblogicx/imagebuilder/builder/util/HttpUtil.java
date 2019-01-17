@@ -9,6 +9,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.oracle.weblogicx.imagebuilder.builder.api.model.User;
+import com.oracle.weblogicx.imagebuilder.builder.api.model.UserSession;
+import com.oracle.weblogicx.imagebuilder.builder.impl.service.UserServiceImpl;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
@@ -27,7 +30,22 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import static com.oracle.weblogicx.imagebuilder.builder.impl.service.UserServiceImpl.USER_SERVICE;
+
 public class HttpUtil {
+
+    /**
+     * Return the xml result of a GET from the url
+     *
+     * @param url  url of the aru server
+     * @param userSession userSession with preconfigured user details
+     * @return xml dom document
+     * @throws IOException when it fails to access the url
+     */
+    public static Document getXMLContent(String url, UserSession userSession) throws IOException {
+        Executor httpExecutor = getOraHttpExecutor(userSession);
+        return getXMLContent(url, httpExecutor);
+    }
 
     /**
      * Return the xml result of a GET from the url
@@ -39,18 +57,28 @@ public class HttpUtil {
      * @throws IOException when it fails to access the url
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
+        //Executor httpExecutor = getOraHttpExecutor(username, password);
+        Executor httpExecutor = getOraHttpExecutor(USER_SERVICE.getUserSession(User.newUser(username, password)));
+        return getXMLContent(url, httpExecutor);
+    }
 
-        Executor httpExecutor = getOraHttpExecutor(username, password);
-
+    /**
+     * Return the xml result of a GET from the url
+     *
+     * @param url  url of the aru server
+     * @param httpExecutor configured Executor object
+     * @return xml dom document
+     * @throws IOException when it fails to access the url
+     */
+    private static Document getXMLContent(String url, Executor httpExecutor) throws IOException {
         String xmlString = httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .returnContent().asString();
-
         try {
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xmlString));
             Document doc = docBuilder.parse(is);
-          //  XPathUtil.prettyPrint(doc);
+            //  XPathUtil.prettyPrint(doc);
             return doc;
         } catch (ParserConfigurationException ex) {
             throw new IllegalStateException(ex);
@@ -58,9 +86,20 @@ public class HttpUtil {
             throw new ClientProtocolException("Malformed XML document", ex);
         } catch (Exception g) {
             throw new IllegalStateException(g);
-
         }
+    }
 
+    private static Executor getOraHttpExecutor(UserSession userSession) {
+        Executor httpExecutor;
+        if (userSession.isUserValidated()) {
+            httpExecutor = Executor.newInstance(userSession.getOraClient());
+        } else {
+            //TODO: throw exception if not already validated.
+            User user = userSession.getUser();
+            httpExecutor = Executor.newInstance(userSession.getOraClient())
+                    .auth(user.getEmail(), String.valueOf(user.getPassword()));
+        }
+        return httpExecutor;
     }
 
     private static Executor getOraHttpExecutor(String username, String password) {
@@ -92,11 +131,25 @@ public class HttpUtil {
 
     public static void downloadFile(String url, String fileName, String username, String password)
         throws IOException {
-        Executor httpExecutor = getOraHttpExecutor(username, password);
+//        Executor httpExecutor = getOraHttpExecutor(username, password);
+//        httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+//            .saveContent(new File(fileName));
+        downloadFile(url, fileName, USER_SERVICE.getUserSession(User.newUser(username, password)));
+    }
 
+    /**
+     * Downlod a file from the url
+     *
+     * @param url  url of the aru server
+     * @param fileName full path to save the file
+     * @param userSession object with httpclient and required details for this user
+     * @throws IOException when it fails to access the url
+     */
+    public static void downloadFile(String url, String fileName, UserSession userSession)
+            throws IOException {
+        Executor httpExecutor = getOraHttpExecutor(userSession);
         httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
-            .saveContent(new File(fileName));
-
+                .saveContent(new File(fileName));
     }
 
     /**

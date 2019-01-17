@@ -1,7 +1,9 @@
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
-class ARUConstants {
+public class ARUConstants {
 
+    public static final String OPATCH_1394_URL="https://updates.oracle.com/Orion/Services/download/" +
+            "p28186730_139400_Generic.zip?aru=22310944&patch_file=p28186730_139400_Generic.zip";
     static final String REL_URL = "https://updates.oracle.com/Orion/Services/metadata?table=aru_releases";
     static final String LATEST_PSU_URL =
             "https://updates.oracle.com/Orion/Services/search?product=%s&release=%s";
