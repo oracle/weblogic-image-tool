@@ -120,6 +120,7 @@ public class ARUUtil {
         }
         return results;
     }
+    
     /**
      *
      * @param patches  A list of patches number
@@ -130,17 +131,30 @@ public class ARUUtil {
      * @throws IOException  when failed to access the aru api
      */
 
-    public static void validatePatches(List<String> patches, String category, String version, String userId, String
+    public static boolean validatePatches(List<String> patches, String category, String version, String userId, String
         password) throws IOException {
 
-        // TODO
+        StringBuffer payload = new StringBuffer
+            ("<conflict_check_request><platform>2000</platform><target_patch_list/>");
+        String releaseNumber = getReleaseNumber(category, version, userId, password);
 
-        // find the release number first based on the version
-        // build the xml
-        //String payload = null;
+        for (String patch : patches) {
+            payload.append(String.format("<candidate_patch_list rel_id=\"%s\">%s</conflict_check_request>",
+                releaseNumber, patch));
+        }
+        payload.append("</conflict_check_request>");
 
-        //HttpUtil.checkConflicts(CONFLICTCHECKER_URL, payload, userId, password);
+        Document result = HttpUtil.checkConflicts(CONFLICTCHECKER_URL, payload.toString(), userId, password);
 
+        try {
+            NodeList conflictSets = XPathUtil.applyXPathReturnNodeList(result, "/conflict_sets");
+            if (conflictSets.getLength() == 0)
+                return true;
+        } catch (XPathExpressionException xpe) {
+            throw new IOException(xpe);
+
+        }
+        return false;
     }
 
     private static  Document getAllReleases(String category, String userId, String password) throws IOException {

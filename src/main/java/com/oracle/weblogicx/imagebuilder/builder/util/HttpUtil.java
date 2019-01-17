@@ -163,7 +163,7 @@ public class HttpUtil {
      * @throws IOException
      */
 
-    public static String checkConflicts(String url, String payload, String username, String password)
+    public static Document checkConflicts(String url, String payload, String username, String password)
         throws IOException {
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
@@ -184,11 +184,25 @@ public class HttpUtil {
             .addPart(FormBodyPartBuilder.create("request_xml", new StringBody(payload, ContentType.TEXT_PLAIN)).build())
             .build();
 
-        String response =
+        String xmlString =
             httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
                 .returnContent().asString();
 
-        return response;
+        try {
+            DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+            InputSource is = new InputSource(new StringReader(xmlString));
+            Document doc = docBuilder.parse(is);
+            //  XPathUtil.prettyPrint(doc);
+            return doc;
+        } catch (ParserConfigurationException ex) {
+            throw new IllegalStateException(ex);
+        } catch (SAXException ex) {
+            throw new ClientProtocolException("Malformed XML document", ex);
+        } catch (Exception g) {
+            throw new IllegalStateException(g);
+        }
+
     }
 
 
