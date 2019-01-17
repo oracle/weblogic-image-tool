@@ -1,5 +1,8 @@
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
+import com.oracle.weblogicx.imagebuilder.builder.api.model.User;
+import com.oracle.weblogicx.imagebuilder.builder.api.model.UserSession;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,9 +13,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogicx.imagebuilder.builder.api.model.InstallerType;
-import com.oracle.weblogicx.imagebuilder.builder.api.model.User;
-import com.oracle.weblogicx.imagebuilder.builder.api.model.UserSession;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
 import org.w3c.dom.Document;
@@ -21,7 +21,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.*;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.ARU_LANG_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CONFLICTCHECKER_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.FMW_PROD_ID;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.LATEST_PSU_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.PATCH_SEARCH_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.REL_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.WLS_PROD_ID;
 
 public class ARUUtil {
 
@@ -77,33 +83,6 @@ public class ARUUtil {
         getAllReleases("fmw", userId, password);
     }
 
-    /**
-     * Download the latest WLS patches(PSU) for the release
-     *
-     * @param version release number
-     * @param userId userid for support account
-     * @param password password for support account
-     * @throws IOException  when failed to access the aru api
-     * @return String bug number
-     */
-    public static String getLatestWLSPSU(String version, String userId, String password) throws IOException {
-        String releaseNumber = getReleaseNumber("wls", version, userId, password);
-        return getLatestPSU("wls", releaseNumber, userId, password);
-    }
-
-    /**
-     * Download the latest FMW patches(PSU) for the release
-     *
-     * @param version version number 12.2.1.3.0
-     * @param userId userid for support account
-     * @param password password for support account
-     * @throws IOException  when failed to access the aru api
-     * @return String bug number
-     */
-    public static String getLatestFMWPSU(String version, String userId, String password) throws IOException {
-        String releaseNumber = getReleaseNumber("wls", version, userId, password);
-        return getLatestPSU("fmw", releaseNumber, userId, password);
-    }
 
     /**
      * Download the latest PSU for given category and release
@@ -119,47 +98,6 @@ public class ARUUtil {
         return getLatestPSU(category, releaseNumber, user.getEmail(), String.valueOf(user.getPassword()));
     }
 
-    /**
-     * Download a list of WLS patches
-     *
-     * @param patches  A list of patches number
-     * @param userId userid for support account
-     * @param password password for support account
-     * @throws IOException  when failed to access the aru api
-     */
-    public static  List<String>  getWLSPatches(List<String> patches, String userId, String password) throws
-        IOException {
-        List<String> results = new ArrayList<>();
-        for (String patch : patches) {
-            String rs = getPatch("wls", patch, userId, password);
-            if (rs != null) {
-                results.add(rs);
-            }
-        }
-        return results;
-    }
-
-    /**
-     * Download a list of FMW patches
-     *
-     * @param patches  A list of patches number
-     * @param userId userid for support account
-     * @param password password for support account
-     * @return list of bug numbers
-     * @throws IOException  when failed to access the aru api
-     */
-    public static List<String> getFMWPatches(String category, List<String> patches, String userId, String password)
-        throws
-        IOException {
-        List<String> results = new ArrayList<>();
-        for (String patch : patches) {
-            String rs = getPatch("fmw", patch, userId, password);
-            if (rs != null) {
-                results.add(rs);
-            }
-        }
-        return results;
-    }
 
     /**
      * Download a list of FMW patches
@@ -169,12 +107,13 @@ public class ARUUtil {
      * @return List of bug numbers
      * @throws IOException  when failed to access the aru api
      */
-    public static List<String> getPatchesFor(String category, List<String> patches, UserSession userSession)
+    public static List<String> getPatchesFor(String category, String version, List<String> patches, UserSession
+        userSession)
             throws
             IOException {
         List<String> results = new ArrayList<>();
         for (String patch : patches) {
-            String rs = getPatch(category, patch, userSession);
+            String rs = getPatch(category, version, patch, userSession);
             if (rs != null) {
                 results.add(rs);
             }
@@ -184,42 +123,28 @@ public class ARUUtil {
     /**
      *
      * @param patches  A list of patches number
-     * @param category
-     * @param version
+     * @param category wls or fmw
+     * @param version version of the prduct
      * @param userId userid for support account
      * @param password password for support account
      * @throws IOException  when failed to access the aru api
      */
 
-    public static  void validatePatches(List<String> patches, String category, String version, String userId, String
+    public static void validatePatches(List<String> patches, String category, String version, String userId, String
         password) throws IOException {
 
         // TODO
 
         // find the release number first based on the version
         // build the xml
+        //String payload = null;
 
-//        <conflict_check_request>
-//  <platform>912</platform>
-//  <target_patch_list>
-//    <installed_patch/>
-//  </target_patch_list>
-//  <candidate_patch_list>
-//    <patch_group rel_id="80111060" language_id="0">7044721</patch_group>
-//    <patch_group rel_id="80111060" language_id="0">7156923</patch_group>
-//    <patch_group rel_id="80111060" language_id="0">7210195</patch_group>
-//    <patch_group rel_id="80111060" language_id="0">7256747</patch_group>
-//  </candidate_patch_list>
-//</conflict_check_request>
-
-//   Run against POST  /Orion/Services/conflict_checks
+        //HttpUtil.checkConflicts(CONFLICTCHECKER_URL, payload, userId, password);
 
     }
 
     private static  Document getAllReleases(String category, String userId, String password) throws IOException {
 
-        //HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}'
-       // "https://updates.oracle.com/Orion/Services/metadata?table=aru_releases" -o allarus.xml)
 
         Document allReleases = HttpUtil.getXMLContent(REL_URL, userId, password);
 
@@ -272,31 +197,33 @@ public class ARUUtil {
         return savePatch(allPatches, userId, password);
     }
 
-    private static String getPatch(String category, String patchNumber, String userId, String password) throws
+    private static String getPatch(String category, String version, String bugNumber, String userId, String password)
+        throws
         IOException {
 
-        //        HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}' "https://updates.oracle.com/Orion/Services/search?product=15991&release=$releaseid&include_prereqs=true" -o latestpsu.xml)
-
+        String releaseNumber = getReleaseNumber(category, version, userId, password );
         String url;
         if ("wls".equalsIgnoreCase(category))
-            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, patchNumber);
+            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, bugNumber, releaseNumber);
         else
-            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, patchNumber);
+            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, bugNumber, releaseNumber);
 
         Document allPatches = HttpUtil.getXMLContent(url, userId, password);
 
         return savePatch(allPatches, userId, password);
     }
 
-    private static String getPatch(String category, String patchNumber, UserSession userSession) throws IOException {
+    private static String getPatch(String category, String version, String bugNumber, UserSession userSession) throws
+        IOException {
 
-        //        HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}' "https://updates.oracle.com/Orion/Services/search?product=15991&release=$releaseid&include_prereqs=true" -o latestpsu.xml)
+        User user = userSession.getUser();
+        String releaseNumber = getReleaseNumber(category, version, user.getEmail(), String.valueOf(user.getPassword()));
 
         String url;
         if ("wls".equalsIgnoreCase(category))
-            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, patchNumber);
+            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, bugNumber, releaseNumber);
         else
-            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, patchNumber);
+            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, bugNumber, releaseNumber);
 
         Document allPatches = HttpUtil.getXMLContent(url, userSession);
 
@@ -316,6 +243,10 @@ public class ARUUtil {
 
             String bugName  = XPathUtil.applyXPathReturnString(allPatches, "/results/patch[1]/name");
 
+            String releaseNumber = XPathUtil.applyXPathReturnString(allPatches,
+                "string/results/patch[1]/release/@id)");
+
+            String key = bugName + "." + releaseNumber;
 
             int index = downLoadLink.indexOf("patch_file=");
 
@@ -324,11 +255,11 @@ public class ARUUtil {
                         index+"patch_file=".length());
                 // this hasMatchingKeyValue is to make sure that the file value is same as the intended location.
                 // cache dir can be changed
-                if (!new File(fileName).exists() || !META_RESOLVER.hasMatchingKeyValue(bugName, fileName)) {
+                if (!new File(fileName).exists() || !META_RESOLVER.hasMatchingKeyValue(key, fileName)) {
                     HttpUtil.downloadFile(downLoadHost+downLoadLink, fileName, userSession);
-                    META_RESOLVER.addToCache(bugName, fileName);
+                    META_RESOLVER.addToCache(key, fileName);
                 } else {
-                    System.out.println(String.format("patch %s already downloaded for bug %s", fileName, bugName));
+                    System.out.println(String.format("patch %s already downloaded for bug %s", fileName, key));
                 }
                 return bugName;
             }
@@ -353,6 +284,10 @@ public class ARUUtil {
 
             String bugName  = XPathUtil.applyXPathReturnString(allPatches, "/results/patch[1]/name");
 
+            String releaseNumber = XPathUtil.applyXPathReturnString(allPatches,
+                "string/results/patch[1]/release/@id)");
+
+            String key = bugName + "." + releaseNumber;
 
             int index = downLoadLink.indexOf("patch_file=");
 
@@ -361,11 +296,11 @@ public class ARUUtil {
                         index+"patch_file=".length());
                 // this hasMatchingKeyValue is to make sure that the file value is same as the intended location.
                 // cache dir can be changed
-                if (!new File(fileName).exists() || !META_RESOLVER.hasMatchingKeyValue(bugName, fileName)) {
+                if (!new File(fileName).exists() || !META_RESOLVER.hasMatchingKeyValue(key, fileName)) {
                     HttpUtil.downloadFile(downLoadHost+downLoadLink, fileName, userId, password);
-                    META_RESOLVER.addToCache(bugName, fileName);
+                    META_RESOLVER.addToCache(key, fileName);
                 } else {
-                    System.out.println(String.format("patch %s already downloaded for bug %s", fileName, bugName));
+                    System.out.println(String.format("patch %s already downloaded for bug %s", fileName, key));
                 }
                 return bugName;
             }
@@ -401,10 +336,6 @@ public class ARUUtil {
             }
         }
         return retVal;
-    }
-
-    public static void main(String args[]) throws Exception {
-        ARUUtil.getLatestWLSPSU("12.2.1.3.0","johnny.shum@oracle.com", "iJCPiUah7jdmLk1E");
     }
 
 

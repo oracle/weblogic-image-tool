@@ -225,7 +225,8 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
                 }
 
                 if (patches != null && !patches.isEmpty()) {
-                    List<String> bugKeys = ARUUtil.getPatchesFor(installerType.toString(), patches, userSession);
+                    List<String> bugKeys = ARUUtil.getPatchesFor(installerType.toString(), installerVersion, patches,
+                        userSession);
                     patchKeys.addAll(bugKeys);
                 }
 
