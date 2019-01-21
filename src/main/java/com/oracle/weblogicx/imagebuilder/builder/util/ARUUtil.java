@@ -100,6 +100,22 @@ public class ARUUtil {
 
 
     /**
+     * Get list of PSU available for given category and release
+     * @param category wls or fmw
+     * @param version version number like 12.2.1.3.0
+     * @param userSession user session containing the oraclient
+     * @return Document listing of all patches (full details)
+     * @throws IOException when failed
+     */
+    public static Document getAllPSUFor(String category, String version, UserSession userSession) throws IOException {
+        User user = userSession.getUser();
+        String releaseNumber = getReleaseNumber(category, version, user.getEmail(), String.valueOf(user.getPassword()));
+        return getAllPSU(category, releaseNumber, user.getEmail(), String.valueOf(user.getPassword()));
+    }
+
+
+
+    /**
      * Download a list of FMW patches
      *
      * @param patches  A list of patches number
@@ -209,6 +225,18 @@ public class ARUUtil {
 
         Document allPatches = HttpUtil.getXMLContent(expression, userId, password);
         return savePatch(allPatches, userId, password);
+    }
+
+    private static Document getAllPSU(String category, String release, String userId, String password) throws
+        IOException {
+
+        String expression;
+        if ("wls".equalsIgnoreCase(category))
+            expression = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
+        else
+            expression = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
+
+        return HttpUtil.getXMLContent(expression, userId, password);
     }
 
     private static String getPatch(String category, String version, String bugNumber, String userId, String password)
