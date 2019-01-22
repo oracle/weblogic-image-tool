@@ -164,8 +164,43 @@ public class ARUUtil {
 
         try {
             NodeList conflictSets = XPathUtil.applyXPathReturnNodeList(result, "/conflict_sets");
-            if (conflictSets.getLength() == 0)
+            if (conflictSets.getLength() == 0) {
+
+
+                try {
+                    String expression = "/conflict_check/conflict_sets/set/merge_patches";
+
+                    NodeList nodeList = XPathUtil.applyXPathReturnNodeList(result, expression);
+
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = dbf.newDocumentBuilder();
+                    Document doc = builder.newDocument();
+                    Element element = doc.createElement("conflict_check_results");
+
+                    for (int i = 0; i < nodeList.getLength(); i++) {
+                        Node n = nodeList.item(i);
+                        Node copyNode = doc.importNode(n, true);
+
+                        if (n instanceof Element )
+                            element.appendChild(copyNode);
+                    }
+
+                    doc.appendChild(element);
+                    System.out.println("===================================================");
+                    System.out.println("There are conflicts between the patches requested:-");
+                    System.out.println("===================================================");
+                    System.out.println("");
+                    XPathUtil.prettyPrint(doc);
+
                     return true;
+
+
+                } catch (XPathExpressionException | ParserConfigurationException xpe) {
+                    throw new IOException(xpe);
+                }
+
+            }
+
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
 
