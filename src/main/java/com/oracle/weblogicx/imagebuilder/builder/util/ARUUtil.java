@@ -165,7 +165,7 @@ public class ARUUtil {
         try {
             NodeList conflictSets = XPathUtil.applyXPathReturnNodeList(result, "/conflict_sets");
             if (conflictSets.getLength() == 0)
-                return true;
+                    return true;
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
 
