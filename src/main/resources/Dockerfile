@@ -30,57 +30,69 @@ ENV JAVA_PKG=${JAVA_PKG:-jdk-*-linux-x64.tar.gz} \
 RUN echo "JAVA_PKG=$JAVA_PKG WLS_PKG=$WLS_PKG PATCHDIR=$PATCHDIR HTTP_PROXY=$HTTPY_PROXY HTTPS_PROXY=$HTTPS_PROXY"
 
 # install necessary packages
-RUN yum -y update
-#RUN yum -y install sudo nc tar gunzip zip git unzip fuser
-RUN yum -y install sudo nc tar gunzip zip git unzip
+RUN yum -y update \
+ && yum -y install sudo nc tar gunzip zip git unzip
 
 # Create oracle user
-RUN groupadd -g 1000 oinstall && useradd -u 1100 -g oinstall oracle
-RUN mkdir -p $MW_HOME && mkdir -p $INV_LOC && mkdir $TMPDIR && chown -R oracle:oinstall /u01/ && chown -R oracle:oinstall $TMPDIR/
+RUN groupadd -g 1000 oinstall \
+ && useradd -u 1100 -g oinstall oracle \
+ && mkdir -p $MW_HOME \
+ && mkdir -p $INV_LOC \
+ && mkdir $TMPDIR \
+ && chown -R oracle:oinstall /u01/ \
+ && chown -R oracle:oinstall $TMPDIR/
+
 USER oracle
 
 # Install base WLS
-
-COPY $JAVA_PKG $TMPDIR
-COPY $WLS_PKG $TMPDIR
-COPY $WLS_RESP $TMPDIR
+COPY $JAVA_PKG $WLS_PKG $WLS_RESP $TMPDIR/
 COPY $ORAINST $INV_LOC
 
-RUN tar xzvf $TMPDIR/$JAVA_PKG -C /u01 && mv /u01/jdk1.8* $JAVA_HOME
-RUN unzip $TMPDIR/$WLS_PKG -d $TMPDIR
-RUN $JAVA_HOME/bin/java -Xmx1024m -jar $TMPDIR/fmw_*.jar -silent -responseFile $TMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST
+RUN tar xzvf $TMPDIR/$JAVA_PKG -C /u01 \
+ && mv /u01/jdk1.8* $JAVA_HOME \
+ && unzip $TMPDIR/$WLS_PKG -d $TMPDIR \
+ && $JAVA_HOME/bin/java -Xmx1024m -jar $TMPDIR/fmw_*.jar -silent \
+    -responseFile $TMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST
 
 # Prep for patches and install latest opatch
+RUN mkdir -p $TMPDIR/patches \
+ && mkdir -p $TMPDIR/psu \
+ && mkdir -p $TMPDIR/opatch \
+ && chown oracle:oinstall $TMPDIR/
 
-RUN mkdir -p $TMPDIR/patches && mkdir -p $TMPDIR/psu && mkdir -p $TMPDIR/opatch && chown oracle:oinstall $TMPDIR/
 COPY p28186730_139400_Generic.zip $TMPDIR/opatch
 
-#COPY psu/* $TMPDIR/psu/
 COPY $PATCHDIR/* $TMPDIR/patches/
 
-RUN unzip $TMPDIR/opatch/p28186730_139400_Generic.zip -d $TMPDIR/opatch ; /u01/jdk/bin/java -jar $TMPDIR/opatch/6880880/opatch_generic.jar -silent oracle_home=$MW_HOME  -invPtrLoc $INV_LOC/$ORAINST
+RUN unzip $TMPDIR/opatch/p28186730_139400_Generic.zip -d $TMPDIR/opatch ; \
+    /u01/jdk/bin/java -jar $TMPDIR/opatch/6880880/opatch_generic.jar -silent \
+    oracle_home=$MW_HOME  -invPtrLoc $INV_LOC/$ORAINST
 
-#RUN for file in $TMPDIR/psu/*.zip ; do [ -e "$file" ] || continue ; (cd $TMPDIR/psu ; mkdir newpatch ; unzip $file -d newpatch ; cd newpatch/* ; /u01/app/oracle/middleware/OPatch/opatch apply -silent ; cd ../../ ; rm -fr newpatch ); done
-
-RUN for file in $TMPDIR/patches/*.zip ; do [ -e "$file" ] || continue ; (cd $TMPDIR/patches ; mkdir newpatch ; unzip $file -d newpatch ; cd newpatch/* ; /u01/app/oracle/middleware/OPatch/opatch apply -silent ; cd ../../ ; rm -fr newpatch ); done
+# OPatch apply
+RUN for file in $TMPDIR/patches/*.zip ; do [ -e "$file" ] || continue ; \
+    (cd $TMPDIR/patches ; mkdir newpatch ; unzip $file -d newpatch ; cd newpatch/* ; \
+    $MW_HOME/OPatch/opatch apply -silent ; cd ../../ ; rm -fr newpatch ); \
+    done
 
 # Clone WDT
-#COPY settings.xml /tmp
-
-RUN curl -o $TMPDIR/maven.tar.gz http://mirror.cogentco.com/pub/apache/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
-RUN tar xzvf $TMPDIR/maven.tar.gz -C /u01
-
-RUN export JAVA_HOME=/u01/jdk && mkdir -p /u01/app/tools/wdt && cd /u01/app/tools/wdt && git clone https://github.com/oracle/weblogic-deploy-tooling.git && cd /u01/app/tools/wdt/weblogic-deploy-tooling &&  /u01/apache-maven-3.5.4/bin/mvn -DskipTests -Dunit-test-wlst-dir=$MW_HOME clean install
-
-RUN unzip /u01/app/tools/wdt/weblogic-deploy-tooling/installer/target/weblogic-deploy.zip -d /u01/app/tools
+RUN curl -s -o $TMPDIR/maven.tar.gz \
+    http://mirror.cogentco.com/pub/apache/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz \
+ && tar xzvf $TMPDIR/maven.tar.gz -C /u01 \
+ && export JAVA_HOME=/u01/jdk \
+ && mkdir -p /u01/app/tools/wdt \
+ && cd /u01/app/tools/wdt \
+ && git clone https://github.com/oracle/weblogic-deploy-tooling.git \
+ && cd /u01/app/tools/wdt/weblogic-deploy-tooling \
+ && mkdir -p $TMPDIR/repo \
+ && /u01/apache-maven-3.5.4/bin/mvn -Dmaven.repo.local=$TMPDIR/repo -DskipTests -Dunit-test-wlst-dir=$MW_HOME clean install \
+ && unzip /u01/app/tools/wdt/weblogic-deploy-tooling/installer/target/weblogic-deploy.zip -d /u01/app/tools
 
 # Create domain and deploy
-
 #RUN /u01/app/tools/weblogic-deploy/bin/createDomain.sh ...
 
 # Cleanup
-
-RUN rm -fr $TMPDIR
+RUN $MW_HOME/OPatch/opatch util cleanup -silent \
+ && rm -fr $TMPDIR
 
 ENTRYPOINT /bin/bash
 

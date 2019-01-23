@@ -1,9 +1,11 @@
+/* Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved. */
+
 package com.oracle.weblogicx.imagebuilder.builder.api.model;
 
 public class CommandResponse {
 
-    int status;
-    String message;
+    private int status;
+    private String message;
 
     public CommandResponse(int status, String message) {
         this.status = status;
@@ -14,15 +16,8 @@ public class CommandResponse {
         return status;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

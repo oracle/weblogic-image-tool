@@ -1,3 +1,5 @@
+/* Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved. */
+
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
 import java.io.File;
@@ -10,9 +12,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogicx.imagebuilder.builder.api.model.InstallerType;
-import com.oracle.weblogicx.imagebuilder.builder.api.model.User;
-import com.oracle.weblogicx.imagebuilder.builder.api.model.UserSession;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
 import org.w3c.dom.Document;
@@ -109,14 +108,14 @@ public class ARUUtil {
      * Download the latest PSU for given category and release
      * @param category wls or fmw
      * @param version version number like 12.2.1.3.0
-     * @param userSession user session containing the oraclient
+     * @param userId user
+     * @param password password
      * @return bug number
      * @throws IOException when failed
      */
-    public static String getLatestPSUFor(String category, String version, UserSession userSession) throws IOException {
-        User user = userSession.getUser();
-        String releaseNumber = getReleaseNumber(category, version, user.getEmail(), String.valueOf(user.getPassword()));
-        return getLatestPSU(category, releaseNumber, user.getEmail(), String.valueOf(user.getPassword()));
+    public static String getLatestPSUFor(String category, String version, String userId, String password) throws IOException {
+        String releaseNumber = getReleaseNumber(category, version, userId, password);
+        return getLatestPSU(category, releaseNumber, userId, password);
     }
 
     /**
@@ -165,16 +164,17 @@ public class ARUUtil {
      * Download a list of FMW patches
      *
      * @param patches  A list of patches number
-     * @param userSession session object containing oraClient
+     * @param userId user email
+     * @param password password
      * @return List of bug numbers
      * @throws IOException  when failed to access the aru api
      */
-    public static List<String> getPatchesFor(String category, List<String> patches, UserSession userSession)
+    public static List<String> getPatchesFor(String category, List<String> patches, String userId, String password)
             throws
             IOException {
         List<String> results = new ArrayList<>();
         for (String patch : patches) {
-            String rs = getPatch(category, patch, userSession);
+            String rs = getPatch(category, patch, userId, password);
             if (rs != null) {
                 results.add(rs);
             }
@@ -255,89 +255,29 @@ public class ARUUtil {
         } catch (XPathExpressionException | ParserConfigurationException xpe) {
             throw new IOException(xpe);
         }
-
-
     }
 
     private static String getLatestPSU(String category, String release, String userId, String password) throws
         IOException {
+        return getPatchOrPSU(category, release, userId, password, LATEST_PSU_URL);
+    }
 
+    private static String getPatchOrPSU(String category, String release, String userId, String password, String searchURL) throws IOException {
         String expression;
         if ("wls".equalsIgnoreCase(category))
-            expression = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
+            expression = String.format(searchURL, WLS_PROD_ID, release);
         else
-            expression = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
-
+            expression = String.format(searchURL, FMW_PROD_ID, release);
         Document allPatches = HttpUtil.getXMLContent(expression, userId, password);
         return savePatch(allPatches, userId, password);
     }
 
     private static String getPatch(String category, String patchNumber, String userId, String password) throws
         IOException {
-
-        //        HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}' "https://updates.oracle.com/Orion/Services/search?product=15991&release=$releaseid&include_prereqs=true" -o latestpsu.xml)
-
-        String url;
-        if ("wls".equalsIgnoreCase(category))
-            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, patchNumber);
-        else
-            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, patchNumber);
-
-        Document allPatches = HttpUtil.getXMLContent(url, userId, password);
-
-        return savePatch(allPatches, userId, password);
-    }
-
-    private static String getPatch(String category, String patchNumber, UserSession userSession) throws IOException {
-
-        //        HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}' "https://updates.oracle.com/Orion/Services/search?product=15991&release=$releaseid&include_prereqs=true" -o latestpsu.xml)
-
-        String url;
-        if ("wls".equalsIgnoreCase(category))
-            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, patchNumber);
-        else
-            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, patchNumber);
-
-        Document allPatches = HttpUtil.getXMLContent(url, userSession);
-
-        return savePatch(allPatches, userSession);
-    }
-
-    private static String savePatch(Document allPatches, UserSession userSession) throws IOException {
-        try {
-
-            // TODO: needs to make sure there is one and some filtering if not sorting
-
-            String downLoadLink = XPathUtil.applyXPathReturnString(allPatches, "string"
-                    + "(/results/patch[1]/files/file/download_url/text())");
-
-            String downLoadHost = XPathUtil.applyXPathReturnString(allPatches, "string"
-                    + "(/results/patch[1]/files/file/download_url/@host)");
-
-            String bugName  = XPathUtil.applyXPathReturnString(allPatches, "/results/patch[1]/name");
-
-
-            int index = downLoadLink.indexOf("patch_file=");
-
-            if (index > 0) {
-                String fileName = META_RESOLVER.getCacheDir() + File.separator + downLoadLink.substring(
-                        index+"patch_file=".length());
-                // this hasMatchingKeyValue is to make sure that the file value is same as the intended location.
-                // cache dir can be changed
-                if (!new File(fileName).exists() || !META_RESOLVER.hasMatchingKeyValue(bugName, fileName)) {
-                    HttpUtil.downloadFile(downLoadHost+downLoadLink, fileName, userSession);
-                    META_RESOLVER.addToCache(bugName, fileName);
-                } else {
-                    System.out.println(String.format("patch %s already downloaded for bug %s", fileName, bugName));
-                }
-                return bugName;
-            }
-
-        } catch (XPathExpressionException xpe) {
-            throw new IOException(xpe);
-        }
-
-        return null;
+        //HTTP_STATUS=$(curl -v -w "%{http_code}" -b cookies.txt -L --header 'Authorization: Basic ${basicauth}'
+        // "https://updates.oracle.com/Orion/Services/search?product=15991&release=$releaseid&include_prereqs=true"
+        // -o latestpsu.xml)
+        return getPatchOrPSU(category, patchNumber, userId, password, PATCH_SEARCH_URL);
     }
 
     private static String savePatch(Document allPatches, String userId, String password) throws IOException {
@@ -389,18 +329,20 @@ public class ARUUtil {
         }
     }
 
-    public static boolean checkCredentials(UserSession userSession) {
-        boolean retVal = true;
+    public static boolean checkCredentials(String username, String password) {
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            return false;
+        }
         try {
-            HttpUtil.getXMLContent(ARU_LANG_URL, userSession);
+            HttpUtil.getXMLContent(ARU_LANG_URL, username, password);
         } catch (IOException e) {
             Throwable cause = (e.getCause() == null)? e : e.getCause();
             if (cause.getClass().isAssignableFrom(HttpResponseException.class) &&
                 ((HttpResponseException) cause).getStatusCode() == HttpStatus.SC_UNAUTHORIZED ) {
-                retVal = false;
+                return false;
             }
         }
-        return retVal;
+        return true;
     }
 
     public static void main(String args[]) throws Exception {

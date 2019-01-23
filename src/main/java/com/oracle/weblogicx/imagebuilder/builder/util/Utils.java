@@ -1,6 +1,11 @@
+/* Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved. */
+
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 public class Utils {
@@ -28,8 +33,33 @@ public class Utils {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(doesFileExists(Optional.of("/hello")));
+    /**
+     * Create a file with the given path.
+     * @param filePath the path of the file to create
+     * @param defaultFileName file name to use in case a directory with the given path exists
+     * @return file path or null in case of error
+     */
+    public static Path createFile(Path filePath, String defaultFileName) {
+        Path logFilePath = filePath;
+        if (logFilePath != null) {
+            try {
+                if (!Files.exists(logFilePath)) {
+                    Files.createDirectories(logFilePath.getParent());
+                    Files.createFile(logFilePath);
+                } else {
+                    if (Files.isDirectory(logFilePath)) {
+                        if (defaultFileName == null || defaultFileName.isEmpty()) {
+                            defaultFileName = "log.log";
+                        }
+                        logFilePath = Paths.get(logFilePath.toAbsolutePath().toString(), defaultFileName);
+                        Files.createFile(logFilePath);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                logFilePath = null;
+            }
+        }
+        return logFilePath;
     }
-
 }

@@ -1,3 +1,5 @@
+/* Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved. */
+
 package com.oracle.weblogicx.imagebuilder.builder.impl.meta;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver;

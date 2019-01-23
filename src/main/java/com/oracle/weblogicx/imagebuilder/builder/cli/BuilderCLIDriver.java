@@ -1,6 +1,10 @@
+/* Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved. */
+
 package com.oracle.weblogicx.imagebuilder.builder.cli;
 
-import com.oracle.weblogicx.imagebuilder.builder.api.model.*;
+import com.oracle.weblogicx.imagebuilder.builder.api.model.CachePolicy;
+import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
+import com.oracle.weblogicx.imagebuilder.builder.api.model.InstallerType;
 import com.oracle.weblogicx.imagebuilder.builder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.builder.util.HttpUtil;
 import com.oracle.weblogicx.imagebuilder.builder.util.Utils;
@@ -9,6 +13,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,9 +22,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.logging.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.oracle.weblogicx.imagebuilder.builder.api.model.CachePolicy.always;
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
-import static com.oracle.weblogicx.imagebuilder.builder.impl.service.UserServiceImpl.USER_SERVICE;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.OPATCH_1394_URL;
 
 @Command(
@@ -32,6 +41,286 @@ import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.OPATCH
         abbreviateSynopsis = true
 )
 public class BuilderCLIDriver implements Callable<CommandResponse> {
+
+    private Logger logger = Logger.getLogger("com.oracle.weblogix.imagebuilder.builder");
+
+    @Override
+    public CommandResponse call() throws Exception {
+
+        Instant startTime = Instant.now();
+
+        System.out.println("hello");
+        System.out.println("InstallerType = \"" + installerType + "\"");
+        System.out.println("InstallerVersion = \"" + installerVersion + "\"");
+        System.out.println("latestPSU = \"" + latestPSU + "\"");
+        System.out.println("patches = \"" + patches + "\"");
+        System.out.println("fromImage = \"" + fromImage + "\"");
+        System.out.println("userId = \"" + userId + "\"");
+        System.out.println("password = \"" + password + "\"");
+        System.out.println("publish = \"" + isPublish + "\"");
+
+        FileHandler fileHandler = null;
+        if (isCLIMode) {
+            Path toolLogPath = Utils.createFile(toolLog, "tool.log");
+            System.out.println("toolLogPath: " + toolLogPath);
+            if (toolLogPath != null) {
+                fileHandler = new FileHandler(toolLogPath.toAbsolutePath().toString());
+                fileHandler.setFormatter(new SimpleFormatter());
+                logger.addHandler(fileHandler);
+                logger.setLevel(Level.INFO);
+            }
+        } else {
+            logger.setLevel(Level.OFF);
+        }
+
+        if (httpProxyUrl != null && !httpProxyUrl.isEmpty()) {
+            setSystemProxy(httpProxyUrl, "http");
+        }
+
+        if (httpsProxyUrl != null && !httpsProxyUrl.isEmpty()) {
+            setSystemProxy(httpsProxyUrl, "https");
+        }
+
+        // check credentials if useCache option allows us to download artifacts
+        if (useCache != always) {
+            if (!ARUUtil.checkCredentials(userId, password)) {
+                return new CommandResponse(-1, "User credentials do not match");
+            }
+        }
+
+        // Step 3: create a tmp directory for user. TODO: make it unique per user
+        Path tmpDir = Files.createTempDirectory(null);
+        String tmpDirPath = tmpDir.toAbsolutePath().toString();
+        System.out.println("tmpDir = " + tmpDirPath);
+        Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
+        String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
+
+        // Step 1: read builder.properties
+        try(InputStream inputStream = BuilderCLIDriver.class.getResourceAsStream("/builder.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            String wlsKey = String.format("%s_%s_url", installerType, installerVersion);
+            String jdkKey = String.format("%s_%s_url", "jdk", "8");
+
+            List<String> cmdBuilder = getInitialBuildCmd();
+
+            String cacheDir = META_RESOLVER.getCacheDir();
+            List<String> propKeys = new ArrayList<>(Arrays.asList(wlsKey, jdkKey));
+
+            //Download wls, jdk files if required
+            for (String propKey : propKeys) {
+                String propVal = properties.getProperty(propKey);
+                if (propVal == null || propVal.isEmpty()) {
+                    return new CommandResponse(-1, String.format("Invalid url %s in builder.properties for key %s",
+                            propVal, propKey));
+                }
+
+                String targetFilePath = cacheDir + File.separator + propVal.substring(propVal.lastIndexOf('/') + 1);
+                File targetFile = new File(targetFilePath);
+
+                if (!targetFile.exists() || !META_RESOLVER.hasMatchingKeyValue(propKey, targetFilePath)) {
+                    if (useCache != always) {
+                        //System.out.println("1. Downloading from " + propVal + " to " + targetFilePath);
+                        logger.info("1. Downloading from " + propVal + " to " + targetFilePath);
+                        HttpUtil.downloadFile(propVal, targetFilePath, userId, password);
+                        META_RESOLVER.addToCache(propKey, targetFilePath);
+                    } else {
+                        return new CommandResponse(-1, String.format(
+                                "--useCache set to %s. Need to download file from %s", useCache, propVal));
+                    }
+                }
+
+                Path targetLink = Files.createLink(Paths.get(tmpDirPath, targetFile.getName()),
+                        Paths.get(targetFilePath));
+                cmdBuilder.add("--build-arg");
+                cmdBuilder.add((propKey.contains("jdk_")? "JAVA_PKG=" : "WLS_PKG=") +
+                        tmpDir.relativize(targetLink).toString());
+            }
+
+            //OPatch patch 13.9.4
+            final String opatchKey = "opatch_1394";
+            String opatch_1394_path = cacheDir + File.separator + "p28186730_139400_Generic.zip";
+            File opatchFile = new File(opatch_1394_path);
+            if ("12.2.1.3.0".equals(installerVersion) ) {
+                if (!opatchFile.exists() || !META_RESOLVER.hasMatchingKeyValue(opatchKey, opatch_1394_path)) {
+                    if (useCache != always) {
+                        //System.out.println("3. Downloading from " + OPATCH_1394_URL + " to " + opatch_1394_path);
+                        logger.info("3. Downloading from " + OPATCH_1394_URL + " to " + opatch_1394_path);
+                        HttpUtil.downloadFile(OPATCH_1394_URL, opatch_1394_path, userId, password);
+                        META_RESOLVER.addToCache(opatchKey, opatch_1394_path);
+                    } else {
+                        return new CommandResponse(-1, String.format(
+                                "--useCache set to %s. Need to download file from %s", useCache, OPATCH_1394_URL));
+                    }
+                }
+                Files.createLink(Paths.get(tmpDirPath, opatchFile.getName()), Paths.get(opatch_1394_path));
+            }
+
+            //Copy Dockerfile to tmpDir
+            Utils.copyResourceAsFile("/Dockerfile", tmpDirPath + File.separator + "Dockerfile");
+            Utils.copyResourceAsFile("/wls.rsp", tmpDirPath + File.separator + "wls.rsp");
+            Utils.copyResourceAsFile("/oraInst.loc", tmpDirPath + File.separator + "oraInst.loc");
+
+            // Step 4: resolve required patches
+            List<String> patchKeys = new ArrayList<>();
+            if (latestPSU) {
+                System.out.println("Getting latest PSU");
+                String bugKey = ARUUtil.getLatestPSUFor(installerType.toString(), installerVersion, userId, password);
+                System.out.println("LatestPSU for " + installerType + ", bug number: " + bugKey);
+                patchKeys.add(bugKey);
+            }
+
+            if (patches != null && !patches.isEmpty()) {
+                List<String> bugKeys = ARUUtil.getPatchesFor(installerType.toString(), patches, userId, password);
+                patchKeys.addAll(bugKeys);
+            }
+
+            for (String patchKey : patchKeys) {
+                String patch_path = META_RESOLVER.getValueFromCache(patchKey).get();
+                File patch_file = new File(patch_path);
+                System.out.println(patch_path + "? exists: " + patch_file.exists() + ", filename: " + patch_file.getName());
+                Files.createLink(Paths.get(toPatchesPath, patch_file.getName()), Paths.get(patch_path));
+            }
+
+            if (!patchKeys.isEmpty()) {
+                cmdBuilder.add("--build-arg");
+                cmdBuilder.add( "PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
+            }
+
+            System.out.println("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
+            // add directory to pass the context
+            cmdBuilder.add(tmpDirPath);
+
+            logger.info("docker cmd = " + String.join(" ", cmdBuilder));
+
+            // Step 6: process builder
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
+            final Process process = processBuilder.start();
+
+            Path dockerLogPath = Utils.createFile(dockerLog, "dockerbuild.log");
+            System.out.println("dockerLog: " + dockerLog);
+            if (dockerLogPath != null) {
+                try (
+                        BufferedReader processReader = new BufferedReader(new InputStreamReader(
+                                process.getInputStream()));
+                        PrintWriter logWriter = new PrintWriter(new FileWriter(dockerLogPath.toFile()))
+                ) {
+                    String line;
+                    while ((line = processReader.readLine()) != null) {
+                        logWriter.println(line);
+                        System.out.println(line);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            if (process.waitFor() != 0) {
+                try (BufferedReader stderr =
+                             new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                    StringBuilder stringBuilder2 = new StringBuilder();
+                    String line;
+                    while ((line = stderr.readLine()) != null) {
+                        stringBuilder2.append(line);
+                    }
+                    throw new IOException(
+                            "docker command failed with error: " + stringBuilder2.toString());
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new CommandResponse(-1, ex.getMessage());
+        } finally {
+            Files.walk(tmpDir)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    //.peek(System.out::println)
+                    .forEach(File::delete);
+            if (fileHandler != null) {
+                fileHandler.close();
+                logger.removeHandler(fileHandler);
+            }
+        }
+
+        //TODO: input validation
+//        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+//        Validator validator = validatorFactory.getValidator();
+//        Set<ConstraintViolation<User>> userViolations = validator.validate(User.newUser(userId, password));
+
+//        if (userId != null && !userId.isEmpty()) {
+//            Pattern emailPattern = Pattern.compile(EMAIL_REGEX);
+//            if (emailPattern.matcher(userId).matches()) {
+//                USER_SERVICE.addUserSession(new UserSession(User.newUser(userId, password)));
+//            } else {
+//                throw new IllegalArgumentException(String.format("userId %s is not a valid email format", userId));
+//            }
+//        }
+        Instant endTime = Instant.now();
+        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()  + "s. image tag: " + imageTag);
+    }
+
+    private List<String> getInitialBuildCmd() {
+//        List<String> cmdBuilder = new ArrayList<>(Arrays.asList("docker", "build",
+//                "--squash", "--force-rm", "--no-cache", "--network=host"));
+        List<String> cmdBuilder = Stream.of("docker", "build",
+                "--squash", "--force-rm", "--no-cache", "--network=host").collect(Collectors.toList());
+
+        cmdBuilder.add("--tag");
+        cmdBuilder.add(imageTag);
+
+        if (httpProxyUrl != null && !httpProxyUrl.isEmpty()) {
+            cmdBuilder.add("--build-arg");
+            cmdBuilder.add("http_proxy=" + httpProxyUrl);
+        } else {
+            String proxyHost = System.getProperty("http.proxyHost");
+            String proxyPort = System.getProperty("http.proxyPort", "80");
+            if (proxyHost != null) {
+                cmdBuilder.add("--build-arg");
+                cmdBuilder.add(String.format("http_proxy=http://%s:%s", proxyHost, proxyPort));
+            }
+        }
+
+        if (httpsProxyUrl != null && !httpsProxyUrl.isEmpty()) {
+            cmdBuilder.add("--build-arg");
+            cmdBuilder.add("https_proxy=" + httpsProxyUrl);
+        } else {
+            String proxyHost = System.getProperty("https.proxyHost");
+            String proxyPort = System.getProperty("https.proxyPort", "80");
+            if (proxyHost != null) {
+                cmdBuilder.add("--build-arg");
+                cmdBuilder.add(String.format("https_proxy=http://%s:%s", proxyHost, proxyPort));
+            }
+        }
+        return cmdBuilder;
+    }
+
+    private void setSystemProxy(String proxyUrl, String protocolToSet) {
+        try {
+            URL url = new URL(proxyUrl);
+            String host = url.getHost();
+            int port = url.getPort() == -1 ? url.getDefaultPort() : url.getPort();
+            String userInfo = url.getUserInfo();
+            String protocol = protocolToSet == null ? url.getProtocol() : protocolToSet;
+
+            if (host != null && port != -1) {
+                System.setProperty(String.format("%s.proxyHost", protocol), host);
+                System.setProperty(String.format("%s.proxyPort", protocol), String.valueOf(port));
+                if (userInfo != null) {
+                    String[] strings = userInfo.split(":");
+                    if (strings.length == 2) {
+                        System.setProperty(String.format("%s.proxyUser", protocol), strings[0]);
+                        System.setProperty(String.format("%s.proxyPassword", protocol), strings[1]);
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
+            String message = String.format(
+                    "Exception in setSystemProxy: proxyUrl = %s, protocolToSet = %s, message = %s", proxyUrl,
+                    protocolToSet, e.getMessage());
+            logger.severe(message);
+        }
+    }
 
     @Option(
             names = { "--installerType" },
@@ -98,8 +387,7 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
 
     @Option(
             names = { "--password" },
-            paramLabel = "<Wait for Prompt>",
-            interactive = true,
+            paramLabel = "<password associated with support user id>",
             required = true,
             description = "Password for support userId"
     )
@@ -109,12 +397,12 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             names = { "--useCache" },
             paramLabel = "<Cache Policy>",
             defaultValue = "first",
-            description = "Whether should use local cache or download artifacts.\n" +
+            description = "Whether to use local cache or download artifacts.\n" +
                     "first - try to use cache and download artifacts if required\n" +
-                    "always - use cache only and never download artifacts\n" +
+                    "always - use cache always and never download artifacts\n" +
                     "never - never use cache and always download artifacts"
     )
-    private CachePolicy cachePolicy;
+    private CachePolicy useCache;
 
     @Option(
             hidden = true,
@@ -123,196 +411,126 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
     )
     private boolean isPublish = false;
 
-    @Override
-    public CommandResponse call() throws Exception {
+    @Option(
+        hidden = true,
+        names = { "--httpProxyUrl" },
+        description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
+    )
+    private String httpProxyUrl;
 
-        Instant startTime = Instant.now();
+    @Option(
+            hidden = true,
+            names = { "--httpsProxyUrl" },
+            description = "proxy for https protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
+    )
+    private String httpsProxyUrl;
 
-        System.out.println("hello");
-        System.out.println("InstallerType = \"" + installerType + "\"");
-        System.out.println("InstallerVersion = \"" + installerVersion + "\"");
-        System.out.println("latestPSU = \"" + latestPSU + "\"");
-        System.out.println("patches = \"" + patches + "\"");
-        System.out.println("fromImage = \"" + fromImage + "\"");
-        System.out.println("userId = \"" + userId + "\"");
-        System.out.println("password = \"" + password + "\"");
-        System.out.println("publish = \"" + isPublish + "\"");
+    @Option(
+            names = { "--toolLog" },
+            description = "file to log output from this tool. This is different from the docker build log."
+    )
+    private Path toolLog;
 
-        //TODO: input validation
-        User user = User.newUser(userId, password);
-        UserSession userSession = USER_SERVICE.getUserSession(user);
+    @Option(
+            names = { "--dockerLog" },
+            description = "file to log output from the docker build"
+    )
+    private Path dockerLog;
 
-        if (userSession == null) {
-            return new CommandResponse(-1, "User credentials do not match");
-        } else {
+    @Option(
+            names = { "--cli" },
+            description = "CLI Mode",
+            hidden = true
+    )
+    private boolean isCLIMode;
 
-            Path tmpDir;
-
-            // Step 3: create a tmp directory for user. TODO: make it unique per user
-            tmpDir = Files.createTempDirectory("abc");
-            String tmpDirPath = tmpDir.toAbsolutePath().toString();
-            System.out.println("tmpDir = " + tmpDirPath);
-            Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
-            String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
-
-            // Step 1: read builder.properties
-            try(InputStream inputStream = BuilderCLIDriver.class.getResourceAsStream("/builder.properties")) {
-                Properties properties = new Properties();
-                properties.load(inputStream);
-
-                String wlsKey = String.format("%s_%s_url", installerType, installerVersion);
-                String jdkKey = String.format("%s_%s_url", "jdk", "8");
-
-                List<String> cmdBuilder = new ArrayList<>(Arrays.asList("/usr/local/bin/docker", "build",
-                        "--squash", "--force-rm", "--no-cache", "--network=host"));
-
-                String cacheDir = META_RESOLVER.getCacheDir();
-                List<String> propKeys = new ArrayList<>(Arrays.asList(wlsKey, jdkKey));
-
-                //Download wls, jdk files if required
-                for (String propKey : propKeys) {
-                    String propVal = properties.getProperty(propKey);
-                    if (propVal == null || propVal.isEmpty()) {
-                        return new CommandResponse(-1, String.format("Invalid url %s in builder.properties for key %s",
-                                propVal, propKey));
-                    }
-
-                    String targetFilePath = cacheDir + File.separator + propVal.substring(propVal.lastIndexOf('/') + 1);
-                    File targetFile = new File(targetFilePath);
-
-                    if (!targetFile.exists() || !META_RESOLVER.hasMatchingKeyValue(propKey, targetFilePath)) {
-                        System.out.println("1. Downloading from " + propVal + " to " + targetFilePath);
-                        HttpUtil.downloadFile(propVal, targetFilePath, userSession);
-                        META_RESOLVER.addToCache(propKey, targetFilePath);
-                    } else {
-                        System.out.println("File exists for key " + propKey + " at location " + targetFilePath);
-                    }
-
-                    Path targetLink = Files.createLink(Paths.get(tmpDirPath, targetFile.getName()),
-                            Paths.get(targetFilePath));
-                    cmdBuilder.add("--build-arg");
-                    cmdBuilder.add((propKey.contains("jdk_")? "JAVA_PKG=" : "WLS_PKG=") +
-                            tmpDir.relativize(targetLink).toString());
-                }
-
-                //OPatch patch 13.9.4
-                final String opatchKey = "opatch_1394";
-                String opatch_1394_path = cacheDir + File.separator + "p28186730_139400_Generic.zip";
-                File opatchFile = new File(opatch_1394_path);
-                if ("12.2.1.3.0".equals(installerVersion) ) {
-                    if (!opatchFile.exists() || !META_RESOLVER.hasMatchingKeyValue(opatchKey, opatch_1394_path)) {
-                        System.out.println("3. Downloading from " + OPATCH_1394_URL + " to " + opatch_1394_path);
-                        HttpUtil.downloadFile(OPATCH_1394_URL, opatch_1394_path, userSession);
-                        META_RESOLVER.addToCache(opatchKey, opatch_1394_path);
-                    } else {
-                        System.out.println("File exists for key " + opatchKey + " at location " + opatch_1394_path);
-                    }
-                    Files.createLink(Paths.get(tmpDirPath, opatchFile.getName()), Paths.get(opatch_1394_path));
-                }
-
-                //Copy Dockerfile to tmpDir
-                Utils.copyResourceAsFile("/Dockerfile", tmpDirPath + File.separator + "Dockerfile");
-                Utils.copyResourceAsFile("/wls.rsp", tmpDirPath + File.separator + "wls.rsp");
-                Utils.copyResourceAsFile("/oraInst.loc", tmpDirPath + File.separator + "oraInst.loc");
-
-                // Step 4: resolve required patches
-                List<String> patchKeys = new ArrayList<>();
-                if (latestPSU) {
-                    System.out.println("Getting latest PSU");
-                    String bugKey = ARUUtil.getLatestPSUFor(installerType.toString(), installerVersion, userSession);
-                    System.out.println("LatestPSU for " + installerType + ", bug number: " + bugKey);
-                    patchKeys.add(bugKey);
-                }
-
-                if (patches != null && !patches.isEmpty()) {
-                    List<String> bugKeys = ARUUtil.getPatchesFor(installerType.toString(), patches, userSession);
-                    patchKeys.addAll(bugKeys);
-                }
-
-                for (String patchKey : patchKeys) {
-                    String patch_path = META_RESOLVER.getValueFromCache(patchKey).get();
-                    File patch_file = new File(patch_path);
-                    System.out.println(patch_path + "? exists: " + patch_file.exists() + ", filename: " + patch_file.getName());
-                    Files.createLink(Paths.get(toPatchesPath, patch_file.getName()), Paths.get(patch_path));
-                }
-
-                if (!patchKeys.isEmpty()) {
-                    cmdBuilder.add("--build-arg");
-                    cmdBuilder.add( "PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
-                }
-
-                System.out.println("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
-
-                // Step 5: continue building docker command
-                cmdBuilder.add("--tag");
-                cmdBuilder.add(imageTag);
-                cmdBuilder.add("--build-arg");
-                cmdBuilder.add("http_proxy=http://www-proxy-hqdc.us.oracle.com:80");
-                cmdBuilder.add("--build-arg");
-                cmdBuilder.add("https_proxy=http://www-proxy-hqdc.us.oracle.com:80");
-
-                cmdBuilder.add(tmpDirPath);
-
-                System.out.println("docker cmd = " + String.join(" ", cmdBuilder));
-
-                // Step 6: process builder
-                ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
-                final Process process = processBuilder.start();
-
-                try(
-                BufferedReader processReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                BufferedWriter logWriter = new BufferedWriter(new FileWriter(new File("/Users/gsuryade/dockerbuild.log")))
-                ) {
-                    String line;
-                    while ((line = processReader.readLine()) != null) {
-                        logWriter.write(line);
-                        logWriter.newLine();
-                        System.out.println(line);
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-                if (process.waitFor() != 0) {
-                    try (BufferedReader stderr =
-                                 new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                        StringBuilder stringBuilder2 = new StringBuilder();
-                        String line;
-                        while ((line = stderr.readLine()) != null) {
-                            stringBuilder2.append(line);
-                        }
-                        throw new IOException(
-                                "docker command failed with error: " + stringBuilder2.toString());
-                    }
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return new CommandResponse(-1, ex.getMessage());
-            } finally {
-                Files.walk(tmpDir)
-                        .sorted(Comparator.reverseOrder())
-                        .map(Path::toFile)
-                        .peek(System.out::println)
-                        .forEach(File::delete);
-            }
-        }
-//        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-//        Validator validator = validatorFactory.getValidator();
-//        Set<ConstraintViolation<User>> userViolations = validator.validate(User.newUser(userId, password));
-
-//        if (userId != null && !userId.isEmpty()) {
-//            Pattern emailPattern = Pattern.compile(EMAIL_REGEX);
-//            if (emailPattern.matcher(userId).matches()) {
-//                USER_SERVICE.addUserSession(new UserSession(User.newUser(userId, password)));
-//            } else {
-//                throw new IllegalArgumentException(String.format("userId %s is not a valid email format", userId));
-//            }
-//        }
-        Instant endTime = Instant.now();
-        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()  + "s. image tag: " + imageTag);
+    public InstallerType getInstallerType() {
+        return installerType;
     }
 
+    public void setInstallerType(InstallerType installerType) {
+        this.installerType = installerType;
+    }
+
+    public String getInstallerVersion() {
+        return installerVersion;
+    }
+
+    public void setInstallerVersion(String installerVersion) {
+        this.installerVersion = installerVersion;
+    }
+
+    public String getJdkVersion() {
+        return jdkVersion;
+    }
+
+    public void setJdkVersion(String jdkVersion) {
+        this.jdkVersion = jdkVersion;
+    }
+
+    public boolean isLatestPSU() {
+        return latestPSU;
+    }
+
+    public void setLatestPSU(boolean latestPSU) {
+        this.latestPSU = latestPSU;
+    }
+
+    public List<String> getPatches() {
+        return patches;
+    }
+
+    public void setPatches(List<String> patches) {
+        this.patches = patches;
+    }
+
+    public String getFromImage() {
+        return fromImage;
+    }
+
+    public void setFromImage(String fromImage) {
+        this.fromImage = fromImage;
+    }
+
+    public String getImageTag() {
+        return imageTag;
+    }
+
+    public void setImageTag(String imageTag) {
+        this.imageTag = imageTag;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public CachePolicy getUseCache() {
+        return useCache;
+    }
+
+    public void setUseCache(CachePolicy useCache) {
+        this.useCache = useCache;
+    }
+
+    public boolean isPublish() {
+        return isPublish;
+    }
+
+    public void setPublish(boolean publish) {
+        isPublish = publish;
+    }
 
     static class WLSVersionValues extends ArrayList<String> {
         WLSVersionValues() {
@@ -322,7 +540,7 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
 
     static class JDKVersionValues extends ArrayList<String> {
         JDKVersionValues() {
-            super(Arrays.asList("7", "8", "9"));
+            super(Arrays.asList("7", "8"));
         }
     }
 
@@ -330,7 +548,9 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
         if (args.length == 0) {
             CommandLine.usage(new BuilderCLIDriver(), System.out);
         } else {
-            CommandResponse response = CommandLine.call(new BuilderCLIDriver(), args);
+            List<String> argsList = Stream.of(args).collect(Collectors.toList());
+            argsList.add("--cli");
+            CommandResponse response = CommandLine.call(new BuilderCLIDriver(), argsList.toArray(new String[0]));
             if (response != null) {
                 System.out.println(String.format("Response code: %d, message: %s", response.getStatus(),
                         response.getMessage()));
@@ -340,20 +560,4 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
         }
     }
 
-    /*
-    @Override
-    public void run() {
-
-
-        System.out.println("hello");
-        System.out.println("InstallerType = \"" + installerType + "\"");
-        System.out.println("InstallerVersion = \"" + installerVersion + "\"");
-        System.out.println("latestPSU = \"" + latestPSU + "\"");
-        System.out.println("patches = \"" + patches + "\"");
-        System.out.println("fromImage = \"" + fromImage + "\"");
-        System.out.println("userId = \"" + userId + "\"");
-        System.out.println("password = \"" + password + "\"");
-        System.out.println("publish = \"" + isPublish + "\"");
-    }
-    */
 }

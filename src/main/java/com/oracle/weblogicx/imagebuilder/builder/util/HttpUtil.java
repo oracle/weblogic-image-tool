@@ -1,20 +1,24 @@
+/* Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved. */
+
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.oracle.weblogicx.imagebuilder.builder.api.model.User;
-import com.oracle.weblogicx.imagebuilder.builder.api.model.UserSession;
-import com.oracle.weblogicx.imagebuilder.builder.impl.service.UserServiceImpl;
 import org.apache.http.HttpEntity;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
@@ -23,6 +27,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
@@ -30,22 +35,9 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import static com.oracle.weblogicx.imagebuilder.builder.impl.service.UserServiceImpl.USER_SERVICE;
-
 public class HttpUtil {
 
-    /**
-     * Return the xml result of a GET from the url
-     *
-     * @param url  url of the aru server
-     * @param userSession userSession with preconfigured user details
-     * @return xml dom document
-     * @throws IOException when it fails to access the url
-     */
-    public static Document getXMLContent(String url, UserSession userSession) throws IOException {
-        Executor httpExecutor = getOraHttpExecutor(userSession);
-        return getXMLContent(url, httpExecutor);
-    }
+    private static final Map<String, HttpClient> userClientMap = new ConcurrentHashMap<>();
 
     /**
      * Return the xml result of a GET from the url
@@ -57,21 +49,8 @@ public class HttpUtil {
      * @throws IOException when it fails to access the url
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
-        //Executor httpExecutor = getOraHttpExecutor(username, password);
-        Executor httpExecutor = getOraHttpExecutor(USER_SERVICE.getUserSession(User.newUser(username, password)));
-        return getXMLContent(url, httpExecutor);
-    }
-
-    /**
-     * Return the xml result of a GET from the url
-     *
-     * @param url  url of the aru server
-     * @param httpExecutor configured Executor object
-     * @return xml dom document
-     * @throws IOException when it fails to access the url
-     */
-    private static Document getXMLContent(String url, Executor httpExecutor) throws IOException {
-        String xmlString = httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+        String xmlString = Executor.newInstance(getOraClient(username, password))
+                .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .returnContent().asString();
         try {
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
@@ -89,20 +68,7 @@ public class HttpUtil {
         }
     }
 
-    private static Executor getOraHttpExecutor(UserSession userSession) {
-        Executor httpExecutor;
-        if (userSession.isUserValidated()) {
-            httpExecutor = Executor.newInstance(userSession.getOraClient());
-        } else {
-            //TODO: throw exception if not already validated.
-            User user = userSession.getUser();
-            httpExecutor = Executor.newInstance(userSession.getOraClient())
-                    .auth(user.getEmail(), String.valueOf(user.getPassword()));
-        }
-        return httpExecutor;
-    }
-
-    private static Executor getOraHttpExecutor(String username, String password) {
+    private static HttpClient getOraClient(String userId, String password) {
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
 
@@ -111,12 +77,13 @@ public class HttpUtil {
         cc.setDomain("edelivery.oracle.com");
         cookieStore.addCookie(cc);
 
-        CloseableHttpClient client =
-            HttpClientBuilder.create().setDefaultRequestConfig(config.build()).useSystemProperties().build();
+        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
+                userId, password));
 
-        Executor httpExecutor = Executor.newInstance(client).auth(username, password);
-        httpExecutor.use(cookieStore);
-        return httpExecutor;
+        return HttpClientBuilder.create().setDefaultRequestConfig(config.build())
+                .setDefaultCookieStore(cookieStore).useSystemProperties()
+                .setDefaultCredentialsProvider(credentialsProvider).build();
     }
 
     /**
@@ -131,24 +98,8 @@ public class HttpUtil {
 
     public static void downloadFile(String url, String fileName, String username, String password)
         throws IOException {
-//        Executor httpExecutor = getOraHttpExecutor(username, password);
-//        httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
-//            .saveContent(new File(fileName));
-        downloadFile(url, fileName, USER_SERVICE.getUserSession(User.newUser(username, password)));
-    }
-
-    /**
-     * Downlod a file from the url
-     *
-     * @param url  url of the aru server
-     * @param fileName full path to save the file
-     * @param userSession object with httpclient and required details for this user
-     * @throws IOException when it fails to access the url
-     */
-    public static void downloadFile(String url, String fileName, UserSession userSession)
-            throws IOException {
-        Executor httpExecutor = getOraHttpExecutor(userSession);
-        httpExecutor.execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+        Executor.newInstance(getOraClient(username, password))
+                .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .saveContent(new File(fileName));
     }
 
@@ -162,7 +113,6 @@ public class HttpUtil {
      * @return
      * @throws IOException
      */
-
     public static String checkConflicts(String url, String payload, String username, String password)
         throws IOException {
         RequestConfig.Builder config = RequestConfig.custom();
