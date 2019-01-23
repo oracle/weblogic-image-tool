@@ -22,10 +22,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.FormBodyPartBuilder;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -35,6 +36,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.REL_URL;
+
 public class HttpUtil {
 
     private static final Map<String, HttpClient> userClientMap = new ConcurrentHashMap<>();
@@ -42,7 +45,7 @@ public class HttpUtil {
     /**
      * Return the xml result of a GET from the url
      *
-     * @param url  url of the aru server
+     * @param url      url of the aru server
      * @param username userid for support account
      * @param password password for support account
      * @return xml dom document
@@ -89,7 +92,7 @@ public class HttpUtil {
     /**
      * Downlod a file from the url
      *
-     * @param url  url of the aru server
+     * @param url      url of the aru server
      * @param fileName full path to save the file
      * @param username userid for support account
      * @param password password for support account
@@ -104,19 +107,21 @@ public class HttpUtil {
     }
 
     /**
-     * Check conflicts
+     * Check conflicts post method
      *
-     * @param url
-     * @param payload
-     * @param username
-     * @param password
-     * @return
+     * @param url  url for conflict checker api
+     * @param payload payload containing patches to check for conflicts
+     * @param username user name for support
+     * @param password password for support
+     * @return dom document result of the conflict checker
      * @throws IOException
      */
-    public static String checkConflicts(String url, String payload, String username, String password)
+
+    public static Document postCheckConflictRequest(String url, String payload, String username, String password)
         throws IOException {
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
+        config.setRedirectsEnabled(true);
 
         CookieStore cookieStore = new BasicCookieStore();
 
@@ -126,21 +131,33 @@ public class HttpUtil {
         Executor httpExecutor = Executor.newInstance(client).auth(username, password);
         httpExecutor.use(cookieStore);
 
-        //        FormBodyPartBuilder.create(
-        //            "request_xml",
-        //            new StringBody(payload, ContentType.APPLICATION_XML)
-        //            ).build();
+        // Has to do search first, otherwise results in 302
+        getXMLContent(REL_URL, username, password);
 
         HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-            .addPart(FormBodyPartBuilder.create("request_xml", new FileBody(new File("/tmp/chkreq.xml"))).build())
+            .addPart(FormBodyPartBuilder.create("request_xml", new StringBody(payload, ContentType.TEXT_PLAIN)).build())
             .build();
 
-        String response =
+        String xmlString =
             httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
                 .returnContent().asString();
 
-        System.out.println(response);
-        return "";
+        try {
+            DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+            InputSource is = new InputSource(new StringReader(xmlString));
+            Document doc = docBuilder.parse(is);
+            //  XPathUtil.prettyPrint(doc);
+            return doc;
+        } catch (ParserConfigurationException ex) {
+            throw new IllegalStateException(ex);
+        } catch (SAXException ex) {
+            throw new ClientProtocolException("Malformed XML document", ex);
+        } catch (Exception g) {
+            throw new IllegalStateException(g);
+        }
+
     }
+
 
 }
