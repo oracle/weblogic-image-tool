@@ -56,7 +56,6 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
         System.out.println("patches = \"" + patches + "\"");
         System.out.println("fromImage = \"" + fromImage + "\"");
         System.out.println("userId = \"" + userId + "\"");
-        System.out.println("password = \"" + password + "\"");
         System.out.println("publish = \"" + isPublish + "\"");
 
         FileHandler fileHandler = null;
@@ -121,7 +120,7 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
 
                 if (!targetFile.exists() || !META_RESOLVER.hasMatchingKeyValue(propKey, targetFilePath)) {
                     if (useCache != always) {
-                        //System.out.println("1. Downloading from " + propVal + " to " + targetFilePath);
+                        System.out.println("1. Downloading from " + propVal + " to " + targetFilePath);
                         logger.info("1. Downloading from " + propVal + " to " + targetFilePath);
                         HttpUtil.downloadFile(propVal, targetFilePath, userId, password);
                         META_RESOLVER.addToCache(propKey, targetFilePath);
@@ -145,7 +144,7 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             if ("12.2.1.3.0".equals(installerVersion) ) {
                 if (!opatchFile.exists() || !META_RESOLVER.hasMatchingKeyValue(opatchKey, opatch_1394_path)) {
                     if (useCache != always) {
-                        //System.out.println("3. Downloading from " + OPATCH_1394_URL + " to " + opatch_1394_path);
+                        System.out.println("3. Downloading from " + OPATCH_1394_URL + " to " + opatch_1394_path);
                         logger.info("3. Downloading from " + OPATCH_1394_URL + " to " + opatch_1394_path);
                         HttpUtil.downloadFile(OPATCH_1394_URL, opatch_1394_path, userId, password);
                         META_RESOLVER.addToCache(opatchKey, opatch_1394_path);
@@ -262,8 +261,6 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
     }
 
     private List<String> getInitialBuildCmd() {
-//        List<String> cmdBuilder = new ArrayList<>(Arrays.asList("docker", "build",
-//                "--squash", "--force-rm", "--no-cache", "--network=host"));
         List<String> cmdBuilder = Stream.of("docker", "build",
                 "--squash", "--force-rm", "--no-cache", "--network=host").collect(Collectors.toList());
 
@@ -390,6 +387,7 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             names = { "--password" },
             paramLabel = "<password associated with support user id>",
             required = true,
+            interactive = true,
             description = "Password for support userId"
     )
     private String password;
@@ -413,9 +411,9 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
     private boolean isPublish = false;
 
     @Option(
-        hidden = true,
-        names = { "--httpProxyUrl" },
-        description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
+            hidden = true,
+            names = { "--httpProxyUrl" },
+            description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     private String httpProxyUrl;
 
@@ -444,94 +442,6 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             hidden = true
     )
     private boolean isCLIMode;
-
-    public InstallerType getInstallerType() {
-        return installerType;
-    }
-
-    public void setInstallerType(InstallerType installerType) {
-        this.installerType = installerType;
-    }
-
-    public String getInstallerVersion() {
-        return installerVersion;
-    }
-
-    public void setInstallerVersion(String installerVersion) {
-        this.installerVersion = installerVersion;
-    }
-
-    public String getJdkVersion() {
-        return jdkVersion;
-    }
-
-    public void setJdkVersion(String jdkVersion) {
-        this.jdkVersion = jdkVersion;
-    }
-
-    public boolean isLatestPSU() {
-        return latestPSU;
-    }
-
-    public void setLatestPSU(boolean latestPSU) {
-        this.latestPSU = latestPSU;
-    }
-
-    public List<String> getPatches() {
-        return patches;
-    }
-
-    public void setPatches(List<String> patches) {
-        this.patches = patches;
-    }
-
-    public String getFromImage() {
-        return fromImage;
-    }
-
-    public void setFromImage(String fromImage) {
-        this.fromImage = fromImage;
-    }
-
-    public String getImageTag() {
-        return imageTag;
-    }
-
-    public void setImageTag(String imageTag) {
-        this.imageTag = imageTag;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public CachePolicy getUseCache() {
-        return useCache;
-    }
-
-    public void setUseCache(CachePolicy useCache) {
-        this.useCache = useCache;
-    }
-
-    public boolean isPublish() {
-        return isPublish;
-    }
-
-    public void setPublish(boolean publish) {
-        isPublish = publish;
-    }
 
     static class WLSVersionValues extends ArrayList<String> {
         WLSVersionValues() {
