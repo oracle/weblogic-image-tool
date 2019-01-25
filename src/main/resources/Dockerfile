@@ -91,7 +91,7 @@ RUN curl -s -o $TMPDIR/maven.tar.gz \
 #RUN /u01/app/tools/weblogic-deploy/bin/createDomain.sh ...
 
 # Cleanup
-RUN $MW_HOME/OPatch/opatch util cleanup -silent \
+RUN $MW_HOME/OPatch/opatch util cleanup -invPtrLoc $INV_LOC/$ORAINST -silent \
  && rm -fr $TMPDIR
 
 ENTRYPOINT /bin/bash

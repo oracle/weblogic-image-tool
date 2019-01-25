@@ -35,6 +35,13 @@ public class CacheCLI implements Runnable {
     )
     private Path cacheDirPath = null;
 
+    @Option(
+            names = { "--cli" },
+            description = "CLI Mode",
+            hidden = true
+    )
+    private boolean isCLIMode;
+
     @Override
     public void run() {
         if (listCachePath) {

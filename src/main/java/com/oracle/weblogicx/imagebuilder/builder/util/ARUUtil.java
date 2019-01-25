@@ -134,18 +134,24 @@ public class ARUUtil {
         return results;
     }
 
-    /**
+    /** Validate patches conflicts by passing a list of patches
      *
      * @param patches  A list of patches number
      * @param category wls or fmw
      * @param version version of the prduct
      * @param userId userid for support account
      * @param password password for support account
+     * @return  validationResult validation result object
      * @throws IOException  when failed to access the aru api
      */
 
-    public static boolean validatePatches(List<String> patches, String category, String version, String userId, String
+    public static ValidationResult validatePatches(List<String> patches, String category, String version, String userId, String
         password) throws IOException {
+
+
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.setSuccess(true);
+        validationResult.setResults(null);
 
         StringBuffer payload = new StringBuffer
             ("<conflict_check_request><platform>2000</platform><target_patch_list/>");
@@ -161,7 +167,7 @@ public class ARUUtil {
 
         try {
             NodeList conflictSets = XPathUtil.applyXPathReturnNodeList(result, "/conflict_sets");
-            if (conflictSets.getLength() == 0) {
+            if (conflictSets.getLength() > 0) {
 
 
                 try {
@@ -189,7 +195,7 @@ public class ARUUtil {
                     System.out.println("");
                     XPathUtil.prettyPrint(doc);
 
-                    return true;
+                    validationResult.setResults(doc);
 
 
                 } catch (XPathExpressionException | ParserConfigurationException xpe) {
@@ -202,8 +208,35 @@ public class ARUUtil {
             throw new IOException(xpe);
 
         }
-        return false;
+        return validationResult;
     }
+
+    /**
+     * Return the patch detail
+     * @param category wls or fmw
+     * @param version  version of the product
+     * @param bugNumber bug number
+     * @param userId    user id for support
+     * @param password  password for support
+     * @return dom document detail about the patch
+     * @throws IOException when something goes wrong
+     */
+    public static Document getPatchDetail(String category, String version, String bugNumber, String userId, String
+        password)
+        throws
+        IOException {
+
+        String releaseNumber = getReleaseNumber(category, version, userId, password );
+        String url;
+        if ("wls".equalsIgnoreCase(category))
+            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, bugNumber, releaseNumber);
+        else
+            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, bugNumber, releaseNumber);
+
+        return HttpUtil.getXMLContent(url, userId, password);
+
+    }
+
 
     private static  Document getAllReleases(String category, String userId, String password) throws IOException {
 
