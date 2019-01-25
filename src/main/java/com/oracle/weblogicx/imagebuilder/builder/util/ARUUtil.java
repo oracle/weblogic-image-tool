@@ -205,6 +205,33 @@ public class ARUUtil {
         return false;
     }
 
+    /**
+     * Return the patch detail
+     * @param category wls or fmw
+     * @param version  version of the product
+     * @param bugNumber bug number
+     * @param userId    user id for support
+     * @param password  password for support
+     * @return dom document detail about the patch
+     * @throws IOException when something goes wrong
+     */
+    public static Document getPatchDetail(String category, String version, String bugNumber, String userId, String
+        password)
+        throws
+        IOException {
+
+        String releaseNumber = getReleaseNumber(category, version, userId, password );
+        String url;
+        if ("wls".equalsIgnoreCase(category))
+            url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, bugNumber, releaseNumber);
+        else
+            url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, bugNumber, releaseNumber);
+
+        return HttpUtil.getXMLContent(url, userId, password);
+
+    }
+
+
     private static  Document getAllReleases(String category, String userId, String password) throws IOException {
 
 
