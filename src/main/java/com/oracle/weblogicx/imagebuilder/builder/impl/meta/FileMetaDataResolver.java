@@ -4,16 +4,21 @@ package com.oracle.weblogicx.imagebuilder.builder.impl.meta;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver;
 
-import java.io.*;
-import java.nio.file.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CACHE_DIR_KEY;
 
 public enum FileMetaDataResolver implements MetaDataResolver {
 
@@ -24,6 +29,7 @@ public enum FileMetaDataResolver implements MetaDataResolver {
     private static final String DEFAULT_CACHE_DIR = Paths.get(System.getProperty("user.home"), "cache")
             .toAbsolutePath().toString();
     private static final String DEFAULT_META_PATH = DEFAULT_CACHE_DIR + File.separator + ".metadata";
+
     static {
         try {
             final Preferences preferences = Preferences.userNodeForPackage(META_RESOLVER.getClass());
@@ -40,10 +46,11 @@ public enum FileMetaDataResolver implements MetaDataResolver {
                 metadataFile.getParentFile().mkdirs();
                 metadataFile.createNewFile();
             }
-            if (properties.getProperty("cache.dir") == null) {
-                saveProperties("cache.dir", DEFAULT_CACHE_DIR);
+            if (properties.getProperty(CACHE_DIR_KEY) == null) {
+                properties.put(CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
+                persistToDisk();
             }
-            File cacheDir = new File(properties.getProperty("cache.dir"));
+            File cacheDir = new File(properties.getProperty(CACHE_DIR_KEY));
             if (!cacheDir.exists()) {
                 cacheDir.mkdirs();
             }
@@ -55,12 +62,13 @@ public enum FileMetaDataResolver implements MetaDataResolver {
 
     @Override
     public String getCacheDir() {
-        return properties.getProperty("cache.dir", DEFAULT_CACHE_DIR);
+        return properties.getProperty(CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
     }
 
     @Override
-    public Optional<String> getValueFromCache(String key) {
-        return Optional.ofNullable(properties.getProperty(key));
+    public String getValueFromCache(String key) {
+        Objects.requireNonNull(key, "key cannot be null");
+        return properties.getProperty(key);
     }
 
     @Override
@@ -72,9 +80,21 @@ public enum FileMetaDataResolver implements MetaDataResolver {
     }
 
     @Override
-    public boolean addToCache(String key, String value) throws IllegalArgumentException {
+    public boolean addToCache(String key, String value) {
+        Objects.requireNonNull(key, "key cannot be null");
         Objects.requireNonNull(value, "Cache item value cannot be null");
-        return saveProperties(key, value);
+        properties.put(key, value);
+        return persistToDisk();
+    }
+
+    @Override
+    public String deleteFromCache(String key) {
+        Objects.requireNonNull(key, "key cannot be null");
+        String oldValue = (String) properties.remove(key);
+        if (oldValue != null) {
+            persistToDisk();
+        }
+        return oldValue;
     }
 
     @Override
@@ -85,11 +105,24 @@ public enum FileMetaDataResolver implements MetaDataResolver {
                 e -> String.valueOf(e.getValue())));
     }
 
-    private static boolean saveProperties(String key, String value) {
+//    private static boolean saveProperties(String key, String value) {
+//        boolean retVal = true;
+//        synchronized (properties) {
+//            //caller checks for null key, value
+//            properties.put(key, value);
+//            try (FileOutputStream outputStream = new FileOutputStream(metadataPath)) {
+//                properties.store(outputStream, "changed on:" + LocalDateTime.now());
+//            } catch (IOException e) {
+//                retVal = false;
+//                e.printStackTrace();
+//            }
+//        }
+//        return retVal;
+//    }
+
+    private static boolean persistToDisk() {
         boolean retVal = true;
         synchronized (properties) {
-            //caller checks for null key, value
-            properties.put(key, value);
             try (FileOutputStream outputStream = new FileOutputStream(metadataPath)) {
                 properties.store(outputStream, "changed on:" + LocalDateTime.now());
             } catch (IOException e) {
@@ -115,10 +148,12 @@ public enum FileMetaDataResolver implements MetaDataResolver {
         }
     }
 
-    public void setCacheDir(String cacheDirPath) {
+    public boolean setCacheDir(String cacheDirPath) {
         if (cacheDirPath != null && !cacheDirPath.equals(getCacheDir())) {
-            saveProperties("cache.dir", cacheDirPath);
+            properties.put(CACHE_DIR_KEY, cacheDirPath);
+            return persistToDisk();
         }
+        return false;
     }
 
 }

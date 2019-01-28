@@ -6,10 +6,17 @@ public class CommandResponse {
 
     private int status;
     private String message;
+    private Object result;
 
     public CommandResponse(int status, String message) {
         this.status = status;
         this.message = message;
+    }
+
+    public CommandResponse(int status, String message, Object result) {
+        this.status = status;
+        this.message = message;
+        this.result = result;
     }
 
     public int getStatus() {
@@ -20,4 +27,8 @@ public class CommandResponse {
         return message;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T getResult() {
+        return (T) result;
+    }
 }

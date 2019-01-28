@@ -5,6 +5,9 @@ package com.oracle.weblogicx.imagebuilder.builder.cli;
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CachePolicy;
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.builder.api.model.InstallerType;
+import com.oracle.weblogicx.imagebuilder.builder.api.model.JDKVersionValues;
+import com.oracle.weblogicx.imagebuilder.builder.api.model.WLSInstallerType;
+import com.oracle.weblogicx.imagebuilder.builder.api.model.WLSVersionValues;
 import com.oracle.weblogicx.imagebuilder.builder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.builder.util.HttpUtil;
 import com.oracle.weblogicx.imagebuilder.builder.util.Utils;
@@ -12,7 +15,13 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -20,23 +29,35 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.logging.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.oracle.weblogicx.imagebuilder.builder.api.model.CachePolicy.always;
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAULT_WLS_VERSION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.OPATCH_1394_KEY;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.OPATCH_1394_URL;
 
 @Command(
-        name = "builder",
+        name = "build",
         mixinStandardHelpOptions = true,
         description = "Build WebLogic docker image",
         version = "1.0",
         sortOptions = false,
-        subcommands = { CacheCLI.class },
+        //subcommands = { CacheCLI.class },
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
@@ -50,35 +71,17 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
         Instant startTime = Instant.now();
 
         System.out.println("hello");
-        System.out.println("InstallerType = \"" + installerType + "\"");
+        System.out.println("WLSInstallerType = \"" + installerType + "\"");
         System.out.println("InstallerVersion = \"" + installerVersion + "\"");
         System.out.println("latestPSU = \"" + latestPSU + "\"");
         System.out.println("patches = \"" + patches + "\"");
         System.out.println("fromImage = \"" + fromImage + "\"");
         System.out.println("userId = \"" + userId + "\"");
+        System.out.println("password = \"" + password + "\"");
         System.out.println("publish = \"" + isPublish + "\"");
 
-        FileHandler fileHandler = null;
-        if (isCLIMode) {
-            Path toolLogPath = Utils.createFile(toolLog, "tool.log");
-            System.out.println("toolLogPath: " + toolLogPath);
-            if (toolLogPath != null) {
-                fileHandler = new FileHandler(toolLogPath.toAbsolutePath().toString());
-                fileHandler.setFormatter(new SimpleFormatter());
-                logger.addHandler(fileHandler);
-                logger.setLevel(Level.INFO);
-            }
-        } else {
-            logger.setLevel(Level.OFF);
-        }
-
-        if (httpProxyUrl != null && !httpProxyUrl.isEmpty()) {
-            setSystemProxy(httpProxyUrl, "http");
-        }
-
-        if (httpsProxyUrl != null && !httpsProxyUrl.isEmpty()) {
-            setSystemProxy(httpsProxyUrl, "https");
-        }
+        FileHandler fileHandler = setupLogger(cliMode);
+        setProxyIfRequired();
 
         // check credentials if useCache option allows us to download artifacts
         if (useCache != always) {
@@ -86,6 +89,8 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
                 return new CommandResponse(-1, "User credentials do not match");
             }
         }
+
+        List<String> requiredKeys = gatherRequiredBuildProps();
 
         // Step 3: create a tmp directory for user. TODO: make it unique per user
         Path tmpDir = Files.createTempDirectory(null);
@@ -107,7 +112,7 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             String cacheDir = META_RESOLVER.getCacheDir();
             List<String> propKeys = new ArrayList<>(Arrays.asList(wlsKey, jdkKey));
 
-            //Download wls, jdk files if required
+            //Download WLS, jdk files if required
             for (String propKey : propKeys) {
                 String propVal = properties.getProperty(propKey);
                 if (propVal == null || propVal.isEmpty()) {
@@ -141,7 +146,7 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             final String opatchKey = "opatch_1394";
             String opatch_1394_path = cacheDir + File.separator + "p28186730_139400_Generic.zip";
             File opatchFile = new File(opatch_1394_path);
-            if ("12.2.1.3.0".equals(installerVersion) ) {
+            if (DEFAULT_WLS_VERSION.equals(installerVersion) ) {
                 if (!opatchFile.exists() || !META_RESOLVER.hasMatchingKeyValue(opatchKey, opatch_1394_path)) {
                     if (useCache != always) {
                         System.out.println("3. Downloading from " + OPATCH_1394_URL + " to " + opatch_1394_path);
@@ -177,7 +182,7 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             }
 
             for (String patchKey : patchKeys) {
-                String patch_path = META_RESOLVER.getValueFromCache(patchKey).get();
+                String patch_path = META_RESOLVER.getValueFromCache(patchKey);
                 File patch_file = new File(patch_path);
                 System.out.println(patch_path + "? exists: " + patch_file.exists() + ", filename: " + patch_file.getName());
                 Files.createLink(Paths.get(toPatchesPath, patch_file.getName()), Paths.get(patch_path));
@@ -260,6 +265,60 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
         return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()  + "s. image tag: " + imageTag);
     }
 
+    private List<String> gatherRequiredBuildProps() {
+        List<String> retVal = new LinkedList<>();
+        retVal.add(String.format("%s_%s", installerType, installerVersion));
+        retVal.add(String.format("%s_%s", InstallerType.JDK.toString(), jdkVersion));
+        if (DEFAULT_WLS_VERSION.equals(installerVersion) ) {
+            retVal.add(OPATCH_1394_KEY);
+        }
+        return retVal;
+    }
+
+/*    private Properties readBuildProperties() throws IOException {
+        Properties properties = new Properties();
+        try(InputStream inputStream = BuilderCLIDriver.class.getResourceAsStream("/builder.properties")) {
+            properties.load(inputStream);
+        }
+        return properties;
+    }*/
+
+/*    private Map<String, String> getRequiredKeyValues(Set<String> keys, Properties source) throws Exception {
+        Map<String, String> retMap = new HashMap<>();
+        Set<String> missingKeys = keys.stream().filter(x -> source.getProperty(x) == null).collect(Collectors.toSet());
+
+        if (missingKeys.isEmpty()) {
+            for ( String key : keys ) {
+                String value = source.getProperty(key);
+            }
+            retMap = keys.stream().collect(Collectors.toMap(x, source.getProperty(x)));
+        } else {
+            throw new Exception("Missing values for keys: " + missingKeys);
+        }
+    }*/
+
+    private FileHandler setupLogger(boolean isCLIMode) {
+        FileHandler fileHandler = null;
+        try {
+            if (isCLIMode) {
+                Path toolLogPath = Utils.createFile(toolLog, "tool.log");
+                System.out.println("toolLogPath: " + toolLogPath);
+                if (toolLogPath != null) {
+                    fileHandler = new FileHandler(toolLogPath.toAbsolutePath().toString());
+                    fileHandler.setFormatter(new SimpleFormatter());
+                    logger.addHandler(fileHandler);
+                    logger.setLevel(Level.INFO);
+                }
+            } else {
+                logger.setLevel(Level.OFF);
+            }
+        } catch (IOException e) {
+            //supress exception
+            fileHandler = null;
+        }
+        return fileHandler;
+    }
+
     private List<String> getInitialBuildCmd() {
         List<String> cmdBuilder = Stream.of("docker", "build",
                 "--squash", "--force-rm", "--no-cache", "--network=host").collect(Collectors.toList());
@@ -291,6 +350,15 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             }
         }
         return cmdBuilder;
+    }
+
+    private void setProxyIfRequired() {
+        if (httpProxyUrl != null && !httpProxyUrl.isEmpty()) {
+            setSystemProxy(httpProxyUrl, "http");
+        }
+        if (httpsProxyUrl != null && !httpsProxyUrl.isEmpty()) {
+            setSystemProxy(httpsProxyUrl, "https");
+        }
     }
 
     private void setSystemProxy(String proxyUrl, String protocolToSet) {
@@ -326,13 +394,13 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             required = true,
             defaultValue = "wls"
     )
-    private InstallerType installerType;
+    private WLSInstallerType installerType;
 
     @Option(
             names = { "--installerVersion" },
             description = "Supported values: ${COMPLETION-CANDIDATES}",
             required = true,
-            defaultValue = "12.2.1.3.0",
+            defaultValue = DEFAULT_WLS_VERSION,
             completionCandidates = WLSVersionValues.class
     )
     private String installerVersion;
@@ -387,7 +455,6 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             names = { "--password" },
             paramLabel = "<password associated with support user id>",
             required = true,
-            interactive = true,
             description = "Password for support userId"
     )
     private String password;
@@ -411,14 +478,12 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
     private boolean isPublish = false;
 
     @Option(
-            hidden = true,
-            names = { "--httpProxyUrl" },
-            description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
+        names = { "--httpProxyUrl" },
+        description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     private String httpProxyUrl;
 
     @Option(
-            hidden = true,
             names = { "--httpsProxyUrl" },
             description = "proxy for https protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
@@ -441,19 +506,19 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
             description = "CLI Mode",
             hidden = true
     )
-    private boolean isCLIMode;
+    private boolean cliMode;
 
-    static class WLSVersionValues extends ArrayList<String> {
-        WLSVersionValues() {
-            super(Arrays.asList("12.2.1.3.0", "12.2.1.2.0"));
-        }
-    }
+//    static class WLSVersionValues extends ArrayList<String> {
+//        WLSVersionValues() {
+//            super(Arrays.asList(DEFAULT_WLS_VERSION, "12.2.1.2.0"));
+//        }
+//    }
 
-    static class JDKVersionValues extends ArrayList<String> {
-        JDKVersionValues() {
-            super(Arrays.asList("7", "8"));
-        }
-    }
+//    static class JDKVersionValues extends ArrayList<String> {
+//        JDKVersionValues() {
+//            super(Arrays.asList("7", "8"));
+//        }
+//    }
 
     public static void main(String[] args) {
         if (args.length == 0) {
@@ -461,7 +526,18 @@ public class BuilderCLIDriver implements Callable<CommandResponse> {
         } else {
             List<String> argsList = Stream.of(args).collect(Collectors.toList());
             argsList.add("--cli");
-            CommandResponse response = CommandLine.call(new BuilderCLIDriver(), argsList.toArray(new String[0]));
+//            CommandLine commandLine = new CommandLine(new BuilderCLIDriver())
+//                    .setCaseInsensitiveEnumValuesAllowed(true)
+//                    .setUsageHelpWidth(120);
+//
+//            List<Object> results = commandLine.parseWithHandlers(
+//                    new CommandLine.RunLast().useOut(System.out).useAnsi(CommandLine.Help.Ansi.AUTO),
+//                    new CommandLine.DefaultExceptionHandler<List<Object>>().useErr(System.err).useAnsi(CommandLine.Help.Ansi.AUTO),
+//                    argsList.toArray(new String[0]));
+//
+//            CommandResponse response = (results == null || results.isEmpty())? null : (CommandResponse) results.get(0);
+
+            CommandResponse response = WLSCommandLine.call(new BuilderCLIDriver(), argsList.toArray(new String[0]));
             if (response != null) {
                 System.out.println(String.format("Response code: %d, message: %s", response.getStatus(),
                         response.getMessage()));

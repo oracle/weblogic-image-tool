@@ -21,6 +21,7 @@ import org.w3c.dom.NodeList;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.ARU_LANG_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CACHE_KEY_SEPARATOR;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CONFLICTCHECKER_URL;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.FMW_PROD_ID;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.LATEST_PSU_URL;
@@ -39,13 +40,13 @@ public class ARUUtil {
      */
 
     public static Document getAllWLSReleases(String userId, String password) throws IOException {
-        return getAllReleases("wls", userId, password);
+        return getAllReleases("WLS", userId, password);
     }
 
     /**
      * Return release number of a WLS release by version
      *
-     * @param version wls version 12.2.1.3.0 etc ...
+     * @param version WLS version 12.2.1.3.0 etc ...
      * @param userId  user id for support account
      * @param password password for support account
      * @return release number or empty string if not found
@@ -53,13 +54,13 @@ public class ARUUtil {
      */
     private static String getWLSReleaseNumber(String version, String userId, String password) throws
         IOException {
-        return getReleaseNumber("wls", version, userId, password);
+        return getReleaseNumber("WLS", version, userId, password);
     }
 
     /**
      * Return release number of a FMW release by version
      *
-     * @param version wls version 12.2.1.3.0 etc ...
+     * @param version WLS version 12.2.1.3.0 etc ...
      * @param userId  user id for support account
      * @param password password for support account
      * @return release number or empty string if not found
@@ -67,7 +68,7 @@ public class ARUUtil {
      */
     private static String getFMWReleaseNumber(String version, String userId, String password) throws
         IOException {
-        return getReleaseNumber("fmw", version, userId, password);
+        return getReleaseNumber("FMW", version, userId, password);
     }
 
 
@@ -79,13 +80,13 @@ public class ARUUtil {
      * @throws IOException  when failed to access the aru api
      */
     public static void getAllFMWReleases(String userId, String password) throws IOException {
-        getAllReleases("fmw", userId, password);
+        getAllReleases("FMW", userId, password);
     }
 
 
     /**
      * Download the latest PSU for given category and release
-     * @param category wls or fmw
+     * @param category WLS or FMW
      * @param version version number like 12.2.1.3.0
      * @param userId user
      * @param password password
@@ -99,7 +100,7 @@ public class ARUUtil {
 
     /**
      * Get list of PSU available for given category and release
-     * @param category wls or fmw
+     * @param category WLS or FMW
      * @param version version number like 12.2.1.3.0
      * @param userId user
      * @return Document listing of all patches (full details)
@@ -137,7 +138,7 @@ public class ARUUtil {
     /**
      *
      * @param patches  A list of patches number
-     * @param category wls or fmw
+     * @param category WLS or FMW
      * @param version version of the prduct
      * @param userId userid for support account
      * @param password password for support account
@@ -214,7 +215,7 @@ public class ARUUtil {
 
             String expression;
 
-            if ("wls".equalsIgnoreCase(category)) {
+            if ("WLS".equalsIgnoreCase(category)) {
                 expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
             } else {
                 expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
@@ -248,7 +249,7 @@ public class ARUUtil {
         IOException {
 
         String expression;
-        if ("wls".equalsIgnoreCase(category))
+        if ("WLS".equalsIgnoreCase(category))
             expression = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
         else
             expression = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
@@ -261,7 +262,7 @@ public class ARUUtil {
         IOException {
 
         String expression;
-        if ("wls".equalsIgnoreCase(category))
+        if ("WLS".equalsIgnoreCase(category))
             expression = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
         else
             expression = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
@@ -275,7 +276,7 @@ public class ARUUtil {
 
         String releaseNumber = getReleaseNumber(category, version, userId, password );
         String url;
-        if ("wls".equalsIgnoreCase(category))
+        if ("WLS".equalsIgnoreCase(category))
             url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, bugNumber, releaseNumber);
         else
             url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, bugNumber, releaseNumber);
@@ -301,7 +302,7 @@ public class ARUUtil {
             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches,
                 "string(/results/patch[1]/release/@id)");
 
-            String key = bugName + "." + releaseNumber;
+            String key = bugName + CACHE_KEY_SEPARATOR + releaseNumber;
 
             int index = downLoadLink.indexOf("patch_file=");
 

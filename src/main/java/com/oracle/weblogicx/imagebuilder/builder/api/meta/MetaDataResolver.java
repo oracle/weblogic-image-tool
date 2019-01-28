@@ -24,7 +24,7 @@ public interface MetaDataResolver {
      * @param key key to look for. Ex: patch number
      * @return value if present in cache or else null.
      */
-    Optional<String> getValueFromCache(String key);
+    String getValueFromCache(String key);
 
     /**
      * Checks if cache has certain key, value combination. This is used to check if a certain artifact
@@ -44,8 +44,22 @@ public interface MetaDataResolver {
     boolean addToCache(String key, String value);
 
     /**
+     * Delete an entry from the cache
+     * @param key key corresponding to an entry in the cache
+     * @return value or null
+     */
+    String deleteFromCache(String key);
+
+    /**
      * Returns a map of current items in the cache
      * @return map of current items
      */
     Map<String, String> getCacheItems();
+
+    /**
+     * Set cache directory to new location.
+     * @param value a directory path
+     * @return true if successful
+     */
+    boolean setCacheDir(String value);
 }
