@@ -2,14 +2,9 @@ package com.oracle.weblogicx.imagebuilder.builder.util;
 
 import org.w3c.dom.Document;
 
-/**
- *   ValidaitonResult of patch conflicts check
- */
-
-public class ValidationResult {
+public class SearchResult {
     private boolean success;
     private Document results;
-
     private String errorMessage;
 
     /**
@@ -29,8 +24,6 @@ public class ValidationResult {
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
-
-
 
     /**
      *
@@ -56,4 +49,5 @@ public class ValidationResult {
     public void setResults(Document results) {
         this.results = results;
     }
+
 }
