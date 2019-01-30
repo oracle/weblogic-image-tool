@@ -11,6 +11,9 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <shade-plugin-version>3.2.1</shade-plugin-version>
+        <JAVA8_HOME></JAVA8_HOME>
     </properties>
 
     <dependencies>
@@ -34,9 +37,38 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-autocompletion-script</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <!--<argument>-Dpicocli.autocomplete.systemExitOnError</argument>-->
+                        <argument>-cp</argument>
+                        <classpath/>
+                        <argument>picocli.AutoComplete</argument>
+                        <argument>--force</argument><!-- overwrite if exists -->
+                        <argument>--writeCommandScript</argument>
+                        <argument>--completionScript</argument>
+                        <argument>${project.build.directory}/imagebuilder_completion.sh</argument>
+                        <argument>com.oracle.weblogicx.imagebuilder.builder.cli.CLIDriver</argument>
+                        <!-- replace with your class -->
+                    </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>${shade-plugin-version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

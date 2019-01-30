@@ -2,11 +2,14 @@ package com.oracle.weblogicx.imagebuilder.builder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.builder.api.model.InstallerType;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Unmatched;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
@@ -16,7 +19,7 @@ import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAUL
 @Command(
         name = "addInstaller",
         description = "Add cache entry for wls|fmw or jdk installer",
-        mixinStandardHelpOptions = true,
+        //mixinStandardHelpOptions = false,
         sortOptions = false
 )
 public class AddInstallerEntry implements Callable<CommandResponse> {
@@ -54,10 +57,6 @@ public class AddInstallerEntry implements Callable<CommandResponse> {
     )
     private Path location;
 
-    @Option(
-            names = { "--cli" },
-            description = "If the command is being executed via CLI Mode",
-            hidden = true
-    )
-    private boolean cliMode;
+    @Unmatched
+    List<String> unmatcheOptions;
 }

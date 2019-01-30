@@ -1,15 +1,21 @@
 package com.oracle.weblogicx.imagebuilder.builder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
+import com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.Unmatched;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
 
 @Command(
         name = "addEntry",
@@ -32,12 +38,11 @@ public class AddEntry implements Callable<CommandResponse> {
     )
     private Path location;
 
-    @Option(
-            names = {"--cli"},
-            description = "CLI Mode",
-            hidden = true
-    )
-    private boolean cliMode;
+    @Unmatched
+    List<String> unmatcheOptions;
+
+    @Spec
+    CommandSpec spec;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -55,8 +60,8 @@ public class AddEntry implements Callable<CommandResponse> {
                 return new CommandResponse(-1, "Command Failed");
             }
         }
-        if (cliMode) {
-            CommandLine.usage(this, System.out);
+        if (unmatcheOptions.contains(CLI_OPTION)) {
+            spec.commandLine().usage(System.out);
         }
         return new CommandResponse(-1, "Invalid arguments. --key & --path required.");
     }

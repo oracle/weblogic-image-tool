@@ -40,13 +40,13 @@ public class ARUUtil {
      */
 
     public static Document getAllWLSReleases(String userId, String password) throws IOException {
-        return getAllReleases("WLS", userId, password);
+        return getAllReleases("wls", userId, password);
     }
 
     /**
      * Return release number of a WLS release by version
      *
-     * @param version WLS version 12.2.1.3.0 etc ...
+     * @param version wls version 12.2.1.3.0 etc ...
      * @param userId  user id for support account
      * @param password password for support account
      * @return release number or empty string if not found
@@ -54,13 +54,13 @@ public class ARUUtil {
      */
     private static String getWLSReleaseNumber(String version, String userId, String password) throws
         IOException {
-        return getReleaseNumber("WLS", version, userId, password);
+        return getReleaseNumber("wls", version, userId, password);
     }
 
     /**
      * Return release number of a FMW release by version
      *
-     * @param version WLS version 12.2.1.3.0 etc ...
+     * @param version wls version 12.2.1.3.0 etc ...
      * @param userId  user id for support account
      * @param password password for support account
      * @return release number or empty string if not found
@@ -68,7 +68,7 @@ public class ARUUtil {
      */
     private static String getFMWReleaseNumber(String version, String userId, String password) throws
         IOException {
-        return getReleaseNumber("FMW", version, userId, password);
+        return getReleaseNumber("fmw", version, userId, password);
     }
 
 
@@ -80,13 +80,13 @@ public class ARUUtil {
      * @throws IOException  when failed to access the aru api
      */
     public static void getAllFMWReleases(String userId, String password) throws IOException {
-        getAllReleases("FMW", userId, password);
+        getAllReleases("fmw", userId, password);
     }
 
 
     /**
      * Download the latest PSU for given category and release
-     * @param category WLS or FMW
+     * @param category wls or fmw
      * @param version version number like 12.2.1.3.0
      * @param userId user
      * @param password password
@@ -100,13 +100,14 @@ public class ARUUtil {
 
     /**
      * Get list of PSU available for given category and release
-     * @param category WLS or FMW
+     * @param category wls or fmw
      * @param version version number like 12.2.1.3.0
      * @param userId user
      * @return Document listing of all patches (full details)
      * @throws IOException when failed
      */
-    public static Document getAllPSUFor(String category, String version, String userId, String password) throws IOException {
+    public static SearchResult getAllPSUFor(String category, String version, String userId, String password) throws
+        IOException {
         String releaseNumber = getReleaseNumber(category, version, userId, password);
         return getAllPSU(category, releaseNumber, userId, password);
     }
@@ -138,7 +139,7 @@ public class ARUUtil {
     /** Validate patches conflicts by passing a list of patches
      *
      * @param patches  A list of patches number
-     * @param category WLS or FMW
+     * @param category wls or fmw
      * @param version version of the prduct
      * @param userId userid for support account
      * @param password password for support account
@@ -222,7 +223,7 @@ public class ARUUtil {
      * @return dom document detail about the patch
      * @throws IOException when something goes wrong
      */
-    public static Document getPatchDetail(String category, String version, String bugNumber, String userId, String
+    public static SearchResult getPatchDetail(String category, String version, String bugNumber, String userId, String
         password)
         throws
         IOException {
@@ -234,7 +235,26 @@ public class ARUUtil {
         else
             url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, bugNumber, releaseNumber);
 
-        return HttpUtil.getXMLContent(url, userId, password);
+        return getSearchResult(HttpUtil.getXMLContent(url, userId, password));
+    }
+
+    private static SearchResult getSearchResult(Document result) throws IOException {
+        SearchResult returnResult = new SearchResult();
+        returnResult.setSuccess(true);
+
+        try {
+            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(result, "/results/error");
+            if (nodeList.getLength() > 0 ) {
+                returnResult.setSuccess(false);
+                returnResult.setErrorMessage(XPathUtil.applyXPathReturnString(result, "/results/error/message"));
+            } else {
+                returnResult.setResults(result);
+            }
+        } catch (XPathExpressionException xpe ) {
+            throw new IOException(xpe);
+        }
+
+        return returnResult;
 
     }
 
@@ -248,7 +268,7 @@ public class ARUUtil {
 
             String expression;
 
-            if ("WLS".equalsIgnoreCase(category)) {
+            if ("wls".equalsIgnoreCase(category)) {
                 expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
             } else {
                 expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
@@ -281,26 +301,27 @@ public class ARUUtil {
     private static String getLatestPSU(String category, String release, String userId, String password) throws
         IOException {
 
-        String expression;
-        if ("WLS".equalsIgnoreCase(category))
-            expression = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
+        String url;
+        if ("wls".equalsIgnoreCase(category))
+            url = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
         else
-            expression = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
+            url = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
 
-        Document allPatches = HttpUtil.getXMLContent(expression, userId, password);
+        Document allPatches = HttpUtil.getXMLContent(url, userId, password);
         return savePatch(allPatches, userId, password);
     }
 
-    private static Document getAllPSU(String category, String release, String userId, String password) throws
+    private static SearchResult getAllPSU(String category, String release, String userId, String password) throws
         IOException {
 
-        String expression;
-        if ("WLS".equalsIgnoreCase(category))
-            expression = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
+        String url;
+        if ("wls".equalsIgnoreCase(category))
+            url = String.format(LATEST_PSU_URL, WLS_PROD_ID, release);
         else
-            expression = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
+            url = String.format(LATEST_PSU_URL, FMW_PROD_ID, release);
 
-        return HttpUtil.getXMLContent(expression, userId, password);
+        return getSearchResult(HttpUtil.getXMLContent(url, userId, password));
+
     }
 
     private static String getPatch(String category, String version, String bugNumber, String userId, String password)
@@ -309,7 +330,7 @@ public class ARUUtil {
 
         String releaseNumber = getReleaseNumber(category, version, userId, password );
         String url;
-        if ("WLS".equalsIgnoreCase(category))
+        if ("wls".equalsIgnoreCase(category))
             url = String.format(PATCH_SEARCH_URL, WLS_PROD_ID, bugNumber, releaseNumber);
         else
             url = String.format(PATCH_SEARCH_URL, FMW_PROD_ID, bugNumber, releaseNumber);
@@ -350,7 +371,7 @@ public class ARUUtil {
                 } else {
                     System.out.println(String.format("patch %s already downloaded for bug %s", fileName, key));
                 }
-                return bugName;
+                return key;
             }
 
         } catch (XPathExpressionException xpe) {
@@ -387,7 +408,6 @@ public class ARUUtil {
         }
         return true;
     }
-
 
 }
 

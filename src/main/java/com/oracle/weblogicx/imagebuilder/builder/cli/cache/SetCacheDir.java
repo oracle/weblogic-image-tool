@@ -2,13 +2,15 @@ package com.oracle.weblogicx.imagebuilder.builder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Unmatched;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
 
 @Command(
         name = "setCacheDir",
@@ -27,7 +29,7 @@ public class SetCacheDir implements Callable<CommandResponse> {
         }
 
         if (META_RESOLVER.setCacheDir(location.toAbsolutePath().toString())) {
-            if (cliMode) {
+            if (unmatcheOptions.contains(CLI_OPTION)) {
                 System.out.println(msg);
             }
             return new CommandResponse(0, msg);
@@ -43,10 +45,6 @@ public class SetCacheDir implements Callable<CommandResponse> {
     )
     private Path location;
 
-    @Option(
-            names = { "--cli" },
-            description = "CLI Mode",
-            hidden = true
-    )
-    private boolean cliMode;
+    @Unmatched
+    List<String> unmatcheOptions;
 }

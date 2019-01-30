@@ -2,7 +2,7 @@
 
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
-public class ARUConstants {
+public final class ARUConstants {
 
     public static final String OPATCH_1394_KEY = "opatch_1394";
     public static final String OPATCH_1394_URL="https://updates.oracle.com/Orion/Services/download/" +
@@ -20,6 +20,10 @@ public class ARUConstants {
     public static final String CACHE_DIR_KEY = "cache.dir";
     public static final String DEFAULT_WLS_VERSION = "12.2.1.3.0";
     public static final String DEFAULT_JDK_VERSION = "8u201";
+    public static final String WEBLOGICX_IMAGEBUILDER = "com/oracle/weblogicx/imagebuilder";
+    public static final String METADATA_PREF_KEY = "metadata.file";
+    public static final String DEFAULT_META_FILE = ".metadata";
+    public static final String CLI_OPTION = "--cli";
 
     private ARUConstants() {
         //restrict access

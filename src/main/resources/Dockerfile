@@ -51,7 +51,7 @@ COPY $ORAINST $INV_LOC
 RUN tar xzvf $TMPDIR/$JAVA_PKG -C /u01 \
  && mv /u01/jdk1.8* $JAVA_HOME \
  && unzip $TMPDIR/$WLS_PKG -d $TMPDIR \
- && $JAVA_HOME/bin/java -Xmx1024m -jar $TMPDIR/fmw_*.jar -silent \
+ && $JAVA_HOME/bin/java -Xmx1024m -jar $TMPDIR/fmw_*.jar -silent ORACLE_HOME=$MW_HOME \
     -responseFile $TMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST
 
 # Prep for patches and install latest opatch

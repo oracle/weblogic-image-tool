@@ -17,6 +17,9 @@ public class WLSCommandLine {
                                                     String... args) {
         CommandLine cmd = new CommandLine(callable);
         cmd.setCaseInsensitiveEnumValuesAllowed(ignoreCaseForEnums);
+        cmd.setToggleBooleanFlags(false);
+        cmd.setUnmatchedArgumentsAllowed(true);
+
         List<Object> results = cmd.parseWithHandlers(new CommandLine.RunLast().useOut(out).useAnsi(ansi),
                 new CommandLine.DefaultExceptionHandler<List<Object>>().useErr(err).useAnsi(ansi), args);
         @SuppressWarnings("unchecked") T result = results == null || results.isEmpty() ? null : (T) results.get(0);

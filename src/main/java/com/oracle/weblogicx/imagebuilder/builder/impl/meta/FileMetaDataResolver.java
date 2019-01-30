@@ -14,11 +14,15 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CACHE_DIR_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAULT_META_FILE;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.METADATA_PREF_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.WEBLOGICX_IMAGEBUILDER;
 
 public enum FileMetaDataResolver implements MetaDataResolver {
 
@@ -28,15 +32,16 @@ public enum FileMetaDataResolver implements MetaDataResolver {
     private static String metadataPath;
     private static final String DEFAULT_CACHE_DIR = Paths.get(System.getProperty("user.home"), "cache")
             .toAbsolutePath().toString();
-    private static final String DEFAULT_META_PATH = DEFAULT_CACHE_DIR + File.separator + ".metadata";
+    private static final String DEFAULT_META_PATH = DEFAULT_CACHE_DIR + File.separator + DEFAULT_META_FILE;
+    private static final Preferences preferences = Preferences.userRoot().node(WEBLOGICX_IMAGEBUILDER);
 
     static {
         try {
-            final Preferences preferences = Preferences.userNodeForPackage(META_RESOLVER.getClass());
-            metadataPath = preferences.get("metadata.file", null);
+//            final Preferences preferences = Preferences.userNodeForPackage(META_RESOLVER.getClass());
+            metadataPath = preferences.get(METADATA_PREF_KEY, null);
             if (metadataPath == null || metadataPath.isEmpty()) {
                 metadataPath = DEFAULT_META_PATH;
-                preferences.put("metadata.file", metadataPath);
+                preferences.put(METADATA_PREF_KEY, metadataPath);
                 preferences.flush();
             }
             File metadataFile = new File(metadataPath);
@@ -56,7 +61,7 @@ public enum FileMetaDataResolver implements MetaDataResolver {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(1);
+            System.exit(-1);
         }
     }
 
@@ -68,7 +73,7 @@ public enum FileMetaDataResolver implements MetaDataResolver {
     @Override
     public String getValueFromCache(String key) {
         Objects.requireNonNull(key, "key cannot be null");
-        return properties.getProperty(key);
+        return properties.getProperty(key.toLowerCase());
     }
 
     @Override
@@ -76,21 +81,24 @@ public enum FileMetaDataResolver implements MetaDataResolver {
         if (key == null || value == null) {
             return false;
         }
-        return value.equalsIgnoreCase(properties.getProperty(key));
+        return value.equals(properties.getProperty(key.toLowerCase()));
     }
 
     @Override
     public boolean addToCache(String key, String value) {
         Objects.requireNonNull(key, "key cannot be null");
         Objects.requireNonNull(value, "Cache item value cannot be null");
-        properties.put(key, value);
+        properties.put(key.toLowerCase(), value);
         return persistToDisk();
     }
 
     @Override
     public String deleteFromCache(String key) {
         Objects.requireNonNull(key, "key cannot be null");
-        String oldValue = (String) properties.remove(key);
+        if (CACHE_DIR_KEY.equals(key.toLowerCase())) {
+            return null;
+        }
+        String oldValue = (String) properties.remove(key.toLowerCase());
         if (oldValue != null) {
             persistToDisk();
         }
@@ -104,21 +112,6 @@ public enum FileMetaDataResolver implements MetaDataResolver {
                 e -> String.valueOf(e.getKey()),
                 e -> String.valueOf(e.getValue())));
     }
-
-//    private static boolean saveProperties(String key, String value) {
-//        boolean retVal = true;
-//        synchronized (properties) {
-//            //caller checks for null key, value
-//            properties.put(key, value);
-//            try (FileOutputStream outputStream = new FileOutputStream(metadataPath)) {
-//                properties.store(outputStream, "changed on:" + LocalDateTime.now());
-//            } catch (IOException e) {
-//                retVal = false;
-//                e.printStackTrace();
-//            }
-//        }
-//        return retVal;
-//    }
 
     private static boolean persistToDisk() {
         boolean retVal = true;
@@ -141,7 +134,7 @@ public enum FileMetaDataResolver implements MetaDataResolver {
                 System.out.println("******* Can this be? ******");
                 Properties tmpProperties = new Properties();
                 tmpProperties.load(bufferedReader);
-                tmpProperties.forEach(properties::put);
+                tmpProperties.forEach((key, value) -> properties.put(((String) key).toLowerCase(), value));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -151,7 +144,21 @@ public enum FileMetaDataResolver implements MetaDataResolver {
     public boolean setCacheDir(String cacheDirPath) {
         if (cacheDirPath != null && !cacheDirPath.equals(getCacheDir())) {
             properties.put(CACHE_DIR_KEY, cacheDirPath);
-            return persistToDisk();
+            try {
+                metadataPath = getCacheDir() + File.separator + DEFAULT_META_FILE;
+                File metaDataFile = new File(metadataPath);
+                if (metaDataFile.exists() && metaDataFile.isFile()) {
+                    loadProperties(metaDataFile);
+                } else {
+                    metaDataFile.getParentFile().mkdirs();
+                    metaDataFile.createNewFile();
+                }
+                preferences.put(METADATA_PREF_KEY, metadataPath);
+                preferences.flush();
+                return persistToDisk();
+            } catch (BackingStoreException | IOException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
