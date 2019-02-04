@@ -1,8 +1,8 @@
 package com.oracle.weblogicx.imagebuilder.builder.cli;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.builder.cli.build.CreateImage;
-import com.oracle.weblogicx.imagebuilder.builder.cli.build.UpdateImage;
+import com.oracle.weblogicx.imagebuilder.builder.cli.menu.CreateImage;
+import com.oracle.weblogicx.imagebuilder.builder.cli.menu.UpdateImage;
 import com.oracle.weblogicx.imagebuilder.builder.cli.cache.CacheCLI;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -18,7 +18,7 @@ import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OP
 @Command(
         name = "imagebuilder",
         mixinStandardHelpOptions = true,
-        description = "%nImageBuilder is a tool to help build docker images of WebLogic with selected " +
+        description = "%nImageBuilder is a tool to help menu docker images of WebLogic with selected " +
                       "patches and/or psu(s) applied.%n",
         version = "1.0",
         sortOptions = false,
