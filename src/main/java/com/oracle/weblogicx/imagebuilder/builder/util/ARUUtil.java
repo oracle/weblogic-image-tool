@@ -3,8 +3,6 @@
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,9 +22,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import static com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver.CACHE_KEY_SEPARATOR;
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.ARU_LANG_URL;
-import static com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver.CACHE_KEY_SEPARATOR;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CONFLICTCHECKER_URL;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.FMW_PROD_ID;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.GET_LSINVENTORY_URL;
@@ -191,7 +189,7 @@ public class ARUUtil {
             String inventoryContent = new String(Files.readAllBytes(Paths.get(lsInventoryPath)));
             String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent +
                  "</lsinventory_output></inventory_upi_request>";
-            
+
             Document upiResult = HttpUtil.postCheckConflictRequest(GET_LSINVENTORY_URL, upiPayload, userId,
                 password);
 
