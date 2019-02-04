@@ -132,10 +132,15 @@ public class HttpUtil {
         httpExecutor.use(cookieStore);
 
         // Has to do search first, otherwise results in 302
-        getXMLContent(REL_URL, username, password);
+        // MUST use the same httpExecutor to maintain session
+
+
+        httpExecutor
+            .execute(Request.Get(REL_URL).connectTimeout(30000).socketTimeout(30000))
+            .returnContent().asString();
 
         HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-            .addPart(FormBodyPartBuilder.create("request_xml", new StringBody(payload, ContentType.TEXT_PLAIN)).build())
+            .addTextBody("request_xml", payload)
             .build();
 
         String xmlString =
@@ -158,6 +163,5 @@ public class HttpUtil {
         }
 
     }
-
 
 }

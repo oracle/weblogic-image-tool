@@ -3,7 +3,11 @@
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +20,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -24,6 +29,7 @@ import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.ARU_LA
 import static com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver.CACHE_KEY_SEPARATOR;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CONFLICTCHECKER_URL;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.FMW_PROD_ID;
+import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.GET_LSINVENTORY_URL;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.LATEST_PSU_URL;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.PATCH_SEARCH_URL;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.REL_URL;
@@ -158,6 +164,7 @@ public class ARUUtil {
 
     /** Validate patches conflicts by passing a list of patches
      *
+     * @param lsInventoryPath  opatch lsinventory result path (null if non is passed)
      * @param patches  A list of patches number
      * @param category wls or fmw
      * @param version version of the prduct
@@ -167,17 +174,57 @@ public class ARUUtil {
      * @throws IOException  when failed to access the aru api
      */
 
-    public static ValidationResult validatePatches(List<String> patches, String category, String version, String userId, String
-        password) throws IOException {
+    public static ValidationResult validatePatches(String lsInventoryPath, List<String> patches, String category,
+        String version, String userId, String password) throws IOException {
 
 
         ValidationResult validationResult = new ValidationResult();
         validationResult.setSuccess(true);
         validationResult.setResults(null);
 
-        StringBuffer payload = new StringBuffer
-            ("<conflict_check_request><platform>2000</platform><target_patch_list/>");
         String releaseNumber = getReleaseNumber(category, version, userId, password);
+
+        StringBuffer payload = new StringBuffer
+            ("<conflict_check_request><platform>2000</platform>");
+
+        if (lsInventoryPath != null ) {
+            String inventoryContent = new String(Files.readAllBytes(Paths.get(lsInventoryPath)));
+            String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent +
+                 "</lsinventory_output></inventory_upi_request>";
+
+          //  System.out.println(upiPayload);
+            Document upiResult = HttpUtil.postCheckConflictRequest(GET_LSINVENTORY_URL, upiPayload, userId,
+                password);
+
+            XPathUtil.prettyPrint(upiResult);
+
+            try {
+                NodeList upi_list = XPathUtil.applyXPathReturnNodeList(upiResult,
+                    "/inventory_upi_response/upi");
+                if (upi_list.getLength() > 0) {
+                    payload.append("<target_patch_list>");
+
+                    for ( int ii=0; ii < upi_list.getLength(); ii++) {
+                        Node upi = upi_list.item(ii);
+                        NamedNodeMap m = upi.getAttributes();
+                        payload.append(String.format("<installed_patch upi=\"%s\"/>",
+                            m.getNamedItem("number").getNodeValue()));
+
+                    }
+                    payload.append("</target_patch_list>");
+                }
+                else {
+                    payload.append("<target_patch_list/>");
+                }
+            } catch(XPathExpressionException xpe) {
+                throw new IOException(xpe);
+
+            }
+
+        } else {
+            payload.append("<target_patch_list/>");
+        }
+
 
         for (String patch : patches) {
             payload.append(String.format("<candidate_patch_list rel_id=\"%s\">%s</conflict_check_request>",
@@ -429,5 +476,20 @@ public class ARUUtil {
         return true;
     }
 
+    public static void main(String args[]) throws Exception {
+
+//        public static ValidationResult validatePatches(String  lsInventoryPath, List<String> patches, String category,
+//            String version, String userId, String password) throws IOException {
+
+        List<String> patches = new ArrayList<String>();
+        patches.add("26261906");
+
+            ARUUtil.validatePatches("/home/johnny/Downloads//conflict-demo/myinv.txt", null, null, null, "johnny"
+                    + ".shum@oracle.com",
+                "iJCPiUah7jdmLk1E");
+//        ARUUtil.validatePatches(null, patches, null, null, "johnny"
+//                + ".shum@oracle.com",
+//            "iJCPiUah7jdmLk1E");
+    }
 }
 
