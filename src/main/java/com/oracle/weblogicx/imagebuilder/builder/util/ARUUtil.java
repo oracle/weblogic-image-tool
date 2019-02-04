@@ -476,20 +476,5 @@ public class ARUUtil {
         return true;
     }
 
-    public static void main(String args[]) throws Exception {
-
-//        public static ValidationResult validatePatches(String  lsInventoryPath, List<String> patches, String category,
-//            String version, String userId, String password) throws IOException {
-
-        List<String> patches = new ArrayList<String>();
-        patches.add("26261906");
-
-            ARUUtil.validatePatches("/home/johnny/Downloads//conflict-demo/myinv.txt", null, null, null, "johnny"
-                    + ".shum@oracle.com",
-                "iJCPiUah7jdmLk1E");
-//        ARUUtil.validatePatches(null, patches, null, null, "johnny"
-//                + ".shum@oracle.com",
-//            "iJCPiUah7jdmLk1E");
-    }
 }
 
