@@ -191,12 +191,9 @@ public class ARUUtil {
             String inventoryContent = new String(Files.readAllBytes(Paths.get(lsInventoryPath)));
             String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent +
                  "</lsinventory_output></inventory_upi_request>";
-
-          //  System.out.println(upiPayload);
+            
             Document upiResult = HttpUtil.postCheckConflictRequest(GET_LSINVENTORY_URL, upiPayload, userId,
                 password);
-
-            XPathUtil.prettyPrint(upiResult);
 
             try {
                 NodeList upi_list = XPathUtil.applyXPathReturnNodeList(upiResult,
