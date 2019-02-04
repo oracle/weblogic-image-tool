@@ -3,13 +3,14 @@
 package com.oracle.weblogicx.imagebuilder.builder.api.meta;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * This is the interface that helps keep track of application metadata like
  * which patches have been downloaded and their location on disk.
  */
 public interface MetaDataResolver {
+
+    String CACHE_KEY_SEPARATOR = "_";
 
     /**
      * Cache dir used by this application. cache dir is where the application downloads

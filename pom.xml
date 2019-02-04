@@ -13,7 +13,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <shade-plugin-version>3.2.1</shade-plugin-version>
-        <JAVA8_HOME></JAVA8_HOME>
     </properties>
 
     <dependencies>
@@ -31,6 +30,11 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>3.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger</artifactId>
+            <version>2.19</version>
         </dependency>
     </dependencies>
 

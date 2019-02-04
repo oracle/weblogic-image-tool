@@ -3,6 +3,8 @@
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -61,5 +63,41 @@ public class Utils {
             }
         }
         return logFilePath;
+    }
+
+    public static void setProxyIfRequired(String httpProxyUrl, String httpsProxyUrl) throws Exception {
+        if (httpProxyUrl != null && !httpProxyUrl.isEmpty()) {
+            setSystemProxy(httpProxyUrl, "http");
+        }
+        if (httpsProxyUrl != null && !httpsProxyUrl.isEmpty()) {
+            setSystemProxy(httpsProxyUrl, "https");
+        }
+    }
+
+    private static void setSystemProxy(String proxyUrl, String protocolToSet) throws Exception {
+        try {
+            URL url = new URL(proxyUrl);
+            String host = url.getHost();
+            int port = url.getPort() == -1 ? url.getDefaultPort() : url.getPort();
+            String userInfo = url.getUserInfo();
+            String protocol = protocolToSet == null ? url.getProtocol() : protocolToSet;
+
+            if (host != null && port != -1) {
+                System.setProperty(String.format("%s.proxyHost", protocol), host);
+                System.setProperty(String.format("%s.proxyPort", protocol), String.valueOf(port));
+                if (userInfo != null) {
+                    String[] strings = userInfo.split(":");
+                    if (strings.length == 2) {
+                        System.setProperty(String.format("%s.proxyUser", protocol), strings[0]);
+                        System.setProperty(String.format("%s.proxyPassword", protocol), strings[1]);
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
+//            String message = String.format(
+//                    "Exception in setSystemProxy: proxyUrl = %s, protocolToSet = %s, message = %s", proxyUrl,
+//                    protocolToSet, e.getMessage());
+            throw e;
+        }
     }
 }

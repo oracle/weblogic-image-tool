@@ -21,7 +21,7 @@ import org.w3c.dom.NodeList;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.ARU_LANG_URL;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CACHE_KEY_SEPARATOR;
+import static com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver.CACHE_KEY_SEPARATOR;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CONFLICTCHECKER_URL;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.FMW_PROD_ID;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.LATEST_PSU_URL;
@@ -112,7 +112,27 @@ public class ARUUtil {
         return getAllPSU(category, releaseNumber, userId, password);
     }
 
-
+    /**
+     * Get list of PSU available for given category and release
+     * @param category wls or fmw
+     * @param version version number like 12.2.1.3.0
+     * @param userId user
+     * @return Document listing of all patches (full details)
+     * @throws IOException when failed
+     */
+    public static String getLatestPSUNumber(String category, String version, String userId, String password) {
+        try {
+            String releaseNumber = getReleaseNumber(category, version, userId, password);
+            SearchResult searchResult = getAllPSU(category, releaseNumber, userId, password);
+            if (searchResult.isSuccess()) {
+                Document results = searchResult.getResults();
+                return XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
+            }
+        } catch (IOException | XPathExpressionException e) {
+            //suppress exception
+        }
+        return null;
+    }
 
     /**
      * Download a list of FMW patches

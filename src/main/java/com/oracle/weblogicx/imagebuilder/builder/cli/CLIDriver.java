@@ -1,7 +1,8 @@
 package com.oracle.weblogicx.imagebuilder.builder.cli;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.builder.cli.build.BuildWLSImage;
+import com.oracle.weblogicx.imagebuilder.builder.cli.build.CreateImage;
+import com.oracle.weblogicx.imagebuilder.builder.cli.build.UpdateImage;
 import com.oracle.weblogicx.imagebuilder.builder.cli.cache.CacheCLI;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
 import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
 
 @Command(
-        name = "builder",
+        name = "imagebuilder",
         mixinStandardHelpOptions = true,
         description = "%nImageBuilder is a tool to help build docker images of WebLogic with selected " +
                       "patches and/or psu(s) applied.%n",
@@ -23,7 +24,8 @@ import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OP
         sortOptions = false,
         subcommands = {
                 CacheCLI.class,
-                BuildWLSImage.class,
+                CreateImage.class,
+                UpdateImage.class,
                 HelpCommand.class
         },
         requiredOptionMarker = '*',
@@ -45,7 +47,7 @@ public class CLIDriver implements Callable<CommandResponse> {
         } else {
             List<String> argsList = Stream.of(args).collect(Collectors.toList());
             argsList.add(CLI_OPTION);
-//            CommandLine commandLine = new CommandLine(new BuildWLSImage())
+//            CommandLine commandLine = new CommandLine(new CreateImage())
 //                    .setCaseInsensitiveEnumValuesAllowed(true)
 //                    .setUsageHelpWidth(120);
 //

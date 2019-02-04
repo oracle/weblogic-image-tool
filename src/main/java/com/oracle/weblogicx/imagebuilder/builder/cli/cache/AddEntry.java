@@ -33,10 +33,10 @@ public class AddEntry implements Callable<CommandResponse> {
 
     @Option(
             names = {"--path"},
-            description = "Value for the cache entry. A file path on the local disk",
+            description = "Value for the cache entry",
             required = true
     )
-    private Path location;
+    private String location;
 
     @Unmatched
     List<String> unmatcheOptions;
@@ -46,7 +46,7 @@ public class AddEntry implements Callable<CommandResponse> {
 
     @Override
     public CommandResponse call() throws Exception {
-        if (key != null && !key.isEmpty() && location != null && Files.exists(location)) {
+        if (key != null && !key.isEmpty() && location != null && !location.isEmpty()) {
             String oldValue = META_RESOLVER.getValueFromCache(key);
             String msg;
             if (oldValue != null) {
@@ -54,7 +54,7 @@ public class AddEntry implements Callable<CommandResponse> {
             } else {
                 msg = String.format("Added entry %s=%s", key, location);
             }
-            if (META_RESOLVER.addToCache(key, location.toAbsolutePath().toString())) {
+            if (META_RESOLVER.addToCache(key, location)) {
                 return new CommandResponse(0, msg);
             } else {
                 return new CommandResponse(-1, "Command Failed");
