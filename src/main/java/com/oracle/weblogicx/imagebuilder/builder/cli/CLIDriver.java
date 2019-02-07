@@ -2,6 +2,7 @@ package com.oracle.weblogicx.imagebuilder.builder.cli;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.builder.cli.menu.CreateImage;
+import com.oracle.weblogicx.imagebuilder.builder.cli.menu.PublishImage;
 import com.oracle.weblogicx.imagebuilder.builder.cli.menu.UpdateImage;
 import com.oracle.weblogicx.imagebuilder.builder.cli.cache.CacheCLI;
 import picocli.CommandLine;
@@ -13,12 +14,12 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CLI_OPTION;
 
 @Command(
         name = "imagebuilder",
         mixinStandardHelpOptions = true,
-        description = "%nImageBuilder is a tool to help menu docker images of WebLogic with selected " +
+        description = "%nImageBuilder is a tool to build docker images of WebLogic with selected " +
                       "patches and/or psu(s) applied.%n",
         version = "1.0",
         sortOptions = false,
@@ -26,6 +27,7 @@ import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OP
                 CacheCLI.class,
                 CreateImage.class,
                 UpdateImage.class,
+                PublishImage.class,
                 HelpCommand.class
         },
         requiredOptionMarker = '*',

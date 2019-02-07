@@ -19,10 +19,12 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CACHE_DIR_KEY;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAULT_META_FILE;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.METADATA_PREF_KEY;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.WEBLOGICX_IMAGEBUILDER;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CACHE_DIR_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.DEFAULT_META_FILE;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.METADATA_PREF_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.OPATCH_1394_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.OPATCH_1394_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.WEBLOGICX_IMAGEBUILDER;
 
 public enum FileMetaDataResolver implements MetaDataResolver {
 
@@ -53,6 +55,10 @@ public enum FileMetaDataResolver implements MetaDataResolver {
             }
             if (properties.getProperty(CACHE_DIR_KEY) == null) {
                 properties.put(CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
+                persistToDisk();
+            }
+            if (properties.getProperty(OPATCH_1394_KEY + "_url") == null) {
+                properties.put(OPATCH_1394_KEY + "_url", OPATCH_1394_URL);
                 persistToDisk();
             }
             File cacheDir = new File(properties.getProperty(CACHE_DIR_KEY));

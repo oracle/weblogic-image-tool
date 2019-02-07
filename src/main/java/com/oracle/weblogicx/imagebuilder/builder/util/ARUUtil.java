@@ -20,14 +20,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.ARU_LANG_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.ARU_LANG_URL;
 import static com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver.CACHE_KEY_SEPARATOR;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CONFLICTCHECKER_URL;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.FMW_PROD_ID;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.LATEST_PSU_URL;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.PATCH_SEARCH_URL;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.REL_URL;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.WLS_PROD_ID;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CONFLICTCHECKER_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.FMW_PROD_ID;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.LATEST_PSU_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.PATCH_SEARCH_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.REL_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.WLS_PROD_ID;
 
 public class ARUUtil {
 

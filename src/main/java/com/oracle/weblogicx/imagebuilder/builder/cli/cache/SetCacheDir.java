@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CLI_OPTION;
 
 @Command(
         name = "setCacheDir",

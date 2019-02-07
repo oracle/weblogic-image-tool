@@ -1,21 +1,17 @@
 package com.oracle.weblogicx.imagebuilder.builder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CLI_OPTION;
 
 @Command(
         name = "addEntry",

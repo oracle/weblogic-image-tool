@@ -14,8 +14,8 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CACHE_DIR_KEY;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.WEBLOGICX_IMAGEBUILDER;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CACHE_DIR_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.WEBLOGICX_IMAGEBUILDER;
 
 public enum PrefMetaDataResolver implements MetaDataResolver {
 

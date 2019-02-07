@@ -7,6 +7,8 @@ import com.oracle.weblogicx.imagebuilder.builder.util.HttpUtil;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import static com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver.CACHE_KEY_SEPARATOR;
@@ -16,6 +18,7 @@ public class InstallerFile extends AbstractFile {
     private boolean tryToDownload;
     private String userId;
     private String password;
+    private InstallerType type = null;
 
     public InstallerFile(String key, boolean tryToDownload) {
         super(key);
@@ -24,14 +27,13 @@ public class InstallerFile extends AbstractFile {
 
     public InstallerFile(String key, boolean tryToDownload, String userId, String password) {
         this(key, tryToDownload);
-        Objects.requireNonNull(userId, "userId cannot be null");
-        Objects.requireNonNull(password, "password cannot be null");
         this.userId = userId;
         this.password = password;
     }
 
     public InstallerFile(InstallerType type, String version, boolean tryToDownload, String userId, String password) {
         this(type.toString() + CACHE_KEY_SEPARATOR + version, tryToDownload, userId, password);
+        this.type = type;
     }
 
     @Override
@@ -45,7 +47,9 @@ public class InstallerFile extends AbstractFile {
                 if (urlPath != null) {
                     String fileName = new URL(urlPath).getPath();
                     fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
-                    String targetFilePath = metaDataResolver.getCacheDir() + File.separator + fileName;
+                    String targetFilePath = metaDataResolver.getCacheDir() + File.separator + key +
+                            File.separator + fileName;
+                    new File(targetFilePath).getParentFile().mkdirs();
                     System.out.println("1. Downloading from " + urlPath + " to " + targetFilePath);
                     HttpUtil.downloadFile(urlPath, targetFilePath, userId, password);
                     metaDataResolver.addToCache(key, targetFilePath);
@@ -59,5 +63,12 @@ public class InstallerFile extends AbstractFile {
             }
         }
         return filePath;
+    }
+
+    public List<String> getBuildArg(String location) {
+        if (type != null) {
+            return type.getBuildArg(location);
+        }
+        return Collections.emptyList();
     }
 }

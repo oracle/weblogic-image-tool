@@ -5,8 +5,8 @@ package com.oracle.weblogicx.imagebuilder.builder.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,6 +19,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
@@ -32,15 +33,15 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.json.JSONArray;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.REL_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.REL_URL;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.WDT_TAGS_URL;
 
 public class HttpUtil {
-
-    private static final Map<String, HttpClient> userClientMap = new ConcurrentHashMap<>();
 
     /**
      * Return the xml result of a GET from the url
@@ -74,16 +75,18 @@ public class HttpUtil {
     private static HttpClient getOraClient(String userId, String password) {
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
+        config.setCookieSpec(CookieSpecs.STANDARD);
 
         CookieStore cookieStore = new BasicCookieStore();
-        BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
-        cc.setDomain("edelivery.oracle.com");
-        cookieStore.addCookie(cc);
-
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
-                userId, password));
 
+        if (userId != null && password != null) {
+            BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
+            cc.setDomain("edelivery.oracle.com");
+            cookieStore.addCookie(cc);
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
+                    userId, password));
+        }
         return HttpClientBuilder.create().setDefaultRequestConfig(config.build())
                 .setDefaultCookieStore(cookieStore).useSystemProperties()
                 .setDefaultCredentialsProvider(credentialsProvider).build();
@@ -101,6 +104,12 @@ public class HttpUtil {
 
     public static void downloadFile(String url, String fileName, String username, String password)
         throws IOException {
+//        HttpClient httpClient;
+//        if (username == null && password == null) {
+//            httpClient = HttpClientBuilder.create().useSystemProperties().build();
+//        } else {
+//            httpClient = getOraClient(username, password);
+//        }
         Executor.newInstance(getOraClient(username, password))
                 .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .saveContent(new File(fileName));
@@ -159,5 +168,14 @@ public class HttpUtil {
 
     }
 
-
+    public static List<String> getWDTTags() throws IOException {
+        List<String> retVal = new ArrayList<>();
+        String results = Executor.newInstance(getOraClient(null, null)).execute(Request.Get(WDT_TAGS_URL))
+                .returnContent().asString();
+        JSONArray jsonArr = new JSONArray(results);
+        for (int i=0; i < jsonArr.length(); i++) {
+            retVal.add(jsonArr.getJSONObject(i).getString("name"));
+        }
+        return retVal;
+    }
 }

@@ -5,10 +5,17 @@ package com.oracle.weblogicx.imagebuilder.builder.util;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -19,20 +26,21 @@ public class Utils {
     /**
      * Utility method to copy a resource from the jar to local file system
      * @param resourcePath resource path in the jar
-     * @param destPath local file to copy to. this has to be a file
+     * @param destPath local file to copy to.
      * @throws IOException in case of error
      */
     public static void copyResourceAsFile(String resourcePath, String destPath) throws IOException {
-        try (
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-                        Utils.class.getResourceAsStream(resourcePath)));
-                PrintWriter printWriter = new PrintWriter(new FileWriter(new File(destPath)))
-        ) {
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                printWriter.println(line);
+        Objects.requireNonNull(resourcePath);
+        Objects.requireNonNull(destPath);
+        if (Files.isDirectory(Paths.get(destPath))) {
+            if (resourcePath.contains("/")) {
+                destPath = destPath + File.separator + resourcePath.substring(resourcePath.lastIndexOf("/") + 1);
+            } else {
+                destPath = destPath + File.separator + resourcePath;
             }
         }
+        Files.copy(Utils.class.getResourceAsStream(resourcePath), Paths.get(destPath),
+                StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -100,4 +108,60 @@ public class Utils {
             throw e;
         }
     }
+
+    public static void replacePlaceHolders(String destPath, String mainResource, String ...placeHolderResources) throws IOException {
+        try (
+                PrintWriter printWriter = new PrintWriter(new FileWriter(new File(destPath)))
+        ) {
+            String mainContent = readResource(mainResource);
+            if (mainContent.indexOf("# PLACEHOLDER FOR %%") > 0) {
+
+                Map<String, String> placeHolderMap = new HashMap<>();
+                for (String placeHolderResource : placeHolderResources) {
+                    placeHolderMap.putAll(readPlaceHolderResource(placeHolderResource));
+                }
+
+                for (Map.Entry<String, String> entry : placeHolderMap.entrySet()) {
+                    String regex = "# PLACEHOLDER FOR %%" + entry.getKey() + "%% #";
+                    mainContent = mainContent.replaceAll(regex, Matcher.quoteReplacement(entry.getValue()));
+                }
+            }
+            printWriter.println(mainContent);
+        }
+    }
+
+    private static Map<String, String> readPlaceHolderResource(String resourcePath) throws IOException {
+        String resourceContent = readResource(resourcePath);
+        final String regex = "# START %%(\\S+)%% #(.*)# END %%(\\1)%% #";
+        final Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+        final Matcher matcher = pattern.matcher(resourceContent);
+        Map<String, String> retMap = new HashMap<>();
+        while (matcher.find()) {
+            if ( matcher.groupCount() == 3) {
+                if (matcher.group(1).equals(matcher.group(3))) {
+                    retMap.put(matcher.group(1), matcher.group(2));
+                } else {
+                    System.out.println("Did not find closing pattern for " + matcher.group(1) + " in resource " +
+                            resourcePath);
+                }
+            } else {
+                System.out.println("pattern mismatch in resource " + resourcePath);
+            }
+        }
+        return retMap;
+    }
+
+    private static String readResource(String resourcePath) throws IOException {
+        try (BufferedReader resourceReader = new BufferedReader(new InputStreamReader(Utils.class.getResourceAsStream(resourcePath)))) {
+            String line;
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((line = resourceReader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(System.lineSeparator());
+            }
+            return stringBuilder.toString();
+        }
+    }
+
+
 }

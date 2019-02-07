@@ -16,4 +16,8 @@ public abstract class AbstractFile implements FileResolver {
     protected boolean isFileOnDisk(String filePath) {
         return filePath != null && Files.isRegularFile(Paths.get(filePath));
     }
+
+    public String getKey() {
+        return key;
+    }
 }

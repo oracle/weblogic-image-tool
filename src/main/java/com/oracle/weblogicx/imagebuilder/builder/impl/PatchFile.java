@@ -19,15 +19,15 @@ public class PatchFile extends AbstractFile {
     private WLSInstallerType type;
     private String version;
 
-    public PatchFile(String key) {
-        super(key);
-    }
+//    public PatchFile(String key) {
+//        super(key);
+//    }
 
-    private PatchFile(String key, String userId, String password) {
-        this(key);
-        this.userId = userId;
-        this.password = password;
-    }
+//    private PatchFile(String key, String userId, String password) {
+//        this(key);
+//        this.userId = userId;
+//        this.password = password;
+//    }
 
     public PatchFile(WLSInstallerType type, String version, String patchId, String userId, String password) {
         super(null);

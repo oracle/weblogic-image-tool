@@ -3,7 +3,7 @@ package com.oracle.weblogicx.imagebuilder.builder.api.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAULT_JDK_VERSION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.DEFAULT_JDK_VERSION;
 
 public class JDKVersionValues extends ArrayList<String> {
     JDKVersionValues() {

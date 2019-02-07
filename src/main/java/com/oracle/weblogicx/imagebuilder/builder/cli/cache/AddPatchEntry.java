@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
 import static com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver.CACHE_KEY_SEPARATOR;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAULT_WLS_VERSION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.DEFAULT_WLS_VERSION;
 
 @Command(
         name = "addPatch",

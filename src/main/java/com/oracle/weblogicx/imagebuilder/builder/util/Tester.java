@@ -1,6 +1,5 @@
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
-import com.oracle.weblogicx.imagebuilder.builder.api.model.WLSInstallerType;
 import org.w3c.dom.Document;
 
 import javax.xml.transform.OutputKeys;
@@ -9,21 +8,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAULT_WLS_VERSION;
 
 public class Tester {
 

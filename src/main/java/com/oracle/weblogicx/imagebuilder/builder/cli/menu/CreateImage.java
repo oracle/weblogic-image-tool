@@ -10,7 +10,9 @@ import com.oracle.weblogicx.imagebuilder.builder.api.model.WLSInstallerType;
 import com.oracle.weblogicx.imagebuilder.builder.api.model.WLSVersionValues;
 import com.oracle.weblogicx.imagebuilder.builder.impl.InstallerFile;
 import com.oracle.weblogicx.imagebuilder.builder.impl.PatchFile;
+import com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver;
 import com.oracle.weblogicx.imagebuilder.builder.util.ARUUtil;
+import com.oracle.weblogicx.imagebuilder.builder.util.HttpUtil;
 import com.oracle.weblogicx.imagebuilder.builder.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -18,6 +20,7 @@ import picocli.CommandLine.Unmatched;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,10 +30,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -41,9 +44,12 @@ import java.util.stream.Stream;
 
 import static com.oracle.weblogicx.imagebuilder.builder.api.model.CachePolicy.ALWAYS;
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAULT_WLS_VERSION;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.OPATCH_1394_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.BUILD_ARG;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CLI_OPTION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.DEFAULT_WLS_VERSION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.OPATCH_1394_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.REQD_WDT_BUILD_ARGS;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.WDT_URL_FORMAT;
 
 @Command(
         name = "create",
@@ -88,82 +94,31 @@ public class CreateImage implements Callable<CommandResponse> {
 
             List<String> cmdBuilder = getInitialBuildCmd();
 
-            if (wdtModelPath != null) {
-                if (Files.isRegularFile(wdtModelPath)) {
-                    // bake in wdt
-                } else {
-                    return new CommandResponse(-1, "WDT model file " + wdtModelPath + " not found", wdtModelPath);
-                }
-            }
-
-            // Step 3: create a tmp directory for user. TODO: make it unique per user
+            // create a tmp directory for user.
             tmpDir = Files.createTempDirectory(null);
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
             System.out.println("tmpDir = " + tmpDirPath);
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
             String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
 
-            List<String> requiredInstallers = gatherRequiredInstallerKeys();
-            for (String eachKey : requiredInstallers) {
-                FileResolver fileResolver = new InstallerFile(eachKey, (useCache != ALWAYS), userId, password);
-                String targetFilePath = fileResolver.resolve(META_RESOLVER);
-                File targetFile = new File(targetFilePath);
-                Path targetLink = Files.createLink(Paths.get(tmpDirPath, targetFile.getName()),
-                        Paths.get(targetFilePath));
-                if (eachKey.contains(InstallerType.JDK.toString())) {
-                    cmdBuilder.add("--menu-arg");
-                    cmdBuilder.add("JAVA_PKG=" + tmpDir.relativize(targetLink).toString());
-                } else if (eachKey.contains(InstallerType.WLS.toString()) ||
-                        eachKey.contains(InstallerType.FMW.toString())) {
-                    cmdBuilder.add("--menu-arg");
-                    cmdBuilder.add("WLS_PKG=" + tmpDir.relativize(targetLink).toString());
-                }
-            }
+            // build wdt args if user passes --wdtModelPath
+            cmdBuilder.addAll(handleWDTArgsIfRequired(tmpDir));
 
-            // Step 4: resolve required patches
-            List<String> patchLocations = new ArrayList<>();
-            if (latestPSU) {
-                System.out.println("Getting latest PSU");
-                FileResolver psuResolver = new PatchFile(installerType, installerVersion, null, userId, password);
-                patchLocations.add(psuResolver.resolve(META_RESOLVER));
-            }
+            // this handles wls, jdk, opatch_1394 and wdt install files.
+            cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
-            if (patches != null && !patches.isEmpty()) {
-                for (String patchId : patches) {
-                    patchLocations.add(new PatchFile(installerType, installerVersion, patchId, userId, password).resolve(META_RESOLVER));
-                }
-            }
-
-            for (String patchLocation : patchLocations) {
-                if (patchLocation != null) {
-                    File patch_file = new File(patchLocation);
-                    System.out.println(patchLocation + "? exists: " + patch_file.exists()
-                            + ", filename: " + patch_file.getName());
-                    Files.createLink(Paths.get(toPatchesPath, patch_file.getName()), Paths.get(patchLocation));
-                } else {
-                    logger.severe("Cache does not contain a valid entry for required patch key: " + patchLocation);
-                }
-            }
-
-            if (!patchLocations.isEmpty()) {
-                cmdBuilder.add("--menu-arg");
-                cmdBuilder.add("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
-            }
+            // resolve required patches
+            cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
 
             // Copy Dockerfile.create to tmpDir
-            copyRequiredFilesToDir(tmpDirPath);
-            /*
-            Utils.copyResourceAsFile("/Dockerfile.create", tmpDirPath + File.separator + "Dockerfile");
-            Utils.copyResourceAsFile("/wls.rsp", tmpDirPath + File.separator + "wls.rsp");
-            Utils.copyResourceAsFile("/oraInst.loc", tmpDirPath + File.separator + "oraInst.loc");
-            */
+            copyResponseFilesToDir(tmpDirPath);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
 
             logger.info("docker cmd = " + String.join(" ", cmdBuilder));
 
-            // Step 6: process builder
+            // process builder
             ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
             final Process process = processBuilder.start();
 
@@ -213,40 +168,195 @@ public class CreateImage implements Callable<CommandResponse> {
                 logger.removeHandler(fileHandler);
             }
         }
-
-        //TODO: input validation
-//        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-//        Validator validator = validatorFactory.getValidator();
-//        Set<ConstraintViolation<User>> userViolations = validator.validate(User.newUser(userId, password));
-
-//        if (userId != null && !userId.isEmpty()) {
-//            Pattern emailPattern = Pattern.compile(EMAIL_REGEX);
-//            if (emailPattern.matcher(userId).matches()) {
-//                USER_SERVICE.addUserSession(new UserSession(User.newUser(userId, password)));
-//            } else {
-//                throw new IllegalArgumentException(String.format("userId %s is not a valid email format", userId));
-//            }
-//        }
         Instant endTime = Instant.now();
-        return new CommandResponse(0, "menu successful in " + Duration.between(startTime, endTime).getSeconds()  + "s. image tag: " + imageTag);
+        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()  + "s. image tag: " + imageTag);
     }
 
-    private List<String> gatherRequiredInstallerKeys() {
+    /**
+     * Builds a list of build args to pass on to docker with the required installer files.
+     * Also, creates links to installer files instead of copying over to build context dir.
+     * @param tmpDir build context directory
+     * @return list of strings
+     * @throws Exception in case of error
+     */
+    private List<String> handleInstallerFiles(Path tmpDir) throws Exception {
         List<String> retVal = new LinkedList<>();
-        retVal.add(String.format("%s_%s", installerType, installerVersion));
-        retVal.add(String.format("%s_%s", InstallerType.JDK.toString(), jdkVersion));
-        if (DEFAULT_WLS_VERSION.equals(installerVersion) ) {
-            retVal.add(OPATCH_1394_KEY);
+        String tmpDirPath = tmpDir.toAbsolutePath().toString();
+        List<InstallerFile> requiredInstallers = gatherRequiredInstallers();
+        for (InstallerFile eachInstaller : requiredInstallers) {
+            String targetFilePath = eachInstaller.resolve(META_RESOLVER);
+            File targetFile = new File(targetFilePath);
+            Path targetLink = Files.createLink(Paths.get(tmpDirPath, targetFile.getName()),
+                    Paths.get(targetFilePath));
+            retVal.addAll(eachInstaller.getBuildArg(tmpDir.relativize(targetLink).toString()));
         }
         return retVal;
     }
 
-    private void copyRequiredFilesToDir(String dirPath) throws IOException {
-        Utils.copyResourceAsFile("/Dockerfile.create", dirPath + File.separator + "Dockerfile");
-        Utils.copyResourceAsFile("/wls.rsp", dirPath + File.separator + "wls.rsp");
-        Utils.copyResourceAsFile("/oraInst.loc", dirPath + File.separator + "oraInst.loc");
+    /**
+     * Builds a list of build args to pass on to docker with the required patches.
+     * Also, creates links to patches directory under build context instead of copying over.
+     * @param tmpDir build context dir
+     * @param tmpPatchesDir patches dir under build context
+     * @return list of strings
+     * @throws Exception in case of error
+     */
+    private List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
+        List<String> retVal = new LinkedList<>();
+        List<String> patchLocations = new LinkedList<>();
+        String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
+        if (latestPSU) {
+            System.out.println("Getting latest PSU");
+            FileResolver psuResolver = new PatchFile(installerType, installerVersion, null, userId, password);
+            patchLocations.add(psuResolver.resolve(META_RESOLVER));
+        }
+        if (patches != null && !patches.isEmpty()) {
+            for (String patchId : patches) {
+                patchLocations.add(new PatchFile(installerType, installerVersion, patchId, userId, password)
+                        .resolve(META_RESOLVER));
+            }
+        }
+        for (String patchLocation : patchLocations) {
+            if (patchLocation != null) {
+                File patch_file = new File(patchLocation);
+                //System.out.println(patchLocation + "? exists: " + patch_file.exists() + ", filename: " +
+                // patch_file.getName());
+                Files.createLink(Paths.get(toPatchesPath, patch_file.getName()), Paths.get(patchLocation));
+            } else {
+                logger.severe("null entry in patchLocations");
+            }
+        }
+        if (!patchLocations.isEmpty()) {
+            retVal.add(BUILD_ARG);
+            retVal.add("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
+        }
+        return retVal;
     }
 
+    /**
+     * Checks whether the user requested a domain to be created with WDT.
+     * If so, returns the required build args to pass to docker and creates required file links to pass
+     * the model, archive, variables file to build process
+     * @param tmpDir the tmp directory which is passed to docker as the build context directory
+     * @return list of build args
+     * @throws IOException in case of error
+     */
+    private List<String> handleWDTArgsIfRequired(Path tmpDir) throws IOException {
+        List<String> retVal = new LinkedList<>();
+        String tmpDirPath = tmpDir.toAbsolutePath().toString();
+        if (wdtModelPath != null) {
+            if (Files.isRegularFile(wdtModelPath)) {
+                // bake in wdt
+                Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/Dockerfile.create", "/Dockerfile.wdt");
+                Path targetLink = Files.createLink(Paths.get(tmpDirPath, wdtModelPath.getFileName().toString()), wdtModelPath);
+                retVal.add(BUILD_ARG);
+                retVal.add("WDT_MODEL=" + tmpDir.relativize(targetLink).toString());
+
+                if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
+                    targetLink = Files.createLink(Paths.get(tmpDirPath, wdtArchivePath.getFileName().toString()), wdtArchivePath);
+                    retVal.add(BUILD_ARG);
+                    retVal.add("WDT_ARCHIVE=" + tmpDir.relativize(targetLink).toString());
+                }
+
+                if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
+                    targetLink = Files.createLink(Paths.get(tmpDirPath, wdtVariablesPath.getFileName().toString()), wdtVariablesPath);
+                    retVal.add(BUILD_ARG);
+                    retVal.add("WDT_VARIABLE=" + tmpDir.relativize(targetLink).toString());
+                    retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));
+                }
+
+                Path tmpScriptsDir = Files.createDirectory(Paths.get(tmpDirPath, "scripts"));
+                String toScriptsPath = tmpScriptsDir.toAbsolutePath().toString();
+                Utils.copyResourceAsFile("/scripts/startAdminServer.sh", toScriptsPath);
+                Utils.copyResourceAsFile("/scripts/startManagedServer.sh", toScriptsPath);
+                Utils.copyResourceAsFile("/scripts/waitForAdminServer.sh", toScriptsPath);
+            } else {
+                throw new IOException("WDT model file " + wdtModelPath + " not found");
+            }
+        } else {
+            Utils.copyResourceAsFile("/Dockerfile.create", tmpDirPath + File.separator + "Dockerfile");
+        }
+        return retVal;
+    }
+
+    /**
+     * Certain environment variables need to be set in docker images for WDT domains to work.
+     * @param wdtVariablesPath wdt variables file path.
+     * @return list of build args
+     * @throws IOException in case of error
+     */
+    private List<String> getWDTRequiredBuildArgs(Path wdtVariablesPath) throws IOException {
+        List<String> retVal = new LinkedList<>();
+        Properties variableProps = new Properties();
+        variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
+        List<Object> matchingKeys = variableProps.keySet().stream().filter(
+                x -> variableProps.getProperty(((String) x)) != null &&
+                        REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
+        ).collect(Collectors.toList());
+        matchingKeys.forEach( x -> {
+            retVal.add(BUILD_ARG);
+            retVal.add(((String) x).toUpperCase() + "=" + variableProps.getProperty((String) x));
+        });
+        return retVal;
+    }
+
+    /**
+     * Builds a list of {@link InstallerFile} objects based on user input which are processed
+     * to download the required install artifacts
+     * @return list of InstallerFile
+     * @throws Exception in case of error
+     */
+    private List<InstallerFile> gatherRequiredInstallers() throws Exception {
+        List<InstallerFile> retVal = new LinkedList<>();
+        retVal.add(new InstallerFile(InstallerType.fromValue(installerType.toString()), installerVersion,
+                (useCache != ALWAYS), userId, password));
+        retVal.add(new InstallerFile(InstallerType.JDK, jdkVersion, (useCache != ALWAYS), userId, password));
+        if (wdtModelPath != null && Files.isRegularFile(wdtModelPath)) {
+            InstallerFile wdtInstaller = new InstallerFile(InstallerType.WDT, wdtVersion, (useCache != ALWAYS),
+                    null, null);
+            retVal.add(wdtInstaller);
+            addWDTURL(wdtInstaller.getKey() + "_url");
+        }
+        if (DEFAULT_WLS_VERSION.equals(installerVersion) ) {
+            retVal.add(new InstallerFile(OPATCH_1394_KEY, (useCache != ALWAYS), userId, password));
+        }
+        return retVal;
+    }
+
+    /**
+     * Parses wdtVersion and constructs the url to download WDT and adds the url to cache
+     * @param wdtURLKey key in the format wdt_0.17
+     * @throws Exception in case of error
+     */
+    private void addWDTURL(String wdtURLKey) throws Exception {
+        if ("latest".equalsIgnoreCase(wdtVersion) || META_RESOLVER.getValueFromCache(wdtURLKey) == null) {
+            List<String> wdtTags = HttpUtil.getWDTTags();
+            String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) : "weblogic-deploy-tooling-" + wdtVersion;
+            if (wdtTags.contains(tagToMatch)) {
+                String downloadLink = String.format(WDT_URL_FORMAT, tagToMatch);
+                System.out.println("WDT Download link = " + downloadLink);
+                META_RESOLVER.addToCache(wdtURLKey, downloadLink);
+            } else {
+                throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
+            }
+        }
+    }
+
+    /**
+     * Copies response files required for wls install to the tmp directory which provides docker build context
+     * @param dirPath directory to copy to
+     * @throws IOException in case of error
+     */
+    private void copyResponseFilesToDir(String dirPath) throws IOException {
+        Utils.copyResourceAsFile("/wls.rsp", dirPath);
+        Utils.copyResourceAsFile("/oraInst.loc", dirPath);
+    }
+
+    /**
+     * Enable logging when using cli mode and required log file path is supplied
+     * @param isCLIMode whether tool is run in cli mode
+     * @return log file handler or null
+     */
     private FileHandler setupLogger(boolean isCLIMode) {
         FileHandler fileHandler = null;
         try {
@@ -269,34 +379,38 @@ public class CreateImage implements Callable<CommandResponse> {
         return fileHandler;
     }
 
+    /**
+     * Builds the options of the docker command
+     * @return list of options for docker build command
+     */
     private List<String> getInitialBuildCmd() {
 
-        List<String> cmdBuilder = Stream.of("docker", "menu",
+        List<String> cmdBuilder = Stream.of("docker", "build",
                 "--squash", "--force-rm", "--no-cache", "--network=host").collect(Collectors.toList());
 
         cmdBuilder.add("--tag");
         cmdBuilder.add(imageTag);
 
         if (httpProxyUrl != null && !httpProxyUrl.isEmpty()) {
-            cmdBuilder.add("--menu-arg");
+            cmdBuilder.add(BUILD_ARG);
             cmdBuilder.add("http_proxy=" + httpProxyUrl);
         } else {
             String proxyHost = System.getProperty("http.proxyHost");
             String proxyPort = System.getProperty("http.proxyPort", "80");
             if (proxyHost != null) {
-                cmdBuilder.add("--menu-arg");
+                cmdBuilder.add(BUILD_ARG);
                 cmdBuilder.add(String.format("http_proxy=http://%s:%s", proxyHost, proxyPort));
             }
         }
 
         if (httpsProxyUrl != null && !httpsProxyUrl.isEmpty()) {
-            cmdBuilder.add("--menu-arg");
+            cmdBuilder.add(BUILD_ARG);
             cmdBuilder.add("https_proxy=" + httpsProxyUrl);
         } else {
             String proxyHost = System.getProperty("https.proxyHost");
             String proxyPort = System.getProperty("https.proxyPort", "80");
             if (proxyHost != null) {
-                cmdBuilder.add("--menu-arg");
+                cmdBuilder.add(BUILD_ARG);
                 cmdBuilder.add(String.format("https_proxy=http://%s:%s", proxyHost, proxyPort));
             }
         }
@@ -360,7 +474,7 @@ public class CreateImage implements Callable<CommandResponse> {
             names = { "--tag" },
             paramLabel = "TAG",
             required = true,
-            description = "Tag for the final menu image. Ex: store/oracle/weblogic:12.2.1.3.0"
+            description = "Tag for the final build image. Ex: store/oracle/weblogic:12.2.1.3.0"
     )
     private String imageTag;
 
@@ -411,14 +525,14 @@ public class CreateImage implements Callable<CommandResponse> {
 
     @Option(
             names = { "--toolLog" },
-            description = "file to log output from this tool. This is different from the docker menu log.",
+            description = "file to log output from this tool. This is different from the docker build log.",
             hidden = true
     )
     private Path toolLog;
 
     @Option(
             names = { "--dockerLog" },
-            description = "file to log output from the docker menu",
+            description = "file to log output from the docker build",
             hidden = true
     )
     private Path dockerLog;
@@ -435,6 +549,25 @@ public class CreateImage implements Callable<CommandResponse> {
             description = "path to the wdt model file to create domain with"
     )
     private Path wdtModelPath;
+
+    @Option(
+            names = {"--wdtArchive"},
+            description = "path to wdt archive file used by wdt model"
+    )
+    private Path wdtArchivePath;
+
+    @Option(
+            names = {"--wdtVariables"},
+            description = "path to wdt variables file used by wdt model"
+    )
+    private Path wdtVariablesPath;
+
+    @Option(
+            names = {"--wdtVersion"},
+            description = "wdt version to create the domain",
+            defaultValue = "latest"
+    )
+    private String wdtVersion;
 
     @Unmatched
     List<String> unmatcheOptions;

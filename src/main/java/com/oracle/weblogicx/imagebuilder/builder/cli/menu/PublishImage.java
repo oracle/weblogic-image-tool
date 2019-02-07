@@ -8,7 +8,6 @@ import java.util.concurrent.Callable;
 
 @Command(
         name = "publish",
-        //mixinStandardHelpOptions = true,
         description = "Publish WebLogic docker image to specified docker registry",
         version = "1.0",
         sortOptions = false,
@@ -19,7 +18,7 @@ public class PublishImage implements Callable<CommandResponse> {
 
     @Override
     public CommandResponse call() throws Exception {
-        return null;
+        return new CommandResponse(0, "work in progress");
     }
 
     @Option(

@@ -2,8 +2,14 @@
 
 package com.oracle.weblogicx.imagebuilder.builder.util;
 
-public final class ARUConstants {
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+public final class Constants {
+
+    public static final String WDT_TAGS_URL="https://api.github.com/repos/oracle/weblogic-deploy-tooling/tags";
+    public static final String WDT_URL_FORMAT="https://github.com/oracle/weblogic-deploy-tooling/releases/download/%s/weblogic-deploy.zip";
     public static final String OPATCH_1394_KEY = "opatch_1394";
     public static final String OPATCH_1394_URL="https://updates.oracle.com/Orion/Services/download/" +
             "p28186730_139400_Generic.zip?aru=22310944&patch_file=p28186730_139400_Generic.zip";
@@ -24,7 +30,12 @@ public final class ARUConstants {
     public static final String DEFAULT_META_FILE = ".metadata";
     public static final String CLI_OPTION = "--cli";
 
-    private ARUConstants() {
+    public static final List<String> REQD_WDT_BUILD_ARGS = Stream.of(
+            "DOMAIN_NAME", "ADMIN_NAME", "ADMIN_HOST", "ADMIN_PORT", "MANAGED_SERVER_PORT"
+    ).collect(Collectors.toList());
+    public static final String BUILD_ARG = "--build-arg";
+
+    private Constants() {
         //restrict access
     }
 }

@@ -12,7 +12,7 @@ import picocli.CommandLine.Unmatched;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CLI_OPTION;
 
 @Command(
         name = "cache",

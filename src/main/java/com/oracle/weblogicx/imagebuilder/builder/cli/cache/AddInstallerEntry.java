@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
 import static com.oracle.weblogicx.imagebuilder.builder.api.meta.MetaDataResolver.CACHE_KEY_SEPARATOR;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAULT_WLS_VERSION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.DEFAULT_WLS_VERSION;
 
 @Command(
         name = "addInstaller",
@@ -24,7 +24,7 @@ import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.DEFAUL
 public class AddInstallerEntry implements Callable<CommandResponse> {
     @Override
     public CommandResponse call() throws Exception {
-        if ( location != null && Files.exists(location) && location.toFile().isFile() ) {
+        if (location != null && Files.isRegularFile(location)) {
             String key = String.format("%s%s%s", type, CACHE_KEY_SEPARATOR, version);
             META_RESOLVER.addToCache(key, location.toAbsolutePath().toString());
             return new CommandResponse(0, String.format("Successfully added to cache. %s=%s", key,
@@ -43,7 +43,7 @@ public class AddInstallerEntry implements Callable<CommandResponse> {
 
     @Option(
             names = { "--ver" },
-            description = "Installer version. For WLS|FMW, Ex: 12.2.1.3.0 For jdk, Ex: 8u191",
+            description = "Installer version. Ex: For WLS|FMW use 12.2.1.3.0 For jdk, use 8u201",
             required = true,
             defaultValue = DEFAULT_WLS_VERSION
     )

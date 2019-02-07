@@ -1,7 +1,6 @@
 package com.oracle.weblogicx.imagebuilder.builder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.builder.api.model.CommandResponse;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -12,8 +11,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.oracle.weblogicx.imagebuilder.builder.impl.meta.FileMetaDataResolver.META_RESOLVER;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CACHE_DIR_KEY;
-import static com.oracle.weblogicx.imagebuilder.builder.util.ARUConstants.CLI_OPTION;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CACHE_DIR_KEY;
+import static com.oracle.weblogicx.imagebuilder.builder.util.Constants.CLI_OPTION;
 
 @Command(
         name = "deleteEntry",
