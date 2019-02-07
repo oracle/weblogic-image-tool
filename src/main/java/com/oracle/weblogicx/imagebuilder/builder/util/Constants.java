@@ -20,6 +20,7 @@ public final class Constants {
     static final String PATCH_SEARCH_URL="https://updates.oracle"
         + ".com/Orion/Services/search?product=%s&bug=%s&release=%s";
     static final String CONFLICTCHECKER_URL = "https://updates.oracle.com/Orion/Services/conflict_checks";
+    static final String GET_LSINVENTORY_URL = "https://updates.oracle.com/Orion/Services/get_inventory_upi";
     static final String WLS_PROD_ID = "15991";
     static final String FMW_PROD_ID = "27638";
     public static final String CACHE_DIR_KEY = "cache.dir";
