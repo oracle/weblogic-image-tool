@@ -1,0 +1,37 @@
+# LICENSE UPL 1.0
+#
+# Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+#
+ARG BASE_IMAGE=store/oracle/weblogic:12.2.1.3
+FROM ${BASE_IMAGE} as WLS_BUILD
+USER root
+
+ARG PATCHDIR
+ARG OTMPDIR
+
+ENV PATCHDIR=${PATCHDIR:-patches} \
+    OTMPDIR=${OTMPDIR:-/tmp/delme}
+
+RUN mkdir -p $OTMPDIR \
+ && chown -R oracle:oracle $OTMPDIR/
+
+# PLACEHOLDER FOR %%PKG_INSTALL%% #
+
+USER oracle
+
+# PLACEHOLDER FOR %%OPATCH_1394%% #
+
+# PLACEHOLDER FOR %%PATCH_APPLY%% #
+
+# Prep for patches and install latest opatch
+#RUN mkdir -p $OTMPDIR/patches \
+# && mkdir -p $OTMPDIR/opatch \
+# && chown oracle:oinstall $OTMPDIR/
+#
+#COPY --chown=oracle:oinstall $PATCHDIR/* ${OTMPDIR}/patches/
+#
+#RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches
+
+# PLACEHOLDER FOR %%PATCH_CLEANUP%% #
+
+RUN rm -rf $OTMPDIR

@@ -64,7 +64,7 @@
                         <argument>--writeCommandScript</argument>
                         <argument>--completionScript</argument>
                         <argument>${project.build.directory}/imagebuilder_completion.sh</argument>
-                        <argument>com.oracle.weblogicx.imagebuilder.builder.cli.CLIDriver</argument>
+                        <argument>com.oracle.weblogicx.imagebuilder.cli.CLIDriver</argument>
                         <!-- replace with your class -->
                     </arguments>
                 </configuration>

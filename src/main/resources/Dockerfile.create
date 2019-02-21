@@ -13,7 +13,7 @@ ARG INV_LOC
 ARG WLS_RESP
 ARG ORACLE_HOME
 ARG ORAINST
-ARG TMPDIR
+ARG OTMPDIR
 ARG PATCHDIR
 # PLACEHOLDER FOR %%WDT_ARGS%% #
 
@@ -24,68 +24,54 @@ ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
     WLS_RESP=${WLS_RESP:-wls.rsp} \
     ORACLE_HOME=${ORACLE_HOME:-/u01/app/oracle/middleware} \
     ORAINST=${ORAINST:-oraInst.loc} \
-    TMPDIR=${TMPDIR:-/tmp/delme} \
+    OTMPDIR=${OTMPDIR:-/tmp/delme} \
     OPATCH_NO_FUSER=true \
     PATCHDIR=${PATCHDIR:-patches}
 
 # PLACEHOLDER FOR %%WDT_ENV%% #
 
-#RUN echo "JAVA_PKG=$JAVA_PKG WLS_PKG=$WLS_PKG PATCHDIR=$PATCHDIR HTTP_PROXY=$HTTPY_PROXY HTTPS_PROXY=$HTTPS_PROXY"
+RUN mkdir -p $OTMPDIR
 
-# install necessary packages
-RUN yum -y update \
- && yum -y install sudo nc tar gunzip zip git unzip \
- && yum clean all
+# PLACEHOLDER FOR %%PKG_INSTALL%% #
 
-# Create oracle user
-RUN groupadd -g 1000 oinstall \
- && useradd -u 1100 -g oinstall oracle \
+#RUN if [ -z "$(getent group oracle)" ]; then hash groupadd &> /dev/null && groupadd -g 1000 oracle || addgroup -g 1000 oracle ; fi \
+# && if [ -z "$(getent passwd oracle)" ]; then hash useradd &> /dev/null && useradd -u 1100 -g oracle oracle || adduser -D -u 1100 -G oracle oracle; fi \
+
+## Create oracle user
+RUN if [ -z "$(getent group oracle)" ]; then hash groupadd &> /dev/null && groupadd -g 1000 oracle || exit -1 ; fi \
+ && if [ -z "$(getent passwd oracle)" ]; then hash useradd &> /dev/null && useradd -u 1100 -g oracle oracle || exit -1; fi \
  && mkdir -p $ORACLE_HOME \
  && mkdir -p $INV_LOC \
- && mkdir $TMPDIR \
- && chown -R oracle:oinstall /u01/ \
- && chown -R oracle:oinstall $TMPDIR/
+ && chown -R oracle:oracle /u01/ \
+ && chown -R oracle:oracle $OTMPDIR/
 
 USER oracle
 
 # Install base WLS
-COPY $JAVA_PKG $WLS_PKG $WLS_RESP $TMPDIR/
+COPY $JAVA_PKG $WLS_PKG $WLS_RESP $OTMPDIR/
 COPY $ORAINST $INV_LOC
 
-RUN tar xzvf $TMPDIR/$JAVA_PKG -C /u01 \
+RUN tar xzvf $OTMPDIR/$JAVA_PKG -C /u01 \
  && mv /u01/jdk* $JAVA_HOME \
- && unzip $TMPDIR/$WLS_PKG -d $TMPDIR \
- && $JAVA_HOME/bin/java -Xmx1024m -jar $TMPDIR/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
-    -responseFile $TMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST
+ && unzip $OTMPDIR/$WLS_PKG -d $OTMPDIR \
+ && $JAVA_HOME/bin/java -Xmx1024m -jar $OTMPDIR/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
+    -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -novalidation
 
-# Prep for patches and install latest opatch
-RUN mkdir -p $TMPDIR/patches \
- && mkdir -p $TMPDIR/psu \
- && mkdir -p $TMPDIR/opatch \
- && chown oracle:oinstall $TMPDIR/
+# PLACEHOLDER FOR %%OPATCH_1394%% #
 
-COPY p28186730_139400_Generic.zip $TMPDIR/opatch
-
-COPY $PATCHDIR/* $TMPDIR/patches/
-
-RUN unzip $TMPDIR/opatch/p28186730_139400_Generic.zip -d $TMPDIR/opatch ; \
-    /u01/jdk/bin/java -jar $TMPDIR/opatch/6880880/opatch_generic.jar -silent \
-    oracle_home=$ORACLE_HOME  -invPtrLoc $INV_LOC/$ORAINST
-
-# OPatch apply
-RUN for file in $TMPDIR/patches/*.zip ; do [ -e "$file" ] || continue ; \
-    (cd $TMPDIR/patches ; mkdir newpatch ; unzip $file -d newpatch ; cd newpatch/* ; \
-    $ORACLE_HOME/OPatch/opatch apply -silent ; cd ../../ ; rm -fr newpatch ); \
-    done
+# PLACEHOLDER FOR %%PATCH_APPLY%% #
 
 # PLACEHOLDER FOR %%WDT_INSTALL%% #
 
-# Cleanup
-RUN $ORACLE_HOME/OPatch/opatch util cleanup -invPtrLoc $INV_LOC/$ORAINST -silent \
- && rm -fr $TMPDIR
+# PLACEHOLDER FOR %%PATCH_CLEANUP%% #
+
+# PLACEHOLDER FOR %%WDT_CLEANUP%% #
+
+RUN rm -rf $OTMPDIR
+
+RUN unset JAVA_PKG WLS_PKG JAVA_HOME INV_LOC WLS_RESP ORAINST OTMPDIR PATCHDIR
 
 # PLACEHOLDER FOR %%WDT_CMD%% #
-
 
 #ENTRYPOINT /bin/bash
 
