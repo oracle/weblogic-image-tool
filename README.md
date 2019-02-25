@@ -31,11 +31,11 @@ applying selected patches.
 - WebLogic and JDK installers from OTN / e-delivery
   - WebLogic and JDK installers should be available on local disk.
 - Docker client and daemon on the build machine
-  - Experimental features should be turned on to support docker build --squash option.
+  - Experimental features should be turned on to support docker build --squash option. Refer to [Docker squash](https://docs.docker.com/engine/reference/commandline/build/#squash-an-images-layers---squash-experimental)
 
 ## Setup
 
-- Build the project to generate artifacts imagebuilder-0.1-SNAPSHOT.jar and imagebuilder_completion.sh
+- Build the project (`mvn clean package`) to generate artifacts imagebuilder-0.1-SNAPSHOT.jar and imagebuilder_completion.sh
 - The jar is an uber-jar containing all the required packages to run the tool.
 - If running an os with bash, Use the below commands to setup the tool with tab complete feature.
    ```bash
