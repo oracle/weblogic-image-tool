@@ -6,9 +6,7 @@ import com.oracle.weblogicx.imagebuilder.api.model.CachePolicy;
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.InstallerType;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
-import com.oracle.weblogicx.imagebuilder.api.model.WLSVersionValues;
 import com.oracle.weblogicx.imagebuilder.impl.InstallerFile;
-import com.oracle.weblogicx.imagebuilder.impl.PatchFile;
 import com.oracle.weblogicx.imagebuilder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.util.Constants;
 import com.oracle.weblogicx.imagebuilder.util.HttpUtil;
@@ -32,6 +30,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.oracle.weblogicx.imagebuilder.api.model.CachePolicy.ALWAYS;
+import static com.oracle.weblogicx.imagebuilder.util.Constants.DEFAULT_JDK_VERSION;
+import static com.oracle.weblogicx.imagebuilder.util.Constants.DEFAULT_WLS_VERSION;
 
 @Command(
         name = "create",
@@ -42,7 +42,14 @@ import static com.oracle.weblogicx.imagebuilder.api.model.CachePolicy.ALWAYS;
 )
 public class CreateImage extends ImageOperation {
 
-    private Logger logger = Logger.getLogger("com.oracle.weblogix.imagebuilder.builder");
+    private final Logger logger = Logger.getLogger(CreateImage.class.getName());
+
+    public CreateImage() {
+    }
+
+    public CreateImage(boolean isCLIMode) {
+        super(isCLIMode);
+    }
 
     @Override
     public CommandResponse call() throws Exception {
@@ -57,27 +64,33 @@ public class CreateImage extends ImageOperation {
 //        System.out.println("fromImage = \"" + fromImage + "\"");
 //        System.out.println("userId = \"" + userId + "\"");
 
-        FileHandler fileHandler = setupLogger(unmatchedOptions.contains(Constants.CLI_OPTION));
+        FileHandler fileHandler = setupLogger(isCLIMode);
         Path tmpDir = null;
         Path tmpDir2 = null;
 
         try {
 
+            CommandResponse result = super.call();
+            if (result.getStatus() != 0) {
+                return result;
+            }
+
+            /*
+            password = handlePasswordOptions();
             handleProxyUrls();
 
-            // check credentials if useCache option allows us to download artifacts
-            if (useCache != ALWAYS) {
-                if (!ARUUtil.checkCredentials(userId, password)) {
-                    return new CommandResponse(-1, "User credentials do not match");
-                }
+            // check user support credentials
+            if (!ARUUtil.checkCredentials(userId, password)) {
+                return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
+            */
 
             List<String> cmdBuilder = getInitialBuildCmd();
 
             // create a tmp directory for user.
             tmpDir = Files.createTempDirectory(null);
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
-            System.out.println("tmpDir = " + tmpDirPath);
+            logger.info("tmp directory used for build context: " + tmpDirPath);
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
             Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
 
@@ -89,16 +102,15 @@ public class CreateImage extends ImageOperation {
                 cmdBuilder.add("BASE_IMAGE=" + fromImage);
 
                 tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), null);
-                System.out.println("tmpDir2:" + tmpDir2);
+                logger.info("tmp directory in user.home for docker run: " + tmpDir2);
 
-                Utils.copyResourceAsFile("/test-create-env.sh",
+                Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
                         tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
 
                 List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir2, fromImage, "test-env.sh");
-                System.out.println("cmdToExec:" + String.join(" ", imageEnvCmd));
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
 
-                baseImageProperties.keySet().forEach( x -> System.out.println(x + "=" + baseImageProperties.getProperty((String) x)));
+                baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
                 boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
 
@@ -125,7 +137,7 @@ public class CreateImage extends ImageOperation {
             copyResponseFilesToDir(tmpDirPath);
 
             // Create Dockerfile
-            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/Dockerfile.create", filterStartTags, "/Dockerfile.ph");
+            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Dockerfile.create", filterStartTags, "/docker-files/Dockerfile.ph");
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
@@ -145,12 +157,13 @@ public class CreateImage extends ImageOperation {
             }
         }
         Instant endTime = Instant.now();
-        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()  + "s. image tag: " + imageTag);
+        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
     /**
      * Builds a list of build args to pass on to docker with the required installer files.
      * Also, creates links to installer files instead of copying over to build context dir.
+     *
      * @param tmpDir build context directory
      * @return list of strings
      * @throws Exception in case of error
@@ -171,7 +184,7 @@ public class CreateImage extends ImageOperation {
 
     @Override
     List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
-        if (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) == 0) {
+        if (Utils.compareVersions(installerVersion, DEFAULT_WLS_VERSION) == 0) {
             addOPatch1394ToImage(tmpDir);
         }
         //we need a local installerVersion variable for the command line Option. so propagate to super.
@@ -183,6 +196,7 @@ public class CreateImage extends ImageOperation {
      * Checks whether the user requested a domain to be created with WDT.
      * If so, returns the required build args to pass to docker and creates required file links to pass
      * the model, archive, variables file to build process
+     *
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @return list of build args
      * @throws IOException in case of error
@@ -192,8 +206,6 @@ public class CreateImage extends ImageOperation {
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         if (wdtModelPath != null) {
             if (Files.isRegularFile(wdtModelPath)) {
-                // bake in wdt
-                //Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/Dockerfile.create", "/Dockerfile.ph");
                 filterStartTags.add("WDT_");
                 Path targetLink = Files.createLink(Paths.get(tmpDirPath, wdtModelPath.getFileName().toString()), wdtModelPath);
                 retVal.add(Constants.BUILD_ARG);
@@ -214,22 +226,19 @@ public class CreateImage extends ImageOperation {
 
                 Path tmpScriptsDir = Files.createDirectory(Paths.get(tmpDirPath, "scripts"));
                 String toScriptsPath = tmpScriptsDir.toAbsolutePath().toString();
-                Utils.copyResourceAsFile("/scripts/startAdminServer.sh", toScriptsPath, true);
-                Utils.copyResourceAsFile("/scripts/startManagedServer.sh", toScriptsPath, true);
-                Utils.copyResourceAsFile("/scripts/waitForAdminServer.sh", toScriptsPath, true);
+                Utils.copyResourceAsFile("/container-scripts/startAdminServer.sh", toScriptsPath, true);
+                Utils.copyResourceAsFile("/container-scripts/startManagedServer.sh", toScriptsPath, true);
+                Utils.copyResourceAsFile("/container-scripts/waitForAdminServer.sh", toScriptsPath, true);
             } else {
                 throw new IOException("WDT model file " + wdtModelPath + " not found");
             }
         }
-        /*
-        else {
-            Utils.copyResourceAsFile("/Dockerfile.create", tmpDirPath + File.separator + "Dockerfile");
-        }*/
         return retVal;
     }
 
     /**
      * Certain environment variables need to be set in docker images for WDT domains to work.
+     *
      * @param wdtVariablesPath wdt variables file path.
      * @return list of build args
      * @throws IOException in case of error
@@ -242,7 +251,7 @@ public class CreateImage extends ImageOperation {
                 x -> variableProps.getProperty(((String) x)) != null &&
                         Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
         ).collect(Collectors.toList());
-        matchingKeys.forEach( x -> {
+        matchingKeys.forEach(x -> {
             retVal.add(Constants.BUILD_ARG);
             retVal.add(((String) x).toUpperCase() + "=" + variableProps.getProperty((String) x));
         });
@@ -252,6 +261,7 @@ public class CreateImage extends ImageOperation {
     /**
      * Builds a list of {@link InstallerFile} objects based on user input which are processed
      * to download the required install artifacts
+     *
      * @return list of InstallerFile
      * @throws Exception in case of error
      */
@@ -271,6 +281,7 @@ public class CreateImage extends ImageOperation {
 
     /**
      * Parses wdtVersion and constructs the url to download WDT and adds the url to cache
+     *
      * @param wdtURLKey key in the format wdt_0.17
      * @throws Exception in case of error
      */
@@ -280,7 +291,7 @@ public class CreateImage extends ImageOperation {
             String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) : "weblogic-deploy-tooling-" + wdtVersion;
             if (wdtTags.contains(tagToMatch)) {
                 String downloadLink = String.format(Constants.WDT_URL_FORMAT, tagToMatch);
-                System.out.println("WDT Download link = " + downloadLink);
+                logger.info("WDT Download link = " + downloadLink);
                 cacheStore.addToCache(wdtURLKey, downloadLink);
             } else {
                 throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
@@ -290,16 +301,17 @@ public class CreateImage extends ImageOperation {
 
     /**
      * Copies response files required for wls install to the tmp directory which provides docker build context
+     *
      * @param dirPath directory to copy to
      * @throws IOException in case of error
      */
     private void copyResponseFilesToDir(String dirPath) throws IOException {
-        Utils.copyResourceAsFile("/wls.rsp", dirPath, false);
-        Utils.copyResourceAsFile("/oraInst.loc", dirPath, false);
+        Utils.copyResourceAsFile("/response-files/wls.rsp", dirPath, false);
+        Utils.copyResourceAsFile("/response-files/oraInst.loc", dirPath, false);
     }
 
     @Option(
-            names = { "--type" },
+            names = {"--type"},
             description = "Installer type. default: ${DEFAULT-VALUE}. supported values: ${COMPLETION-CANDIDATES}",
             required = true,
             defaultValue = "wls"
@@ -310,21 +322,20 @@ public class CreateImage extends ImageOperation {
             names = {"--version"},
             description = "Installer version. default: ${DEFAULT-VALUE}",
             required = true,
-            defaultValue = Constants.DEFAULT_WLS_VERSION
-            //completionCandidates = WLSVersionValues.class
+            defaultValue = DEFAULT_WLS_VERSION
     )
     private String installerVersion;
 
     @Option(
-            names = { "--jdkVersion" },
+            names = {"--jdkVersion"},
             description = "Version of server jdk to install. default: ${DEFAULT-VALUE}",
             required = true,
-            defaultValue = "8u202"
+            defaultValue = DEFAULT_JDK_VERSION
     )
     private String jdkVersion;
 
     @Option(
-            names = { "--useCache" },
+            names = {"--useCache"},
             paramLabel = "<Cache Policy>",
             defaultValue = "always",
             description = "Whether to use local cache or download installers.\n" +
@@ -336,7 +347,7 @@ public class CreateImage extends ImageOperation {
     private CachePolicy useCache;
 
     @Option(
-            names = { "--fromImage" },
+            names = {"--fromImage"},
             description = "Docker image to use as base image."
     )
     private String fromImage;
@@ -365,7 +376,4 @@ public class CreateImage extends ImageOperation {
             defaultValue = "latest"
     )
     private String wdtVersion;
-
-//    @Unmatched
-//    List<String> unmatchedOptions;
 }

@@ -4,9 +4,9 @@ import com.oracle.weblogicx.imagebuilder.api.FileResolver;
 import com.oracle.weblogicx.imagebuilder.api.meta.CacheStore;
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
-import com.oracle.weblogicx.imagebuilder.impl.InstallerFile;
 import com.oracle.weblogicx.imagebuilder.impl.PatchFile;
 import com.oracle.weblogicx.imagebuilder.impl.meta.CacheStoreFactory;
+import com.oracle.weblogicx.imagebuilder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.util.Constants;
 import com.oracle.weblogicx.imagebuilder.util.Utils;
 import picocli.CommandLine.Option;
@@ -34,14 +34,47 @@ import static com.oracle.weblogicx.imagebuilder.util.Constants.HTTPS;
 
 public abstract class ImageOperation implements Callable<CommandResponse> {
 
-    private Logger logger = Logger.getLogger("com.oracle.weblogix.imagebuilder.builder");
+    private final Logger logger = Logger.getLogger(ImageOperation.class.getName());
     final List<String> filterStartTags = new ArrayList<>();
-    String nonProxyHosts = null;
+    protected CacheStore cacheStore = new CacheStoreFactory().get();
+    private String nonProxyHosts = null;
+    boolean isCLIMode;
+    String password;
+
+    ImageOperation() {
+    }
+
+    ImageOperation(boolean isCLIMode) {
+        this.isCLIMode = isCLIMode;
+    }
+
+    @Override
+    public CommandResponse call() throws Exception {
+        password = handlePasswordOptions();
+        handleProxyUrls();
+
+        // check user support credentials
+        if (!ARUUtil.checkCredentials(userId, password)) {
+            return new CommandResponse(-1, "user Oracle support credentials do not match");
+        }
+        return new CommandResponse(0, null);
+    }
+
+    /**
+     * Determines the support password by parsing the possible three input options
+     *
+     * @return String form of password
+     * @throws IOException in case of error
+     */
+    private String handlePasswordOptions() throws IOException {
+        return Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
+    }
 
     /**
      * Builds a list of build args to pass on to docker with the required patches.
      * Also, creates links to patches directory under build context instead of copying over.
-     * @param tmpDir build context dir
+     *
+     * @param tmpDir        build context dir
      * @param tmpPatchesDir patches dir under build context
      * @return list of strings
      * @throws Exception in case of error
@@ -52,7 +85,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
 
         if (latestPSU) {
-            System.out.println("Getting latest PSU");
             FileResolver psuResolver = new PatchFile(installerType.toString(), installerVersion, null, userId, password);
             patchLocations.add(psuResolver.resolve(cacheStore));
         }
@@ -65,8 +97,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         for (String patchLocation : patchLocations) {
             if (patchLocation != null) {
                 File patch_file = new File(patchLocation);
-                //System.out.println(patchLocation + "? exists: " + patch_file.exists() + ", filename: " +
-                // patch_file.getName());
                 Files.createLink(Paths.get(toPatchesPath, patch_file.getName()), Paths.get(patchLocation));
             } else {
                 logger.severe("null entry in patchLocations");
@@ -80,16 +110,9 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         return retVal;
     }
 
-//    /**
-//     * Builds a list of {@link InstallerFile} objects based on user input which are processed
-//     * to download the required install artifacts
-//     * @return list of InstallerFile
-//     * @throws Exception in case of error
-//     */
-//     protected abstract List<InstallerFile> gatherRequiredInstallers() throws Exception;
-
     /**
      * Builds the options for docker build command
+     *
      * @return list of options
      */
     List<String> getInitialBuildCmd() {
@@ -104,29 +127,11 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             cmdBuilder.add(BUILD_ARG);
             cmdBuilder.add("http_proxy=" + httpProxyUrl);
         }
-        /*
-        else {
-            String proxyHost = System.getProperty("http.proxyHost");
-            String proxyPort = System.getProperty("http.proxyPort", "80");
-            if (proxyHost != null) {
-                cmdBuilder.add(Constants.BUILD_ARG);
-                cmdBuilder.add(String.format("http_proxy=http://%s:%s", proxyHost, proxyPort));
-            }
-        }*/
 
         if (!Utils.isEmptyString(httpsProxyUrl)) {
             cmdBuilder.add(BUILD_ARG);
             cmdBuilder.add("https_proxy=" + httpsProxyUrl);
         }
-        /*
-        else {
-            String proxyHost = System.getProperty("https.proxyHost");
-            String proxyPort = System.getProperty("https.proxyPort", "80");
-            if (proxyHost != null) {
-                cmdBuilder.add(Constants.BUILD_ARG);
-                cmdBuilder.add(String.format("https_proxy=http://%s:%s", proxyHost, proxyPort));
-            }
-        }*/
 
         if (!Utils.isEmptyString(nonProxyHosts)) {
             cmdBuilder.add(BUILD_ARG);
@@ -147,8 +152,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     void addOPatch1394ToImage(Path tmpDir) throws Exception {
-        String filePath = (new PatchFile("opatch", "13.9.4.0.0", "28186730", userId, password)
-                .resolve(cacheStore));
+        String filePath = new PatchFile("opatch", "13.9.4.0.0", "28186730", userId, password).resolve(cacheStore);
         Files.createLink(Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()),
                 Paths.get(filePath));
         filterStartTags.add("OPATCH_1394");
@@ -156,6 +160,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     /**
      * Enable logging when using cli mode and required log file path is supplied
+     *
      * @param isCLIMode whether tool is run in cli mode
      * @return log file handler or null
      */
@@ -164,7 +169,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         try {
             if (isCLIMode) {
                 Path toolLogPath = Utils.createFile(toolLog, "tool.log");
-                System.out.println("toolLogPath: " + toolLogPath);
                 if (toolLogPath != null) {
                     fileHandler = new FileHandler(toolLogPath.toAbsolutePath().toString());
                     fileHandler.setFormatter(new SimpleFormatter());
@@ -186,21 +190,21 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     String installerVersion = Constants.DEFAULT_WLS_VERSION;
 
     @Option(
-            names = { "--latestPSU" },
+            names = {"--latestPSU"},
             description = "Whether to apply patches from latest PSU."
     )
     boolean latestPSU = false;
 
     @Option(
-            names = { "--patches" },
+            names = {"--patches"},
             paramLabel = "patchId",
             split = ",",
             description = "Comma separated patch Ids. Ex: p12345678,p87654321"
     )
-    List<String> patches;
+    List<String> patches = new ArrayList<>();
 
     @Option(
-            names = { "--tag" },
+            names = {"--tag"},
             paramLabel = "TAG",
             required = true,
             description = "Tag for the final build image. Ex: store/oracle/weblogic:12.2.1.3.0"
@@ -208,7 +212,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     String imageTag;
 
     @Option(
-            names = { "--user" },
+            names = {"--user"},
             paramLabel = "<support email>",
             description = "Oracle Support email id",
             required = true
@@ -216,21 +220,34 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     String userId;
 
     @Option(
-            names = { "--password" },
+            names = {"--password"},
             paramLabel = "<password for support user id>",
-            description = "Password for support userId",
-            required = true
+            description = "Password for support userId"
     )
-    String password;
+    String passwordStr;
 
     @Option(
-            names = { "--httpProxyUrl" },
+            names = {"--passwordEnv"},
+            paramLabel = "<environment variable>",
+            description = "environment variable containing the support password"
+    )
+    String passwordEnv;
+
+    @Option(
+            names = {"--passwordFile"},
+            paramLabel = "<password file>",
+            description = "path to file containing just the password"
+    )
+    Path passwordFile;
+
+    @Option(
+            names = {"--httpProxyUrl"},
             description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     String httpProxyUrl;
 
     @Option(
-            names = { "--httpsProxyUrl" },
+            names = {"--httpsProxyUrl"},
             description = "proxy for https protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     String httpsProxyUrl;
@@ -243,26 +260,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     private Path dockerPath;
 
     @Option(
-            names = { "--dockerLog" },
+            names = {"--dockerLog"},
             description = "file to log output from the docker build",
             hidden = true
     )
     Path dockerLog;
 
     @Option(
-            names = { "--toolLog" },
+            names = {"--toolLog"},
             description = "file to log output from this tool. This is different from the docker build log.",
             hidden = true
     )
     private Path toolLog;
-
-//    @Option(
-//            names = {"--cacheStoreType"},
-//            description = "Whether to use file backed cache store or preferences backed cache store. Ex: file or pref",
-//            hidden = true,
-//            defaultValue = "file"
-//    )
-    protected CacheStore cacheStore = new CacheStoreFactory().get();
 
     @Unmatched
     List<String> unmatchedOptions;

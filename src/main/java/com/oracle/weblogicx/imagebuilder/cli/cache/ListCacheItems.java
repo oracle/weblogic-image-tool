@@ -3,7 +3,6 @@
 package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.util.Constants;
 import picocli.CommandLine.Command;
 
 import java.util.Collections;
@@ -15,16 +14,23 @@ import java.util.Map;
 )
 public class ListCacheItems extends CacheOperation {
 
+    public ListCacheItems() {
+    }
+
+    public ListCacheItems(boolean isCLIMode) {
+        super(isCLIMode);
+    }
+
     @Override
-    public CommandResponse call() throws Exception {
+    public CommandResponse call() {
         Map<String, String> resultMap = cacheStore.getCacheItems();
         if (resultMap == null || resultMap.isEmpty()) {
-            if (unmatchedOptions.contains(Constants.CLI_OPTION)) {
+            if (isCLIMode) {
                 System.out.println("cache is empty");
             }
-            return new CommandResponse(0, "cache is empty", Collections.<String, String> emptyMap());
+            return new CommandResponse(0, "cache is empty", Collections.<String, String>emptyMap());
         } else {
-            if (unmatchedOptions.contains(Constants.CLI_OPTION)) {
+            if (isCLIMode) {
                 System.out.println("Cache contents");
                 resultMap.forEach((key, value) -> {
                     System.out.println(key + "=" + value);

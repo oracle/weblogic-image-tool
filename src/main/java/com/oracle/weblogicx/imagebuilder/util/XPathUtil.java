@@ -45,7 +45,7 @@ public class XPathUtil {
     /**
      * Apply XPath and return the results as nodelist
      *
-     * @param node node
+     * @param node       node
      * @param expression xpath expression
      * @return nodelist result
      * @throws XPathExpressionException when xpath failed
@@ -66,7 +66,7 @@ public class XPathUtil {
     /**
      * Apply XPath and return the results as string
      *
-     * @param doc  dom document
+     * @param doc        dom document
      * @param expression xpath expression
      * @return string result
      * @throws XPathExpressionException when xpath failed
@@ -77,15 +77,16 @@ public class XPathUtil {
 
         XPath xpath = factory.newXPath();
 
-        return (String)xpath.evaluate(expression, doc, XPathConstants.STRING);
+        return (String) xpath.evaluate(expression, doc, XPathConstants.STRING);
 
     }
 
     /**
      * Pretty print the document
+     *
      * @param xml dom document
      */
-    public static final void prettyPrint(Document xml){
+    public static final void prettyPrint(Document xml) {
         try {
             Transformer tf = TransformerFactory.newInstance().newTransformer();
             tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");

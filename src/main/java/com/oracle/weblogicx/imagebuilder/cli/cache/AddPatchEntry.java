@@ -7,13 +7,17 @@ import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
 import com.oracle.weblogicx.imagebuilder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.util.Constants;
 import com.oracle.weblogicx.imagebuilder.util.SearchResult;
+import com.oracle.weblogicx.imagebuilder.util.Utils;
 import com.oracle.weblogicx.imagebuilder.util.XPathUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.w3c.dom.Document;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -26,8 +30,18 @@ import static com.oracle.weblogicx.imagebuilder.api.meta.CacheStore.CACHE_KEY_SE
 )
 public class AddPatchEntry extends CacheOperation {
 
+    String password;
+
+    public AddPatchEntry() {
+    }
+
+    public AddPatchEntry(boolean isCLIMode) {
+        super(isCLIMode);
+    }
+
     @Override
     public CommandResponse call() throws Exception {
+        password = handlePasswordOptions();
         if (patchId != null && !patchId.isEmpty()
                 && userId != null && !userId.isEmpty()
                 && password != null && !password.isEmpty()
@@ -51,7 +65,8 @@ public class AddPatchEntry extends CacheOperation {
                     return new CommandResponse(0, String.format(
                             "Added Patch entry %s=%s for %s", key, location.toAbsolutePath(), type));
                 } else {
-                    return new CommandResponse(-1, String.format("Local file sha-256 digest %s != patch digest %s", localDigest, patchDigest));
+                    return new CommandResponse(-1, String.format(
+                            "Local file sha-256 digest %s != patch digest %s", localDigest, patchDigest));
                 }
             }
         } else {
@@ -60,15 +75,25 @@ public class AddPatchEntry extends CacheOperation {
         return null;
     }
 
+    /**
+     * Determines the support password by parsing the possible three input options
+     *
+     * @return String form of password
+     * @throws IOException in case of error
+     */
+    private String handlePasswordOptions() throws IOException {
+        return Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
+    }
+
     @Option(
-            names = { "--patchId" },
+            names = {"--patchId"},
             description = "Patch number. Ex: p28186730",
             required = true
     )
     private String patchId;
 
     @Option(
-            names = { "--type" },
+            names = {"--type"},
             description = "Type of patch. Valid values: ${COMPLETION-CANDIDATES}",
             required = true,
             defaultValue = "wls"
@@ -76,7 +101,7 @@ public class AddPatchEntry extends CacheOperation {
     private WLSInstallerType type;
 
     @Option(
-            names = { "--ver" },
+            names = {"--version"},
             description = "version of mw this patch is for. Ex: 12.2.1.3.0",
             required = true,
             defaultValue = Constants.DEFAULT_WLS_VERSION
@@ -84,14 +109,14 @@ public class AddPatchEntry extends CacheOperation {
     private String version;
 
     @Option(
-            names = { "--path" },
+            names = {"--path"},
             description = "Location on disk. For ex: /path/to/FMW/patch.zip",
             required = true
     )
     private Path location;
 
     @Option(
-            names = { "--user" },
+            names = {"--user"},
             paramLabel = "<support email>",
             required = true,
             description = "Oracle Support email id"
@@ -99,21 +124,23 @@ public class AddPatchEntry extends CacheOperation {
     private String userId;
 
     @Option(
-            names = { "--password" },
-            paramLabel = "<password associated with support user id>",
-            required = true,
+            names = {"--password"},
+            paramLabel = "<password for support user id>",
             description = "Password for support userId"
     )
-    private String password;
+    String passwordStr;
 
-//    @Option(
-//            names = {"--cacheStoreType"},
-//            description = "Whether to use file backed cache store or preferences backed cache store. Ex: file or pref",
-//            hidden = true,
-//            defaultValue = "file"
-//    )
-//    private CacheStore cacheStore;
-//
-//    @Unmatched
-//    List<String> unmatchedOptions;
+    @Option(
+            names = {"--passwordEnv"},
+            paramLabel = "<environment variable>",
+            description = "environment variable containing the support password"
+    )
+    String passwordEnv;
+
+    @Option(
+            names = {"--passwordFile"},
+            paramLabel = "<password file>",
+            description = "path to file containing just the password"
+    )
+    Path passwordFile;
 }

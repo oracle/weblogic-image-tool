@@ -20,8 +20,15 @@ import static com.oracle.weblogicx.imagebuilder.api.meta.CacheStore.CACHE_KEY_SE
 )
 public class AddInstallerEntry extends CacheOperation {
 
+    public AddInstallerEntry() {
+    }
+
+    public AddInstallerEntry(boolean isCLIMode) {
+        super(isCLIMode);
+    }
+
     @Override
-    public CommandResponse call() throws Exception {
+    public CommandResponse call() {
         if (location != null && Files.isRegularFile(location)) {
             String key = String.format("%s%s%s", type, CACHE_KEY_SEPARATOR, version);
             cacheStore.addToCache(key, location.toAbsolutePath().toString());
@@ -32,7 +39,7 @@ public class AddInstallerEntry extends CacheOperation {
     }
 
     @Option(
-            names = { "--type" },
+            names = {"--type"},
             description = "Type of installer. Valid values: ${COMPLETION-CANDIDATES}",
             required = true,
             defaultValue = "wls"
@@ -40,7 +47,7 @@ public class AddInstallerEntry extends CacheOperation {
     private InstallerType type;
 
     @Option(
-            names = { "--ver" },
+            names = {"--version"},
             description = "Installer version. Ex: For WLS|FMW use 12.2.1.3.0 For jdk, use 8u201",
             required = true,
             defaultValue = Constants.DEFAULT_WLS_VERSION
@@ -48,7 +55,7 @@ public class AddInstallerEntry extends CacheOperation {
     private String version;
 
     @Option(
-            names = { "--path" },
+            names = {"--path"},
             description = "Location on disk. For ex: /path/to/FMW/installer.zip",
             required = true
     )

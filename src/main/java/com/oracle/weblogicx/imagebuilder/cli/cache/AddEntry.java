@@ -3,7 +3,7 @@
 package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.util.Constants;
+import com.oracle.weblogicx.imagebuilder.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -13,9 +13,16 @@ import picocli.CommandLine.Option;
 )
 public class AddEntry extends CacheOperation {
 
+    public AddEntry() {
+    }
+
+    public AddEntry(boolean isCLIMode) {
+        super(isCLIMode);
+    }
+
     @Override
-    public CommandResponse call() throws Exception {
-        if (key != null && !key.isEmpty() && location != null && !location.isEmpty()) {
+    public CommandResponse call() {
+        if (!Utils.isEmptyString(key) && !Utils.isEmptyString(location)) {
             String oldValue = cacheStore.getValueFromCache(key);
             String msg;
             if (oldValue != null) {
@@ -29,7 +36,7 @@ public class AddEntry extends CacheOperation {
                 return new CommandResponse(-1, "Command Failed");
             }
         }
-        if (unmatchedOptions.contains(Constants.CLI_OPTION)) {
+        if (isCLIMode) {
             spec.commandLine().usage(System.out);
         }
         return new CommandResponse(-1, "Invalid arguments. --key & --path required.");
@@ -48,12 +55,4 @@ public class AddEntry extends CacheOperation {
             required = true
     )
     private String location;
-
-//    private CacheStore cacheStore = new CacheStoreFactory().get();
-//
-//    @Unmatched
-//    List<String> unmatchedOptions;
-//
-//    @Spec
-//    CommandSpec spec;
 }

@@ -26,9 +26,7 @@ public class SearchResult {
     }
 
     /**
-     *
-     * @return  true if no conflicts ; false if there is conflicts
-     *
+     * @return true if no conflicts ; false if there is conflicts
      */
     public boolean isSuccess() {
         return success;
@@ -39,7 +37,6 @@ public class SearchResult {
     }
 
     /**
-     *
      * @return dom document detailing about the conflicts
      */
     public Document getResults() {

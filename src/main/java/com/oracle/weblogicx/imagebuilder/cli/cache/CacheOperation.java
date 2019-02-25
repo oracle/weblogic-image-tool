@@ -9,12 +9,22 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 public abstract class CacheOperation implements Callable<CommandResponse> {
 
-//    @Option(
+    boolean isCLIMode;
+
+    CacheOperation() {
+    }
+
+    CacheOperation(boolean isCLIMode) {
+        this.isCLIMode = isCLIMode;
+    }
+
+    //    @Option(
 //            names = {"--cacheStoreType"},
 //            description = "Whether to use file backed cache store or preferences backed cache store. Ex: file or pref",
 //            hidden = true,
@@ -23,7 +33,7 @@ public abstract class CacheOperation implements Callable<CommandResponse> {
     protected CacheStore cacheStore = new CacheStoreFactory().get();
 
     @Unmatched
-    List<String> unmatchedOptions;
+    List<String> unmatchedOptions = new ArrayList<>();
 
     @Spec
     CommandSpec spec;

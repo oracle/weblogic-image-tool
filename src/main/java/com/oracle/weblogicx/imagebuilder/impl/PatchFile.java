@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 import static com.oracle.weblogicx.imagebuilder.api.meta.CacheStore.CACHE_KEY_SEPARATOR;
 
@@ -20,6 +21,7 @@ public class PatchFile extends AbstractFile {
     private String patchId;
     private String category;
     private String version;
+    private final Logger logger = Logger.getLogger(PatchFile.class.getName());
 
 //    public PatchFile(String key) {
 //        super(key);
@@ -60,7 +62,7 @@ public class PatchFile extends AbstractFile {
             // try downloading it
             List<String> patches = ARUUtil.getPatchesFor(category, version, Collections.singletonList(patchId),
                     userId, password, cacheStore.getCacheDir());
-            patches.forEach(x -> cacheStore.addToCache(x.substring(0, x.indexOf('=')), x.substring(x.indexOf('=')+1)));
+            patches.forEach(x -> cacheStore.addToCache(x.substring(0, x.indexOf('=')), x.substring(x.indexOf('=') + 1)));
             if (!patches.isEmpty()) {
                 key = patches.get(0).substring(0, patches.get(0).indexOf('='));
             }
@@ -70,7 +72,7 @@ public class PatchFile extends AbstractFile {
                         patchId, category, version));
             }
         } else {
-            System.out.println("Found matching cache entry: key=" + key + ", value=" + filePath);
+            logger.info("Found matching cache entry: key=" + key + ", value=" + filePath);
         }
 
         return filePath;

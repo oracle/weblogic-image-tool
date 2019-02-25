@@ -3,7 +3,6 @@
 package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.util.Constants;
 import picocli.CommandLine.Command;
 
 @Command(
@@ -12,10 +11,17 @@ import picocli.CommandLine.Command;
 )
 public class GetCacheDir extends CacheOperation {
 
+    public GetCacheDir() {
+    }
+
+    public GetCacheDir(boolean isCLIMode) {
+        super(isCLIMode);
+    }
+
     @Override
-    public CommandResponse call() throws Exception {
+    public CommandResponse call() {
         String path = cacheStore.getCacheDir();
-        if (unmatchedOptions.contains(Constants.CLI_OPTION)) {
+        if (isCLIMode) {
             System.out.println("Cache Dir: " + path);
         }
         return new CommandResponse(0, "Cache Dir location: ", path);

@@ -3,7 +3,6 @@
 package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.util.Constants;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
@@ -31,13 +30,22 @@ import java.util.concurrent.Callable;
 )
 public class CacheCLI implements Callable<CommandResponse> {
 
+    public CacheCLI() {
+    }
+
+    public CacheCLI(boolean isCLIMode) {
+        this.isCLIMode = isCLIMode;
+    }
+
     @Override
     public CommandResponse call() {
-        if (unmatchedOptions.contains(Constants.CLI_OPTION)) {
+        if (isCLIMode) {
             spec.commandLine().usage(System.out);
         }
         return new CommandResponse(-1, "Invalid arguments");
     }
+
+    private boolean isCLIMode;
 
     @Spec
     CommandSpec spec;

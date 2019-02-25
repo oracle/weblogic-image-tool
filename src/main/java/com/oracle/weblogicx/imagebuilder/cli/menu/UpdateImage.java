@@ -4,8 +4,6 @@ package com.oracle.weblogicx.imagebuilder.cli.menu;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
-import com.oracle.weblogicx.imagebuilder.impl.InstallerFile;
-import com.oracle.weblogicx.imagebuilder.impl.PatchFile;
 import com.oracle.weblogicx.imagebuilder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.util.Constants;
 import com.oracle.weblogicx.imagebuilder.util.Utils;
@@ -21,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -37,24 +34,39 @@ import java.util.logging.Logger;
 )
 public class UpdateImage extends ImageOperation {
 
-    private Logger logger = Logger.getLogger("com.oracle.weblogix.imagebuilder.builder");
+    private final Logger logger = Logger.getLogger(UpdateImage.class.getName());
+
+    public UpdateImage() {
+    }
+
+    public UpdateImage(boolean isCLIMode) {
+        super(isCLIMode);
+    }
 
     @Override
     public CommandResponse call() throws Exception {
         Instant startTime = Instant.now();
 
-        FileHandler fileHandler = setupLogger(unmatchedOptions.contains(Constants.CLI_OPTION));
+        FileHandler fileHandler = setupLogger(isCLIMode);
         Path tmpDir = null;
         Path tmpDir2 = null;
 
         try {
 
+            CommandResponse result = super.call();
+            if (result.getStatus() != 0) {
+                return result;
+            }
+
+            /*
+            password = handlePasswordOptions();
             handleProxyUrls();
 
-            // check credentials if useCache option allows us to download artifacts
+            // check user support credentials
             if (!ARUUtil.checkCredentials(userId, password)) {
-                return new CommandResponse(-1, "User credentials do not match");
+                return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
+            */
 
             List<String> cmdBuilder = getInitialBuildCmd();
 
@@ -66,13 +78,12 @@ public class UpdateImage extends ImageOperation {
             }
 
             tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), null);
-            System.out.println("tmpDir2:" + tmpDir2);
-            Utils.copyResourceAsFile("/test-update-env.sh",
+            logger.info("tmp directory in user.home for docker run: " + tmpDir2);
+            Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
 
             List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir2, fromImage, "test-env.sh");
 
-            System.out.println("cmdToExec:" + String.join(" ", imageEnvCmd));
             Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
 
             String oracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
@@ -83,7 +94,7 @@ public class UpdateImage extends ImageOperation {
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
-            opatch_1394_required = (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >=0 &&
+            opatch_1394_required = (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0 &&
                     Utils.compareVersions(opatchVersion, "13.9.4.0.0") < 0);
 
             String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
@@ -91,25 +102,25 @@ public class UpdateImage extends ImageOperation {
                 filterStartTags.add(pkgMgr);
             }
 
-            baseImageProperties.keySet().forEach( x -> System.out.println(x + "=" + baseImageProperties.getProperty((String) x)));
+            baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
-            if (latestPSU || !patches.isEmpty()) {
-                String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
-                if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {
-                    System.out.println("**** opatch-lsinventory file exists ****");
-                    Set<String> toValidateSet = new HashSet<>();
-                    if (latestPSU) {
-                        toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion, userId, password));
-                    }
-                    toValidateSet.addAll(patches);
-                    ValidationResult validationResult = ARUUtil.validatePatches(lsInvFile, new ArrayList<>(toValidateSet),
-                            installerType.toString(), installerVersion, userId, password);
-                    if (!validationResult.isSuccess()) {
-                        return new CommandResponse(-1, validationResult.getErrorMessage());
-                    } else {
-                        System.out.println("patch conflict check successful");
-                    }
+            String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
+            if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {
+                logger.info("opatch-lsinventory file exists at: " + lsInvFile);
+                Set<String> toValidateSet = new HashSet<>();
+                if (latestPSU) {
+                    toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion, userId, password));
+                }
+                toValidateSet.addAll(patches);
+                ValidationResult validationResult = ARUUtil.validatePatches(lsInvFile, new ArrayList<>(toValidateSet),
+                        installerType.toString(), installerVersion, userId, password);
+                if (!validationResult.isSuccess()) {
+                    return new CommandResponse(-1, validationResult.getErrorMessage());
                 } else {
+                    logger.info("patch conflict check successful");
+                }
+            } else {
+                if (latestPSU || !patches.isEmpty()) {
                     return new CommandResponse(-1, "inventory file missing. required to check for conflicts");
                 }
             }
@@ -117,19 +128,14 @@ public class UpdateImage extends ImageOperation {
             // create a tmp directory for user.
             tmpDir = Files.createTempDirectory(null);
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
-            //System.out.println("tmpDir = " + tmpDirPath);
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
             Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
-
-            // this handles opatch_1394 install file.
-            //cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
             // resolve required patches
             cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
 
-            //Utils.copyResourceAsFile("/Dockerfile.update", tmpDirPath + File.separator + "Dockerfile");
             // create dockerfile
-            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/Dockerfile.update", filterStartTags, "/Dockerfile.ph");
+            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Dockerfile.update", filterStartTags, "/docker-files/Dockerfile.ph");
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
@@ -148,7 +154,7 @@ public class UpdateImage extends ImageOperation {
             }
         }
         Instant endTime = Instant.now();
-        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()  + "s. image tag: " + imageTag);
+        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
     @Override
@@ -159,23 +165,8 @@ public class UpdateImage extends ImageOperation {
         return super.handlePatchFiles(tmpDir, tmpPatchesDir);
     }
 
-    //    /**
-//     * Builds a list of {@link InstallerFile} objects based on user input which are processed
-//     * to download the required install artifacts
-//     * @return list of InstallerFile
-//     * @throws Exception in case of error
-//     */
-//    protected List<InstallerFile> gatherRequiredInstallers() throws Exception {
-//        List<InstallerFile> retVal = new LinkedList<>();
-//        if (opatch_1394_required) {
-//            retVal.add(new InstallerFile(Constants.OPATCH_1394_KEY, true, userId, password));
-//            filterStartTags.add("OPATCH_1394");
-//        }
-//        return retVal;
-//    }
-
     @Option(
-            names = { "--fromImage" },
+            names = {"--fromImage"},
             description = "Docker image to use as base image.",
             required = true
     )

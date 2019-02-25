@@ -9,7 +9,7 @@ import java.util.List;
  * An enum to represent type of installer
  */
 public enum InstallerType {
-    
+
     FMW(WLSInstallerType.FMW.toString()),
     JDK("jdk"),
     WDT("wdt"),

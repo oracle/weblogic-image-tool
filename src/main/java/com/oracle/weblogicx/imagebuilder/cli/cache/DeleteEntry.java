@@ -3,9 +3,16 @@
 package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.util.Constants;
+import com.oracle.weblogicx.imagebuilder.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.oracle.weblogicx.imagebuilder.util.Constants.CACHE_DIR_KEY;
+import static com.oracle.weblogicx.imagebuilder.util.Constants.DELETE_ALL_FOR_SURE;
 
 @Command(
         name = "deleteEntry",
@@ -13,44 +20,44 @@ import picocli.CommandLine.Option;
 )
 public class DeleteEntry extends CacheOperation {
 
+    public DeleteEntry() {
+    }
+
+    public DeleteEntry(boolean isCLIMode) {
+        super(isCLIMode);
+    }
+
     @Override
-    public CommandResponse call() throws Exception {
-        if (key != null && !key.isEmpty()) {
-            if (Constants.CACHE_DIR_KEY.equals(key.toLowerCase())) {
+    public CommandResponse call() {
+        if (!Utils.isEmptyString(key)) {
+            if (CACHE_DIR_KEY.equals(key.toLowerCase())) {
                 return new CommandResponse(-1, "Error: Cannot delete cache.dir entry. Use setCacheDir instead");
-            }
-            String oldValue = cacheStore.deleteFromCache(key);
-            if (oldValue != null) {
-                return new CommandResponse(0, String.format("Deleted entry %s=%s", key, oldValue),
-                        oldValue);
+            } else if (DELETE_ALL_FOR_SURE.equalsIgnoreCase(key)) {
+                Map<String, String> allEntries = cacheStore.getCacheItems();
+                //allEntries.remove(CACHE_DIR_KEY);
+                Map<String, String> deletedEntries = new HashMap<>();
+                allEntries.forEach((k, v) -> deletedEntries.put(k, cacheStore.deleteFromCache(k)));
+                return new CommandResponse(0, "Deleted all entries from cache", deletedEntries);
             } else {
-                return new CommandResponse(0, "Nothing to delete for key: " + key);
+                String oldValue = cacheStore.deleteFromCache(key);
+                if (oldValue != null) {
+                    return new CommandResponse(0, String.format("Deleted entry %s=%s", key, oldValue),
+                            Collections.singletonMap(key, oldValue));
+                } else {
+                    return new CommandResponse(0, "Nothing to delete for key: " + key);
+                }
             }
         }
-        if (unmatchedOptions.contains(Constants.CLI_OPTION)) {
+        if (isCLIMode) {
             spec.commandLine().usage(System.out);
         }
         return new CommandResponse(-1, "Invalid arguments. --key should correspond to a valid entry in cache");
     }
 
     @Option(
-            names = { "--key" },
+            names = {"--key"},
             description = "Key corresponding to the cache entry to delete",
             required = true
     )
     private String key;
-
-//    @Spec
-//    CommandSpec spec;
-//
-//    @Option(
-//            names = {"--cacheStoreType"},
-//            description = "Whether to use file backed cache store or preferences backed cache store. Ex: file or pref",
-//            hidden = true,
-//            defaultValue = "file"
-//    )
-//    private CacheStore cacheStore;
-//
-//    @Unmatched
-//    List<String> unmatchedOptions;
 }

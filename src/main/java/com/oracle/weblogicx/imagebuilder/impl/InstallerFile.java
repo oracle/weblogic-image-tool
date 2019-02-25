@@ -9,6 +9,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.oracle.weblogicx.imagebuilder.api.meta.CacheStore.CACHE_KEY_SEPARATOR;
 
@@ -21,6 +22,7 @@ public class InstallerFile extends AbstractFile {
     private String userId;
     private String password;
     private InstallerType type = null;
+    private final Logger logger = Logger.getLogger(InstallerFile.class.getName());
 
     private InstallerFile(String key, boolean tryToDownload) {
         super(key);
@@ -55,7 +57,7 @@ public class InstallerFile extends AbstractFile {
                     String targetFilePath = cacheStore.getCacheDir() + File.separator + key +
                             File.separator + fileName;
                     new File(targetFilePath).getParentFile().mkdirs();
-                    System.out.println("Downloading from " + urlPath + " to " + targetFilePath);
+                    logger.info("Downloading from " + urlPath + " to " + targetFilePath);
                     HttpUtil.downloadFile(urlPath, targetFilePath, userId, password);
                     cacheStore.addToCache(key, targetFilePath);
                     return targetFilePath;
@@ -72,6 +74,7 @@ public class InstallerFile extends AbstractFile {
 
     /**
      * Constructs the build-arg required to pass to the docker build
+     *
      * @param location path to installer on local disk
      * @return list of args
      */

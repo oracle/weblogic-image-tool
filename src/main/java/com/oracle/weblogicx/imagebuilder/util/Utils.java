@@ -4,13 +4,12 @@ package com.oracle.weblogicx.imagebuilder.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.ProtocolFamily;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -34,11 +34,14 @@ import static com.oracle.weblogicx.imagebuilder.util.Constants.HTTPS;
 
 public class Utils {
 
+    private static final Logger logger = Logger.getLogger(Utils.class.getName());
+
     /**
      * Utility method to copy a resource from the jar to local file system
+     *
      * @param resourcePath resource path in the jar
-     * @param destPath local file to copy to.
-     * @param markExec sets the executable flag if true
+     * @param destPath     local file to copy to.
+     * @param markExec     sets the executable flag if true
      * @throws IOException in case of error
      */
     public static void copyResourceAsFile(String resourcePath, String destPath, boolean markExec) throws IOException {
@@ -60,7 +63,8 @@ public class Utils {
 
     /**
      * Create a file with the given path.
-     * @param filePath the path of the file to create
+     *
+     * @param filePath        the path of the file to create
      * @param defaultFileName file name to use in case a directory with the given path exists
      * @return file path or null in case of error
      */
@@ -90,7 +94,8 @@ public class Utils {
 
     /**
      * Set proxy based on the proxy urls
-     * @param httpProxyUrl http proxy url
+     *
+     * @param httpProxyUrl  http proxy url
      * @param httpsProxyUrl https proxy url
      * @param nonProxyHosts string of non proxy hosts
      * @throws Exception
@@ -128,7 +133,7 @@ public class Utils {
         }
     }
 
-    public static void replacePlaceHolders(String destPath, String mainResource, List<String> filterPrefixes, String ...placeHolderResources) throws IOException {
+    public static void replacePlaceHolders(String destPath, String mainResource, List<String> filterPrefixes, String... placeHolderResources) throws IOException {
         try (
                 PrintWriter printWriter = new PrintWriter(new FileWriter(new File(destPath)))
         ) {
@@ -157,7 +162,7 @@ public class Utils {
         final Matcher matcher = pattern.matcher(resourceContent);
         Map<String, String> retMap = new HashMap<>();
         while (matcher.find()) {
-            if ( matcher.groupCount() == 4) {
+            if (matcher.groupCount() == 4) {
                 String startTag = matcher.group(1);
                 String extraIdentifier = matcher.group(2);
                 String content = matcher.group(3);
@@ -178,6 +183,7 @@ public class Utils {
 
     /**
      * Reads a given resource and returns it's content as string
+     *
      * @param resourcePath resource to read
      * @return content of the resource
      * @throws IOException
@@ -197,9 +203,10 @@ public class Utils {
 
     /**
      * Executes the given docker command and writes the process stdout to log
+     *
      * @param cmdBuilder command to execute
-     * @param dockerLog log file to write to
-     * @param kbInput key board input to the process
+     * @param dockerLog  log file to write to
+     * @param kbInput    key board input to the process
      * @throws IOException
      * @throws InterruptedException
      */
@@ -218,7 +225,7 @@ public class Utils {
         }
 
         Path dockerLogPath = createFile(dockerLog, "dockerbuild.log");
-        System.out.println("dockerLog: " + dockerLog);
+        logger.info("dockerLog: " + dockerLog);
         if (dockerLogPath != null) {
             try (
                     BufferedReader processReader = new BufferedReader(new InputStreamReader(
@@ -228,7 +235,7 @@ public class Utils {
                 String line;
                 while ((line = processReader.readLine()) != null) {
                     logWriter.println(line);
-                    System.out.println(line);
+                    //System.out.println(line);
                 }
             }
         }
@@ -239,6 +246,7 @@ public class Utils {
 
     /**
      * Executes the given docker command and returns the stdout of the process as properties
+     *
      * @param cmdBuilder command to execute
      * @return properties built from the stdout of the docker command
      * @throws IOException
@@ -264,6 +272,7 @@ public class Utils {
 
     /**
      * Throws an Exception if the given process failed with error
+     *
      * @param process process
      * @throws IOException
      */
@@ -283,6 +292,7 @@ public class Utils {
 
     /**
      * Deletes files from given dir and its subdirectories
+     *
      * @param tmpDir dir
      * @throws IOException in case of error
      */
@@ -301,10 +311,10 @@ public class Utils {
      * a qualifier.  If both versions have qualifiers and are otherwise equal, they are compared using
      * String.compareTo() to determine the result.
      *
-     * @param thisVersion - first version
+     * @param thisVersion  - first version
      * @param otherVersion - second version
      * @return returns 0 if the versions are equal, greater than zero if thisVersion is newer,
-     *         and less than zero if thisVersion is older.
+     * and less than zero if thisVersion is older.
      */
     public static int compareVersions(String thisVersion, String otherVersion) {
         int result = 0;
@@ -422,10 +432,11 @@ public class Utils {
 
     /**
      * Constructs a docker command to run a script in the container with a volume mount
+     *
      * @param hostDirToMount host dir
-     * @param dockerImage docker image tag
-     * @param scriptToRun script to execute on the container
-     * @param args args to the script
+     * @param dockerImage    docker image tag
+     * @param scriptToRun    script to execute on the container
+     * @param args           args to the script
      * @return command
      */
     public static List<String> getDockerRunCmd(Path hostDirToMount, String dockerImage, String scriptToRun,
@@ -442,6 +453,7 @@ public class Utils {
 
     /**
      * Detect proxy settings if not provided by the user
+     *
      * @param proxyUrl url set by the user
      * @param protocol http, https or none
      * @return proxy url for given protocol
@@ -473,5 +485,26 @@ public class Utils {
             }
         }
         return retVal;
+    }
+
+    /**
+     * Utility method to parse password out of three inputs
+     * @param passwordStr password in plain string form
+     * @param passwordFile file containing just the password
+     * @param passwordEnv name of environment variable containing the password
+     * @return parsed value
+     * @throws IOException in case of error
+     */
+    public static String getPasswordFromInputs(String passwordStr, Path passwordFile, String passwordEnv) throws IOException {
+        if (!isEmptyString(passwordStr)) {
+            return passwordStr;
+        } else if (passwordFile != null && Files.isRegularFile(passwordFile) && Files.size(passwordFile) > 0) {
+            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(passwordFile.toFile()))) {
+                return bufferedReader.readLine();
+            }
+        } else if (!isEmptyString(passwordEnv) && !isEmptyString(System.getenv(passwordEnv))) {
+            return System.getenv(passwordEnv);
+        }
+        throw new IOException("Failed to determine password. use one of the options to input password");
     }
 }

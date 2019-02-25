@@ -20,6 +20,8 @@ import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.oracle.weblogicx.imagebuilder.util.Constants.CACHE_DIR_KEY;
+
 public enum FileCacheStore implements CacheStore {
 
     CACHE_STORE;
@@ -39,21 +41,17 @@ public enum FileCacheStore implements CacheStore {
                 preferences.flush();
             }
             File metadataFile = new File(metadataPath);
-            if ( metadataFile.exists() && metadataFile.isFile()) {
+            if (metadataFile.exists() && metadataFile.isFile()) {
                 loadProperties(metadataFile);
             } else {
                 metadataFile.getParentFile().mkdirs();
                 metadataFile.createNewFile();
             }
-            if (properties.getProperty(Constants.CACHE_DIR_KEY) == null) {
-                properties.put(Constants.CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
+            if (properties.getProperty(CACHE_DIR_KEY) == null) {
+                properties.put(CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
                 persistToDisk();
             }
-//            if (properties.getProperty(Constants.OPATCH_1394_KEY + "_url") == null) {
-//                properties.put(Constants.OPATCH_1394_KEY + "_url", Constants.OPATCH_1394_URL);
-//                persistToDisk();
-//            }
-            File cacheDir = new File(properties.getProperty(Constants.CACHE_DIR_KEY));
+            File cacheDir = new File(properties.getProperty(CACHE_DIR_KEY));
             if (!cacheDir.exists()) {
                 cacheDir.mkdirs();
             }
@@ -62,6 +60,7 @@ public enum FileCacheStore implements CacheStore {
             System.exit(-1);
         }
     }
+
     /*
     private static final Properties properties = new Properties();
     private static String metadataPath;
@@ -105,7 +104,7 @@ public enum FileCacheStore implements CacheStore {
     */
     @Override
     public String getCacheDir() {
-        return properties.getProperty(Constants.CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
+        return properties.getProperty(CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
     }
 
     @Override
@@ -133,8 +132,8 @@ public enum FileCacheStore implements CacheStore {
     @Override
     public String deleteFromCache(String key) {
         Objects.requireNonNull(key, "key cannot be null");
-        if (Constants.CACHE_DIR_KEY.equals(key.toLowerCase())) {
-            return null;
+        if (CACHE_DIR_KEY.equals(key.toLowerCase())) {
+            return properties.getProperty(CACHE_DIR_KEY, null);
         }
         String oldValue = (String) properties.remove(key.toLowerCase());
         if (oldValue != null) {
@@ -169,9 +168,11 @@ public enum FileCacheStore implements CacheStore {
             if (properties.isEmpty()) {
                 properties.load(bufferedReader);
             } else {
-                System.out.println("******* Can this be? ******");
+                System.out.println("Loading properties from .metadata file");
                 Properties tmpProperties = new Properties();
                 tmpProperties.load(bufferedReader);
+                // Do not let cache.dir to be modified outside setCacheDir
+                tmpProperties.remove(CACHE_DIR_KEY);
                 tmpProperties.forEach((key, value) -> properties.put(((String) key).toLowerCase(), value));
             }
         } catch (IOException e) {
@@ -180,8 +181,8 @@ public enum FileCacheStore implements CacheStore {
     }
 
     public boolean setCacheDir(String cacheDirPath) {
-        if (cacheDirPath != null && !cacheDirPath.equals(getCacheDir())) {
-            properties.put(Constants.CACHE_DIR_KEY, cacheDirPath);
+        if (cacheDirPath != null) {
+            properties.put(CACHE_DIR_KEY, cacheDirPath);
             try {
                 metadataPath = getCacheDir() + File.separator + Constants.DEFAULT_META_FILE;
                 File metaDataFile = new File(metadataPath);

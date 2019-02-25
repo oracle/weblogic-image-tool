@@ -3,10 +3,10 @@
 package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.util.Constants;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Command(
@@ -15,8 +15,20 @@ import java.nio.file.Path;
 )
 public class SetCacheDir extends CacheOperation {
 
+    public SetCacheDir() {
+    }
+
+    public SetCacheDir(boolean isCLIMode) {
+        super(isCLIMode);
+    }
+
     @Override
     public CommandResponse call() {
+
+        if (location != null && !Files.isDirectory(location)) {
+            return new CommandResponse(-1, "cache dir should be an existing directory on local disk");
+        }
+
         String oldValue = cacheStore.getCacheDir();
         String msg;
         if (oldValue != null) {
@@ -26,7 +38,7 @@ public class SetCacheDir extends CacheOperation {
         }
 
         if (cacheStore.setCacheDir(location.toAbsolutePath().toString())) {
-            if (unmatchedOptions.contains(Constants.CLI_OPTION)) {
+            if (isCLIMode) {
                 System.out.println(msg);
             }
             return new CommandResponse(0, msg);
@@ -41,15 +53,4 @@ public class SetCacheDir extends CacheOperation {
             index = "0"
     )
     private Path location;
-
-//    @Option(
-//            names = {"--cacheStoreType"},
-//            description = "Whether to use file backed cache store or preferences backed cache store. Ex: file or pref",
-//            hidden = true,
-//            defaultValue = "file"
-//    )
-//    private CacheStore cacheStore;
-//
-//    @Unmatched
-//    List<String> unmatchedOptions;
 }

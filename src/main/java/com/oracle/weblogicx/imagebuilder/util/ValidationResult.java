@@ -3,7 +3,7 @@ package com.oracle.weblogicx.imagebuilder.util;
 import org.w3c.dom.Document;
 
 /**
- *   ValidaitonResult of patch conflicts check
+ * ValidaitonResult of patch conflicts check
  */
 
 public class ValidationResult {
@@ -31,11 +31,8 @@ public class ValidationResult {
     }
 
 
-
     /**
-     *
-     * @return  true if no conflicts ; false if there is conflicts
-     *
+     * @return true if no conflicts ; false if there is conflicts
      */
     public boolean isSuccess() {
         return success;
@@ -46,7 +43,6 @@ public class ValidationResult {
     }
 
     /**
-     *
      * @return dom document detailing about the conflicts
      */
     public Document getResults() {

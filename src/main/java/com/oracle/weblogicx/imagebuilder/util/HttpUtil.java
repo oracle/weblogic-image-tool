@@ -2,16 +2,6 @@
 
 package com.oracle.weblogicx.imagebuilder.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -34,6 +24,15 @@ import org.json.JSONArray;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpUtil {
 
@@ -97,7 +96,7 @@ public class HttpUtil {
      */
 
     public static void downloadFile(String url, String fileName, String username, String password)
-        throws IOException {
+            throws IOException {
         Executor.newInstance(getOraClient(username, password))
                 .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .saveContent(new File(fileName));
@@ -106,8 +105,8 @@ public class HttpUtil {
     /**
      * Check conflicts post method
      *
-     * @param url  url for conflict checker api
-     * @param payload payload containing patches to check for conflicts
+     * @param url      url for conflict checker api
+     * @param payload  payload containing patches to check for conflicts
      * @param username user name for support
      * @param password password for support
      * @return dom document result of the conflict checker
@@ -115,7 +114,7 @@ public class HttpUtil {
      */
 
     public static Document postCheckConflictRequest(String url, String payload, String username, String password)
-        throws IOException {
+            throws IOException {
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
         config.setRedirectsEnabled(true);
@@ -123,7 +122,7 @@ public class HttpUtil {
         CookieStore cookieStore = new BasicCookieStore();
 
         CloseableHttpClient client =
-            HttpClientBuilder.create().setDefaultRequestConfig(config.build()).useSystemProperties().build();
+                HttpClientBuilder.create().setDefaultRequestConfig(config.build()).useSystemProperties().build();
 
         Executor httpExecutor = Executor.newInstance(client).auth(username, password);
         httpExecutor.use(cookieStore);
@@ -133,16 +132,16 @@ public class HttpUtil {
 
 
         httpExecutor
-            .execute(Request.Get(Constants.REL_URL).connectTimeout(30000).socketTimeout(30000))
-            .returnContent().asString();
+                .execute(Request.Get(Constants.REL_URL).connectTimeout(30000).socketTimeout(30000))
+                .returnContent().asString();
 
         HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-            .addTextBody("request_xml", payload)
-            .build();
+                .addTextBody("request_xml", payload)
+                .build();
 
         String xmlString =
-            httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
-                .returnContent().asString();
+                httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
+                        .returnContent().asString();
 
         try {
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
@@ -166,7 +165,7 @@ public class HttpUtil {
         String results = Executor.newInstance(getOraClient(null, null)).execute(Request.Get(Constants.WDT_TAGS_URL))
                 .returnContent().asString();
         JSONArray jsonArr = new JSONArray(results);
-        for (int i=0; i < jsonArr.length(); i++) {
+        for (int i = 0; i < jsonArr.length(); i++) {
             retVal.add(jsonArr.getJSONObject(i).getString("name"));
         }
         return retVal;
