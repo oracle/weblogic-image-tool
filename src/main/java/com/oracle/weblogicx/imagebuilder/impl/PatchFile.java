@@ -74,36 +74,6 @@ public class PatchFile extends AbstractFile {
         } else {
             logger.info("Found matching cache entry: key=" + key + ", value=" + filePath);
         }
-
         return filePath;
-
- /*       if (patchId == null || patchId.isEmpty()) {
-            //this implies get latest psu
-            this.key = ARUUtil.getLatestPSUFor(category.toString(), version, userId, password);
-        } else {
-            List<String> patches = ARUUtil.getPatchesFor(category.toString(), version, Collections.singletonList(patchId),
-                    userId, password);
-            if (patches != null && !patches.isEmpty()) {
-                this.key = patches.get(0);
-            }
-        }
-
-        if (this.key == null || this.key.isEmpty()) {
-            if (this.patchId == null || this.patchId.isEmpty()) {
-                throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
-                        this.category, this.version));
-            } else {
-                throw new Exception(String.format("Failed to find patch %s for product category %s, version %s",
-                        this.patchId, this.category, this.version));
-            }
-        } else {
-            String filePath = cacheStore.getValueFromCache(this.key);
-            if (filePath == null || !Files.isRegularFile(Paths.get(filePath))) {
-                throw new Exception(String.format(
-                        "File doesn't exist at location %s for product category %s, version %s, patch %s", filePath,
-                        this.category, this.version, this.patchId));
-            }
-            return filePath;
-        }*/
     }
 }

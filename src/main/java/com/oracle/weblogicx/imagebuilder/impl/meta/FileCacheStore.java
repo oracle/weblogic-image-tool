@@ -61,47 +61,6 @@ public enum FileCacheStore implements CacheStore {
         }
     }
 
-    /*
-    private static final Properties properties = new Properties();
-    private static String metadataPath;
-    private static final String DEFAULT_CACHE_DIR = Paths.get(System.getProperty("user.home"), "cache")
-            .toAbsolutePath().toString();
-    private static final String DEFAULT_META_PATH = DEFAULT_CACHE_DIR + File.separator + DEFAULT_META_FILE;
-    private static final Preferences preferences = Preferences.userRoot().node(WEBLOGICX_IMAGEBUILDER);
-
-    static {
-        try {
-            metadataPath = preferences.get(METADATA_PREF_KEY, null);
-            if (metadataPath == null || metadataPath.isEmpty()) {
-                metadataPath = DEFAULT_META_PATH;
-                preferences.put(METADATA_PREF_KEY, metadataPath);
-                preferences.flush();
-            }
-            File metadataFile = new File(metadataPath);
-            if ( metadataFile.exists() && metadataFile.isFile()) {
-                loadProperties(metadataFile);
-            } else {
-                metadataFile.getParentFile().mkdirs();
-                metadataFile.createNewFile();
-            }
-            if (properties.getProperty(CACHE_DIR_KEY) == null) {
-                properties.put(CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
-                persistToDisk();
-            }
-            if (properties.getProperty(OPATCH_1394_KEY + "_url") == null) {
-                properties.put(OPATCH_1394_KEY + "_url", OPATCH_1394_URL);
-                persistToDisk();
-            }
-            File cacheDir = new File(properties.getProperty(CACHE_DIR_KEY));
-            if (!cacheDir.exists()) {
-                cacheDir.mkdirs();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-    */
     @Override
     public String getCacheDir() {
         return properties.getProperty(CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
@@ -168,7 +127,6 @@ public enum FileCacheStore implements CacheStore {
             if (properties.isEmpty()) {
                 properties.load(bufferedReader);
             } else {
-                System.out.println("Loading properties from .metadata file");
                 Properties tmpProperties = new Properties();
                 tmpProperties.load(bufferedReader);
                 // Do not let cache.dir to be modified outside setCacheDir

@@ -7,7 +7,6 @@ import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.InstallerType;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
 import com.oracle.weblogicx.imagebuilder.impl.InstallerFile;
-import com.oracle.weblogicx.imagebuilder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.util.Constants;
 import com.oracle.weblogicx.imagebuilder.util.HttpUtil;
 import com.oracle.weblogicx.imagebuilder.util.Utils;
@@ -56,14 +55,6 @@ public class CreateImage extends ImageOperation {
 
         Instant startTime = Instant.now();
 
-//        System.out.println("hello");
-//        System.out.println("WLSInstallerType = \"" + installerType + "\"");
-//        System.out.println("InstallerVersion = \"" + installerVersion + "\"");
-//        System.out.println("latestPSU = \"" + latestPSU + "\"");
-//        System.out.println("patches = \"" + patches + "\"");
-//        System.out.println("fromImage = \"" + fromImage + "\"");
-//        System.out.println("userId = \"" + userId + "\"");
-
         FileHandler fileHandler = setupLogger(isCLIMode);
         Path tmpDir = null;
         Path tmpDir2 = null;
@@ -74,16 +65,6 @@ public class CreateImage extends ImageOperation {
             if (result.getStatus() != 0) {
                 return result;
             }
-
-            /*
-            password = handlePasswordOptions();
-            handleProxyUrls();
-
-            // check user support credentials
-            if (!ARUUtil.checkCredentials(userId, password)) {
-                return new CommandResponse(-1, "user Oracle support credentials do not match");
-            }
-            */
 
             List<String> cmdBuilder = getInitialBuildCmd();
 
@@ -146,7 +127,6 @@ public class CreateImage extends ImageOperation {
             Utils.runDockerCommand(cmdBuilder, dockerLog);
 
         } catch (Exception ex) {
-            //ex.printStackTrace();
             return new CommandResponse(-1, ex.getMessage());
         } finally {
             Utils.deleteFilesRecursively(tmpDir);

@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import static com.oracle.weblogicx.imagebuilder.util.Constants.BUILD_ARG;
 import static com.oracle.weblogicx.imagebuilder.util.Constants.HTTP;
 import static com.oracle.weblogicx.imagebuilder.util.Constants.HTTPS;
+import static com.oracle.weblogicx.imagebuilder.util.Constants.PATCH_ID_REGEX;
 
 public abstract class ImageOperation implements Callable<CommandResponse> {
 
@@ -90,8 +91,13 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                patchLocations.add(new PatchFile(installerType.toString(), installerVersion, patchId, userId, password)
-                        .resolve(cacheStore));
+                if (patchId.matches(PATCH_ID_REGEX)) {
+                    patchId = patchId.substring(1);
+                    patchLocations.add(new PatchFile(installerType.toString(), installerVersion, patchId, userId,
+                            password).resolve(cacheStore));
+                } else {
+                    logger.severe("Ignoring invalid patch id format: " + patchId);
+                }
             }
         }
         for (String patchLocation : patchLocations) {

@@ -50,7 +50,7 @@ public class AddEntry extends CacheOperation {
     private String key;
 
     @Option(
-            names = {"--path"},
+            names = {"--value"},
             description = "Value for the cache entry",
             required = true
     )

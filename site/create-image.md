@@ -7,7 +7,6 @@ are marked with asterisk (*). Password can be provided in one of the three ways.
 3) File containing the password
 
 ```
-Missing required options [--tag=TAG, --user=<support email>]
 Usage: imagebuilder create [OPTIONS]
 Build WebLogic docker image
       --docker=<dockerPath> path to docker executable. Default: docker
@@ -59,7 +58,7 @@ The commands below assume that all the required jdk, wls or fmw (WebLogic infras
     ```
     imagebuilder create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
     ```
-    
+
 - Create an image named sample:wdt with same options as above and create a domain with [WebLogic Deploy Tooling](https://github.com/oracle/weblogic-deploy-tooling)
     ```
     imagebuilder create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16

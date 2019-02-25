@@ -14,14 +14,13 @@ import org.w3c.dom.Document;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.oracle.weblogicx.imagebuilder.api.meta.CacheStore.CACHE_KEY_SEPARATOR;
+import static com.oracle.weblogicx.imagebuilder.util.Constants.PATCH_ID_REGEX;
 
 @Command(
         name = "addPatch",
@@ -46,9 +45,11 @@ public class AddPatchEntry extends CacheOperation {
                 && userId != null && !userId.isEmpty()
                 && password != null && !password.isEmpty()
                 && location != null && Files.exists(location) && Files.isRegularFile(location)) {
-            String patchNumber = this.patchId.toLowerCase();
-            if (patchNumber.startsWith("p") && patchNumber.length() > 1) {
-                patchNumber = patchNumber.substring(1);
+            String patchNumber;
+            if (patchId.matches(PATCH_ID_REGEX)) {
+                patchNumber = patchId.substring(1);
+            } else {
+                return new CommandResponse(-1, "Invalid patch id format: " + patchId);
             }
             SearchResult result = ARUUtil.getPatchDetail(type.toString(), version, patchNumber, userId, password);
             if (result.isSuccess()) {

@@ -33,6 +33,22 @@ applying selected patches.
 - Docker client and daemon on the build machine
   - Experimental features should be turned on to support docker build --squash option.
 
-## Initialization
+## Setup
 
-Build the project to
+- Build the project to generate artifacts imagebuilder-0.1-SNAPSHOT.jar and imagebuilder_completion.sh
+- The jar is an uber-jar containing all the required packages to run the tool.
+- If running an os with bash, Use the below commands to setup the tool with tab complete feature.
+   ```bash
+   #!/usr/bin/env bash
+   unalias imagebuilder 2> /dev/null
+   alias imagebuilder='java -cp "./imagebuilder-0.1-SNAPSHOT.jar" com.oracle.weblogicx.imagebuilder.cli.CLIDriver'
+   source ./imagebuilder_completion.sh
+   ```
+- On Windows, setup imagebuilder.cmd or imagebuilder.bat script
+    ```cmd
+    @ECHO OFF
+    java -cp "./imagebuilder-0.1-SNAPSHOT.jar" com.oracle.weblogicx.imagebuilder.cli.CLIDriver %*
+    ```
+- Then, execute "imagebuilder help" to get the help screen
+- The jar can be executed directly using command java -cp "./imagebuilder-0.1-SNAPSHOT.jar" com.oracle.weblogicx.imagebuilder.cli.CLIDriver help
+- Once familiar with the commands, you should be able to create and update WebLogic docker images

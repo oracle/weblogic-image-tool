@@ -38,6 +38,7 @@ public final class Constants {
     public static final String CACHE_STORE_TYPE = "cacheStoreType";
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
+    public static final String PATCH_ID_REGEX = "^[pP]\\d+";
 
     private Constants() {
         //restrict access

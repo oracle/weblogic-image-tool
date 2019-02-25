@@ -58,16 +58,6 @@ public class UpdateImage extends ImageOperation {
                 return result;
             }
 
-            /*
-            password = handlePasswordOptions();
-            handleProxyUrls();
-
-            // check user support credentials
-            if (!ARUUtil.checkCredentials(userId, password)) {
-                return new CommandResponse(-1, "user Oracle support credentials do not match");
-            }
-            */
-
             List<String> cmdBuilder = getInitialBuildCmd();
 
             if (fromImage == null || fromImage.isEmpty()) {

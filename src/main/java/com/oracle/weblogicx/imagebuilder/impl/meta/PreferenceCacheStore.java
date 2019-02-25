@@ -29,10 +29,6 @@ public enum PreferenceCacheStore implements CacheStore {
                 preferences.put(Constants.CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
                 persistToDisk();
             }
-//            if (preferences.get(Constants.OPATCH_1394_KEY + "_url", null) == null) {
-//                preferences.put(Constants.OPATCH_1394_KEY + "_url", Constants.OPATCH_1394_URL);
-//                persistToDisk();
-//            }
             File cacheDir = new File(preferences.get(Constants.CACHE_DIR_KEY, DEFAULT_CACHE_DIR));
             if (!cacheDir.exists()) {
                 cacheDir.mkdirs();
@@ -42,27 +38,6 @@ public enum PreferenceCacheStore implements CacheStore {
             System.exit(-1);
         }
     }
-    /*
-    private static final String DEFAULT_CACHE_DIR = Paths.get(System.getProperty("user.home"), "cache")
-            .toAbsolutePath().toString();
-    private static final Preferences preferences = Preferences.userRoot().node(WEBLOGICX_IMAGEBUILDER);
-
-    static {
-        try {
-            if (preferences.get(CACHE_DIR_KEY, null) == null) {
-                preferences.put(CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
-                persistToDisk();
-            }
-            File cacheDir = new File(preferences.get(CACHE_DIR_KEY, DEFAULT_CACHE_DIR));
-            if (!cacheDir.exists()) {
-                cacheDir.mkdirs();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-    */
 
     @Override
     public String getCacheDir() {
@@ -113,12 +88,6 @@ public enum PreferenceCacheStore implements CacheStore {
         } catch (BackingStoreException e) {
             e.printStackTrace();
         }
-        /*
-        Stream<Map.Entry<Object, Object>> stream = preferences.childrenNames().stream();
-        return stream.collect(Collectors.toMap(
-                e -> String.valueOf(e.getKey()),
-                e -> String.valueOf(e.getValue())));
-        */
         return Collections.emptyMap();
     }
 

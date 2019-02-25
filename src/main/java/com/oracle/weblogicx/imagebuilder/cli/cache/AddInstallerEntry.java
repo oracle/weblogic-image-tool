@@ -15,7 +15,7 @@ import static com.oracle.weblogicx.imagebuilder.api.meta.CacheStore.CACHE_KEY_SE
 
 @Command(
         name = "addInstaller",
-        description = "Add cache entry for wls|fmw or jdk installer",
+        description = "Add cache entry for wls, fmw, jdk or wdt installer",
         sortOptions = false
 )
 public class AddInstallerEntry extends CacheOperation {
