@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+#Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+#
+#Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+#
 
 if [[ -f /etc/os-release ]]; then
   cat /etc/os-release | grep -oE '^ID=[\"]?(\w+)[\"]?'

@@ -1,3 +1,5 @@
+/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. */
+
 package com.oracle.weblogicx.imagebuilder.api;
 
 import com.oracle.weblogicx.imagebuilder.api.meta.CacheStore;

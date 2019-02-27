@@ -1,6 +1,6 @@
 # LICENSE UPL 1.0
 #
-# Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
 # This file is not a fully functional Dockerfile. Do not use this directly.
 
 # START %%WDT_ARGS%% #

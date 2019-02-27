@@ -1,6 +1,6 @@
 # LICENSE UPL 1.0
 #
-# Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
 #
 ARG BASE_IMAGE=oraclelinux:7-slim
 FROM ${BASE_IMAGE} as WLS_BUILD
