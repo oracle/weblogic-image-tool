@@ -1,11 +1,11 @@
 # Update Image
 
-The update command is used to apply patches to an existing WebLogic docker image. The required options for the command 
-are marked with asterisk (*). Password can be provided in one of the three ways.
- 
-1) Plain Text
-2) Environment Variable
-3) File containing the password
+Use the `update` command to apply patches to an existing WebLogic Docker image. The required options for the command
+are marked with asterisk (*). The password can be provided in one of the three ways:
+
+* Plain text
+* Environment variable
+* File containing the password
 
 ```
 Usage: imagebuilder update [OPTIONS]
@@ -36,15 +36,15 @@ Update WebLogic docker image with selected patches
 
 ## Usage scenarios
 
-**_Note: Use --passwordEnv or --passwordFile instead of --password_**
+**Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-- Update an image named sample:1.0 by applying the latest psu and tag it as sample:1.1.
+- Update an image named `sample:1.0` by applying the latest PSU and tag it as `sample:1.1`:
     ```
     imagebuilder update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
     ```
 
-- Update an image named sample:1.0 with selected patches applied.
+- Update an image named `sample:1.0` with the selected patches applied.
     ```
     imagebuilder update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,p87654321
     ```
-    The patch numbers may or may not start with 'p'.
+    The patch numbers may or may not start with '`p`'.

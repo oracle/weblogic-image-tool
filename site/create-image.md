@@ -1,10 +1,11 @@
 # Create Image
 
-The create command helps build a WebLogic docker image from a given base os image. The required options for the command 
-are marked with asterisk (*). Password can be provided in one of the three ways. 
-1) Plain Text
-2) Environment Variable
-3) File containing the password
+The `create` command helps build a WebLogic Docker image from a given base OS image. The required options for the command
+are marked with an asterisk (*). You can provide the password in one of the three ways:
+
+* Plain text
+* Environment variable
+* File containing the password
 
 ```
 Usage: imagebuilder create [OPTIONS]
@@ -49,32 +50,34 @@ Build WebLogic docker image
 
 ## Usage scenarios
 
-**_Note: Use --passwordEnv or --passwordFile instead of --password_**
+**Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-The commands below assume that all the required jdk, wls or fmw (WebLogic infrastructure installer) have been downloaded
- to the cache dir. Use the [cache](cache.md) command to set it up.
+The commands below assume that all the required JDK, WLS or FMW (WebLogic infrastructure installers) have been downloaded
+ to the cache directory. Use the [cache](cache.md) command to set it up.
 
-- Create an image named sample:wls with WebLogic installer 12.2.1.3.0, server jdk 8u202, latest psu applied.
+- Create an image named `sample:wls` with the WebLogic installer 12.2.1.3.0, server JDK 8u202, and latest PSU applied.
     ```
     imagebuilder create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
     ```
 
-- Create an image named sample:wdt with same options as above and create a domain with [WebLogic Deploy Tooling](https://github.com/oracle/weblogic-deploy-tooling)
+- Create an image named `sample:wdt` with the same options as above and create a domain with [WebLogic Deploy Tooling](https://github.com/oracle/weblogic-deploy-tooling).
     ```
     imagebuilder create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16
     ```
-    If wdtVersion is not provided, the tool uses the latest release.
+    If `wdtVersion` is not provided, the tool uses the latest release.
 
-- Create an image name sample:patch with selected patches applied.
+- Create an image named `sample:patch` with the selected patches applied.
     ```
     imagebuilder create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
     ```
-    The patch numbers may or may not start with 'p'.
-    
+    The patch numbers may or may not start with '`p`'.
+
 ## Errors
 
-- CachePolicy prohibits download. Please add cache entry for key: jdk_8u202
-    - This implies that the tool could not find the jdk installer in its cache. Use the [cache](cache.md) command to fix it.
+- `CachePolicy prohibits download. Please add cache entry for key: jdk_8u202`
+
+   - This implies that the tool could not find the JDK installer in its cache.
+   - Use the [cache](cache.md) command to fix it:
     ```
     imagebuilder cache addInstaller --type jdk --version 8u202 --path /local/path/to/jdk.gz
     ```
