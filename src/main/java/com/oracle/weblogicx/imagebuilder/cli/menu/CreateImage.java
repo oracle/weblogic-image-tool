@@ -2,7 +2,6 @@
 
 package com.oracle.weblogicx.imagebuilder.cli.menu;
 
-import com.oracle.weblogicx.imagebuilder.api.model.CachePolicy;
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.InstallerType;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
@@ -29,6 +28,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.oracle.weblogicx.imagebuilder.api.model.CachePolicy.ALWAYS;
+import static com.oracle.weblogicx.imagebuilder.util.Constants.BUILD_ARG;
 import static com.oracle.weblogicx.imagebuilder.util.Constants.DEFAULT_JDK_VERSION;
 import static com.oracle.weblogicx.imagebuilder.util.Constants.DEFAULT_WLS_VERSION;
 
@@ -79,7 +79,7 @@ public class CreateImage extends ImageOperation {
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
             if (fromImage != null && !fromImage.isEmpty()) {
-                cmdBuilder.add(Constants.BUILD_ARG);
+                cmdBuilder.add(BUILD_ARG);
                 cmdBuilder.add("BASE_IMAGE=" + fromImage);
 
                 tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), null);
@@ -124,8 +124,7 @@ public class CreateImage extends ImageOperation {
             cmdBuilder.add(tmpDirPath);
 
             logger.info("docker cmd = " + String.join(" ", cmdBuilder));
-            Utils.runDockerCommand(cmdBuilder, dockerLog);
-
+            Utils.runDockerCommand(isCLIMode, cmdBuilder, dockerLog);
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
@@ -148,7 +147,7 @@ public class CreateImage extends ImageOperation {
      * @return list of strings
      * @throws Exception in case of error
      */
-    List<String> handleInstallerFiles(Path tmpDir) throws Exception {
+    private List<String> handleInstallerFiles(Path tmpDir) throws Exception {
         List<String> retVal = new LinkedList<>();
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         List<InstallerFile> requiredInstallers = gatherRequiredInstallers();
@@ -188,18 +187,18 @@ public class CreateImage extends ImageOperation {
             if (Files.isRegularFile(wdtModelPath)) {
                 filterStartTags.add("WDT_");
                 Path targetLink = Files.createLink(Paths.get(tmpDirPath, wdtModelPath.getFileName().toString()), wdtModelPath);
-                retVal.add(Constants.BUILD_ARG);
+                retVal.add(BUILD_ARG);
                 retVal.add("WDT_MODEL=" + tmpDir.relativize(targetLink).toString());
 
                 if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
                     targetLink = Files.createLink(Paths.get(tmpDirPath, wdtArchivePath.getFileName().toString()), wdtArchivePath);
-                    retVal.add(Constants.BUILD_ARG);
+                    retVal.add(BUILD_ARG);
                     retVal.add("WDT_ARCHIVE=" + tmpDir.relativize(targetLink).toString());
                 }
 
                 if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
                     targetLink = Files.createLink(Paths.get(tmpDirPath, wdtVariablesPath.getFileName().toString()), wdtVariablesPath);
-                    retVal.add(Constants.BUILD_ARG);
+                    retVal.add(BUILD_ARG);
                     retVal.add("WDT_VARIABLE=" + tmpDir.relativize(targetLink).toString());
                     retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));
                 }
@@ -232,7 +231,7 @@ public class CreateImage extends ImageOperation {
                         Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
         ).collect(Collectors.toList());
         matchingKeys.forEach(x -> {
-            retVal.add(Constants.BUILD_ARG);
+            retVal.add(BUILD_ARG);
             retVal.add(((String) x).toUpperCase() + "=" + variableProps.getProperty((String) x));
         });
         return retVal;
@@ -247,15 +246,14 @@ public class CreateImage extends ImageOperation {
      */
     private List<InstallerFile> gatherRequiredInstallers() throws Exception {
         List<InstallerFile> retVal = new LinkedList<>();
-        retVal.add(new InstallerFile(InstallerType.fromValue(installerType.toString()), installerVersion,
-                (useCache != ALWAYS), userId, password));
-        retVal.add(new InstallerFile(InstallerType.JDK, jdkVersion, (useCache != ALWAYS), userId, password));
         if (wdtModelPath != null && Files.isRegularFile(wdtModelPath)) {
-            InstallerFile wdtInstaller = new InstallerFile(InstallerType.WDT, wdtVersion, (useCache != ALWAYS),
-                    null, null);
+            InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
             retVal.add(wdtInstaller);
             addWDTURL(wdtInstaller.getKey() + "_url");
         }
+        retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
+                userId, password));
+        retVal.add(new InstallerFile(useCache, InstallerType.JDK, jdkVersion, userId, password));
         return retVal;
     }
 
@@ -266,7 +264,10 @@ public class CreateImage extends ImageOperation {
      * @throws Exception in case of error
      */
     private void addWDTURL(String wdtURLKey) throws Exception {
-        if ("latest".equalsIgnoreCase(wdtVersion) || cacheStore.getValueFromCache(wdtURLKey) == null) {
+        if (cacheStore.getValueFromCache(wdtURLKey) == null) {
+            if (useCache == ALWAYS) {
+                throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
+            }
             List<String> wdtTags = HttpUtil.getWDTTags();
             String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) : "weblogic-deploy-tooling-" + wdtVersion;
             if (wdtTags.contains(tagToMatch)) {
@@ -313,18 +314,6 @@ public class CreateImage extends ImageOperation {
             defaultValue = DEFAULT_JDK_VERSION
     )
     private String jdkVersion;
-
-    @Option(
-            names = {"--useCache"},
-            paramLabel = "<Cache Policy>",
-            defaultValue = "always",
-            description = "Whether to use local cache or download installers.\n" +
-                    "first - try to use cache and download artifacts if required\n" +
-                    "always - default. use cache always and never download artifacts\n" +
-                    "never - never use cache and always download artifacts",
-            hidden = true
-    )
-    private CachePolicy useCache;
 
     @Option(
             names = {"--fromImage"},

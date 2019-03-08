@@ -431,11 +431,13 @@ public class ARUUtil {
             if (index > 0) {
                 String fileName = destDir + File.separator + downLoadLink.substring(
                         index + "patch_file=".length());
+                HttpUtil.downloadFile(downLoadHost + downLoadLink, fileName, userId, password);
+                /*
                 if (!new File(fileName).exists()) {
                     HttpUtil.downloadFile(downLoadHost + downLoadLink, fileName, userId, password);
                 } else {
                     logger.info(String.format("patch %s already downloaded for bug %s", fileName, key));
-                }
+                }*/
                 return key + "=" + fileName;
             }
 

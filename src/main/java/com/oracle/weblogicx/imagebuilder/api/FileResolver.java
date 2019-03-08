@@ -8,7 +8,7 @@ public interface FileResolver {
 
     /**
      * Given a cache store, check whether the installer / patch file exists on disk.
-     * patch files will be downloaded as required.
+     * files will be downloaded if cachePolicy allows it.
      *
      * @param cacheStore store that keeps track of required artifacts
      * @return location of file on disk if found

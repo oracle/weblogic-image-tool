@@ -13,9 +13,15 @@ import java.nio.file.Paths;
 public abstract class AbstractFile implements FileResolver {
 
     protected String key;
+    protected CachePolicy cachePolicy;
+    protected String userId;
+    protected String password;
 
-    public AbstractFile(String key) {
+    public AbstractFile(String key, CachePolicy cachePolicy, String userId, String password) {
         this.key = key;
+        this.cachePolicy = cachePolicy;
+        this.userId = userId;
+        this.password = password;
     }
 
     protected boolean isFileOnDisk(String filePath) {

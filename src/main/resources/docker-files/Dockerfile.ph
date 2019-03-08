@@ -57,6 +57,7 @@ RUN mkdir -p $(dirname ${DOMAIN_HOME}) \
  && if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file ${OTMPDIR}/${WDT_MODEL##*/}"; fi \
  && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file ${OTMPDIR}/${WDT_ARCHIVE##*/}"; fi \
  && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file ${OTMPDIR}/${WDT_VARIABLE##*/}"; fi \
+ && cd ${WDT_HOME}/bin \
  && ${WDT_HOME}/bin/createDomain.sh \
  -oracle_home ${ORACLE_HOME} \
  -java_home ${JAVA_HOME} \

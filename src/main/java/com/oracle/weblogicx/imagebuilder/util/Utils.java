@@ -4,10 +4,13 @@ package com.oracle.weblogicx.imagebuilder.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -16,6 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -109,7 +114,6 @@ public class Utils {
         }
         if (!isEmptyString(nonProxyHosts)) {
             System.setProperty("http.nonProxyHosts", nonProxyHosts.replaceAll("[,;]", "|"));
-            //System.setProperty("http.nonProxyHosts", "127.0.0.1|localhost|*.us.oracle.com|*.oraclecorp.com");
         }
     }
 
@@ -146,7 +150,7 @@ public class Utils {
                 }
 
                 for (Map.Entry<String, String> entry : placeHolderMap.entrySet()) {
-                    String regex = "# PLACEHOLDER FOR %%" + entry.getKey() + "%% #";
+                    String regex = MessageFormat.format("# PLACEHOLDER FOR %%{0}%% #", entry.getKey());
                     mainContent = mainContent.replaceAll(regex, Matcher.quoteReplacement(entry.getValue()));
                 }
             }
@@ -156,7 +160,6 @@ public class Utils {
 
     private static Map<String, String> readPlaceHolderResource(String resourcePath, List<String> desiredPrefixes) throws IOException {
         String resourceContent = readResource(resourcePath);
-        //final String regex = "# START %%(\\S+)%% #(.*)# END %%(\\1)%% #";
         final String regex = "# START %%(\\S+)%%([_A-Z]*?) #(.*)# END %%(\\1)%%\\2 #";
         final Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         final Matcher matcher = pattern.matcher(resourceContent);
@@ -170,10 +173,7 @@ public class Utils {
                 if (startTag.equals(endTag) && desiredPrefixes.stream().anyMatch(
                         x -> startTag.startsWith(x) || extraIdentifier.equalsIgnoreCase(x))) {
                     retMap.put(startTag, content);
-                }/* else {
-                    System.out.println("Did not find closing pattern for " + matcher.group(1) + " in resource " +
-                            resourcePath);
-                }*/
+                }
             } else {
                 System.out.println("pattern mismatch in resource " + resourcePath);
             }
@@ -204,41 +204,30 @@ public class Utils {
     /**
      * Executes the given docker command and writes the process stdout to log
      *
+     * @param isCLIMode whether the tool is being run in CLI mode
      * @param cmdBuilder command to execute
      * @param dockerLog  log file to write to
-     * @param kbInput    key board input to the process
      * @throws IOException
      * @throws InterruptedException
      */
-    public static void runDockerCommand(List<String> cmdBuilder, Path dockerLog, String... kbInput) throws IOException,
-            InterruptedException {
+    public static void runDockerCommand(boolean isCLIMode, List<String> cmdBuilder, Path dockerLog)
+            throws IOException, InterruptedException {
         // process builder
         ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
-        final Process process = processBuilder.start();
-
-        if (kbInput != null && kbInput.length > 0) {
-            try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(process.getOutputStream()))) {
-                for (String eachStr : kbInput) {
-                    printWriter.println(eachStr);
-                }
-            }
-        }
-
         Path dockerLogPath = createFile(dockerLog, "dockerbuild.log");
-        logger.info("dockerLog: " + dockerLog);
-        if (dockerLogPath != null) {
-            try (
-                    BufferedReader processReader = new BufferedReader(new InputStreamReader(
-                            process.getInputStream()));
-                    PrintWriter logWriter = new PrintWriter(new FileWriter(dockerLogPath.toFile()))
-            ) {
-                String line;
-                while ((line = processReader.readLine()) != null) {
-                    logWriter.println(line);
-                    //System.out.println(line);
-                }
-            }
+        List<OutputStream> outputStreams = new ArrayList<>();
+
+        if (isCLIMode) {
+            outputStreams.add(System.out);
         }
+
+        if (dockerLogPath != null) {
+            logger.info("dockerLog: " + dockerLog);
+            outputStreams.add(new FileOutputStream(dockerLogPath.toFile()));
+        }
+
+        final Process process = processBuilder.start();
+        writeFromInputToOutputStreams(process.getInputStream(), outputStreams.toArray(new OutputStream[0]));
         if (process.waitFor() != 0) {
             processError(process);
         }
@@ -288,6 +277,37 @@ public class Utils {
             throw new IOException(
                     "docker command failed with error: " + stringBuilder.toString());
         }
+    }
+
+    private static void writeFromInputToOutputStreams(InputStream inputStream, OutputStream... outputStreams) {
+        Thread readerThread = new Thread(() -> {
+            try(
+                    BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
+                    CloseableList<PrintWriter> printWriters = createPrintWriters(outputStreams)
+            ) {
+                if (!printWriters.isEmpty()) {
+                    String line;
+                    while ((line = processReader.readLine()) != null) {
+                        String finalLine = line;
+                        printWriters.forEach(x -> x.println(finalLine));
+                    }
+                }
+            } catch (IOException e) {
+                logger.severe(e.getMessage());
+            }
+        });
+        readerThread.setDaemon(true);
+        readerThread.start();
+    }
+
+    private static CloseableList<PrintWriter> createPrintWriters(OutputStream... outputStreams) {
+        CloseableList<PrintWriter> retVal = new CloseableList<>();
+        if (outputStreams != null) {
+            for (OutputStream outputStream : outputStreams) {
+                retVal.add(new PrintWriter(new OutputStreamWriter(outputStream), true));
+            }
+        }
+        return retVal;
     }
 
     /**

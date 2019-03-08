@@ -4,6 +4,7 @@ package com.oracle.weblogicx.imagebuilder.cli.menu;
 
 import com.oracle.weblogicx.imagebuilder.api.FileResolver;
 import com.oracle.weblogicx.imagebuilder.api.meta.CacheStore;
+import com.oracle.weblogicx.imagebuilder.api.model.CachePolicy;
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
 import com.oracle.weblogicx.imagebuilder.impl.PatchFile;
@@ -88,14 +89,14 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
 
         if (latestPSU) {
-            FileResolver psuResolver = new PatchFile(installerType.toString(), installerVersion, null, userId, password);
+            FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion, null, userId, password);
             patchLocations.add(psuResolver.resolve(cacheStore));
         }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
                 if (patchId.matches(PATCH_ID_REGEX)) {
                     patchId = patchId.substring(1);
-                    patchLocations.add(new PatchFile(installerType.toString(), installerVersion, patchId, userId,
+                    patchLocations.add(new PatchFile(useCache, installerType.toString(), installerVersion, patchId, userId,
                             password).resolve(cacheStore));
                 } else {
                     logger.severe("Ignoring invalid patch id format: " + patchId);
@@ -126,7 +127,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     List<String> getInitialBuildCmd() {
 
         List<String> cmdBuilder = Stream.of("docker", "build",
-                "--squash", "--force-rm", "--rm=true", "--no-cache", "--network=host").collect(Collectors.toList());
+                "--squash", "--force-rm", "--rm=true", "--no-cache").collect(Collectors.toList());
 
         cmdBuilder.add("--tag");
         cmdBuilder.add(imageTag);
@@ -160,7 +161,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     void addOPatch1394ToImage(Path tmpDir) throws Exception {
-        String filePath = new PatchFile("opatch", "13.9.4.0.0", "28186730", userId, password).resolve(cacheStore);
+        String filePath = new PatchFile(useCache, "opatch", "13.9.4.0.0", "28186730", userId, password).resolve(cacheStore);
         Files.createLink(Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()),
                 Paths.get(filePath));
         filterStartTags.add("OPATCH_1394");
@@ -196,6 +197,17 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     WLSInstallerType installerType = WLSInstallerType.WLS;
 
     String installerVersion = Constants.DEFAULT_WLS_VERSION;
+
+    @Option(
+            names = {"--useCache"},
+            paramLabel = "<Cache Policy>",
+            defaultValue = "first",
+            description = "Whether to use local cache or download installers.\n" +
+                    "first - default. try to use cache and download artifacts if required\n" +
+                    "always - use cache always and never download artifacts\n" +
+                    "never - never use cache and always download artifacts"
+    )
+    CachePolicy useCache;
 
     @Option(
             names = {"--latestPSU"},
