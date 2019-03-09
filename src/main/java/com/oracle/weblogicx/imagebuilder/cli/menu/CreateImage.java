@@ -3,6 +3,7 @@
 package com.oracle.weblogicx.imagebuilder.cli.menu;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
+import com.oracle.weblogicx.imagebuilder.api.model.DomainType;
 import com.oracle.weblogicx.imagebuilder.api.model.InstallerType;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
 import com.oracle.weblogicx.imagebuilder.impl.InstallerFile;
@@ -185,6 +186,17 @@ public class CreateImage extends ImageOperation {
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         if (wdtModelPath != null) {
             if (Files.isRegularFile(wdtModelPath)) {
+                if (domainType != DomainType.WLS) {
+                    if (installerType != WLSInstallerType.FMW) {
+                        throw new IOException("FMW installer is required for JRF domain");
+                    }
+                    retVal.add(BUILD_ARG);
+                    retVal.add("DOMAIN_TYPE=" + domainType);
+                    if (rcu_run_flag) {
+                        retVal.add(BUILD_ARG);
+                        retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
+                    }
+                }
                 filterStartTags.add("WDT_");
                 Path targetLink = Files.createLink(Paths.get(tmpDirPath, wdtModelPath.getFileName().toString()), wdtModelPath);
                 retVal.add(BUILD_ARG);
@@ -345,4 +357,18 @@ public class CreateImage extends ImageOperation {
             defaultValue = "latest"
     )
     private String wdtVersion;
+
+    @Option(
+            names = {"--domainType"},
+            description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: ${COMPLETION-CANDIDATES}",
+            defaultValue = "wls",
+            required = true
+    )
+    private DomainType domainType;
+
+    @Option(
+            names = "--run_rcu",
+            description = "whether to run rcu to create the required database schemas"
+    )
+    private boolean rcu_run_flag = false;
 }

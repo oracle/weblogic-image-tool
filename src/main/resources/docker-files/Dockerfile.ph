@@ -18,6 +18,7 @@ ARG ADMIN_PORT
 ARG MANAGED_SERVER_PORT
 ARG SCRIPTS_DIR
 ARG WDT_HOME
+ARG RCU_RUN_FLAG
 # END %%WDT_ARGS%% #
 
 # START %%WDT_ENV%% #
@@ -36,7 +37,8 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
     SCRIPT_HOME="${ORACLE_HOME}" \
     WDT_HOME=${WDT_HOME:-/u01/app/weblogic-deploy} \
-    SCRIPTS_DIR=${SCRIPTS_DIR:-scripts}
+    SCRIPTS_DIR=${SCRIPTS_DIR:-scripts} \
+    RCU_RUN_FLAG=${RCU_RUN_FLAG:-}
 
 # DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME
 ENV DOMAIN_HOME=${DOMAIN_PARENT}/${DOMAIN_NAME} \
@@ -57,12 +59,14 @@ RUN mkdir -p $(dirname ${DOMAIN_HOME}) \
  && if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file ${OTMPDIR}/${WDT_MODEL##*/}"; fi \
  && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file ${OTMPDIR}/${WDT_ARCHIVE##*/}"; fi \
  && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file ${OTMPDIR}/${WDT_VARIABLE##*/}"; fi \
+ && if [ -n "${RCU_RUN_FLAG}" ]; then RCU_RUN_OPT="-run_rcu"; fi \
  && cd ${WDT_HOME}/bin \
  && ${WDT_HOME}/bin/createDomain.sh \
  -oracle_home ${ORACLE_HOME} \
  -java_home ${JAVA_HOME} \
  -domain_home ${DOMAIN_HOME} \
  -domain_type ${DOMAIN_TYPE} \
+ $RCU_RUN_OPT \
  $VARIABLE_OPT \
  $MODEL_OPT \
  $ARCHIVE_OPT \
