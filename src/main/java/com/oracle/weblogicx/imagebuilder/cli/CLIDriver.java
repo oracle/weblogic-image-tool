@@ -41,6 +41,7 @@ public class CLIDriver implements Callable<CommandResponse> {
         CLIDriver cliDriver = new CLIDriver();
         if (args.length == 0) {
             CommandLine.usage(cliDriver, System.out);
+            System.exit(-1);
         } else {
             //List<String> argsList = Stream.of(args).collect(Collectors.toList());
             //argsList.add("--cli");
@@ -52,9 +53,9 @@ public class CLIDriver implements Callable<CommandResponse> {
                         response.getMessage()));
                 //Map<String, String> results = response.getResult();
                 //results.forEach((key, value) -> System.out.println(key + "=" + value));
-            }/* else {
-                System.out.println("response is null");
-            }*/
+                System.exit(response.getStatus());
+            }
+            System.exit(-1);
         }
     }
 }
