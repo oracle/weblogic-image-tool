@@ -106,7 +106,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         for (String patchLocation : patchLocations) {
             if (patchLocation != null) {
                 File patch_file = new File(patchLocation);
-                Files.createLink(Paths.get(toPatchesPath, patch_file.getName()), Paths.get(patchLocation));
+                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patch_file.getName()) );
             } else {
                 logger.severe("null entry in patchLocations");
             }
@@ -162,8 +162,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     void addOPatch1394ToImage(Path tmpDir) throws Exception {
         String filePath = new PatchFile(useCache, "opatch", "13.9.4.0.0", "28186730", userId, password).resolve(cacheStore);
-        Files.createLink(Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()),
-                Paths.get(filePath));
+        Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName())
+                );
         filterStartTags.add("OPATCH_1394");
     }
 
