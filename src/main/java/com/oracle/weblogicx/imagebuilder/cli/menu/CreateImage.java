@@ -122,7 +122,8 @@ public class CreateImage extends ImageOperation {
             logger.info("docker cmd = " + String.join(" ", cmdBuilder));
             Utils.runDockerCommand(isCLIMode, cmdBuilder, dockerLog);
         } catch (Exception ex) {
-            return new CommandResponse(-1, ex.getMessage());
+            throw ex;
+//            return new CommandResponse(-1, ex.getMessage());
         } finally {
             Utils.deleteFilesRecursively(tmpDir);
             Utils.deleteFilesRecursively(tmpDir2);
