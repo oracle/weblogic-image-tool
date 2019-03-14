@@ -323,6 +323,10 @@ public class Utils {
                     .map(Path::toFile)
                     //.peek(System.out::println)
                     .forEach(File::delete);
+
+            if (Files.exists(tmpDir)) {
+                logger.warning("Directory not cleaned up, please remove it manually " + tmpDir.toString());
+            }
         }
     }
 
