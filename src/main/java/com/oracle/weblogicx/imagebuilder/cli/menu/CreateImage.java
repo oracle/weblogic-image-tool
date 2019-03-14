@@ -268,7 +268,7 @@ public class CreateImage extends ImageOperation {
         if (wdtModelPath != null && Files.isRegularFile(wdtModelPath)) {
             InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
             retVal.add(wdtInstaller);
-            addWDTURL(wdtInstaller.getKey() + "_url");
+            addWDTURL(wdtInstaller.getKey());
         }
         retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
                 userId, password));
@@ -279,11 +279,12 @@ public class CreateImage extends ImageOperation {
     /**
      * Parses wdtVersion and constructs the url to download WDT and adds the url to cache
      *
-     * @param wdtURLKey key in the format wdt_0.17
+     * @param wdtKey key in the format wdt_0.17
      * @throws Exception in case of error
      */
-    private void addWDTURL(String wdtURLKey) throws Exception {
-        if (cacheStore.getValueFromCache(wdtURLKey) == null) {
+    private void addWDTURL(String wdtKey) throws Exception {
+        String wdtURLKey = wdtKey + "_url";
+        if (cacheStore.getValueFromCache(wdtKey) == null) {
             if (useCache == ALWAYS) {
                 throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
             }
