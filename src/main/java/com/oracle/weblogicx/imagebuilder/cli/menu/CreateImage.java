@@ -68,9 +68,10 @@ public class CreateImage extends ImageOperation {
             }
 
             List<String> cmdBuilder = getInitialBuildCmd();
-
             // create a tmp directory for user.
-            tmpDir = Files.createTempDirectory(null);
+            // using user home as base to avoid running out of space in tmp
+            tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.home")),
+                "wlsimgbuilder_temp");
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
             logger.info("tmp directory used for build context: " + tmpDirPath);
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
@@ -81,9 +82,9 @@ public class CreateImage extends ImageOperation {
 
             if (fromImage != null && !fromImage.isEmpty()) {
                 cmdBuilder.add(BUILD_ARG);
-                cmdBuilder.add("BASE_IMAGE=" + fromImage);
 
-                tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), null);
+                tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")),
+                    "wlsimgbuilder_temp");
                 logger.info("tmp directory in user.home for docker run: " + tmpDir2);
 
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
@@ -108,7 +109,6 @@ public class CreateImage extends ImageOperation {
             } else {
                 filterStartTags.add("_YUM");
             }
-
             // build wdt args if user passes --wdtModelPath
             cmdBuilder.addAll(handleWDTArgsIfRequired(tmpDir));
 
@@ -123,7 +123,6 @@ public class CreateImage extends ImageOperation {
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
-
             logger.info("docker cmd = " + String.join(" ", cmdBuilder));
             Utils.runDockerCommand(isCLIMode, cmdBuilder, dockerLog);
         } catch (Exception ex) {
@@ -155,9 +154,12 @@ public class CreateImage extends ImageOperation {
         for (InstallerFile eachInstaller : requiredInstallers) {
             String targetFilePath = eachInstaller.resolve(cacheStore);
             File targetFile = new File(targetFilePath);
-            Path targetLink = Files.createLink(Paths.get(tmpDirPath, targetFile.getName()),
-                    Paths.get(targetFilePath));
-            retVal.addAll(eachInstaller.getBuildArg(tmpDir.relativize(targetLink).toString()));
+            try {
+                Path targetLink = Files.copy(Paths.get(targetFilePath), Paths.get(tmpDirPath, targetFile.getName()));
+                retVal.addAll(eachInstaller.getBuildArg(tmpDir.relativize(targetLink).toString()));
+            } catch (Exception ee ) {
+                ee.printStackTrace();
+            }
         }
         return retVal;
     }
@@ -198,18 +200,23 @@ public class CreateImage extends ImageOperation {
                     }
                 }
                 filterStartTags.add("WDT_");
-                Path targetLink = Files.createLink(Paths.get(tmpDirPath, wdtModelPath.getFileName().toString()), wdtModelPath);
+                Path targetLink = Files.copy(wdtModelPath, Paths.get(tmpDirPath, wdtModelPath.getFileName().toString())
+                    );
                 retVal.add(BUILD_ARG);
                 retVal.add("WDT_MODEL=" + tmpDir.relativize(targetLink).toString());
 
                 if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
-                    targetLink = Files.createLink(Paths.get(tmpDirPath, wdtArchivePath.getFileName().toString()), wdtArchivePath);
+                    targetLink = Files.copy(wdtArchivePath, Paths.get(tmpDirPath,
+                        wdtArchivePath.getFileName().toString())
+                        );
                     retVal.add(BUILD_ARG);
                     retVal.add("WDT_ARCHIVE=" + tmpDir.relativize(targetLink).toString());
                 }
 
                 if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
-                    targetLink = Files.createLink(Paths.get(tmpDirPath, wdtVariablesPath.getFileName().toString()), wdtVariablesPath);
+                    targetLink = Files.copy(wdtVariablesPath, Paths.get(tmpDirPath,
+                        wdtVariablesPath.getFileName().toString())
+                        );
                     retVal.add(BUILD_ARG);
                     retVal.add("WDT_VARIABLE=" + tmpDir.relativize(targetLink).toString());
                     retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));

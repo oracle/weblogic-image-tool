@@ -11,6 +11,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 @Command(
         name = "imagebuilder",
@@ -38,9 +39,11 @@ public class CLIDriver implements Callable<CommandResponse> {
     }
 
     public static void main(String[] args) {
+        Logger logger = Logger.getLogger(CLIDriver.class.getName());
         CLIDriver cliDriver = new CLIDriver();
         if (args.length == 0) {
             CommandLine.usage(cliDriver, System.out);
+            System.exit(-1);
         } else {
             //List<String> argsList = Stream.of(args).collect(Collectors.toList());
             //argsList.add("--cli");
@@ -48,13 +51,17 @@ public class CLIDriver implements Callable<CommandResponse> {
             CommandResponse response = WLSCommandLine.call(cliDriver, true, args);
 
             if (response != null) {
-                System.out.println(String.format("Response code: %d, message: %s", response.getStatus(),
-                        response.getMessage()));
-                //Map<String, String> results = response.getResult();
-                //results.forEach((key, value) -> System.out.println(key + "=" + value));
-            }/* else {
-                System.out.println("response is null");
-            }*/
+
+                String message = String.format("Response code: %d, message: %s", response.getStatus(),
+                        response.getMessage());
+                if (response.getStatus() != 0) {
+                    logger.severe(message);
+                } else {
+                    logger.info(message);
+                }
+                System.exit(response.getStatus());
+            }
+            System.exit(-1);
         }
     }
 }

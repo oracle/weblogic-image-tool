@@ -18,10 +18,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.logging.Logger;
 
 public class XPathUtil {
 
-//    /**
+    private static final Logger logger = Logger.getLogger(XPathUtil.class.getName());
+
+
+    //    /**
 //     * Apply XPath and return the results as nodelist
 //     *
 //     * @param doc  dom document
@@ -93,9 +97,9 @@ public class XPathUtil {
             tf.setOutputProperty(OutputKeys.INDENT, "yes");
             Writer out = new StringWriter();
             tf.transform(new DOMSource(xml), new StreamResult(out));
-            System.out.println(out.toString());
+            logger.fine(out.toString());
         } catch (TransformerException ex) {
-            System.out.println("Failed to print out xml document, probably not a valid document " + ex.getMessage());
+            logger.fine("Failed to print out xml document, probably not a valid document " + ex.getMessage());
         }
     }
 

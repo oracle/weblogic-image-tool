@@ -254,11 +254,6 @@ public class ARUUtil {
                     }
 
                     doc.appendChild(element);
-                    /*System.out.println("===================================================");
-                    System.out.println("There are conflicts between the patches requested:-");
-                    System.out.println("===================================================");
-                    System.out.println();
-                    XPathUtil.prettyPrint(doc);*/
 
                     validationResult.setResults(doc);
                     validationResult.setErrorMessage(parsePatchValidationError(doc));
