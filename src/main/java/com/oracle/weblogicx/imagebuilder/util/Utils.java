@@ -175,7 +175,7 @@ public class Utils {
                     retMap.put(startTag, content);
                 }
             } else {
-                System.out.println("pattern mismatch in resource " + resourcePath);
+                logger.fine("pattern mismatch in resource " + resourcePath);
             }
         }
         return retMap;
