@@ -29,6 +29,7 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
     WDT_MODEL=${WDT_MODEL:-} \
+    WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_TYPE=${DOMAIN_TYPE:-WLS} \
     DOMAIN_PARENT=${DOMAIN_PARENT:-${ORACLE_HOME}/user_projects/domains} \
     DOMAIN_NAME=${DOMAIN_NAME:-base_domain} \
