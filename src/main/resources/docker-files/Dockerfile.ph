@@ -35,6 +35,7 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     DOMAIN_NAME=${DOMAIN_NAME:-base_domain} \
     WDT_ARCHIVE=${WDT_ARCHIVE:-} \
     WDT_VARIABLE=${WDT_VARIABLE:-} \
+    LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
     SCRIPT_HOME="${ORACLE_HOME}" \
     WDT_HOME=${WDT_HOME:-/u01/app/weblogic-deploy} \
