@@ -1,9 +1,10 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. */
-
+/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
+*                                                              
+* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
+*/
 package com.oracle.weblogicx.imagebuilder.cli.menu;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
-import com.oracle.weblogicx.imagebuilder.api.model.DomainType;
 import com.oracle.weblogicx.imagebuilder.api.model.InstallerType;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
 import com.oracle.weblogicx.imagebuilder.impl.InstallerFile;
@@ -188,17 +189,6 @@ public class CreateImage extends ImageOperation {
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         if (wdtModelPath != null) {
             if (Files.isRegularFile(wdtModelPath)) {
-                if (domainType != DomainType.WLS) {
-                    if (installerType != WLSInstallerType.FMW) {
-                        throw new IOException("FMW installer is required for JRF domain");
-                    }
-                    retVal.add(BUILD_ARG);
-                    retVal.add("DOMAIN_TYPE=" + domainType);
-                    if (rcu_run_flag) {
-                        retVal.add(BUILD_ARG);
-                        retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
-                    }
-                }
                 filterStartTags.add("WDT_");
                 Path targetLink = Files.copy(wdtModelPath, Paths.get(tmpDirPath, wdtModelPath.getFileName().toString())
                     );
@@ -268,7 +258,7 @@ public class CreateImage extends ImageOperation {
         if (wdtModelPath != null && Files.isRegularFile(wdtModelPath)) {
             InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
             retVal.add(wdtInstaller);
-            addWDTURL(wdtInstaller.getKey());
+            addWDTURL(wdtInstaller.getKey() + "_url");
         }
         retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
                 userId, password));
@@ -279,12 +269,11 @@ public class CreateImage extends ImageOperation {
     /**
      * Parses wdtVersion and constructs the url to download WDT and adds the url to cache
      *
-     * @param wdtKey key in the format wdt_0.17
+     * @param wdtURLKey key in the format wdt_0.17
      * @throws Exception in case of error
      */
-    private void addWDTURL(String wdtKey) throws Exception {
-        String wdtURLKey = wdtKey + "_url";
-        if (cacheStore.getValueFromCache(wdtKey) == null) {
+    private void addWDTURL(String wdtURLKey) throws Exception {
+        if (cacheStore.getValueFromCache(wdtURLKey) == null) {
             if (useCache == ALWAYS) {
                 throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
             }
@@ -365,18 +354,4 @@ public class CreateImage extends ImageOperation {
             defaultValue = "latest"
     )
     private String wdtVersion;
-
-    @Option(
-            names = {"--domainType"},
-            description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: ${COMPLETION-CANDIDATES}",
-            defaultValue = "wls",
-            required = true
-    )
-    private DomainType domainType;
-
-    @Option(
-            names = "--run_rcu",
-            description = "whether to run rcu to create the required database schemas"
-    )
-    private boolean rcu_run_flag = false;
 }

@@ -58,3 +58,7 @@ Commands:
     ```
     imagebuilder cache deleteEntry --key xyz_123
     ```
+
+## Copyright
+Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+

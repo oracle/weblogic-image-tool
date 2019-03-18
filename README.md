@@ -50,3 +50,6 @@ applying selected patches).
 - Then, execute `imagebuilder help` to get the help screen.
 - You can execute the JAR directly using the command `java -cp "./imagebuilder-0.1-SNAPSHOT.jar" com.oracle.weblogicx.imagebuilder.cli.CLIDriver help`.
 - After you are familiar with the commands, you will be able to create and update WebLogic Docker images.
+
+## Copyright
+Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.

@@ -48,3 +48,7 @@ Update WebLogic docker image with selected patches
     imagebuilder update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,p87654321
     ```
     The patch numbers may or may not start with '`p`'.
+
+## Copyright
+Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+
