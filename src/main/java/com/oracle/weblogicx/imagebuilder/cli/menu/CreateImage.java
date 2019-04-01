@@ -83,6 +83,7 @@ public class CreateImage extends ImageOperation {
 
             if (fromImage != null && !fromImage.isEmpty()) {
                 cmdBuilder.add(BUILD_ARG);
+                cmdBuilder.add("BASE_IMAGE=" + fromImage);
 
                 tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")),
                     "wlsimgbuilder_temp");

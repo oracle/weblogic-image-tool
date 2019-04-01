@@ -40,7 +40,7 @@ Commands:
 
 - `addPatch`: Add a patch to the cache. This command verifies if the path points to a valid patch by querying the Oracle support portal.
     ```
-    imagebuilder cache addPatch --type wls --version 12.2.1.3.0 --user abc@xyz.com --passwordEnv MYVAR --patchId 12345678 --path /path/to/patch.zip
+    imagebuilder cache addPatch --type wls --version 12.2.1.3.0 --user abc@xyz.com --passwordEnv MYVAR --patchId p12345678 --path /path/to/patch.zip
     ```
 
 - `getCacheDir` and `setCacheDir`: Get or set the cache directory. Used to display or set the directory where patches will be downloaded.
