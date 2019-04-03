@@ -7,6 +7,7 @@ package com.oracle.weblogicx.imagebuilder.cli.cache;
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.InstallerType;
 import com.oracle.weblogicx.imagebuilder.util.Constants;
+import com.oracle.weblogicx.imagebuilder.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -31,7 +32,7 @@ public class AddInstallerEntry extends CacheOperation {
 
     @Override
     public CommandResponse call() {
-        if (location != null && Files.isRegularFile(location)) {
+        if (location != null && Files.isRegularFile(location) && !Utils.isEmptyString(version)) {
             String key = String.format("%s%s%s", type, CACHE_KEY_SEPARATOR, version);
             cacheStore.addToCache(key, location.toAbsolutePath().toString());
             return new CommandResponse(0, String.format("Successfully added to cache. %s=%s", key,
@@ -51,8 +52,7 @@ public class AddInstallerEntry extends CacheOperation {
     @Option(
             names = {"--version"},
             description = "Installer version. Ex: For WLS|FMW use 12.2.1.3.0 For jdk, use 8u201",
-            required = true,
-            defaultValue = Constants.DEFAULT_WLS_VERSION
+            required = true
     )
     private String version;
 

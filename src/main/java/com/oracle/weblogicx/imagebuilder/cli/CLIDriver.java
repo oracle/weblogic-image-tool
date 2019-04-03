@@ -53,13 +53,10 @@ public class CLIDriver implements Callable<CommandResponse> {
             CommandResponse response = WLSCommandLine.call(cliDriver, true, args);
 
             if (response != null) {
-
-                String message = String.format("Response code: %d, message: %s", response.getStatus(),
-                        response.getMessage());
                 if (response.getStatus() != 0) {
+                    String message = String.format("Response code: %d, message: %s", response.getStatus(),
+                            response.getMessage());
                     logger.severe(message);
-                } else {
-                    logger.info(message);
                 }
                 System.exit(response.getStatus());
             }
