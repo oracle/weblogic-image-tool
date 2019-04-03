@@ -3,10 +3,13 @@
 package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
+import com.oracle.weblogicx.imagebuilder.util.Utils;
 import picocli.CommandLine.Command;
 
 import java.util.Collections;
 import java.util.Map;
+
+import static com.oracle.weblogicx.imagebuilder.util.Constants.CACHE_DIR_KEY;
 
 @Command(
         name = "listItems",
@@ -32,9 +35,12 @@ public class ListCacheItems extends CacheOperation {
         } else {
             if (isCLIMode) {
                 System.out.println("Cache contents");
-                resultMap.forEach((key, value) -> {
-                    System.out.println(key + "=" + value);
-                });
+                String cacheDir = resultMap.getOrDefault(CACHE_DIR_KEY, null);
+                if (!Utils.isEmptyString(cacheDir)) {
+                    System.out.println(CACHE_DIR_KEY + "=" + cacheDir);
+                    resultMap.remove(CACHE_DIR_KEY);
+                }
+                resultMap.forEach((key, value) -> System.out.println(key + "=" + value));
             }
             return new CommandResponse(0, "Cache contents", resultMap);
         }
