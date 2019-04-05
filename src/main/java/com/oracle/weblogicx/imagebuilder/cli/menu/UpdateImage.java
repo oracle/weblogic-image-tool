@@ -4,6 +4,7 @@
 */
 package com.oracle.weblogicx.imagebuilder.cli.menu;
 
+import com.oracle.weblogicx.imagebuilder.api.model.CachePolicy;
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
 import com.oracle.weblogicx.imagebuilder.util.ARUUtil;
@@ -26,6 +27,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+
+import static com.oracle.weblogicx.imagebuilder.api.model.CachePolicy.ALWAYS;
 
 @Command(
         name = "update",
@@ -86,34 +89,44 @@ public class UpdateImage extends ImageOperation {
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
-            opatch_1394_required = (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0 &&
-                    Utils.compareVersions(opatchVersion, "13.9.4.0.0") < 0);
+            opatch_1394_required = (latestPSU || !patches.isEmpty()) &&
+                    (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0 &&
+                            Utils.compareVersions(opatchVersion, "13.9.4.0.0") < 0);
 
-            String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-            if (!Utils.isEmptyString(pkgMgr)) {
-                filterStartTags.add(pkgMgr);
+            //Do not update or install packages in offline only mode
+            if (useCache != ALWAYS) {
+                String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+                if (!Utils.isEmptyString(pkgMgr)) {
+                    filterStartTags.add(pkgMgr);
+                }
             }
 
             baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
-            String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
-            if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {
-                logger.info("opatch-lsinventory file exists at: " + lsInvFile);
-                Set<String> toValidateSet = new HashSet<>();
-                if (latestPSU) {
-                    toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion, userId, password));
-                }
-                toValidateSet.addAll(patches);
-                ValidationResult validationResult = ARUUtil.validatePatches(lsInvFile, new ArrayList<>(toValidateSet),
-                        installerType.toString(), installerVersion, userId, password);
-                if (!validationResult.isSuccess()) {
-                    return new CommandResponse(-1, validationResult.getErrorMessage());
+            if (latestPSU || !patches.isEmpty()) {
+                if (useCache == ALWAYS) {
+                    logger.warning("skipping patch conflict check. useCache set to " + useCache);
                 } else {
-                    logger.info("patch conflict check successful");
-                }
-            } else {
-                if (latestPSU || !patches.isEmpty()) {
-                    return new CommandResponse(-1, "inventory file missing. required to check for conflicts");
+                    String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
+                    if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {
+                        logger.info("opatch-lsinventory file exists at: " + lsInvFile);
+                        Set<String> toValidateSet = new HashSet<>();
+                        if (latestPSU) {
+                            toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
+                                    userId, password));
+                        }
+                        toValidateSet.addAll(patches);
+                        ValidationResult validationResult = ARUUtil.validatePatches(lsInvFile,
+                                new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
+                                password);
+                        if (!validationResult.isSuccess()) {
+                            return new CommandResponse(-1, validationResult.getErrorMessage());
+                        } else {
+                            logger.info("patch conflict check successful");
+                        }
+                    } else {
+                        return new CommandResponse(-1, "inventory file missing. required to check for conflicts");
+                    }
                 }
             }
 

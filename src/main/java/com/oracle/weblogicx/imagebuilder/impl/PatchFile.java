@@ -26,23 +26,12 @@ public class PatchFile extends AbstractFile {
     private String version;
     private final Logger logger = Logger.getLogger(PatchFile.class.getName());
 
-    /*
-    public PatchFile(String category, String version, String patchId, String userId, String password) {
-        super(null);
-        Objects.requireNonNull(userId, "userId cannot be null");
-        Objects.requireNonNull(password, "password cannot be null");
-        this.category = category;
-        this.version = version;
-        this.patchId = patchId;
-        this.userId = userId;
-        this.password = password;
-    }
-    */
-
     public PatchFile(CachePolicy cachePolicy, String category, String version, String patchId, String userId, String password) {
         super(null, cachePolicy, userId, password);
-        Objects.requireNonNull(userId, "userId cannot be null");
-        Objects.requireNonNull(password, "password cannot be null");
+//        if (cachePolicy != ALWAYS) {
+//            Objects.requireNonNull(userId, "userId cannot be null");
+//            Objects.requireNonNull(password, "password cannot be null");
+//        }
         this.category = category;
         this.version = version;
         this.patchId = patchId;
@@ -50,6 +39,7 @@ public class PatchFile extends AbstractFile {
 
     @Override
     public String resolve(CacheStore cacheStore) throws Exception {
+        //patchId is null in case of latestPSU
         if (Utils.isEmptyString(patchId)) {
             if (cachePolicy == ALWAYS) {
                 throw new Exception("CachePolicy prohibits download. Cannot determine latestPSU");
@@ -95,39 +85,4 @@ public class PatchFile extends AbstractFile {
         }
         return filePath;
     }
-
-    /*
-    @Override
-    public String resolve(CacheStore cacheStore) throws Exception {
-
-        String releaseNumber = ARUUtil.getReleaseNumber(category, version, userId, password);
-        if (Utils.isEmptyString(patchId)) {
-            patchId = ARUUtil.getLatestPSUNumber(category, version, userId, password);
-            if (Utils.isEmptyString(patchId)) {
-                throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
-                        category, version));
-            }
-        }
-        key = patchId + CACHE_KEY_SEPARATOR + releaseNumber;
-        String filePath = cacheStore.getValueFromCache(key);
-
-        if (filePath == null || !Files.isRegularFile(Paths.get(filePath))) {
-            // try downloading it
-            List<String> patches = ARUUtil.getPatchesFor(category, version, Collections.singletonList(patchId),
-                    userId, password, cacheStore.getCacheDir());
-            patches.forEach(x -> cacheStore.addToCache(x.substring(0, x.indexOf('=')), x.substring(x.indexOf('=') + 1)));
-            if (!patches.isEmpty()) {
-                key = patches.get(0).substring(0, patches.get(0).indexOf('='));
-            }
-            filePath = cacheStore.getValueFromCache(key);
-            if (filePath == null || !Files.isRegularFile(Paths.get(filePath))) {
-                throw new Exception(String.format("Failed to find patch %s for product category %s, version %s",
-                        patchId, category, version));
-            }
-        } else {
-            logger.info("Found matching cache entry: key=" + key + ", value=" + filePath);
-        }
-        return filePath;
-    }
-    */
 }

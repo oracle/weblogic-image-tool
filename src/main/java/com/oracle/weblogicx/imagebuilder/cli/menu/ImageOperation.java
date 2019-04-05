@@ -56,12 +56,13 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     @Override
     public CommandResponse call() throws Exception {
-        password = handlePasswordOptions();
         handleProxyUrls();
-
-        // check user support credentials
-        if (!ARUUtil.checkCredentials(userId, password)) {
-            return new CommandResponse(-1, "user Oracle support credentials do not match");
+        // check user support credentials if we are applying any patches
+        if (latestPSU || !patches.isEmpty()) {
+            password = handlePasswordOptions();
+            if (!ARUUtil.checkCredentials(userId, password)) {
+                return new CommandResponse(-1, "user Oracle support credentials do not match");
+            }
         }
         return new CommandResponse(0, null);
     }
@@ -164,8 +165,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     void addOPatch1394ToImage(Path tmpDir) throws Exception {
         String filePath = new PatchFile(useCache, "opatch", "13.9.4.0.0", "28186730", userId, password).resolve(cacheStore);
-        Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName())
-                );
+        Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
         filterStartTags.add("OPATCH_1394");
     }
 
@@ -236,8 +236,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     @Option(
             names = {"--user"},
             paramLabel = "<support email>",
-            description = "Oracle Support email id",
-            required = true
+            description = "Oracle Support email id"
     )
     String userId;
 

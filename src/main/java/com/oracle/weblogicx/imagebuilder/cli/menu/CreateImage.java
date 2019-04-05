@@ -79,7 +79,7 @@ public class CreateImage extends ImageOperation {
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
             Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
 
-            // this handles wls, jdk, opatch_1394 and wdt install files.
+            // this handles wls, jdk and wdt install files.
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
             if (fromImage != null && !fromImage.isEmpty()) {
@@ -105,13 +105,18 @@ public class CreateImage extends ImageOperation {
                             baseImageProperties.getProperty("ORACLE_HOME"));
                 }
 
-                String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-                if (!Utils.isEmptyString(pkgMgr)) {
-                    filterStartTags.add(pkgMgr);
+                if (useCache != ALWAYS) {
+                    String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+                    if (!Utils.isEmptyString(pkgMgr)) {
+                        filterStartTags.add(pkgMgr);
+                    }
                 }
             } else {
-                filterStartTags.add("_YUM");
+                if (useCache != ALWAYS) {
+                    filterStartTags.add("_YUM");
+                }
             }
+
             // build wdt args if user passes --wdtModelPath
             cmdBuilder.addAll(handleWDTArgsIfRequired(tmpDir));
 
@@ -169,7 +174,7 @@ public class CreateImage extends ImageOperation {
 
     @Override
     List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
-        if (Utils.compareVersions(installerVersion, DEFAULT_WLS_VERSION) == 0) {
+        if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion, DEFAULT_WLS_VERSION) == 0) {
             addOPatch1394ToImage(tmpDir);
         }
         //we need a local installerVersion variable for the command line Option. so propagate to super.
