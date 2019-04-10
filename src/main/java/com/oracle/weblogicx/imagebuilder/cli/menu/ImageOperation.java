@@ -30,9 +30,12 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.oracle.weblogicx.imagebuilder.api.model.CachePolicy.ALWAYS;
 import static com.oracle.weblogicx.imagebuilder.util.Constants.BUILD_ARG;
 import static com.oracle.weblogicx.imagebuilder.util.Constants.HTTP;
 import static com.oracle.weblogicx.imagebuilder.util.Constants.HTTPS;
@@ -57,9 +60,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     @Override
     public CommandResponse call() throws Exception {
         handleProxyUrls();
-        // check user support credentials if we are applying any patches
-        if (latestPSU || !patches.isEmpty()) {
-            password = handlePasswordOptions();
+        password = handlePasswordOptions();
+        // check user support credentials if useCache not set to always and we are applying any patches
+        if (latestPSU || (!patches.isEmpty() && useCache != ALWAYS)) {
+            if (Utils.isEmptyString(password)) {
+                return new CommandResponse(-1, "Failed to determine password. use one of the options to input password");
+            }
             if (!ARUUtil.checkCredentials(userId, password)) {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
@@ -96,11 +102,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             patchLocations.add(psuResolver.resolve(cacheStore));
         }
         if (patches != null && !patches.isEmpty()) {
+            Pattern patchIdPattern = Pattern.compile(PATCH_ID_REGEX);
             for (String patchId : patches) {
-                if (patchId.matches(PATCH_ID_REGEX)) {
-                    patchId = patchId.substring(1);
-                    patchLocations.add(new PatchFile(useCache, installerType.toString(), installerVersion, patchId, userId,
-                            password).resolve(cacheStore));
+                Matcher matcher = patchIdPattern.matcher(patchId);
+                if (matcher.matches() && matcher.groupCount() > 0) {
+                    patchLocations.add(new PatchFile(useCache, installerType.toString(), installerVersion,
+                            matcher.group(1), userId, password).resolve(cacheStore));
                 } else {
                     logger.severe("Ignoring invalid patch id format: " + patchId);
                 }

@@ -531,6 +531,6 @@ public class Utils {
         } else if (!isEmptyString(passwordEnv) && !isEmptyString(System.getenv(passwordEnv))) {
             return System.getenv(passwordEnv);
         }
-        throw new IOException("Failed to determine password. use one of the options to input password");
+        return null;
     }
 }

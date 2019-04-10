@@ -13,7 +13,6 @@ import com.oracle.weblogicx.imagebuilder.util.Utils;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 import static com.oracle.weblogicx.imagebuilder.api.meta.CacheStore.CACHE_KEY_SEPARATOR;
@@ -28,10 +27,6 @@ public class PatchFile extends AbstractFile {
 
     public PatchFile(CachePolicy cachePolicy, String category, String version, String patchId, String userId, String password) {
         super(null, cachePolicy, userId, password);
-//        if (cachePolicy != ALWAYS) {
-//            Objects.requireNonNull(userId, "userId cannot be null");
-//            Objects.requireNonNull(password, "password cannot be null");
-//        }
         this.category = category;
         this.version = version;
         this.patchId = patchId;
