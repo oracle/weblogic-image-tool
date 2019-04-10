@@ -19,13 +19,6 @@ public enum DomainType {
         this.value = value;
     }
 
-/*
-    @Override
-    public String toString() {
-        return value;
-    }
-*/
-
     public static DomainType fromValue(String value) {
         for (DomainType eachType : DomainType.values()) {
             if (eachType.value.equalsIgnoreCase(value)) {

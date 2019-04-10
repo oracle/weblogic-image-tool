@@ -38,7 +38,6 @@ import static com.oracle.weblogicx.imagebuilder.util.Constants.DEFAULT_WLS_VERSI
 @Command(
         name = "create",
         description = "Build WebLogic docker image",
-        version = "1.0",
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )

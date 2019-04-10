@@ -29,14 +29,4 @@ public class GetCacheDir extends CacheOperation {
         return new CommandResponse(0, "Cache Dir location: ", path);
     }
 
-//    @Option(
-//            names = {"--cacheStoreType"},
-//            description = "Whether to use file backed cache store or preferences backed cache store. Ex: file or pref",
-//            hidden = true,
-//            defaultValue = "file"
-//    )
-//    private CacheStore cacheStore;
-//
-//    @Unmatched
-//    List<String> unmatchedOptions;
 }

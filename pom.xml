@@ -13,7 +13,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
-        <shade-plugin-version>3.2.1</shade-plugin-version>
+        <jar-plugin-version>3.1.1</jar-plugin-version>
+        <jgit-plugin-version>1.2.10</jgit-plugin-version>
     </properties>
 
     <dependencies>
@@ -40,7 +41,45 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>version-info.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>version-info.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-resources-plugin</artifactId>-->
+                <!--<version>3.1.0</version>-->
+            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${jar-plugin-version}</version>
+                <configuration>
+                    <finalName>${project.artifactId}</finalName>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <project-name>${project.artifactId}</project-name>
+                            <project-version>${project.version}</project-version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -57,40 +96,68 @@
                 <configuration>
                     <executable>java</executable>
                     <arguments>
-                        <!--<argument>-Dpicocli.autocomplete.systemExitOnError</argument>-->
                         <argument>-cp</argument>
                         <classpath/>
                         <argument>picocli.AutoComplete</argument>
                         <argument>--force</argument><!-- overwrite if exists -->
-                        <!--<argument>&#45;&#45;writeCommandScript</argument>-->
                         <argument>--completionScript</argument>
                         <argument>${project.build.directory}/imagebuilder_completion.sh</argument>
                         <argument>com.oracle.weblogicx.imagebuilder.cli.CLIDriver</argument>
-                        <!-- replace with your class -->
                     </arguments>
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <configuration>
+                    <!-- Override parent POM configuration and flatten the POM published for the zip installer -->
+                    <updatePomFile>true</updatePomFile>
+                    <pomElements>
+                        <repositories>flatten</repositories>
+                        <dependencies>remove</dependencies>
+                    </pomElements>
+                </configuration>
+                <executions>
+                    <!-- enable flattening -->
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <!-- ensure proper cleanup -->
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${shade-plugin-version}</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>build-zip-installer</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>single</goal>
                         </goals>
                         <configuration>
-                            <!--<artifactSet>-->
-                                <!--<excludes>-->
-                                    <!--<exclude>classworlds:classworlds</exclude>-->
-                                    <!--<exclude>junit:junit</exclude>-->
-                                    <!--<exclude>jmock:*</exclude>-->
-                                    <!--<exclude>*:xml-apis</exclude>-->
-                                    <!--<exclude>org.apache.maven:lib:tests</exclude>-->
-                                    <!--<exclude>log4j:log4j:jar:</exclude>-->
-                                <!--</excludes>-->
-                            <!--</artifactSet>-->
+                            <descriptors>
+                                <descriptor>src/assembly/zip.xml</descriptor>
+                            </descriptors>
+                            <archiveBaseDirectory>${project.basedir}</archiveBaseDirectory>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <archiverConfig>
+                                <directoryMode>0750</directoryMode>
+                                <defaultDirectoryMode>0750</defaultDirectoryMode>
+                                <fileMode>0640</fileMode>
+                            </archiverConfig>
                         </configuration>
                     </execution>
                 </executions>

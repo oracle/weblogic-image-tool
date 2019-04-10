@@ -20,7 +20,7 @@ import java.util.logging.Logger;
         mixinStandardHelpOptions = true,
         description = "%nA tool to build docker images of WebLogic with selected " +
                 "patches and/or psu(s) applied.%n",
-        version = "1.0",
+        versionProvider = HelpVersionProvider.class,
         sortOptions = false,
         subcommands = {
                 CacheCLI.class,

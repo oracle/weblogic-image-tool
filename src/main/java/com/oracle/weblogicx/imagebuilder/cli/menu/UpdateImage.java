@@ -4,9 +4,9 @@
 */
 package com.oracle.weblogicx.imagebuilder.cli.menu;
 
-import com.oracle.weblogicx.imagebuilder.api.model.CachePolicy;
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
+import com.oracle.weblogicx.imagebuilder.cli.HelpVersionProvider;
 import com.oracle.weblogicx.imagebuilder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.util.Constants;
 import com.oracle.weblogicx.imagebuilder.util.Utils;
@@ -33,7 +33,6 @@ import static com.oracle.weblogicx.imagebuilder.api.model.CachePolicy.ALWAYS;
 @Command(
         name = "update",
         description = "Update WebLogic docker image with selected patches",
-        version = "1.0",
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )

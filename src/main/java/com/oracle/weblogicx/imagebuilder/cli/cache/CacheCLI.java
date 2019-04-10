@@ -5,6 +5,7 @@
 package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
+import com.oracle.weblogicx.imagebuilder.cli.HelpVersionProvider;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Model.CommandSpec;
@@ -17,6 +18,7 @@ import java.util.concurrent.Callable;
 @Command(
         name = "cache",
         description = "List and set cache options",
+        versionProvider = HelpVersionProvider.class,
         commandListHeading = "%nCommands:%n%n",
         subcommands = {
                 ListCacheItems.class,

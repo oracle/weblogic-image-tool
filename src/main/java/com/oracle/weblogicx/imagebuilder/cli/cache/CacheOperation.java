@@ -26,12 +26,6 @@ public abstract class CacheOperation implements Callable<CommandResponse> {
         this.isCLIMode = isCLIMode;
     }
 
-    //    @Option(
-//            names = {"--cacheStoreType"},
-//            description = "Whether to use file backed cache store or preferences backed cache store. Ex: file or pref",
-//            hidden = true,
-//            defaultValue = "file"
-//    )
     protected CacheStore cacheStore = new CacheStoreFactory().get();
 
     @Unmatched

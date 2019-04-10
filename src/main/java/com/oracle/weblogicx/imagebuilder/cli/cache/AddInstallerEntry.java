@@ -6,7 +6,6 @@ package com.oracle.weblogicx.imagebuilder.cli.cache;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.InstallerType;
-import com.oracle.weblogicx.imagebuilder.util.Constants;
 import com.oracle.weblogicx.imagebuilder.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

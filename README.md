@@ -33,22 +33,16 @@ applying selected patches).
 
 ## Setup
 
-- Build the project (`mvn clean package`) to generate artifacts `imagebuilder-0.1-SNAPSHOT.jar` and `imagebuilder_completion.sh`.
-- The JAR is an uber-JAR containing all the required packages to run the tool.
-- If running an OS with bash, then use the commands below to set up the tool with the tab complete feature:
-   ```bash
-   #!/usr/bin/env bash
-   unalias imagebuilder 2> /dev/null
-   alias imagebuilder='java -cp "./imagebuilder-0.1-SNAPSHOT.jar" com.oracle.weblogicx.imagebuilder.cli.CLIDriver'
-   source ./imagebuilder_completion.sh
-   ```
+- Build the project (`mvn clean package`) to generate artifacts `imagebuilder-0.1-SNAPSHOT.zip`.
+- Unzip to a desired location. This action should create lib, bin directories and LICENSE.txt.
+- If running an OS with bash, run `cd your_unzipped_location/bin` and `source setup.sh`.
 - On Windows, set up with `imagebuilder.cmd` or the `imagebuilder.bat` script:
     ```cmd
     @ECHO OFF
-    java -cp "./imagebuilder-0.1-SNAPSHOT.jar" com.oracle.weblogicx.imagebuilder.cli.CLIDriver %*
+    java -cp "your_unzipped_folder/lib" com.oracle.weblogicx.imagebuilder.cli.CLIDriver %*
     ```
 - Then, execute `imagebuilder help` to get the help screen.
-- You can execute the JAR directly using the command `java -cp "./imagebuilder-0.1-SNAPSHOT.jar" com.oracle.weblogicx.imagebuilder.cli.CLIDriver help`.
+- You can execute the JAR directly using the command `java -cp "your_unzipped_folder/lib" com.oracle.weblogicx.imagebuilder.cli.CLIDriver help`.
 - After you are familiar with the commands, you will be able to create and update WebLogic Docker images.
 
 ## Copyright
