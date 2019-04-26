@@ -30,6 +30,7 @@ applying selected patches).
 - Oracle support credentials. These are used to validate and download patches.
 - WebLogic and JDK installers from OTN / e-delivery. These should be available on local disk.
 - Docker client and daemon on the build machine. Experimental features should be turned on to support the `docker build --squash` option. Refer to [Docker squash](https://docs.docker.com/engine/reference/commandline/build/#squash-an-images-layers---squash-experimental)
+- Bash version 4.0 or higher to enable `<tab>` command complete feature
 
 ## Setup
 
