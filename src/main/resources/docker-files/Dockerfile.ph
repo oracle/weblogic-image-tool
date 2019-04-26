@@ -91,7 +91,7 @@ CMD ["sh", "-c", "${SCRIPT_HOME}/startAdminServer.sh"]
 
 # START %%OPATCH_1394%% #
 RUN mkdir -p $OTMPDIR/opatch
-COPY p28186730_139400_Generic.zip $OTMPDIR/opatch/
+COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
 
 RUN unzip $OTMPDIR/opatch/p28186730_139400_Generic.zip -d $OTMPDIR/opatch ; \
     /u01/jdk/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -invPtrLoc $INV_LOC/$ORAINST \
@@ -102,7 +102,7 @@ RUN unzip $OTMPDIR/opatch/p28186730_139400_Generic.zip -d $OTMPDIR/opatch ; \
 # START %%PATCH_APPLY%% #
 RUN mkdir -p $OTMPDIR/patches
 
-COPY $PATCHDIR/* $OTMPDIR/patches/
+COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/
 
 RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches
 

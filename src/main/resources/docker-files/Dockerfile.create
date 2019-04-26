@@ -50,8 +50,8 @@ RUN if [ -z "$(getent group oracle)" ]; then hash groupadd &> /dev/null && group
 USER oracle
 
 # Install base WLS
-COPY $JAVA_PKG $WLS_PKG $WLS_RESP $OTMPDIR/
-COPY $ORAINST $INV_LOC
+COPY --chown=oracle:oracle $JAVA_PKG $WLS_PKG $WLS_RESP $OTMPDIR/
+COPY --chown=oracle:oracle  $ORAINST $INV_LOC
 
 RUN tar xzvf $OTMPDIR/$JAVA_PKG -C /u01 \
  && mv /u01/jdk* $JAVA_HOME \
