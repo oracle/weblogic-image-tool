@@ -33,7 +33,7 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     WDT_MODEL=${WDT_MODEL:-} \
     WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_TYPE=${DOMAIN_TYPE:-WLS} \
-    DOMAIN_PARENT=${DOMAIN_PARENT:-${ORACLE_HOME}/user_projects/domains} \
+    DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
     DOMAIN_NAME=${DOMAIN_NAME:-base_domain} \
     WDT_ARCHIVE=${WDT_ARCHIVE:-} \
     WDT_VARIABLE=${WDT_VARIABLE:-} \
@@ -55,10 +55,8 @@ COPY --chown=oracle:oracle ${WDT_PKG} ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE
 COPY --chown=oracle:oracle ${SCRIPTS_DIR}/*.sh ${SCRIPT_HOME}/
 
 RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \
- && chmod a+x $SCRIPT_HOME/*.sh
-
-#WORKDIR $ORACLE_HOME
-RUN mkdir -p $(dirname ${DOMAIN_HOME}) \
+ && chmod a+x $SCRIPT_HOME/*.sh \
+ && mkdir -p $(dirname ${DOMAIN_HOME}) \
  && mkdir -p ${PROPERTIES_FILE_DIR} \
  && if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file ${OTMPDIR}/${WDT_MODEL##*/}"; fi \
  && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file ${OTMPDIR}/${WDT_ARCHIVE##*/}"; fi \
@@ -74,13 +72,10 @@ RUN mkdir -p $(dirname ${DOMAIN_HOME}) \
  $VARIABLE_OPT \
  $MODEL_OPT \
  $ARCHIVE_OPT \
- && chmod -R a+x ${DOMAIN_HOME}/bin/*.sh
+ && chmod -R a+x ${DOMAIN_HOME}/bin/*.sh \
+ && rm -rf ${WDT_HOME} $OTMPDIR
 
 # END %%WDT_INSTALL%% #
-
-# START %%WDT_CLEANUP%% #
-RUN rm -rf ${WDT_HOME}
-# END %%WDT_CLEANUP%% #
 
 # START %%WDT_CMD%% #
 # Expose admin server, managed server port
@@ -90,27 +85,22 @@ CMD ["sh", "-c", "${SCRIPT_HOME}/startAdminServer.sh"]
 # END %%WDT_CMD%% #
 
 # START %%OPATCH_1394%% #
-RUN mkdir -p $OTMPDIR/opatch
 COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
 
 RUN cd $OTMPDIR/opatch \
  && jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
- && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent oracle_home=$ORACLE_HOME
+ && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent oracle_home=$ORACLE_HOME \
+ && rm -rf $OTMPDIR
 
 # END %%OPATCH_1394%% #
 
 # START %%PATCH_APPLY%% #
-RUN mkdir -p $OTMPDIR/patches
-
 COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/
 
-RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches
-
+RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \
+ && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
+ && rm -rf $OTMPDIR
 # END %%PATCH_APPLY%% #
-
-# START %%PATCH_CLEANUP%% #
-RUN $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME
-# END %%PATCH_CLEANUP%% #
 
 # START %%PKG_INSTALL%%_YUM #
 # install necessary packages

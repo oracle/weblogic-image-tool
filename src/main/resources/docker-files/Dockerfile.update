@@ -27,15 +27,6 @@ USER oracle
 
 # PLACEHOLDER FOR %%PATCH_APPLY%% #
 
-# Prep for patches and install latest opatch
-#RUN mkdir -p $OTMPDIR/patches \
-# && mkdir -p $OTMPDIR/opatch \
-# && chown oracle:oinstall $OTMPDIR/
-#
-#COPY --chown=oracle:oinstall $PATCHDIR/* ${OTMPDIR}/patches/
-#
-#RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches
-
 # PLACEHOLDER FOR %%PATCH_CLEANUP%% #
 
 RUN rm -rf $OTMPDIR

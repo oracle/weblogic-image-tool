@@ -26,28 +26,6 @@ public class XPathUtil {
 
     private static final Logger logger = Logger.getLogger(XPathUtil.class.getName());
 
-
-    //    /**
-//     * Apply XPath and return the results as nodelist
-//     *
-//     * @param doc  dom document
-//     * @param expression xpath expression
-//     * @return nodelist result
-//     * @throws XPathExpressionException when xpath failed
-//     */
-//    public static NodeList applyXPathReturnNodeList(Document doc, String expression) throws XPathExpressionException {
-//
-//        XPathFactory factory = XPathFactory.newInstance();
-//
-//        XPath xpath = factory.newXPath();
-//
-//        NodeList nodeList;
-//
-//        nodeList = (NodeList) xpath.evaluate(expression, doc, XPathConstants.NODESET);
-//        return nodeList;
-//
-//    }
-
     /**
      * Apply XPath and return the results as nodelist
      *

@@ -10,10 +10,10 @@ USER root
 
 ARG JAVA_PKG
 ARG WLS_PKG
-ARG JAVA_HOME
+ARG JAVA_HOME=/u01/jdk
 ARG INV_LOC
 ARG WLS_RESP
-ARG ORACLE_HOME
+ARG ORACLE_HOME=/u01/oracle
 ARG ORAINST
 ARG OTMPDIR
 ARG PATCHDIR
@@ -22,17 +22,15 @@ ARG PATCHDIR
 ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
     WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
     JAVA_HOME=${JAVA_HOME:-/u01/jdk} \
-    INV_LOC=${INV_LOC:-/u01/app/oraInventory} \
+    ORACLE_HOME=${ORACLE_HOME:-/u01/oracle} \
+    INV_LOC=${INV_LOC:-/u01/oracle/oraInventory} \
     WLS_RESP=${WLS_RESP:-wls.rsp} \
-    ORACLE_HOME=${ORACLE_HOME:-/u01/app/oracle/middleware} \
     ORAINST=${ORAINST:-oraInst.loc} \
     OTMPDIR=${OTMPDIR:-/tmp/delme} \
     OPATCH_NO_FUSER=true \
     PATCHDIR=${PATCHDIR:-patches}
 
 # PLACEHOLDER FOR %%WDT_ENV%% #
-
-RUN mkdir -p $OTMPDIR
 
 # PLACEHOLDER FOR %%PKG_INSTALL%% #
 
@@ -41,23 +39,24 @@ RUN mkdir -p $OTMPDIR
 
 ## Create oracle user
 RUN if [ -z "$(getent group oracle)" ]; then hash groupadd &> /dev/null && groupadd -g 1000 oracle || exit -1 ; fi \
- && if [ -z "$(getent passwd oracle)" ]; then hash useradd &> /dev/null && useradd -u 1100 -g oracle oracle || exit -1; fi \
- && mkdir -p $ORACLE_HOME \
- && mkdir -p $INV_LOC \
- && chown -R oracle:oracle /u01/ \
- && chown -R oracle:oracle $OTMPDIR/
+ && if [ -z "$(getent passwd oracle)" ]; then hash useradd &> /dev/null && useradd -u 1100 -g oracle oracle || exit -1; fi
+# && mkdir -p $ORACLE_HOME \
+# && mkdir -p $INV_LOC \
+# && chown -R oracle:oracle /u01/ \
+# && chown -R oracle:oracle $OTMPDIR/
 
 USER oracle
 
 # Install base WLS
 COPY --chown=oracle:oracle $JAVA_PKG $WLS_PKG $WLS_RESP $OTMPDIR/
-COPY --chown=oracle:oracle  $ORAINST $INV_LOC
+COPY --chown=oracle:oracle $ORAINST $INV_LOC/
 
 RUN tar xzvf $OTMPDIR/$JAVA_PKG -C /u01 \
  && mv /u01/jdk* $JAVA_HOME \
  && unzip $OTMPDIR/$WLS_PKG -d $OTMPDIR \
  && $JAVA_HOME/bin/java -Xmx1024m -jar $OTMPDIR/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
-    -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -novalidation
+    -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -novalidation \
+ && rm -rf $OTMPDIR
 
 # PLACEHOLDER FOR %%OPATCH_1394%% #
 
@@ -65,15 +64,6 @@ RUN tar xzvf $OTMPDIR/$JAVA_PKG -C /u01 \
 
 # PLACEHOLDER FOR %%WDT_INSTALL%% #
 
-# PLACEHOLDER FOR %%PATCH_CLEANUP%% #
-
-# PLACEHOLDER FOR %%WDT_CLEANUP%% #
-
-RUN rm -rf $OTMPDIR
-
-RUN unset JAVA_PKG WLS_PKG JAVA_HOME INV_LOC WLS_RESP ORAINST OTMPDIR PATCHDIR
-
 # PLACEHOLDER FOR %%WDT_CMD%% #
 
-#ENTRYPOINT /bin/bash
 
