@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
@@ -72,7 +73,7 @@ public class CreateImage extends ImageOperation {
             // create a tmp directory for user.
             // using user home as base to avoid running out of space in tmp
             tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.home")),
-                "wlsimgbuilder_temp");
+                "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
             logger.info("tmp directory used for build context: " + tmpDirPath);
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
@@ -86,7 +87,7 @@ public class CreateImage extends ImageOperation {
                 cmdBuilder.add("BASE_IMAGE=" + fromImage);
 
                 tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")),
-                    "wlsimgbuilder_temp");
+                    "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
                 logger.info("tmp directory in user.home for docker run: " + tmpDir2);
 
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",

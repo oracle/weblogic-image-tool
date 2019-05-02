@@ -469,7 +469,7 @@ public class Utils {
                                                String... args) {
         //docker run -v /user.dir/tmpdir:/tmp wls122130:min sh -c /tmp/test-env.sh
         final List<String> retVal = Stream.of(
-                "docker", "run", "--volume=" + hostDirToMount.toAbsolutePath().toString() + ":/tmp_scripts",
+                "docker", "run", "--user=root", "--volume=" + hostDirToMount.toAbsolutePath().toString() + ":/tmp_scripts",
                 dockerImage, "/tmp_scripts/" + scriptToRun).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));

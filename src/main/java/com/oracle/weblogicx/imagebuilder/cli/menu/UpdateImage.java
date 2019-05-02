@@ -6,7 +6,6 @@ package com.oracle.weblogicx.imagebuilder.cli.menu;
 
 import com.oracle.weblogicx.imagebuilder.api.model.CommandResponse;
 import com.oracle.weblogicx.imagebuilder.api.model.WLSInstallerType;
-import com.oracle.weblogicx.imagebuilder.cli.HelpVersionProvider;
 import com.oracle.weblogicx.imagebuilder.util.ARUUtil;
 import com.oracle.weblogicx.imagebuilder.util.Constants;
 import com.oracle.weblogicx.imagebuilder.util.Utils;
@@ -18,6 +17,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -71,7 +71,8 @@ public class UpdateImage extends ImageOperation {
                 cmdBuilder.add("BASE_IMAGE=" + fromImage);
             }
 
-            tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), null);
+            tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), "wlsimgbuilder_temp",
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
             logger.info("tmp directory in user.home for docker run: " + tmpDir2);
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
@@ -130,7 +131,8 @@ public class UpdateImage extends ImageOperation {
             }
 
             // create a tmp directory for user.
-            tmpDir = Files.createTempDirectory(null);
+            tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), "wlsimgbuilder_temp",
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
             Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));

@@ -13,7 +13,8 @@ ARG PATCHDIR
 ARG OTMPDIR
 
 ENV PATCHDIR=${PATCHDIR:-patches} \
-    OTMPDIR=${OTMPDIR:-/tmp/delme}
+    OTMPDIR=${OTMPDIR:-/tmp/delme} \
+    OPATCH_NO_FUSER=true
 
 RUN mkdir -p $OTMPDIR \
  && chown -R oracle:oracle $OTMPDIR/
