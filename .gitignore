@@ -1,0 +1,7 @@
+**/.gradle
+**/build
+*.iml
+.idea/
+**/target
+**/.DS_Store
+.flattened-pom.xml
