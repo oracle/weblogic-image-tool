@@ -1,2 +1,2 @@
-inventory_loc=/u01/app/oraInventory
+inventory_loc=/u01/oracle/oraInventory
 inst_group=oracle

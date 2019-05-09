@@ -5,7 +5,11 @@
 #
 # This file is not a fully functional Dockerfile. Do not use this directly.
 
-# START %%WDT_ARGS%% #
+# START %%WDT_INSTALL%% #
+FROM OS_UPDATE as WDT_BUILD
+
+ARG JAVA_HOME=/u01/jdk
+ARG ORACLE_HOME=/u01/oracle
 ARG WDT_PKG
 ARG WDT_MODEL
 ARG DOMAIN_TYPE
@@ -21,9 +25,9 @@ ARG MANAGED_SERVER_PORT
 ARG SCRIPTS_DIR
 ARG WDT_HOME
 ARG RCU_RUN_FLAG
-# END %%WDT_ARGS%% #
 
-# START %%WDT_ENV%% #
+RUN echo ${WLS_PKG} ${JAVA_PKG} ${WDT_MODEL}
+
 ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     ADMIN_NAME=${ADMIN_NAME:-admin-server} \
     ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
@@ -39,20 +43,21 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     WDT_VARIABLE=${WDT_VARIABLE:-} \
     LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
-    SCRIPT_HOME="${ORACLE_HOME}" \
     WDT_HOME=${WDT_HOME:-/u01/app/weblogic-deploy} \
     SCRIPTS_DIR=${SCRIPTS_DIR:-scripts} \
     RCU_RUN_FLAG=${RCU_RUN_FLAG:-}
 
 # DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME
 ENV DOMAIN_HOME=${DOMAIN_PARENT}/${DOMAIN_NAME} \
+    SCRIPT_HOME=${DOMAIN_PARENT}/${DOMAIN_NAME} \
     PATH=$PATH:${JAVA_HOME}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_PARENT}/${DOMAIN_NAME}:${DOMAIN_PARENT}/${DOMAIN_NAME}/bin:${ORACLE_HOME}
 
-# END %%WDT_ENV%% #
-
-# START %%WDT_INSTALL%% #
+COPY --from=JDK_BUILD --chown=oracle:oracle $JAVA_HOME $JAVA_HOME/
+COPY --from=WLS_BUILD --chown=oracle:oracle $ORACLE_HOME $ORACLE_HOME/
 COPY --chown=oracle:oracle ${WDT_PKG} ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE} ${OTMPDIR}/
 COPY --chown=oracle:oracle ${SCRIPTS_DIR}/*.sh ${SCRIPT_HOME}/
+
+USER oracle
 
 RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \
  && chmod a+x $SCRIPT_HOME/*.sh \
@@ -73,62 +78,100 @@ RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \
  $MODEL_OPT \
  $ARCHIVE_OPT \
  && chmod -R a+x ${DOMAIN_HOME}/bin/*.sh \
- && rm -rf ${WDT_HOME} $OTMPDIR
+ && rm -rf ${JAVA_HOME} ${ORACLE_HOME} ${WDT_HOME} $OTMPDIR
 
 # END %%WDT_INSTALL%% #
 
 # START %%WDT_CMD%% #
 # Expose admin server, managed server port
 EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT
-CMD ["sh", "-c", "${SCRIPT_HOME}/startAdminServer.sh"]
+CMD ["sh", "-c", "${DOMAIN_HOME}/startAdminServer.sh"]
 
 # END %%WDT_CMD%% #
 
-# START %%OPATCH_1394%% #
-COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
+# START %%WDT_COPY_DOMAIN%% #
+COPY --from=WDT_BUILD --chown=oracle:oracle $DOMAIN_HOME $DOMAIN_HOME/
+# END %%WDT_COPY_DOMAIN%% #
 
+# START %%OPATCH_1394_COPY%% #
+COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
+# END %%OPATCH_1394_COPY%% #
+
+# START %%CREATE_OPATCH_1394%% #
+ && cd $OTMPDIR/opatch \
+ && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
+ && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent oracle_home=$ORACLE_HOME \
+# END %%CREATE_OPATCH_1394%% #
+
+# START %%UPDATE_OPATCH_1394%% #
 RUN cd $OTMPDIR/opatch \
- && jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
+ && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
  && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent oracle_home=$ORACLE_HOME \
  && rm -rf $OTMPDIR
+# END %%UPDATE_OPATCH_1394%% #
 
-# END %%OPATCH_1394%% #
-
-# START %%PATCH_APPLY%% #
+# START %%PATCH_APPLY_COPY%% #
 COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/
+# END %%PATCH_APPLY_COPY%% #
 
+# START %%CREATE_PATCH_APPLY%% #
+ && $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \
+ && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
+# END %%CREATE_PATCH_APPLY%% #
+
+# START %%UPDATE_PATCH_APPLY%% #
 RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \
  && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
  && rm -rf $OTMPDIR
-# END %%PATCH_APPLY%% #
+# END %%UPDATE_PATCH_APPLY%% #
 
 # START %%PKG_INSTALL%%_YUM #
-# install necessary packages
-RUN yum -y update \
- && yum -y install gzip tar unzip \
- && yum clean all
+RUN yum -y --downloaddir=$OTMPDIR install gzip tar unzip \
+ && yum -y --downloaddir=$OTMPDIR clean all \
+ && rm -rf $OTMPDIR
 # END %%PKG_INSTALL%%_YUM #
 
 # START %%PKG_INSTALL%%_APT #
-# install necessary packages
 RUN apt-get -y update \
  && apt-get -y upgrade \
- && apt-get -y install tar unzip \
+ && apt-get -y install gzip tar unzip \
  && apt-get -y clean all
 # END %%PKG_INSTALL%%_APT #
 
 # START %%PKG_INSTALL%%_APK #
-# install necessary packages
 RUN apk update \
  && apk upgrade \
- && apk add tar unzip \
+ && apk add gzip tar unzip \
  && rm -rf /var/cache/apk/*
 # END %%PKG_INSTALL%%_APK #
 
 # START %%PKG_INSTALL%%_SUSE #
-# install necessary packages
 RUN zypper -nq update \
- && zypper -nq install tar unzip \
+ && zypper -nq install gzip tar unzip \
  && zypper -nq clean \
  && rm -rf /var/cache/zypp/*
 # END %%PKG_INSTALL%%_SUSE #
+
+# START %%PKG_UPDATE%%_YUM #
+RUN yum -y --downloaddir=$OTMPDIR update \
+ && yum -y --downloaddir=$OTMPDIR clean all \
+ && rm -rf $OTMPDIR
+# END %%PKG_UPDATE%%_YUM #
+
+# START %%PKG_UPDATE%%_APT #
+RUN apt-get -y update \
+ && apt-get -y upgrade \
+ && apt-get -y clean all
+# END %%PKG_UPDATE%%_APT #
+
+# START %%PKG_UPDATE%%_APK #
+RUN apk update \
+ && apk upgrade \
+ && rm -rf /var/cache/apk/*
+# END %%PKG_UPDATE%%_APK #
+
+# START %%PKG_UPDATE%%_SUSE #
+RUN zypper -nq update \
+ && zypper -nq clean \
+ && rm -rf /var/cache/zypp/*
+# END %%PKG_UPDATE%%_SUSE #

@@ -125,6 +125,11 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             retVal.add(BUILD_ARG);
             retVal.add("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
             filterStartTags.add("PATCH_");
+            if (this instanceof CreateImage) {
+                filterStartTags.add("CREATE_PATCH_");
+            } else if (this instanceof UpdateImage) {
+                filterStartTags.add("UPDATE_PATCH_");
+            }
         }
         return retVal;
     }
@@ -137,7 +142,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     List<String> getInitialBuildCmd() {
 
         List<String> cmdBuilder = Stream.of("docker", "build",
-                "--squash", "--force-rm", "--rm=true", "--no-cache").collect(Collectors.toList());
+                "--force-rm", "--rm=true", "--no-cache").collect(Collectors.toList());
 
         cmdBuilder.add("--tag");
         cmdBuilder.add(imageTag);
@@ -174,6 +179,11 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String filePath = new PatchFile(useCache, "opatch", "13.9.4.0.0", "28186730", userId, password).resolve(cacheStore);
         Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
         filterStartTags.add("OPATCH_1394");
+        if (this instanceof CreateImage) {
+            filterStartTags.add("CREATE_OPATCH_1394");
+        } else if (this instanceof UpdateImage) {
+            filterStartTags.add("UPDATE_OPATCH_1394");
+        }
     }
 
     /**
