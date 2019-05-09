@@ -21,7 +21,7 @@
             <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
-            <directory>..</directory>
+            <directory>.</directory>
             <outputDirectory>.</outputDirectory>
             <includes>
                 <include>LICENSE.txt</include>
