@@ -18,7 +18,7 @@ with this effort, we have created the [WebLogic Image Tool](https://github.com/o
 
 ## Features of the Oracle WebLogic Image Tool
 
-The Image Builder Tool can create a WebLogic Docker image from any base image (for example, Oracle Linux, Ubuntu), install a given version of
+The Oracle WebLogic Image Tool can create a WebLogic Docker image from any base image (for example, Oracle Linux, Ubuntu), install a given version of
 WebLogic (for example, 12.2.1.3.0), install a given JDK (for example, 8u202), apply selected patches, and create a domain with a given
 version of [WDT](https://github.com/oracle/weblogic-deploy-tooling). The tool can also update a Docker image either
 created using this tool or a Docker image built by the user (you should have an `ORACLE_HOME` `env` variable defined by
