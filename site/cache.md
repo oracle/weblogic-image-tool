@@ -4,7 +4,7 @@ Use the `cache` command to add or edit the required metadata for the tool. Cache
 required installers (WLS, FMW, JDK) are located and where to download the patches. There are several subcommands:
 
 ```
-Usage: imagebuilder cache [COMMAND]
+Usage: imagetool cache [COMMAND]
 List and set cache options
 
 Commands:
@@ -23,7 +23,7 @@ Commands:
 
 - `listItems`: Display the contents of the cache. Displays key value pairs of the installers and patches.
     ```
-    imagebuilder cache listItems
+    imagetool cache listItems
 
     Cache contents
     jdk_8u202=/Users/xyz/Downloads/cache/server-jre-8u202-linux-x64.tar.gz
@@ -35,28 +35,28 @@ Commands:
 
 - `addInstaller`: Add an installer to the cache, for example, JDK.
     ```
-    imagebuilder cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
+    imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
     ```
 
 - `addPatch`: Add a patch to the cache. This command verifies if the path points to a valid patch by querying the Oracle support portal.
     ```
-    imagebuilder cache addPatch --type wls --version 12.2.1.3.0 --user abc@xyz.com --passwordEnv MYVAR --patchId p12345678 --path /path/to/patch.zip
+    imagetool cache addPatch --type wls --version 12.2.1.3.0 --user abc@xyz.com --passwordEnv MYVAR --patchId p12345678 --path /path/to/patch.zip
     ```
 
 - `getCacheDir` and `setCacheDir`: Get or set the cache directory. Used to display or set the directory where patches will be downloaded.
     ```
-    imagebuilder cache getCacheDir
-    imagebuilder cache setCacheDir /path/to/dir
+    imagetool cache getCacheDir
+    imagetool cache setCacheDir /path/to/dir
     ```
 
 - `addEntry`: Consider this an expert mode where you can add key value pairs to the cache without any validation.
     ```
-    imagebuilder cache addEntry --key xyz_123 --value /path/to/file
+    imagetool cache addEntry --key xyz_123 --value /path/to/file
     ```
 
 - `deleteEntry`: Delete an entry from the cache for a given key. **Note**: This command does not delete files from the disk.
     ```
-    imagebuilder cache deleteEntry --key xyz_123
+    imagetool cache deleteEntry --key xyz_123
     ```
 
 ## Copyright

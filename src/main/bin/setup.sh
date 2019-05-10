@@ -44,9 +44,9 @@ cd $PREV_DIR
 echo $RESULT_PATH
 }
 
-unalias imagebuilder 2> /dev/null
+unalias imagetool 2> /dev/null
 script_dir=$( dirname "$( read_link "${BASH_SOURCE[0]}" )" )
-IMAGEBUILDER_HOME=`cd "${script_dir}/.." ; pwd`
-export IMAGEBUILDER_HOME
-alias imagebuilder="${JAVA_HOME}/bin/java -cp \"${IMAGEBUILDER_HOME}/lib/*\" com.oracle.weblogicx.imagebuilder.cli.CLIDriver"
-source ${IMAGEBUILDER_HOME}/lib/imagebuilder_completion.sh
+IMAGETOOL_HOME=`cd "${script_dir}/.." ; pwd`
+export IMAGETOOL_HOME
+alias imagetool="${JAVA_HOME}/bin/java -cp \"${IMAGETOOL_HOME}/lib/*\" com.oracle.weblogic.imagetool.cli.CLIDriver"
+source ${IMAGETOOL_HOME}/lib/imagetool_completion.sh
