@@ -8,7 +8,7 @@ are marked with an asterisk (*). You can provide the password in one of the thre
 * File containing the password
 
 ```
-Usage: imagebuilder create [OPTIONS]
+Usage: imagetool create [OPTIONS]
 Build WebLogic docker image
       --docker=<dockerPath> path to docker executable. Default: docker
       --fromImage=<fromImage>
@@ -57,18 +57,18 @@ The commands below assume that all the required JDK, WLS or FMW (WebLogic infras
 
 - Create an image named `sample:wls` with the WebLogic installer 12.2.1.3.0, server JDK 8u202, and latest PSU applied.
     ```
-    imagebuilder create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
+    imagetool create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
     ```
 
 - Create an image named `sample:wdt` with the same options as above and create a domain with [WebLogic Deploy Tooling](https://github.com/oracle/weblogic-deploy-tooling).
     ```
-    imagebuilder create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16
+    imagetool create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16
     ```
     If `wdtVersion` is not provided, the tool uses the latest release.
 
 - Create an image named `sample:patch` with the selected patches applied.
     ```
-    imagebuilder create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
+    imagetool create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
     ```
     The patch numbers may or may not start with '`p`'.
 
@@ -79,7 +79,7 @@ The commands below assume that all the required JDK, WLS or FMW (WebLogic infras
    - This implies that the tool could not find the JDK installer in its cache.
    - Use the [cache](cache.md) command to fix it:
     ```
-    imagebuilder cache addInstaller --type jdk --version 8u202 --path /local/path/to/jdk.gz
+    imagetool cache addInstaller --type jdk --version 8u202 --path /local/path/to/jdk.gz
     ```
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.

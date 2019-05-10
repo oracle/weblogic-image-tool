@@ -8,7 +8,7 @@ are marked with asterisk (*). The password can be provided in one of the three w
 * File containing the password
 
 ```
-Usage: imagebuilder update [OPTIONS]
+Usage: imagetool update [OPTIONS]
 Update WebLogic docker image with selected patches
       --docker=<dockerPath> path to docker executable. Default: docker
 *     --fromImage=<fromImage>
@@ -40,12 +40,12 @@ Update WebLogic docker image with selected patches
 
 - Update an image named `sample:1.0` by applying the latest PSU and tag it as `sample:1.1`:
     ```
-    imagebuilder update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
+    imagetool update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
     ```
 
 - Update an image named `sample:1.0` with the selected patches applied.
     ```
-    imagebuilder update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,p87654321
+    imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,p87654321
     ```
     The patch numbers may or may not start with '`p`'.
 
