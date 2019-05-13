@@ -1,6 +1,6 @@
 # Oracle WebLogic Image Tool
 
-Containerization is taking over the software world. In this modern age of software development, Docker and Kubernetes
+ is taking over the software world. In this modern age of software development, Docker and Kubernetes
 have become the gold standard. To help customers stay at the forefront of this, Oracle has released the
 [WebLogic Server Kubernetes Operator](https://github.com/oracle/weblogic-kubernetes-operator). The operator helps
 customers move their workloads to the cloud via the Kubernetes (cloud neutral) route. Customers get to decide how
