@@ -1,20 +1,33 @@
 pipeline {
     agent any
+    tools {
+        maven 'maven-3.6.0'
+        jdk 'jdk11'
+    }
 
     stages {
-        stage('Build') {
+        stage ('Environment') {
             steps {
-                echo 'Building..'
+                sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+                    mvn --version
+                '''
             }
         }
-        stage('Test') {
+        stage ('Build') {
             steps {
-                echo 'Testing..'
+                sh 'mvn -B clean package'
             }
         }
-        stage('Deploy') {
+        stage ('Test') {
             steps {
-                echo 'Deploying....'
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
             }
         }
     }
