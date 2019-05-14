@@ -12,8 +12,12 @@ pipeline {
             }
         }
         stage ('Build') {
-            withMaven (maven : 'maven-3.6.0', jdk : 'jdk11' ) {
-                sh 'mvn clean package'
+            steps {
+                script {
+                    withMaven (maven : 'maven-3.6.0', jdk : 'jdk11' ) {
+                        sh 'mvn clean package'
+                    }
+                }
             }
         }
     }
