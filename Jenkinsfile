@@ -1,8 +1,6 @@
 pipeline {
     agent any
     tools {
-        maven 'maven-3.6.0'
-        jdk 'jdk11'
     }
 
     stages {
@@ -17,7 +15,12 @@ pipeline {
         }
         stage ('Build') {
             steps {
-                sh 'mvn clean package'
+                withMaven {
+                    maven 'maven-3.6.0'
+                    jdk 'jdk11'
+
+                    sh 'mvn clean package'
+                }
             }
         }
     }
