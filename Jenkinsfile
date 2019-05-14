@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    tools {
+        maven 'maven-3.6.0'
+        jdk 'jdk11'
+    }
 
     stages {
         stage ('Initialize') {
@@ -13,10 +17,16 @@ pipeline {
         }
         stage ('Build') {
             steps {
-                script {
-                    withMaven (maven : 'maven-3.6.0', jdk : 'jdk11' ) {
-                        sh 'mvn clean package'
-                    }
+                sh 'mvn -B clean package'
+            }
+        }
+        stage ('Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
