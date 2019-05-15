@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+     Licensed under the Universal Permissive License v 1.0 as shown at
+     http://oss.oracle.com/licenses/upl. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -6,6 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>imagetool</artifactId>
+    <name>WebLogic Image Tool</name>
 
     <parent>
         <artifactId>imagetool-parent</artifactId>
@@ -13,7 +16,6 @@
         <version>0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
 
     <dependencies>
         <dependency>
@@ -60,18 +62,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <finalName>${project.artifactId}</finalName>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <project-name>${project.artifactId}</project-name>
-                            <project-version>${project.version}</project-version>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -126,6 +116,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
