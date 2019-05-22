@@ -1,11 +1,7 @@
 # Create Image
 
 The `create` command helps build a WebLogic Docker image from a given base OS image. The required options for the command
-are marked with an asterisk (*). You can provide the password in one of the three ways:
-
-* Plain text
-* Environment variable
-* File containing the password
+are marked with an asterisk (*). There are a number of optional parameters for the create feature.
 
 ```
 Usage: imagetool create [OPTIONS]
