@@ -54,7 +54,7 @@ public class CreateImage extends ImageOperation {
 
         Instant startTime = Instant.now();
 
-        FileHandler fileHandler = setupLogger(isCLIMode);
+        setupLogger(isCLIMode);
         Path tmpDir = null;
         Path tmpDir2 = null;
 
@@ -134,10 +134,6 @@ public class CreateImage extends ImageOperation {
         } finally {
             Utils.deleteFilesRecursively(tmpDir);
             Utils.deleteFilesRecursively(tmpDir2);
-            if (fileHandler != null) {
-                fileHandler.close();
-                logger.removeHandler(fileHandler);
-            }
         }
         Instant endTime = Instant.now();
         return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
