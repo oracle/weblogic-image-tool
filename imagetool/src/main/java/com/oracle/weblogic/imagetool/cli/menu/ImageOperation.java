@@ -184,27 +184,11 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * Enable logging when using cli mode and required log file path is supplied
      *
      * @param isCLIMode whether tool is run in cli mode
-     * @return log file handler or null
      */
-    FileHandler setupLogger(boolean isCLIMode) {
-        FileHandler fileHandler = null;
-        try {
-            if (isCLIMode) {
-                Path toolLogPath = Utils.createFile(toolLog, "tool.log");
-                if (toolLogPath != null) {
-                    fileHandler = new FileHandler(toolLogPath.toAbsolutePath().toString());
-                    fileHandler.setFormatter(new SimpleFormatter());
-                    logger.addHandler(fileHandler);
-                    logger.setLevel(Level.INFO);
-                }
-            } else {
-                logger.setLevel(Level.OFF);
-            }
-        } catch (IOException e) {
-            //suppress exception
-            fileHandler = null;
+    void setupLogger(boolean isCLIMode) {
+        if (!isCLIMode) {
+            logger.setLevel(Level.OFF);
         }
-        return fileHandler;
     }
 
     WLSInstallerType installerType = WLSInstallerType.WLS;
@@ -297,13 +281,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             hidden = true
     )
     Path dockerLog;
-
-    @Option(
-            names = {"--toolLog"},
-            description = "file to log output from this tool. This is different from the docker build log.",
-            hidden = true
-    )
-    private Path toolLog;
 
     @Unmatched
     List<String> unmatchedOptions;

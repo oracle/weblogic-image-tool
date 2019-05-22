@@ -82,9 +82,12 @@ public class Utils {
                 } else {
                     if (Files.isDirectory(logFilePath)) {
                         if (defaultFileName == null || defaultFileName.isEmpty()) {
-                            defaultFileName = "log.log";
+                            defaultFileName = "tool.log";
                         }
                         logFilePath = Paths.get(logFilePath.toAbsolutePath().toString(), defaultFileName);
+                        if (Files.exists(logFilePath)) {
+                            Files.delete(logFilePath);
+                        }
                         Files.createFile(logFilePath);
                     }
                 }
@@ -171,7 +174,9 @@ public class Utils {
                 String endTag = matcher.group(4);
                 if (startTag.equals(endTag) && desiredPrefixes.stream().anyMatch(
                         x -> startTag.startsWith(x) || extraIdentifier.equalsIgnoreCase(x))) {
-                    retMap.put(startTag, content);
+                    //  this matching patten leaves LF in beginning and end
+                    int len = content.length()-2;
+                    retMap.put(startTag, content.substring(1).substring(0,len) );
                 }
             } else {
                 logger.fine("pattern mismatch in resource " + resourcePath);
