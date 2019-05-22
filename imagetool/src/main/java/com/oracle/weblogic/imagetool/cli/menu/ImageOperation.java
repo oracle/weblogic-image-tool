@@ -11,6 +11,7 @@ import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
+import com.oracle.weblogic.imagetool.logging.PlatformLoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
 
 public abstract class ImageOperation implements Callable<CommandResponse> {
 
-    private final Logger logger = Logger.getLogger(ImageOperation.class.getName());
+    private final Logger logger = PlatformLoggingFactory.getLogger(ImageOperation.class.getName());
     final List<String> filterStartTags = new ArrayList<>();
     protected CacheStore cacheStore = new CacheStoreFactory().get();
     private String nonProxyHosts = null;
@@ -53,6 +54,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     @Override
     public CommandResponse call() throws Exception {
+        setupLogger(isCLIMode, logger);
         handleProxyUrls();
         password = handlePasswordOptions();
         // check user support credentials if useCache not set to always and we are applying any patches
@@ -184,27 +186,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * Enable logging when using cli mode and required log file path is supplied
      *
      * @param isCLIMode whether tool is run in cli mode
-     * @return log file handler or null
      */
-    FileHandler setupLogger(boolean isCLIMode) {
-        FileHandler fileHandler = null;
-        try {
-            if (isCLIMode) {
-                Path toolLogPath = Utils.createFile(toolLog, "tool.log");
-                if (toolLogPath != null) {
-                    fileHandler = new FileHandler(toolLogPath.toAbsolutePath().toString());
-                    fileHandler.setFormatter(new SimpleFormatter());
-                    logger.addHandler(fileHandler);
-                    logger.setLevel(Level.INFO);
-                }
-            } else {
-                logger.setLevel(Level.OFF);
+    void setupLogger(boolean isCLIMode, Logger logger) {
+        if (isCLIMode) {
+            PlatformLoggingFactory.setLogLevel(debugLevel);
+            PlatformLoggingFactory.initializeFileHandler(debugLogPath);
+            if (logger != null) {
+                logger.setLevel(Level.parse(debugLevel));
+                logger.addHandler(PlatformLoggingFactory.getFileHandler());
             }
-        } catch (IOException e) {
-            //suppress exception
-            fileHandler = null;
+        } else {
+            logger.setLevel(Level.OFF);
         }
-        return fileHandler;
     }
 
     WLSInstallerType installerType = WLSInstallerType.WLS;
@@ -299,11 +292,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     Path dockerLog;
 
     @Option(
-            names = {"--toolLog"},
-            description = "file to log output from this tool. This is different from the docker build log.",
+            names = {"--debugLevel"},
+            description = "debug level of the tool.",
             hidden = true
     )
-    private Path toolLog;
+    private String debugLevel;
+
+    @Option(
+        names = {"--debugLogPath"},
+        description = "file to log output from this tool. This is different from the docker build log.",
+        hidden = true
+    )
+    private Path debugLogPath;
 
     @Unmatched
     List<String> unmatchedOptions;

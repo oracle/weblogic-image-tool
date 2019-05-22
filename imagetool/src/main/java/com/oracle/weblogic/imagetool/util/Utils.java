@@ -4,6 +4,8 @@
 */
 package com.oracle.weblogic.imagetool.util;
 
+import com.oracle.weblogic.imagetool.logging.PlatformLoggingFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,7 +40,7 @@ import java.util.stream.Stream;
 
 public class Utils {
 
-    private static final Logger logger = Logger.getLogger(Utils.class.getName());
+    private static final Logger logger = PlatformLoggingFactory.getLogger(Utils.class.getName());
 
     /**
      * Utility method to copy a resource from the jar to local file system
@@ -82,9 +84,12 @@ public class Utils {
                 } else {
                     if (Files.isDirectory(logFilePath)) {
                         if (defaultFileName == null || defaultFileName.isEmpty()) {
-                            defaultFileName = "log.log";
+                            defaultFileName = "tool.log";
                         }
                         logFilePath = Paths.get(logFilePath.toAbsolutePath().toString(), defaultFileName);
+                        if (Files.exists(logFilePath)) {
+                            Files.delete(logFilePath);
+                        }
                         Files.createFile(logFilePath);
                     }
                 }
@@ -171,7 +176,9 @@ public class Utils {
                 String endTag = matcher.group(4);
                 if (startTag.equals(endTag) && desiredPrefixes.stream().anyMatch(
                         x -> startTag.startsWith(x) || extraIdentifier.equalsIgnoreCase(x))) {
-                    retMap.put(startTag, content);
+                    //  this matching patten leaves LF in beginning and end
+                    int len = content.length()-2;
+                    retMap.put(startTag, content.substring(1).substring(0,len) );
                 }
             } else {
                 logger.fine("pattern mismatch in resource " + resourcePath);
