@@ -11,7 +11,6 @@ import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
-import com.oracle.weblogic.imagetool.logging.PlatformLoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -38,7 +37,7 @@ import java.util.stream.Stream;
 
 public abstract class ImageOperation implements Callable<CommandResponse> {
 
-    private final Logger logger = PlatformLoggingFactory.getLogger(ImageOperation.class.getName());
+    private final Logger logger = Logger.getLogger(ImageOperation.class.getName());
     final List<String> filterStartTags = new ArrayList<>();
     protected CacheStore cacheStore = new CacheStoreFactory().get();
     private String nonProxyHosts = null;
@@ -54,7 +53,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     @Override
     public CommandResponse call() throws Exception {
-        setupLogger(isCLIMode, logger);
         handleProxyUrls();
         password = handlePasswordOptions();
         // check user support credentials if useCache not set to always and we are applying any patches
@@ -187,15 +185,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      *
      * @param isCLIMode whether tool is run in cli mode
      */
-    void setupLogger(boolean isCLIMode, Logger logger) {
-        if (isCLIMode) {
-            PlatformLoggingFactory.setLogLevel(debugLevel);
-            PlatformLoggingFactory.initializeFileHandler(debugLogPath);
-            if (logger != null) {
-                logger.setLevel(Level.parse(debugLevel));
-                logger.addHandler(PlatformLoggingFactory.getFileHandler());
-            }
-        } else {
+    void setupLogger(boolean isCLIMode) {
+        if (!isCLIMode) {
             logger.setLevel(Level.OFF);
         }
     }
@@ -290,20 +281,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             hidden = true
     )
     Path dockerLog;
-
-    @Option(
-            names = {"--debugLevel"},
-            description = "debug level of the tool.",
-            hidden = true
-    )
-    private String debugLevel;
-
-    @Option(
-        names = {"--debugLogPath"},
-        description = "file to log output from this tool. This is different from the docker build log.",
-        hidden = true
-    )
-    private Path debugLogPath;
 
     @Unmatched
     List<String> unmatchedOptions;

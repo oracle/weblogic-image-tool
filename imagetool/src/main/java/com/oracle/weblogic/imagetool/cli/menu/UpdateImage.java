@@ -7,7 +7,6 @@ package com.oracle.weblogic.imagetool.cli.menu;
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.logging.PlatformLoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -38,7 +37,7 @@ import java.util.logging.Logger;
 )
 public class UpdateImage extends ImageOperation {
 
-    private final Logger logger = PlatformLoggingFactory.getLogger(UpdateImage.class.getName());
+    private final Logger logger = Logger.getLogger(UpdateImage.class.getName());
 
     public UpdateImage() {
     }
@@ -51,7 +50,7 @@ public class UpdateImage extends ImageOperation {
     public CommandResponse call() throws Exception {
         Instant startTime = Instant.now();
 
-        setupLogger(isCLIMode, logger);
+        setupLogger(isCLIMode);
         Path tmpDir = null;
         Path tmpDir2 = null;
 
@@ -154,7 +153,6 @@ public class UpdateImage extends ImageOperation {
         } finally {
             Utils.deleteFilesRecursively(tmpDir);
             Utils.deleteFilesRecursively(tmpDir2);
-            PlatformLoggingFactory.cleanUp();
         }
         Instant endTime = Instant.now();
         return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);

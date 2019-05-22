@@ -4,8 +4,6 @@
 */
 package com.oracle.weblogic.imagetool.util;
 
-import com.oracle.weblogic.imagetool.logging.PlatformLoggingFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,7 +38,7 @@ import java.util.stream.Stream;
 
 public class Utils {
 
-    private static final Logger logger = PlatformLoggingFactory.getLogger(Utils.class.getName());
+    private static final Logger logger = Logger.getLogger(Utils.class.getName());
 
     /**
      * Utility method to copy a resource from the jar to local file system

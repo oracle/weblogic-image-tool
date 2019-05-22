@@ -10,7 +10,6 @@ import com.oracle.weblogic.imagetool.api.model.DomainType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
-import com.oracle.weblogic.imagetool.logging.PlatformLoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -29,6 +28,7 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -40,8 +40,7 @@ import java.util.stream.Collectors;
 )
 public class CreateImage extends ImageOperation {
 
-    private final Logger logger = PlatformLoggingFactory.getLogger(CreateImage.class.getName());
-    private static String CLASSNAME = CreateImage.class.getName();
+    private final Logger logger = Logger.getLogger(CreateImage.class.getName());
 
     public CreateImage() {
     }
@@ -55,7 +54,7 @@ public class CreateImage extends ImageOperation {
 
         Instant startTime = Instant.now();
 
-        setupLogger(isCLIMode, logger);
+        setupLogger(isCLIMode);
         Path tmpDir = null;
         Path tmpDir2 = null;
 
@@ -80,9 +79,6 @@ public class CreateImage extends ImageOperation {
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
             if (fromImage != null && !fromImage.isEmpty()) {
-
-                logger.fine("Performing update fromImage operation ");
-                int n = 1/0;
                 cmdBuilder.add(Constants.BUILD_ARG);
                 cmdBuilder.add("BASE_IMAGE=" + fromImage);
 
@@ -138,10 +134,8 @@ public class CreateImage extends ImageOperation {
         } finally {
             Utils.deleteFilesRecursively(tmpDir);
             Utils.deleteFilesRecursively(tmpDir2);
-            PlatformLoggingFactory.cleanUp();
         }
         Instant endTime = Instant.now();
-        logger.exiting(CLASSNAME, "call");
         return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
