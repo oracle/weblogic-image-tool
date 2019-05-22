@@ -1,7 +1,7 @@
 # Cache
 
-Use the `cache` command to add or edit the required metadata for the tool. Cache helps the tool to identify where the
-required installers (WLS, FMW, JDK) are located and where to download the patches. There are several subcommands:
+The image tool maintains a local file cache for patches and installers.  The `cache` command can be used to manipulate 
+the local file cache. There are several subcommands of the cache feature:
 
 ```
 Usage: imagetool cache [COMMAND]

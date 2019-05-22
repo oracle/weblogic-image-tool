@@ -1,50 +1,57 @@
 # Oracle WebLogic Image Tool
 
-Containerization is taking over the software world. In this modern age of software development, Docker and Kubernetes
-have become the gold standard. To help customers stay at the forefront of this, Oracle has released the
-[WebLogic Server Kubernetes Operator](https://github.com/oracle/weblogic-kubernetes-operator). The operator helps
-customers move their workloads to the cloud via the Kubernetes (cloud neutral) route. Customers get to decide how
-to create the Docker images and apply patches to these images deployed by the Kubernetes operator. To help them
-with this effort, we have created the [WebLogic Image Tool](https://github.com/oracle/weblogic-image-tool).
+Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into 
+the cloud. By certifying on industry standards, such as Docker and Kubernetes, WebLogic now runs in a cloud neutral 
+infrastructure.  After you have installed Docker, one of the first things that you will need will be a Docker image.
+To help simplify and automate the creation of Docker images for WebLogic Server, we are providing this open-source 
+Oracle WebLogic Image Tool.  This tool allows you to create a new image with installations of a JDK and WebLogic Server, 
+and optionally WebLogic Server patches, and/or a WebLogic Server Domain (or update an existing image).
 
-## Table of Contents
+## Features 
 
-- [Features](#features-of-the-oracle-weblogic-image-tool)
-- [Prerequisites](#prerequisites)
-- [Setup](#setup)
-  - [Create Image](site/create-image.md)
-  - [Update Image](site/update-image.md)
-  - [Cache](site/cache.md)
-
-## Features of the Oracle WebLogic Image Tool
-
-The Oracle WebLogic Image Tool can create a WebLogic Docker image from any base image (for example, Oracle Linux, Ubuntu), install a given version of
-WebLogic (for example, 12.2.1.3.0), install a given JDK (for example, 8u202), apply selected patches, and create a domain with a given
-version of [WDT](https://github.com/oracle/weblogic-deploy-tooling). The tool can also update a Docker image either
-created using this tool or a Docker image built by the user (you should have an `ORACLE_HOME` `env` variable defined by
-applying selected patches).
-
+Currently, the project provides three functions within the main script:
+  - [Create Image](site/create-image.md) - The `create` command helps build a WebLogic Docker image from a given base OS 
+  image. 
+  - [Update Image](site/update-image.md) - The `update` command can be used to apply WebLogic patches to an existing 
+  WebLogic Docker image.
+  - [Cache](site/cache.md) - The image tool maintains a local file cache for patches and installers.  The `cache` 
+  command can be used to manipulate the local file cache. 
+  
 ## Prerequisites
 
-- Active Internet connection. The tool needs to communicate with Oracle support system.
-- Oracle support credentials. These are used to validate and download patches.
-- WebLogic and JDK installers from OTN / e-delivery. These should be available on local disk.
 - Docker client and daemon on the build machine.
+- WebLogic and JDK installers from OTN / Oracle e-Delivery.
+- (For patches) Oracle support credentials.
 - Bash version 4.0 or higher to enable `<tab>` command complete feature
 
 ## Setup
 
 - Build the project (`mvn clean package`) to generate artifacts `imagetool-0.1-SNAPSHOT.zip`.
-- Unzip to a desired location. This action should create lib, bin directories and LICENSE.txt.
+- Unzip the release zip to a desired location. 
 - If running an OS with bash, run `cd your_unzipped_location/bin` and `source setup.sh`.
 - On Windows, set up with `imagetool.cmd` or the `imagetool.bat` script:
     ```cmd
     @ECHO OFF
     java -cp "your_unzipped_folder/lib" com.oracle.weblogic.imagetool.cli.CLIDriver %*
     ```
-- Then, execute `imagetool help` to get the help screen.
+    
+## Help Command
+- After completing the steps on [Setup](#Setup), execute `imagetool help` to show the help screen.
 - You can execute the JAR directly using the command `java -cp "your_unzipped_folder/lib" com.oracle.weblogic.imagetool.cli.CLIDriver help`.
-- After you are familiar with the commands, you will be able to create and update WebLogic Docker images.
+
+## Simple Example
+Let's give this a try!  
+- Get the installers from Oracle e-Delivery
+- Add those installers to the image tool file cache
+- Assuming Docker is installed, run imagetool create!
+```bash
+unzip imagetool-0.1.zip
+cd imagetool-0.1/bin
+source setup.sh
+imagetool cache addInstaller --type jdk --version 8u202 --path /tmp/jdk-8u202-linux-x64.tar.gz
+imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /tmp/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+imagetool create --tag sample:wls
+```
 
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
