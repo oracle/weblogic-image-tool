@@ -51,10 +51,9 @@ public class CreateImage extends ImageOperation {
 
     @Override
     public CommandResponse call() throws Exception {
-
+        logger.finer("Entering CreateImage call ");
         Instant startTime = Instant.now();
 
-        setupLogger(isCLIMode);
         Path tmpDir = null;
         Path tmpDir2 = null;
 
@@ -79,6 +78,7 @@ public class CreateImage extends ImageOperation {
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
             if (fromImage != null && !fromImage.isEmpty()) {
+                logger.finer("User specified fromImage " + fromImage);
                 cmdBuilder.add(Constants.BUILD_ARG);
                 cmdBuilder.add("BASE_IMAGE=" + fromImage);
 
@@ -136,6 +136,7 @@ public class CreateImage extends ImageOperation {
             Utils.deleteFilesRecursively(tmpDir2);
         }
         Instant endTime = Instant.now();
+        logger.finer("Exiting CreateImage call ");
         return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
@@ -148,11 +149,14 @@ public class CreateImage extends ImageOperation {
      * @throws Exception in case of error
      */
     private List<String> handleInstallerFiles(Path tmpDir) throws Exception {
+
+        logger.finer("Entering CreateImage.handleInstallerFiles: " + tmpDir.toAbsolutePath().toString());
         List<String> retVal = new LinkedList<>();
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         List<InstallerFile> requiredInstallers = gatherRequiredInstallers();
         for (InstallerFile eachInstaller : requiredInstallers) {
             String targetFilePath = eachInstaller.resolve(cacheStore);
+            logger.finer("Entering CreateImage.handleInstallerFiles targetFilePath: " + targetFilePath);
             File targetFile = new File(targetFilePath);
             try {
                 Path targetLink = Files.copy(Paths.get(targetFilePath), Paths.get(tmpDirPath, targetFile.getName()));
@@ -161,16 +165,19 @@ public class CreateImage extends ImageOperation {
                 ee.printStackTrace();
             }
         }
+        logger.finer("Exiting CreateImage.handleInstallerFiles: " );
         return retVal;
     }
 
     @Override
     List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
+        logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir.toAbsolutePath().toString());
         if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) == 0) {
             addOPatch1394ToImage(tmpDir);
         }
         //we need a local installerVersion variable for the command line Option. so propagate to super.
         super.installerVersion = installerVersion;
+        logger.finer("Exiting CreateImage.handlePatchFiles: ");
         return super.handlePatchFiles(tmpDir, tmpPatchesDir);
     }
 
@@ -184,6 +191,7 @@ public class CreateImage extends ImageOperation {
      * @throws IOException in case of error
      */
     private List<String> handleWDTArgsIfRequired(Path tmpDir) throws IOException {
+        logger.finer("Entering CreateImage.handleWDTArgsIfRequired: " + tmpDir.toAbsolutePath().toString());
         List<String> retVal = new LinkedList<>();
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         if (wdtModelPath != null) {
@@ -231,6 +239,7 @@ public class CreateImage extends ImageOperation {
                 throw new IOException("WDT model file " + wdtModelPath + " not found");
             }
         }
+        logger.finer("Exiting CreateImage.handleWDTArgsIfRequired: " );
         return retVal;
     }
 
@@ -242,6 +251,7 @@ public class CreateImage extends ImageOperation {
      * @throws IOException in case of error
      */
     private List<String> getWDTRequiredBuildArgs(Path wdtVariablesPath) throws IOException {
+        logger.finer("Entering CreateImage.getWDTRequiredBuildArgs: " + wdtVariablesPath.toAbsolutePath().toString());
         List<String> retVal = new LinkedList<>();
         Properties variableProps = new Properties();
         variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
@@ -253,6 +263,7 @@ public class CreateImage extends ImageOperation {
             retVal.add(Constants.BUILD_ARG);
             retVal.add(((String) x).toUpperCase() + "=" + variableProps.getProperty((String) x));
         });
+        logger.finer("Exiting CreateImage.getWDTRequiredBuildArgs: ");
         return retVal;
     }
 
@@ -264,6 +275,7 @@ public class CreateImage extends ImageOperation {
      * @throws Exception in case of error
      */
     private List<InstallerFile> gatherRequiredInstallers() throws Exception {
+        logger.finer("Entering CreateImage.gatherRequiredInstallers: ");
         List<InstallerFile> retVal = new LinkedList<>();
         if (wdtModelPath != null && Files.isRegularFile(wdtModelPath)) {
             InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
@@ -273,6 +285,7 @@ public class CreateImage extends ImageOperation {
         retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
                 userId, password));
         retVal.add(new InstallerFile(useCache, InstallerType.JDK, jdkVersion, userId, password));
+        logger.finer("Exiting CreateImage.gatherRequiredInstallers: ");
         return retVal;
     }
 
@@ -283,6 +296,7 @@ public class CreateImage extends ImageOperation {
      * @throws Exception in case of error
      */
     private void addWDTURL(String wdtKey) throws Exception {
+        logger.finer("Entering CreateImage.wdtKey: ");
         String wdtURLKey = wdtKey + "_url";
         if (cacheStore.getValueFromCache(wdtKey) == null) {
             if (useCache == CachePolicy.ALWAYS) {
@@ -298,6 +312,7 @@ public class CreateImage extends ImageOperation {
                 throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
             }
         }
+        logger.finer("Exiting CreateImage.wdtKey: ");
     }
 
     /**
