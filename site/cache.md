@@ -1,6 +1,6 @@
 # Cache
 
-The image tool maintains a local file cache for patches and installers.  The `cache` command can be used to manipulate 
+The Image Tool maintains a local file cache for patches and installers.  The `cache` command can be used to manipulate
 the local file cache. There are several subcommands of the cache feature:
 
 ```
@@ -61,4 +61,3 @@ Commands:
 
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
-
