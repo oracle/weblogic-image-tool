@@ -81,8 +81,9 @@ public class Utils {
                     Files.createFile(logFilePath);
                 } else {
                     if (Files.isDirectory(logFilePath)) {
+
                         if (defaultFileName == null || defaultFileName.isEmpty()) {
-                            defaultFileName = "tool.log";
+                            defaultFileName = "default.log";  // this should not happens unless the caller pass such val
                         }
                         logFilePath = Paths.get(logFilePath.toAbsolutePath().toString(), defaultFileName);
                         if (Files.exists(logFilePath)) {
