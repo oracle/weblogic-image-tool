@@ -1,7 +1,7 @@
 # Update Image
 
 Use the `update` command to apply patches to an existing WebLogic Docker image. The required options for the command
-are marked with asterisk (*). The password can be provided in one of the three ways:
+are marked with an asterisk (*). The password can be provided in one of the three ways:
 
 * Plain text
 * Environment variable
@@ -38,7 +38,7 @@ Update WebLogic docker image with selected patches
 
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-- Update an image named `sample:1.0` by applying the latest PSU and tag it as `sample:1.1`:
+- Update an image named `sample:1.0` by applying the latest PSU and tag it as `sample:1.1`.
     ```
     imagetool update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
     ```
@@ -51,4 +51,3 @@ Update WebLogic docker image with selected patches
 
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
-

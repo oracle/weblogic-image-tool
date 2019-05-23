@@ -48,7 +48,7 @@ Build WebLogic docker image
 
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-The commands below assume that all the required JDK, WLS or FMW (WebLogic infrastructure installers) have been downloaded
+The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure installers) have been downloaded
  to the cache directory. Use the [cache](cache.md) command to set it up.
 
 - Create an image named `sample:wls` with the WebLogic installer 12.2.1.3.0, server JDK 8u202, and latest PSU applied.
@@ -79,4 +79,3 @@ The commands below assume that all the required JDK, WLS or FMW (WebLogic infras
     ```
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
-
