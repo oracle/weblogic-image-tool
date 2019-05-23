@@ -48,9 +48,9 @@ public class UpdateImage extends ImageOperation {
 
     @Override
     public CommandResponse call() throws Exception {
+        logger.finer("Entering UpdateImage.call ");
         Instant startTime = Instant.now();
 
-        setupLogger(isCLIMode);
         Path tmpDir = null;
         Path tmpDir2 = null;
 
@@ -103,6 +103,7 @@ public class UpdateImage extends ImageOperation {
             baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
             if (latestPSU || !patches.isEmpty()) {
+                logger.finer("Verifying Patches to WLS ");
                 if (useCache == CachePolicy.ALWAYS) {
                     logger.warning("skipping patch conflict check. useCache set to " + useCache);
                 } else {
@@ -155,6 +156,8 @@ public class UpdateImage extends ImageOperation {
             Utils.deleteFilesRecursively(tmpDir2);
         }
         Instant endTime = Instant.now();
+        logger.finer("Exiting UpdateImage.call ");
+
         return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
