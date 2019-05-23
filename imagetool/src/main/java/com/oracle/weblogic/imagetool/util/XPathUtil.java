@@ -70,16 +70,18 @@ public class XPathUtil {
      *
      * @param xml dom document
      */
-    public static final void prettyPrint(Document xml) {
+    public static final String prettyPrint(Document xml) {
         try {
             Transformer tf = TransformerFactory.newInstance().newTransformer();
             tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             tf.setOutputProperty(OutputKeys.INDENT, "yes");
             Writer out = new StringWriter();
             tf.transform(new DOMSource(xml), new StreamResult(out));
-            logger.fine(out.toString());
+            return out.toString();
         } catch (TransformerException ex) {
-            logger.fine("Failed to print out xml document, probably not a valid document " + ex.getMessage());
+            String errMsg = "Failed to print out xml document, probably not a valid document " + ex.getMessage();
+            logger.fine(errMsg);
+            return errMsg;
         }
     }
 

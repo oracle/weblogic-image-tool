@@ -176,7 +176,7 @@ public class ARUUtil {
     public static ValidationResult validatePatches(String lsInventoryPath, List<String> patches, String category,
                                                    String version, String userId, String password) throws IOException {
 
-
+        logger.finer("Entering ARUUtil.validatePatches");
         ValidationResult validationResult = new ValidationResult();
         validationResult.setSuccess(true);
         validationResult.setResults(null);
@@ -230,8 +230,8 @@ public class ARUUtil {
         }
         payload.append("</conflict_check_request>");
 
+        logger.finer("Posting to ARU conflict check");
         Document result = HttpUtil.postCheckConflictRequest(Constants.CONFLICTCHECKER_URL, payload.toString(), userId, password);
-
         try {
             NodeList conflictSets = XPathUtil.applyXPathReturnNodeList(result, "/conflict_check/conflict_sets/set");
             if (conflictSets.getLength() > 0) {
@@ -269,6 +269,7 @@ public class ARUUtil {
             throw new IOException(xpe);
 
         }
+        logger.finer("Exiting ARUUtil.validatePatches");
         return validationResult;
     }
 

@@ -14,8 +14,6 @@ import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Unmatched;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,14 +24,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Unmatched;
 
 public abstract class ImageOperation implements Callable<CommandResponse> {
 
@@ -53,6 +51,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     @Override
     public CommandResponse call() throws Exception {
+        logger.finer("Entering ImageOperation call ");
         handleProxyUrls();
         password = handlePasswordOptions();
         // check user support credentials if useCache not set to always and we are applying any patches
@@ -64,6 +63,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
         }
+        logger.finer("Exiting ImageOperation call ");
         return new CommandResponse(0, null);
     }
 
@@ -87,6 +87,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * @throws Exception in case of error
      */
     List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
+        logger.finer("Entering ImageOperation.handlePatchFiles");
         List<String> retVal = new LinkedList<>();
         List<String> patchLocations = new LinkedList<>();
         String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
@@ -125,6 +126,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 filterStartTags.add("UPDATE_PATCH_");
             }
         }
+        logger.finer("Exiting ImageOperation.handlePatchFiles");
         return retVal;
     }
 
@@ -135,6 +137,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      */
     List<String> getInitialBuildCmd() {
 
+        logger.finer("Entering ImageOperation.getInitialBuildCmd");
         List<String> cmdBuilder = Stream.of("docker", "build",
                 "--force-rm", "--rm=true", "--no-cache").collect(Collectors.toList());
 
@@ -159,6 +162,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         if (dockerPath != null && Files.isExecutable(dockerPath)) {
             cmdBuilder.set(0, dockerPath.toAbsolutePath().toString());
         }
+        logger.finer("Exiting ImageOperation.getInitialBuildCmd");
         return cmdBuilder;
     }
 
@@ -177,17 +181,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             filterStartTags.add("CREATE_OPATCH_1394");
         } else if (this instanceof UpdateImage) {
             filterStartTags.add("UPDATE_OPATCH_1394");
-        }
-    }
-
-    /**
-     * Enable logging when using cli mode and required log file path is supplied
-     *
-     * @param isCLIMode whether tool is run in cli mode
-     */
-    void setupLogger(boolean isCLIMode) {
-        if (!isCLIMode) {
-            logger.setLevel(Level.OFF);
         }
     }
 
