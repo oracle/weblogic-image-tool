@@ -27,7 +27,7 @@ The Image Tool provides three functions within the main script:
 
 ## Setup
 
-- Build the project (`mvn clean package`) to generate artifacts `imagetool-0.1-SNAPSHOT.zip`.
+- Build the project (`mvn clean package`), to create the ZIP installer in ./imagetool/target.
 - Unzip the release ZIP file to a desired location.
 - If running an OS with bash, run `cd your_unzipped_location/bin` and `source setup.sh`.
 - On Windows, set up with `imagetool.cmd` or the `imagetool.bat` script:
