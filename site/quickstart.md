@@ -15,7 +15,7 @@ the file .metadata properties file and any downloaded patch will be stored in th
  can be changed by first running the cache setCacheDir command:
 
 ```aidl
-imagetool cache setCachedir /path/to/dir
+imagetool cache setCacheDir /path/to/dir
 ```
 
 After setting up the cache store, you can use the cache store to store installers and patches.
