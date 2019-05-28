@@ -11,7 +11,7 @@ After downloading the installers for WebLogic and Java, you will need to setup t
  
 For example, you have saved the installers in /home/aimeuser/oracle-installers as
 
-fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+fmw_12.2.1.3.0_wls_Disk1_1of1.zip&nbsp;
 jdk-8u202-linux-x64.tar.gz
  
  
@@ -55,12 +55,11 @@ In this use case, the image tool will:
 5. Optionally create a WebLogic domain with WebLogic Deploying Tool.
 
 
-Once the cache is setup, you can create the image using the [Create Tool commands](site/create-image.md), for example:
+Once the cache is setup, you can create the image using the [Create Tool commands](create-image.md), for example:
 
 ```aidl
 imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user username@mycompany.com --passwordEnv 
-MYPWD  
-[--httpProxyUrl http://company-proxy:80 --httpsProxyUrl http://company-proxy:80]
+MYPWD  [--httpProxyUrl http://company-proxy:80 --httpsProxyUrl http://company-proxy:80]
 ```
 
 where MYPWD is the password for the support user entitled to download patches from Oracle Support Site.
