@@ -65,9 +65,7 @@ public class CreateImage extends ImageOperation {
             }
 
             List<String> cmdBuilder = getInitialBuildCmd();
-            // create a tmp directory for user.
-            // using user home as base to avoid running out of space in tmp
-            tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.home")),
+            tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
                 "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
             logger.info("tmp directory used for build context: " + tmpDirPath);
@@ -82,9 +80,9 @@ public class CreateImage extends ImageOperation {
                 cmdBuilder.add(Constants.BUILD_ARG);
                 cmdBuilder.add("BASE_IMAGE=" + fromImage);
 
-                tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")),
+                tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
                     "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-                logger.info("tmp directory in user.home for docker run: " + tmpDir2);
+                logger.info("tmp directory for docker run: " + tmpDir2);
 
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
                         tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);

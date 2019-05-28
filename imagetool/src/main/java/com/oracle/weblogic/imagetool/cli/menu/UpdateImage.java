@@ -70,9 +70,9 @@ public class UpdateImage extends ImageOperation {
                 cmdBuilder.add("BASE_IMAGE=" + fromImage);
             }
 
-            tmpDir2 = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), "wlsimgbuilder_temp",
+            tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
                     PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-            logger.info("tmp directory in user.home for docker run: " + tmpDir2);
+            logger.info("tmp directory in for docker run: " + tmpDir2);
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
 
@@ -131,7 +131,7 @@ public class UpdateImage extends ImageOperation {
             }
 
             // create a tmp directory for user.
-            tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.home")), "wlsimgbuilder_temp",
+            tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
                     PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));

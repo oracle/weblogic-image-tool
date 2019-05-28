@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -535,5 +536,34 @@ public class Utils {
             return System.getenv(passwordEnv);
         }
         return null;
+    }
+
+    /**
+     * returns the working dir for docker build
+     * @return working directory
+     */
+    public static String getBuildWorkingDir() throws IOException {
+        String workingDir = System.getenv("WLSIMG_BLDDIR");
+        if (workingDir == null ) {
+            workingDir = System.getProperty("user.home");
+        }
+        Path path = Paths.get(workingDir);
+
+        boolean pathExists =
+            Files.exists(path,
+                new LinkOption[]{ LinkOption.NOFOLLOW_LINKS});
+
+        if (!pathExists) {
+            throw new IOException("Working Directory does not exists " + workingDir);
+        } else {
+            if (!Files.isDirectory(path)) {
+                throw new IOException("Working Directory specified is not a directory " + workingDir);
+            }
+            if (!Files.isWritable(path)) {
+                throw new IOException("Working Directory specified is not writable " + workingDir);
+            }
+        }
+
+        return workingDir;
     }
 }
