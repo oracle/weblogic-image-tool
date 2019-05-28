@@ -7,14 +7,25 @@ locations.  You have the option of specifying one or more WebLogic patches to be
 automatically download for you.
 
 After downloading the installers for WebLogic and Java, you will need to setup the cache tool to specify where the
- installers reside.  The cache entries acted as a lookup to where each entry is stored.
+ installers reside.  The cache items acted as a lookup to where each entry is stored and also storing any 
+ automactially downloaded WebLogic pataches.
+
+By default, it is stored in the user's $HOME/cache directory.  Under this directory, the lookup table is stored in 
+the file .metadata properties file and any downloaded patch will be stored in the same directory as well.  This behavior
+ can be changed by first running the cache setCacheDir command:
+
+```aidl
+imagetool cache setCachedir /path/to/dir
+```
+
+After setting up the cache store, you can use the cache store to store installers and patches.
  
 For example, you have saved the installers in /home/aimeuser/oracle-installers as
 
 fmw_12.2.1.3.0_wls_Disk1_1of1.zip\
 jdk-8u202-linux-x64.tar.gz
  
- 
+
 Using the Cache Tool to add the installers:
 
 ```aidl
