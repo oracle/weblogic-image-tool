@@ -58,8 +58,7 @@ In this use case, the image tool will:
 Once the cache is setup, you can create the image using the [Create Tool commands](create-image.md), for example:
 
 ```aidl
-imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user username@mycompany.com --passwordEnv 
-MYPWD  [--httpProxyUrl http://company-proxy:80 --httpsProxyUrl http://company-proxy:80]
+imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user username@mycompany.com --passwordEnv MYPWD  [--httpProxyUrl http://company-proxy:80 --httpsProxyUrl http://company-proxy:80]
 ```
 
 where MYPWD is the password for the support user entitled to download patches from Oracle Support Site.
@@ -120,9 +119,7 @@ imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/ai
 Once all the installers and patches are downloaded and setup in the cache, you can run the command to create the image:
 
 ```aidl
-imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache 
-always
-
+imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always
 ```
 
 Sometimes, a WebLogic patch may require patching the OPatch binaries before applying them.  We recommend 
