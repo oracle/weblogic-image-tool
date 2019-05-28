@@ -54,5 +54,8 @@ imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /tmp/fmw_12.
 imagetool create --tag sample:wls
 ```
 
+## Quick Start
+
+[Image Tool Quick Start Guide](site/quickstart.md)
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
