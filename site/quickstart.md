@@ -6,21 +6,21 @@ In all cases, you are required to download the Java and WebLogic installers manu
 locations.  You have the option of specifying one or more WebLogic patches to be applied and whether to let the tool to 
 automatically download for you.
 
-After downloading the installers for WebLogic and Java, you will need to setup the cache tool to specify where the
- installers reside.  The cache items acted as a lookup to where each entry is stored and also storing any 
- automactially downloaded WebLogic pataches.
+After downloading the installers for WebLogic and Java, you will need to setup the cache store to specify where the
+ installers reside.  The cache acted as a lookup where each entry is stored and also storing any 
+ automatically downloaded WebLogic patches.
 
 By default, it is stored in the user's $HOME/cache directory.  Under this directory, the lookup table is stored in 
-the file .metadata properties file and any downloaded patch will be stored in the same directory as well.  This behavior
- can be changed by first running the cache setCacheDir command:
+the file .metadata file and any downloaded patch will also be stored in the same directory as well.  This 
+default cache store can be changed by running the cache setCacheDir command before using the cache store:
 
 ```aidl
 imagetool cache setCacheDir /path/to/dir
 ```
 
-After setting up the cache store, you can use the cache store to store installers and patches.
+After setting up the cache store, you can use the cache store commands to store the installers and patches.
  
-For example, you have saved the installers in /home/aimeuser/oracle-installers as
+For example, you have saved the installers in /home/acmeuser/oracle-installers as
 
 fmw_12.2.1.3.0_wls_Disk1_1of1.zip\
 jdk-8u202-linux-x64.tar.gz
@@ -29,11 +29,11 @@ jdk-8u202-linux-x64.tar.gz
 Using the Cache Tool to add the installers:
 
 ```aidl
-imagetool cache addInstaller --type jdk --version 8u202 --path /home/aimeuser/oracle-installers/jdk-8u202-linux-x64.tar.gz
+imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/oracle-installers/jdk-8u202-linux-x64.tar.gz
 ```
 
 ```aidl
-imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/aimeuser/oracle-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/oracle-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 .tar.gz
 
 ```
@@ -49,9 +49,22 @@ imagetool cache listItems
 
 ```aidl
 Cache contents
-jdk_8u202=/home/aimeuser/oracle-installers/jdk-8u202-linux-x64.tar.gz
-wls_12.2.1.3.0=/home/aimeuser/oracle-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+jdk_8u202=/home/acmeuser/oracle-installers/jdk-8u202-linux-x64.tar.gz
+wls_12.2.1.3.0=/home/acmeuser/oracle-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 
+```
+
+Before the image tool invoke the docker build process, it also creates a temporary directory as the context root.  This temporary directory will be deleted upon successful completion. By default, it is created under the user's home 
+directory prefixed as 
+
+```
+wlsimgbuilder_tempXXXXXX 
+```
+where XXXXXX is a random number.  If you do not want to create the temporary directory under your home directory, you
+ can set the environment variable by:
+ 
+ ```aidl
+export WLSIMG_BLDDIR=/path/to/dir
 ```
 
 
@@ -78,11 +91,11 @@ You will see the docker command output as the tool runs:
 
 ```aidl
 [2019-05-28 10:37:02] [com.oracle.weblogic.imagetool.cli.menu.CreateImage] [INFO   ] tmp directory used for build 
-context: /home/aimeuser/wlsimgbuilder_temp8791654163579491583 
+context: /home/acmeuser/wlsimgbuilder_temp8791654163579491583 
 [2019-05-28 10:37:09] [com.oracle.weblogic.imagetool.cli.menu.CreateImage] [INFO   ] docker cmd = docker build 
 --force-rm --rm=true --no-cache --tag wls:12.2.1.3.0 --build-arg http_proxy=http://company-proxy.com:80 --build-arg 
 https_proxy=http://company-proxy.com:80 --build-arg WLS_PKG=fmw_12.2.1.3.0_wls_Disk1_1of1.zip --build-arg 
-JAVA_PKG=jdk-8u201-linux-x64.tar.gz --build-arg PATCHDIR=patches /home/aimeuser/wlsimgbuilder_temp8791654163579491583 
+JAVA_PKG=jdk-8u201-linux-x64.tar.gz --build-arg PATCHDIR=patches /home/acmeuser/wlsimgbuilder_temp8791654163579491583 
 Sending build context to Docker daemon   1.08GB
 
 Step 1/46 : ARG BASE_IMAGE=oraclelinux:7-slim
@@ -124,7 +137,7 @@ will need to download it from Oracle Support and set up the cache. For example, 
 27342434 for WebLogic version 12.2.1.3.0:
  
 ```aidl
-imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/aimeuser/oracle-patches/p27342434_122130_Generic.zip
+imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/oracle-patches/p27342434_122130_Generic.zip
 ```
 
 Once all the installers and patches are downloaded and setup in the cache, you can run the command to create the image:
@@ -139,7 +152,7 @@ downloading the latest OPatch's patch and setup the cache.  For example, the lat
 
 ```aidl
 imagetool cache addPatch --patchId 28186730 --version 13.9.4.0.0 --path 
-/home/aimeuser/oracle-patches/p28186730_139400_Generic.zip
+/home/acmeuser/oracle-patches/p28186730_139400_Generic.zip
 
 ```
 
@@ -152,6 +165,27 @@ Once the cache is setup, you can use the following command to update an image:
 
 ```aidl
 imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 --version 12.2.1.3.0 --useCache always
+```
+
+## Create an image with a WebLogic Domain using WebLogic Deploying Tool
+
+The image tool allows you to specify inputs for the [WebLogic Deploying Tool](https://github.com/oracle/weblogic-deploy-tooling) during image creation.  
+
+When you provide the appropriate inputs, a domain will be created in the resulting image. You can accomplish this by:
+
+Download the WebLogic Deploying Tool from (???), then add it to the cache store
+
+```aidl
+imagetool cache addInstaller --type wdt --version 2.2 --path /home/acmeuser/oracle-installers/weblogic-deploy.zip
+.tar.gz
+
+```
+
+Provide the command line options for WebLogic Deploying Tool
+
+```aidl
+imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache 
+always --wdtVersion 2.2 --wdtArchive /home/acmeuser/wdt/domain1.zip
 ```
 
 ## Cleanup
