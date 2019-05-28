@@ -11,7 +11,7 @@ After downloading the installers for WebLogic and Java, you will need to setup t
  
 For example, you have saved the installers in /home/aimeuser/oracle-installers as
 
-fmw_12.2.1.3.0_wls_Disk1_1of1.zip&nbsp;
+fmw_12.2.1.3.0_wls_Disk1_1of1.zip\
 jdk-8u202-linux-x64.tar.gz
  
  
