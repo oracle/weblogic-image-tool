@@ -38,8 +38,8 @@ public class WLSCommandLine {
                 new CommandLine.DefaultExceptionHandler<List<Object>>().useErr(err).useAnsi(ansi), args);
         @SuppressWarnings("unchecked") T result = results == null || results.isEmpty() ? null : (T) results.get(0);
         if (result == null) {
-            System.out.println("Invalid command specified");
             CommandLine.usage(callable, System.out);
+           // System.exit(-1);
         }
         return result;
     }
