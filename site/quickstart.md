@@ -1,8 +1,10 @@
 # Quick Start
 
-The Image Tool supports creating docker images with or without internet access. In all cases, you are responsible to 
-download the Java and WebLogic installers manually and setup the cache for the file locations.  You have the option 
-of specifying the WebLogic patches to be applied and whether to let the tool to automatically download for you.
+The Image Tool supports creating WebLogic docker images with or without internet access. 
+
+In all cases, you are required to download the Java and WebLogic installers manually and setup the cache for the file 
+locations.  You have the option of specifying one or more WebLogic patches to be applied and whether to let the tool to 
+automatically download for you.
 
 After downloading the installers for WebLogic and Java, you will need to setup the cache tool to specify where the
  installers reside.  The cache entries acted as a lookup to where each entry is stored.
@@ -46,14 +48,14 @@ wls_12.2.1.3.0=/home/aimeuser/oracle-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zi
 
 In this use case, the image tool will:
 
-1. Start with a base level operating system image (oracle-linux:7-slim).
+1. Start with a base level operating system image (default is oracle-linux:7-slim).
 2. Automatically update the image with the necessary packages for installing WebLogic.
 3. Install Java and WebLogic based on the provided installers.
 4. Optionally automatically download and apply patches specified.
 5. Optionally create a WebLogic domain with WebLogic Deploying Tool.
 
 
-Once the cache is setup, you can create the image using the Create Tool commands, for example:
+Once the cache is setup, you can create the image using the [Create Tool commands](site/create-image.md), for example:
 
 ```aidl
 imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user username@mycompany.com --passwordEnv 
