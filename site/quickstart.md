@@ -89,7 +89,7 @@ In this use case, the image tool will:
 2. Automatically update the image with the necessary packages for installing WebLogic.
 3. Install Java and WebLogic based on the provided installers.
 4. Optionally automatically download and apply patches specified.
-5. Optionally create a WebLogic domain with WebLogic Deploying Tool.
+5. Optionally create a WebLogic domain with WebLogic Deploy Tool.
 
 
 Once the cache is setup, you can create the image using the [Create Tool commands](create-image.md), for example:
@@ -178,27 +178,27 @@ Once the cache is setup, you can use the following command to update an image:
 imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 --version 12.2.1.3.0 --useCache always
 ```
 
-## Create an image with a WebLogic Domain using WebLogic Deploying Tool
+## Create an image with a WebLogic Domain using WebLogic Deploy Tool
 
-The image tool allows you to specify inputs for the [WebLogic Deploying Tool](https://github.com/oracle/weblogic-deploy-tooling) during image creation.  
+The image tool allows you to specify inputs for the [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling) during image creation.  
 
 When you provide the appropriate inputs, a domain will be created in the resulting image. You can accomplish this by:
 
-Download the [WebLogic Deploying Tool from](https://github.com/oracle/weblogic-deploy-tooling/releases), then add it to the cache store
+Download the [WebLogic Deploy Tool from](https://github.com/oracle/weblogic-deploy-tooling/releases), then add it to the cache store
 
 ```aidl
 imagetool cache addInstaller --type wdt --version 2.2 --path /home/acmeuser/cache/weblogic-deploy.zip
 ```
 
-Provide the command line options for WebLogic Deploying Tool
+Provide the command line options for WebLogic Deploy Tool
 
 ```aidl
 imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always --wdtVersion 2.2 --wdtArchive /home/acmeuser/wdt/domain1.zip
 ```
 
-The parameters mapping between Image Tool and WebLogic Deploying Tool are:
+The parameters mapping between Image Tool and WebLogic Deploy Tool are:
 
-| Image Tool         | WebLogic Deploying Tool |
+| Image Tool         | WebLogic Deploy Tool |
 |--------------------|-------------------------|
 | --wdtArchive       | -archive_file           |
 | --wdtModel         | -model_file             |
