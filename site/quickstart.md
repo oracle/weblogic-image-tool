@@ -177,15 +177,12 @@ Download the WebLogic Deploying Tool from (???), then add it to the cache store
 
 ```aidl
 imagetool cache addInstaller --type wdt --version 2.2 --path /home/acmeuser/oracle-installers/weblogic-deploy.zip
-.tar.gz
-
 ```
 
 Provide the command line options for WebLogic Deploying Tool
 
 ```aidl
-imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache 
-always --wdtVersion 2.2 --wdtArchive /home/acmeuser/wdt/domain1.zip
+imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always --wdtVersion 2.2 --wdtArchive /home/acmeuser/wdt/domain1.zip
 ```
 
 ## Cleanup
