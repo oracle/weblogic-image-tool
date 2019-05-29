@@ -73,12 +73,12 @@ RUN unzip $OTMPDIR/$WLS_PKG -d $OTMPDIR \
 
 # PLACEHOLDER FOR %%WDT_INSTALL%% #
 
-FROM ${BASE_IMAGE} as FINAL_BUILD
+FROM WDT_BUILD as FINAL_BUILD
 
 ARG JAVA_HOME=/u01/jdk
 ARG ORACLE_HOME=/u01/oracle
-ARG DOMAIN_NAME
 ARG DOMAIN_PARENT
+ARG DOMAIN_HOME
 ARG ADMIN_NAME
 ARG ADMIN_HOST
 ARG ADMIN_PORT
@@ -93,14 +93,13 @@ ENV ORACLE_HOME=${ORACLE_HOME} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
     WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
-    DOMAIN_NAME=${DOMAIN_NAME:-base_domain} \
     LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties
 
 # DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME
-ENV DOMAIN_HOME=${DOMAIN_PARENT}/${DOMAIN_NAME} \
+ENV DOMAIN_HOME=${DOMAIN_HOME} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
-    PATH=$PATH:${JAVA_HOME}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_PARENT}/${DOMAIN_NAME}:${DOMAIN_PARENT}/${DOMAIN_NAME}/bin:${ORACLE_HOME}
+    PATH=$PATH:${JAVA_HOME}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
 
 ## Create oracle user
 RUN if [ -z "$(getent group oracle)" ]; then hash groupadd &> /dev/null && groupadd -g 1000 oracle || exit -1 ; fi \

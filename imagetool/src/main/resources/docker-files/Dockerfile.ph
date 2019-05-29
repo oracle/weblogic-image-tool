@@ -13,7 +13,6 @@ ARG ORACLE_HOME=/u01/oracle
 ARG WDT_PKG
 ARG WDT_MODEL
 ARG DOMAIN_TYPE
-ARG DOMAIN_NAME
 ARG DOMAIN_PARENT
 ARG DOMAIN_HOME
 ARG WDT_ARCHIVE
@@ -26,7 +25,7 @@ ARG SCRIPTS_DIR
 ARG WDT_HOME
 ARG RCU_RUN_FLAG
 
-RUN echo ${WLS_PKG} ${JAVA_PKG} ${WDT_MODEL}
+#RUN echo ${WLS_PKG} ${JAVA_PKG} ${WDT_MODEL} ${OTMPDIR}
 
 ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     ADMIN_NAME=${ADMIN_NAME:-admin-server} \
@@ -38,29 +37,27 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_TYPE=${DOMAIN_TYPE:-WLS} \
     DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
-    DOMAIN_NAME=${DOMAIN_NAME:-base_domain} \
     WDT_ARCHIVE=${WDT_ARCHIVE:-} \
     WDT_VARIABLE=${WDT_VARIABLE:-} \
     LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
     WDT_HOME=${WDT_HOME:-/u01/app/weblogic-deploy} \
     SCRIPTS_DIR=${SCRIPTS_DIR:-scripts} \
+    OTMPDIR=${OTMPDIR:-/tmp/delme} \
     RCU_RUN_FLAG=${RCU_RUN_FLAG:-}
 
 # DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME
-ENV DOMAIN_HOME=${DOMAIN_PARENT}/${DOMAIN_NAME} \
-    SCRIPT_HOME=${DOMAIN_PARENT}/${DOMAIN_NAME} \
-    PATH=$PATH:${JAVA_HOME}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_PARENT}/${DOMAIN_NAME}:${DOMAIN_PARENT}/${DOMAIN_NAME}/bin:${ORACLE_HOME}
+ENV DOMAIN_HOME=${DOMAIN_HOME} \
+    PATH=$PATH:${JAVA_HOME}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
 
 COPY --from=JDK_BUILD --chown=oracle:oracle $JAVA_HOME $JAVA_HOME/
 COPY --from=WLS_BUILD --chown=oracle:oracle $ORACLE_HOME $ORACLE_HOME/
 COPY --chown=oracle:oracle ${WDT_PKG} ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE} ${OTMPDIR}/
-COPY --chown=oracle:oracle ${SCRIPTS_DIR}/*.sh ${SCRIPT_HOME}/
+#COPY --chown=oracle:oracle ${SCRIPTS_DIR}/*.sh ${SCRIPT_HOME}/
 
 USER oracle
 
 RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \
- && chmod a+x $SCRIPT_HOME/*.sh \
  && mkdir -p $(dirname ${DOMAIN_HOME}) \
  && mkdir -p ${PROPERTIES_FILE_DIR} \
  && if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file ${OTMPDIR}/${WDT_MODEL##*/}"; fi \
@@ -77,7 +74,6 @@ RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \
  $VARIABLE_OPT \
  $MODEL_OPT \
  $ARCHIVE_OPT \
- && chmod -R a+x ${DOMAIN_HOME}/bin/*.sh \
  && rm -rf ${JAVA_HOME} ${ORACLE_HOME} ${WDT_HOME} $OTMPDIR
 
 # END %%WDT_INSTALL%% #
@@ -85,7 +81,7 @@ RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \
 # START %%WDT_CMD%% #
 # Expose admin server, managed server port
 EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT
-CMD ["sh", "-c", "${DOMAIN_HOME}/startAdminServer.sh"]
+#CMD ["sh", "-c", "${DOMAIN_HOME}/startAdminServer.sh"]
 
 # END %%WDT_CMD%% #
 

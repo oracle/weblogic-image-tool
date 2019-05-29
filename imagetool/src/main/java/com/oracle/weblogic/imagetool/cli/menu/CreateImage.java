@@ -219,6 +219,12 @@ public class CreateImage extends ImageOperation {
                     retVal.add("WDT_ARCHIVE=" + tmpDir.relativize(targetLink).toString());
                 }
 
+                if (wdtDomainHome != null) {
+                    retVal.add(Constants.BUILD_ARG);
+                    retVal.add("DOMAIN_HOME=" + wdtDomainHome);
+                }
+
+
                 if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
                     targetLink = Files.copy(wdtVariablesPath, Paths.get(tmpDirPath,
                         wdtVariablesPath.getFileName().toString())
@@ -392,4 +398,14 @@ public class CreateImage extends ImageOperation {
             description = "whether to run rcu to create the required database schemas"
     )
     private boolean rcu_run_flag = false;
+
+
+    @Option(
+        names = {"--wdtDomainHome"},
+        description = "pass to the -domain_home for wdt",
+        defaultValue = "/u01/domains/base_domain"
+    )
+    private Path wdtDomainHome;
+
+
 }
