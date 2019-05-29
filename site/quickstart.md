@@ -196,6 +196,21 @@ Provide the command line options for WebLogic Deploying Tool
 imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always --wdtVersion 2.2 --wdtArchive /home/acmeuser/wdt/domain1.zip
 ```
 
+The parameters mapping between Image Tool and WebLogic Deploying Tool are:
+
+| Image Tool         | WebLogic Deploying Tool |
+|--------------------|-------------------------|
+| --wdtArchive       | -archive_file           |
+| --wdtModel         | -model_file             |
+| --wdtVariables     | -variable_file          |
+| --run_rcu          | -run_rcu                |
+
+
+The domain will be created under /u01/domains.  Note: if you are creating a JRF domain and wants the WebLogic 
+Deploying Tool to create the rcu schemas for you, you can specify the connection info in the model [Specifying RCU 
+information in the model](https://github.com/oracle/weblogic-deploy-tooling/blob/master/site/rcuinfo.md)
+
+
 ## Cleanup
 
 During image creation, it creates a temporary directory under the user's home prefixed as wlsimgbuilder_tempXXXXXX 
