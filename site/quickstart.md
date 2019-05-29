@@ -173,7 +173,7 @@ The image tool allows you to specify inputs for the [WebLogic Deploying Tool](ht
 
 When you provide the appropriate inputs, a domain will be created in the resulting image. You can accomplish this by:
 
-Download the WebLogic Deploying Tool from (???), then add it to the cache store
+Download the [WebLogic Deploying Tool from](https://github.com/oracle/weblogic-deploy-tooling/releases), then add it to the cache store
 
 ```aidl
 imagetool cache addInstaller --type wdt --version 2.2 --path /home/acmeuser/oracle-installers/weblogic-deploy.zip
