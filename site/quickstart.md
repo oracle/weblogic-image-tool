@@ -20,7 +20,7 @@ imagetool cache setCacheDir /path/to/dir
 
 After setting up the cache store, you can use the cache store commands to store the installers and patches.
  
-For example, you have saved the installers in /home/acmeuser/oracle-installers as
+For example, you have saved the installers in /home/acmeuser/cache as
 
 fmw_12.2.1.3.0_wls_Disk1_1of1.zip\
 jdk-8u202-linux-x64.tar.gz
@@ -29,11 +29,11 @@ jdk-8u202-linux-x64.tar.gz
 Using the Cache Tool to add the installers:
 
 ```aidl
-imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/oracle-installers/jdk-8u202-linux-x64.tar.gz
+imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/cache/jdk-8u202-linux-x64.tar.gz
 ```
 
 ```aidl
-imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/oracle-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/cache/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 .tar.gz
 
 ```
@@ -49,8 +49,8 @@ imagetool cache listItems
 
 ```aidl
 Cache contents
-jdk_8u202=/home/acmeuser/oracle-installers/jdk-8u202-linux-x64.tar.gz
-wls_12.2.1.3.0=/home/acmeuser/oracle-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+jdk_8u202=/home/acmeuser/cache/jdk-8u202-linux-x64.tar.gz
+wls_12.2.1.3.0=/home/acmeuser/cache/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 
 ```
 
@@ -137,7 +137,7 @@ will need to download it from Oracle Support and set up the cache. For example, 
 27342434 for WebLogic version 12.2.1.3.0:
  
 ```aidl
-imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/oracle-patches/p27342434_122130_Generic.zip
+imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip
 ```
 
 Once all the installers and patches are downloaded and setup in the cache, you can run the command to create the image:
@@ -151,9 +151,7 @@ downloading the latest OPatch's patch and setup the cache.  For example, the lat
 .4.0.0.  You can use this command to setup the cache after downloading from the Oracle Support.
 
 ```aidl
-imagetool cache addPatch --patchId 28186730 --version 13.9.4.0.0 --path 
-/home/acmeuser/oracle-patches/p28186730_139400_Generic.zip
-
+imagetool cache addPatch --patchId 28186730 --version 13.9.4.0.0 --path /home/acmeuser/cache/p28186730_139400_Generic.zip
 ```
 
 ## Patching an existing image
@@ -176,7 +174,7 @@ When you provide the appropriate inputs, a domain will be created in the resulti
 Download the [WebLogic Deploying Tool from](https://github.com/oracle/weblogic-deploy-tooling/releases), then add it to the cache store
 
 ```aidl
-imagetool cache addInstaller --type wdt --version 2.2 --path /home/acmeuser/oracle-installers/weblogic-deploy.zip
+imagetool cache addInstaller --type wdt --version 2.2 --path /home/acmeuser/cache/weblogic-deploy.zip
 ```
 
 Provide the command line options for WebLogic Deploying Tool
