@@ -67,6 +67,19 @@ where XXXXXX is a random number.  If you do not want to create the temporary dir
 export WLSIMG_BLDDIR=/path/to/dir
 ```
 
+The final image will have Java and WebLogic installed under /u01 and owned by oracle:oracle
+
+```aidl
+[oracle@c3fe8ee0167d oracle]$ ls -arlt /u01/
+total 20
+drwxr-xr-x  2 oracle oracle 4096 May 28 23:40 domains
+drwxr-xr-x  7 oracle oracle 4096 May 28 23:40 jdk
+drwxr-xr-x 11 oracle oracle 4096 May 28 23:40 oracle
+drwxr-xr-x  5 oracle oracle 4096 May 28 23:40 .
+drwxr-xr-x 18 root   root   4096 May 29 01:31 ..
+```
+
+
 
 ## Creating image with full internet access
 
