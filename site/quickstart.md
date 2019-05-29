@@ -211,6 +211,31 @@ Deploying Tool to create the rcu schemas for you, you can specify the connection
 information in the model](https://github.com/oracle/weblogic-deploy-tooling/blob/master/site/rcuinfo.md)
 
 
+## Using an argument file
+
+All arguments passed for the Image Tool can be saved in a file and passing the file as parameter. For example:
+
+Create a file called build_args:
+
+```aidl
+create
+--type wls
+--version 12.2.1.3.0
+--tag wls:122130
+--user acmeuser@mycompany.com
+--httpProxyUrl http://mycompany-proxy:80                       
+--httpsProxyUrl http://mycompany-proxy:80
+--passwordEnv MYPWD
+
+```
+
+and use it in the command line as:
+
+```aidl
+imagetool @/path/to/build_args
+```
+
+
 ## Cleanup
 
 During image creation, it creates a temporary directory under the user's home prefixed as wlsimgbuilder_tempXXXXXX 
