@@ -73,7 +73,7 @@ RUN unzip $OTMPDIR/$WLS_PKG -d $OTMPDIR \
 
 # PLACEHOLDER FOR %%WDT_INSTALL%% #
 
-FROM WDT_BUILD as FINAL_BUILD
+FROM ${BASE_IMAGE} as FINAL_BUILD
 
 ARG JAVA_HOME=/u01/jdk
 ARG ORACLE_HOME=/u01/oracle
@@ -109,6 +109,8 @@ RUN if [ -z "$(getent group oracle)" ]; then hash groupadd &> /dev/null && group
 
 COPY --from=JDK_BUILD --chown=oracle:oracle $JAVA_HOME $JAVA_HOME/
 COPY --from=WLS_BUILD --chown=oracle:oracle $ORACLE_HOME $ORACLE_HOME/
+COPY --from=WDT_BUILD --chown=oracle:oracle $DOMAIN_HOME $DOMAIN_HOME/
+
 # PLACEHOLDER FOR %%WDT_COPY_DOMAIN%% #
 
 USER oracle
