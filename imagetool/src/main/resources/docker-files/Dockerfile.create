@@ -66,7 +66,7 @@ USER oracle
 
 RUN unzip $OTMPDIR/$WLS_PKG -d $OTMPDIR \
  && $JAVA_HOME/bin/java -Xmx1024m -jar $OTMPDIR/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
-    -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -novalidation \
+    -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
 # PLACEHOLDER FOR %%CREATE_OPATCH_1394%% #
 # PLACEHOLDER FOR %%CREATE_PATCH_APPLY%% #
  && rm -rf $JAVA_HOME $OTMPDIR

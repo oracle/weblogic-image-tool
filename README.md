@@ -20,7 +20,7 @@ The Image Tool provides three functions within the main script:
 
 ## Prerequisites
 
-- Docker client and daemon on the build machine, with minimum Docker version 17.05+ to support multi-stage builds.
+- Docker client and daemon on the build machine, with minimum Docker version Docker 18.03.1.ce.
 - WebLogic Server and JDK installers from OTN / Oracle e-Delivery.
 - (For patches) Oracle support credentials.
 - Bash version 4.0 or higher to enable the `<tab>` command complete feature.

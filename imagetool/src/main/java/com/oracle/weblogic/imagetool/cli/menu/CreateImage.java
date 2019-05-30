@@ -289,7 +289,9 @@ public class CreateImage extends ImageOperation {
         retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
                 userId, password));
         retVal.add(new InstallerFile(useCache, InstallerType.JDK, jdkVersion, userId, password));
-        logger.finer("Exiting CreateImage.gatherRequiredInstallers: ");
+        logger.finer("Exiting CreateImage.gatherRequiredInstallers: "
+                + installerType.toString() + ":" + installerVersion + ", "
+                + InstallerType.JDK + ":" + jdkVersion);
         return retVal;
     }
 

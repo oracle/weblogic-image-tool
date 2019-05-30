@@ -32,7 +32,7 @@ public class WLSCommandLine {
         }
         cmd.setCaseInsensitiveEnumValuesAllowed(ignoreCaseForEnums);
         cmd.setToggleBooleanFlags(false);
-        cmd.setUnmatchedArgumentsAllowed(true);
+        cmd.setUnmatchedArgumentsAllowed(false);
         //cmd.registerConverter(CacheStore.class, x -> new CacheStoreFactory().getCacheStore(x));
         List<Object> results = cmd.parseWithHandlers(new CommandLine.RunLast().useOut(out).useAnsi(ansi),
                 new CommandLine.DefaultExceptionHandler<List<Object>>().useErr(err).useAnsi(ansi), args);

@@ -8,11 +8,14 @@ import com.oracle.weblogic.imagetool.api.FileResolver;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 
 /**
  * Base class to represent either an installer or a patch file
  */
 public abstract class AbstractFile implements FileResolver {
+
+    private final Logger logger = Logger.getLogger(AbstractFile.class.getName());
 
     protected String key;
     protected CachePolicy cachePolicy;
@@ -24,6 +27,7 @@ public abstract class AbstractFile implements FileResolver {
         this.cachePolicy = cachePolicy;
         this.userId = userId;
         this.password = password;
+        logger.finer("Exiting AbstractFile construction: key=" + key);
     }
 
     protected boolean isFileOnDisk(String filePath) {
