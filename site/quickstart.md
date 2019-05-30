@@ -242,6 +242,12 @@ imagetool @/path/to/build_args
 During image creation, it creates a temporary directory under the user's home prefixed as wlsimgbuilder_tempXXXXXX 
 where XXXXXX is a random number.  This directory will be deleted under normal circumstances, however if you aborted the process, the directory needs to
  be cleaned up manually.
+ 
+If you see dangling images after the build. You can use the following commands to remove them:
+
+```aidl
+docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+```
 
 ## Logging
 
