@@ -1,26 +1,29 @@
 # Quick Start
 
-The Image Tool supports creating WebLogic docker images with or without internet access. 
+The Image Tool supports creating WebLogic docker image, apply WebLogic patches, and creating WebLogic domains.  It 
+can be used with or without internet access.  
 
-In all cases, you are required to download the Java and WebLogic installers manually and setup the cache for the file 
-locations.  You have the option of specifying one or more WebLogic patches to be applied and whether to let the tool to 
-automatically download for you.
+Before you use the tool, you can customize the tool's cache store, the cache store is used to lookup where the Java, 
+WebLogic installers and WebLogic patches reside in the local file system.
 
-After downloading the installers for WebLogic and Java, you will need to setup the cache store to specify where the
- installers reside.  The cache acted as a lookup where each entry is stored and also storing any 
- automatically downloaded WebLogic patches.
+By default, it is stored in the user's ```$HOME/cache``` directory.  Under this directory, the lookup information is 
+stored in the file ```.metadata```.  All automatically downloaded patches also reside in this directory.  
 
-By default, it is stored in the user's $HOME/cache directory.  Under this directory, the lookup table is stored in 
-the file .metadata file and any downloaded patch will also be stored in the same directory as well.  This 
-default cache store can be changed by running the cache setCacheDir command before using the cache store:
+This default cache store location can be changed by running the ```setCacheDir``` command before using the cache store:
 
-```aidl
+```bash
 imagetool cache setCacheDir /path/to/dir
 ```
 
-After setting up the cache store, you can use the cache store commands to store the installers and patches.
+The high level steps for creating an image are:
+
+1. Download the Java and WebLogic installers from Oracle Software Delivery Cloud.
+2. Add the installers to the cache store.
+3. Optionally download any WebLogic patches and add it to the cache store
+4. Run the ```imagetool``` command to create or update an image
+
  
-For example, you have saved the installers in /home/acmeuser/cache as
+For example, you have saved the installers in /home/acmeuser/wls-installers as
 
 fmw_12.2.1.3.0_wls_Disk1_1of1.zip\
 jdk-8u202-linux-x64.tar.gz
@@ -28,48 +31,46 @@ jdk-8u202-linux-x64.tar.gz
 
 Using the Cache Tool to add the installers:
 
-```aidl
-imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/cache/jdk-8u202-linux-x64.tar.gz
+```bash
+imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
 ```
 
-```aidl
-imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/cache/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+```bash
+imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 .tar.gz
 
 ```
 
-Note:  the value of version must be a valid WebLogic version number. The version number is used to download the 
-correct version of any patches based on this number.  The format of the version is a 5 digits tuple separated by period.
+Note:  The value of version must be a valid WebLogic version number. This version number is used to verify and 
+find the correct patch file to download from Oracle Support.  The format of the version is a 5 digits tuple separated
+ by period.  For example,  ```12.2.1.3.0``` ```12.1.3.0.0```
 
 You can verify the cache entries by:
 
-```aidl
+```bash
 imagetool cache listItems
 ```
 
-```aidl
+```bash
 Cache contents
-jdk_8u202=/home/acmeuser/cache/jdk-8u202-linux-x64.tar.gz
-wls_12.2.1.3.0=/home/acmeuser/cache/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+jdk_8u202=/home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
+wls_12.2.1.3.0=/home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 
 ```
 
-Before the image tool invoke the docker build process, it also creates a temporary directory as the context root.  This temporary directory will be deleted upon successful completion. By default, it is created under the user's home 
-directory prefixed as 
-
-```
-wlsimgbuilder_tempXXXXXX 
-```
-where XXXXXX is a random number.  If you do not want to create the temporary directory under your home directory, you
- can set the environment variable by:
+During the image creation process, the tool creates a temporary directory prefixed by ```wlsimgbuilder_temp``` as 
+the context root for ```docker build``` command.  This temporary directory will be deleted upon successful completion.
  
- ```aidl
+By default, it is created under the user's home directory. If you do not want to create the temporary directory under
+ the home directory, you can set the environment variable first by:
+ 
+ ```bash
 export WLSIMG_BLDDIR=/path/to/dir
 ```
 
-The final image will have Java and WebLogic installed under /u01 and owned by oracle:oracle
+The final image has the following structure:
 
-```aidl
+```bash
 [oracle@c3fe8ee0167d oracle]$ ls -arlt /u01/
 total 20
 drwxr-xr-x  2 oracle oracle 4096 May 28 23:40 domains
@@ -80,29 +81,29 @@ drwxr-xr-x 18 root   root   4096 May 29 01:31 ..
 ```
 
 
-
 ## Creating image with full internet access
 
 In this use case, the image tool will:
 
-1. Start with a base level operating system image (default is oracle-linux:7-slim).
+1. Start with a base level operating system image (oracle-linux:7-slim).
 2. Automatically update the image with the necessary packages for installing WebLogic.
 3. Install Java and WebLogic based on the provided installers.
 4. Optionally automatically download and apply patches specified.
 5. Optionally create a WebLogic domain with WebLogic Deploy Tool.
 
 
-Once the cache is setup, you can create the image using the [Create Tool commands](create-image.md), for example:
+After you have downloaded the Java and WebLogic installers described before, you can create the image using the [Create 
+Tool commands](create-image.md). For example:
 
-```aidl
+```bash
 imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user username@mycompany.com --passwordEnv MYPWD  [--httpProxyUrl http://company-proxy:80 --httpsProxyUrl http://company-proxy:80]
 ```
 
-where MYPWD is the password for the support user entitled to download patches from Oracle Support Site.
+where ```--user --passwordEnv``` provides the user credential who is entitled to download patches from Oracle Support
 
 You will see the docker command output as the tool runs:
 
-```aidl
+```bash
 [2019-05-28 10:37:02] [com.oracle.weblogic.imagetool.cli.menu.CreateImage] [INFO   ] tmp directory used for build 
 context: /home/acmeuser/wlsimgbuilder_temp8791654163579491583 
 [2019-05-28 10:37:09] [com.oracle.weblogic.imagetool.cli.menu.CreateImage] [INFO   ] docker cmd = docker build 
@@ -121,13 +122,11 @@ Successfully tagged wls:12.2.1.3.0
 
 Once the image is created, you can use any docker commands on the image, for example:
 
-```aidl
+```bash
 docker images
 
 REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE
 wls                 12.2.1.3.0          18d366fc3da4        About a minute ago   1.41GB
-<none>              <none>              7289d2dd6a03        2 minutes ago        2.31GB
-<none>              <none>              22e4c9ce822b        5 minutes ago        717MB
 oraclelinux         7-slim              f7512ac13c1b        6 weeks ago          118MB
 
 ```
@@ -136,37 +135,37 @@ oraclelinux         7-slim              f7512ac13c1b        6 weeks ago         
 
 
 In this use case, since there is no internet access.  You will be responsible for downloading all the installers and 
-patches, setup the cache as well as providing a base image that has the following packages installed.
+patches, plus setting up the cache.  You also have to provide a base operating system image that has the following packages 
+installed.
 
 
-```aidl
+```bash
 gzip 
 tar 
 unzip
 ```
 
-First, you download the installers and setup the cache as described earlier.  Then, for each WebLogic patches, you 
-will need to download it from Oracle Support and set up the cache. For example, if you downloaded patch number 
+For each WebLogic patches, you will need to download it from Oracle Support and set up the cache. For example, if you downloaded patch number 
 27342434 for WebLogic version 12.2.1.3.0:
  
-```aidl
+```bash
 imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic .zip -user username@mycompany.com --passwordEnv MYPWD
 ```
 
-You need to provide the credential in the command line, it verifies the MD5 on the file against the meta data on 
-Oracle Support.
+You need to provide the credential in the command line, it verifies the MD5 on the file system against the meta data on 
+Oracle Support for this patch number
 
-Once all the installers and patches are downloaded and setup in the cache, you can run the command to create the image:
+Then, you can run the command to create the image:
 
-```aidl
+```bash
 imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always
 ```
 
 Sometimes, a WebLogic patch may require patching the OPatch binaries before applying them.  We recommend 
 downloading the latest OPatch's patch and setup the cache.  For example, the latest OPatch's patch is 28186730, 13.9
-.4.0.0.  You can use this command to setup the cache after downloading from the Oracle Support.
+.4.0.0.  You can use this command to setup the cache after downloading from Oracle Support.
 
-```aidl
+```bash
 imagetool cache addPatch --patchId 28186730 --version 13.9.4.0.0 --path /home/acmeuser/cache/p28186730_139400_Generic.zip
 ```
 
@@ -177,25 +176,25 @@ have the option to download automatically by the tool or manual downloading the 
 
 Once the cache is setup, you can use the following command to update an image:
 
-```aidl
+```bash
 imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 --version 12.2.1.3.0 --useCache always
 ```
 
 ## Create an image with a WebLogic Domain using WebLogic Deploy Tool
 
-The image tool allows you to specify inputs for the [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling) during image creation.  
+The image tool allows create a customized WebLogic domain using [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling).  
 
-When you provide the appropriate inputs, a domain will be created in the resulting image. You can accomplish this by:
+You can accomplish this by:
 
 Download the [WebLogic Deploy Tool from](https://github.com/oracle/weblogic-deploy-tooling/releases), then add it to the cache store
 
-```aidl
+```bash
 imagetool cache addInstaller --type wdt --version 2.2 --path /home/acmeuser/cache/weblogic-deploy.zip
 ```
 
 Provide the command line options for WebLogic Deploy Tool
 
-```aidl
+```bash
 imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always --wdtVersion 2.2 --wdtArchive /home/acmeuser/wdt/domain1.zip --wdtDomainHome /u01/domains/simple_domain
 ```
 
@@ -210,18 +209,19 @@ The parameters mapping between Image Tool and WebLogic Deploy Tool are:
 | --wdtDomainHome    | -domain_home            |
 
 
-The domain will be created under /u01/domains/base_domain if you do not specify --wdtDomainHome  .  Note: if you are 
-creating a JRF domain and wants WebLogic Deploying Tool to create the rcu schemas for you, you can specify the connection info in the model [Specifying RCU 
+The domain will be created under ```/u01/domains/base_domain``` if you do not specify ```--wdtDomainHome```.  
+
+Note: if you are creating a JRF domain and wants WebLogic Deploying Tool to create the rcu schemas for you, you can specify the connection info in the model [Specifying RCU 
 information in the model](https://github.com/oracle/weblogic-deploy-tooling/blob/master/site/rcuinfo.md)
 
 
 ## Using an argument file
 
-All arguments passed for the Image Tool can be saved in a file and passing the file as parameter. For example:
+All arguments passed for the Image Tool can be saved in a file and using the file as parameter. For example:
 
 Create a file called build_args:
 
-```aidl
+```bash
 create
 --type wls
 --version 12.2.1.3.0
@@ -235,27 +235,27 @@ create
 
 and use it in the command line as:
 
-```aidl
+```bash
 imagetool @/path/to/build_args
 ```
 
 
 ## Cleanup
 
-During image creation, it creates a temporary directory under the user's home prefixed as wlsimgbuilder_tempXXXXXX 
-where XXXXXX is a random number.  This directory will be deleted under normal circumstances, however if you aborted the process, the directory needs to
- be cleaned up manually.
+As described in the begging, the image tool creates a temporary directory prefixed by ```wlsimgbuilder_temp``` 
+every time it runs.  This directory will be deleted under normal circumstances, however if the process is aborted, 
+the directory needs to be deleted manually.
  
 If you see dangling images after the build. You can use the following commands to remove them:
 
-```aidl
+```bash
 docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
 ```
 
 ## Logging
 
 In a rare circumstance, it may be helpful to turn on debugging to reveal more information.  The tool use the standard
-logging.properties file under the bin directory. 
+logging.properties file under the tool's ```bin``` directory. 
 
 
 ## Copyright
