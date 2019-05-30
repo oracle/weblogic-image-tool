@@ -153,6 +153,9 @@ will need to download it from Oracle Support and set up the cache. For example, 
 imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic .zip -user username@mycompany.com --passwordEnv MYPWD
 ```
 
+You need to provide the credential in the command line, it verifies the MD5 on the file against the meta data on 
+Oracle Support.
+
 Once all the installers and patches are downloaded and setup in the cache, you can run the command to create the image:
 
 ```aidl
