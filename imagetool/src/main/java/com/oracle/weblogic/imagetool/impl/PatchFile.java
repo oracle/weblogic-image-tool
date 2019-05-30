@@ -23,7 +23,7 @@ public class PatchFile extends AbstractFile {
     private final Logger logger = Logger.getLogger(PatchFile.class.getName());
 
     public PatchFile(CachePolicy cachePolicy, String category, String version, String patchId, String userId, String password) {
-        super(null, cachePolicy, userId, password);
+        super(patchId, version, cachePolicy, userId, password);
         this.category = category;
         this.version = version;
         this.patchId = patchId;
@@ -43,8 +43,7 @@ public class PatchFile extends AbstractFile {
                 }
             }
         }
-        key = patchId + CacheStore.CACHE_KEY_SEPARATOR + version;
-        String filePath = cacheStore.getValueFromCache(key);
+        String filePath = cacheStore.getValueFromCache(getKey());
         boolean fileExists = isFileOnDisk(filePath);
         switch (cachePolicy) {
             case ALWAYS:
@@ -68,9 +67,10 @@ public class PatchFile extends AbstractFile {
         // try downloading it
         List<String> patches = ARUUtil.getPatchesFor(category, version, Collections.singletonList(patchId),
                 userId, password, cacheStore.getCacheDir());
+        String patchKey = getKey();
         // we ignore the release number coming from ARUUtil patchId_releaseNumber=/path/to/patch.zip
-        patches.forEach(x -> cacheStore.addToCache(key, x.substring(x.indexOf('=') + 1)));
-        String filePath = cacheStore.getValueFromCache(key);
+        patches.forEach(x -> cacheStore.addToCache(patchKey, x.substring(x.indexOf('=') + 1)));
+        String filePath = cacheStore.getValueFromCache(patchKey);
         if (!isFileOnDisk(filePath)) {
             throw new IOException(String.format("Failed to find patch %s for product category %s, version %s",
                     patchId, category, version));
