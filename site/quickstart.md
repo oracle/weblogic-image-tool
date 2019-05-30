@@ -150,7 +150,7 @@ will need to download it from Oracle Support and set up the cache. For example, 
 27342434 for WebLogic version 12.2.1.3.0:
  
 ```aidl
-imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip
+imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic .zip -user username@mycompany.com --passwordEnv MYPWD
 ```
 
 Once all the installers and patches are downloaded and setup in the cache, you can run the command to create the image:
