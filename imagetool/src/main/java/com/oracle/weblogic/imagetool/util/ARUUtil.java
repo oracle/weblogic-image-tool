@@ -396,7 +396,7 @@ public class ARUUtil {
         if ("wls".equalsIgnoreCase(category)) {
             url = String.format(Constants.PATCH_SEARCH_URL, Constants.WLS_PROD_ID, bugNumber, releaseNumber);
         } else if ("opatch".equalsIgnoreCase(category)) {
-            url = String.format(Constants.PATCH_SEARCH_URL, Constants.OPATCH_PROD_ID, bugNumber, releaseNumber);
+            url = String.format(Constants.OPATCH_BUG_URL, bugNumber);
         } else {
             url = String.format(Constants.PATCH_SEARCH_URL, Constants.FMW_PROD_ID, bugNumber, releaseNumber);
         }
