@@ -88,9 +88,19 @@ public class UpdateImage extends ImageOperation {
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
-            opatch_1394_required = (latestPSU || !patches.isEmpty()) &&
+
+            // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
+
+            if (useCache == CachePolicy.ALWAYS) {
+                opatch_1394_required = (latestPSU || !patches.isEmpty()) &&
+                    (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0);
+            } else {
+                String opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
+                opatch_1394_required = (latestPSU || !patches.isEmpty()) &&
                     (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0 &&
-                            Utils.compareVersions(opatchVersion, "13.9.4.0.0") < 0);
+                        Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
+            }
+
 
             //Do not update or install packages in offline only mode
             if (useCache != CachePolicy.ALWAYS) {
@@ -164,7 +174,7 @@ public class UpdateImage extends ImageOperation {
     @Override
     List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
         if (opatch_1394_required) {
-            addOPatch1394ToImage(tmpDir);
+            addOPatch1394ToImage(tmpDir, opatchBugNumber);
         }
         return super.handlePatchFiles(tmpDir, tmpPatchesDir);
     }
@@ -175,6 +185,13 @@ public class UpdateImage extends ImageOperation {
             required = true
     )
     private String fromImage;
+
+    @Option(
+        names = {"--opatchBugNumber"},
+        description = "use this opatch patch bug number",
+        defaultValue = "28186730"
+    )
+    private String opatchBugNumber;
 
     private boolean opatch_1394_required = false;
 }

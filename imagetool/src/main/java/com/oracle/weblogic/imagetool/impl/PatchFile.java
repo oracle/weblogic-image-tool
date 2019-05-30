@@ -44,9 +44,6 @@ public class PatchFile extends AbstractFile {
             }
         }
         key = patchId + CacheStore.CACHE_KEY_SEPARATOR + version;
-        if (category.equals("opatch")) {
-            key = "opatch_" + key;
-        }
         String filePath = cacheStore.getValueFromCache(key);
         boolean fileExists = isFileOnDisk(filePath);
         switch (cachePolicy) {
@@ -72,9 +69,6 @@ public class PatchFile extends AbstractFile {
         List<String> patches = ARUUtil.getPatchesFor(category, version, Collections.singletonList(patchId),
                 userId, password, cacheStore.getCacheDir());
         // we ignore the release number coming from ARUUtil patchId_releaseNumber=/path/to/patch.zip
-        if (category.equals("opatch")) {
-
-        }
         patches.forEach(x -> cacheStore.addToCache(key, x.substring(x.indexOf('=') + 1)));
         String filePath = cacheStore.getValueFromCache(key);
         if (!isFileOnDisk(filePath)) {

@@ -174,11 +174,11 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     void addOPatch1394ToImage(Path tmpDir, String opatchBugNumber) throws Exception {
-        // opatch needs the key to precede by opatch_ hopefully they are unique number
-        // use the cache store to find by starts with opatch_bugnumber
-        // and parse to figure out the version and id
-        
-        String filePath = new PatchFile(useCache, "opatch", "13.9.4.0.0", "28186730", userId, password).resolve(cacheStore);
+        // opatch patch now is in the format #####_opatch in the cache store
+        //
+
+        String filePath =
+            new PatchFile(useCache, "opatch", "opatch", opatchBugNumber, userId, password).resolve(cacheStore);
         Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
         filterStartTags.add("OPATCH_1394");
         if (this instanceof CreateImage) {

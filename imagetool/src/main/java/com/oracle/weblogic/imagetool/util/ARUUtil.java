@@ -299,6 +299,31 @@ public class ARUUtil {
         return getSearchResult(HttpUtil.getXMLContent(url, userId, password));
     }
 
+    /**
+     * Return the version of the opatch patch
+     * @param bugNumber opatch bug number
+     * @param userId  user for support
+     * @param password password for support
+     * @return version name of the this opatch patch
+     * @throws IOException
+     */
+    public static String getOPatchVersionByBugNumber(String bugNumber, String userId,
+        String password) throws IOException {
+
+        try {
+            String url = String.format(Constants.OPATCH_BUG_URL, bugNumber);
+            Document allPatches = HttpUtil.getXMLContent(url, userId, password);
+            String version = XPathUtil.applyXPathReturnString(allPatches, "string(/results/patch[1]/release"
+                + "/@name)");
+            return version;
+        } catch (XPathExpressionException xe) {
+            throw new IOException(xe.getMessage());
+        }
+
+    }
+
+
+
     private static SearchResult getSearchResult(Document result) throws IOException {
         SearchResult returnResult = new SearchResult();
         returnResult.setSuccess(true);
@@ -391,7 +416,10 @@ public class ARUUtil {
             throws
             IOException {
 
-        String releaseNumber = getReleaseNumber(category, version, userId, password);
+        String releaseNumber = "";
+        if (!category.equals("opatch")) {
+            releaseNumber = getReleaseNumber(category, version, userId, password);
+        }
         String url;
         if ("wls".equalsIgnoreCase(category)) {
             url = String.format(Constants.PATCH_SEARCH_URL, Constants.WLS_PROD_ID, bugNumber, releaseNumber);
