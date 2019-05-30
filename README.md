@@ -30,8 +30,7 @@ The Image Tool provides three functions within the main script:
 - Build the project (`mvn clean package`), to create the ZIP installer in ./imagetool/target.
 - Unzip the release ZIP file to a desired location.
 - `cd your_unzipped_location/bin` and `source setup.sh`.
-- After completing the [Setup](#Setup) steps, execute `imagetool help` to show the help screen.
-- You can execute the JAR directly using the command `java -cp "your_unzipped_folder/lib" com.oracle.weblogic.imagetool.cli.CLIDriver help`.
+- Run `imagetool help` to show the help screen.
 
 ## Quick Start
 
