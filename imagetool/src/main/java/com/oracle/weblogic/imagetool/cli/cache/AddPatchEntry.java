@@ -5,6 +5,7 @@
 package com.oracle.weblogic.imagetool.cli.cache;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
@@ -21,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Logger;
 
 @Command(
         name = "addPatch",
@@ -29,7 +31,7 @@ import java.nio.file.Path;
 )
 public class AddPatchEntry extends CacheOperation {
 
-    String password;
+    private final Logger logger = Logger.getLogger(AddPatchEntry.class.getName());
 
     public AddPatchEntry() {
     }
@@ -40,40 +42,77 @@ public class AddPatchEntry extends CacheOperation {
 
     @Override
     public CommandResponse call() throws Exception {
-        password = handlePasswordOptions();
+        String password = handlePasswordOptions();
+
         if (patchId != null && !patchId.isEmpty()
-                && userId != null && !userId.isEmpty()
-                && password != null && !password.isEmpty()
-                && location != null && Files.exists(location) && Files.isRegularFile(location)) {
+                && location != null && Files.exists(location)
+                && Files.isRegularFile(location)) {
+
             String patchNumber;
             if (patchId.matches(Constants.PATCH_ID_REGEX)) {
                 patchNumber = patchId.substring(1);
             } else {
                 return new CommandResponse(-1, "Invalid patch id format: " + patchId);
             }
-            SearchResult result = ARUUtil.getPatchDetail(type.toString(), version, patchNumber, userId, password);
-            if (result.isSuccess()) {
-                Document document = result.getResults();
-                String patchDigest = XPathUtil.applyXPathReturnString(document, "string"
-                        + "(/results/patch[1]/files/file/digest[@type='SHA-256']/text())");
-                String localDigest = DigestUtils.sha256Hex(new FileInputStream(location.toFile()));
-
-                if (localDigest.equalsIgnoreCase(patchDigest)) {
-                    String releaseNumber = XPathUtil.applyXPathReturnString(document,
-                            "string(/results/patch[1]/release/@id)");
-                    String key = patchNumber + CacheStore.CACHE_KEY_SEPARATOR + releaseNumber;
-                    cacheStore.addToCache(key, location.toAbsolutePath().toString());
-                    return new CommandResponse(0, String.format(
-                            "Added Patch entry %s=%s for %s", key, location.toAbsolutePath(), type));
-                } else {
-                    return new CommandResponse(-1, String.format(
-                            "Local file sha-256 digest %s != patch digest %s", localDigest, patchDigest));
-                }
+            if (userId != null && !userId.isEmpty() && password != null && !password.isEmpty() ) {
+                return validateAndAddToCache(patchNumber, password);
+            } else {
+                logger.info("Skipping patch validation, username and password were not provided");
+                return addToCache(patchNumber);
             }
-        } else {
-            return new CommandResponse(-1, "Invalid arguments");
         }
-        return null;
+
+        String msg = "Invalid arguments";
+        if (patchId == null || patchId.isEmpty()) {
+            msg += " : --patchId was not supplied";
+        }
+        if (location == null || !Files.exists(location) || !Files.isRegularFile(location)) {
+            msg += " : --path is invalid";
+        }
+
+        return new CommandResponse(-1, msg);
+    }
+
+    /**
+     * Validate local patch file's digest against the digest stored in ARU.
+     * @param patchNumber the ARU patch number without the 'p'
+     * @param password the password to be used for the ARU query (Oracle Support credential)
+     * @return true if the local file digest matches the digest stored in Oracle ARU
+     * @throws Exception if the ARU call to get patch details failed
+     */
+    private CommandResponse validateAndAddToCache(String patchNumber, String password) throws Exception {
+        boolean matches = false;
+
+        SearchResult searchResult = ARUUtil.getPatchDetail(type.toString(), version, patchNumber, userId, password);
+
+        if (searchResult.isSuccess()) {
+            Document document = searchResult.getResults();
+            String patchDigest = XPathUtil.applyXPathReturnString(document, "string"
+                    + "(/results/patch[1]/files/file/digest[@type='SHA-256']/text())");
+            String localDigest = DigestUtils.sha256Hex(new FileInputStream(location.toFile()));
+
+            if (localDigest.equalsIgnoreCase(patchDigest)) {
+                return addToCache(patchNumber);
+            } else {
+                return new CommandResponse(-1, String.format(
+                        "Local file sha-256 digest %s != patch digest %s", localDigest, patchDigest));
+            }
+        }
+
+        return new CommandResponse(-1, String.format("Unable to find patchId %s on Oracle Support", patchId));
+    }
+
+    /**
+     * Add patch to the cache.
+     * @param patchNumber the patchId (minus the 'p') of the patch to add
+     * @return CLI command response
+     */
+    private CommandResponse addToCache(String patchNumber) {
+        String key = AbstractFile.generateKey(patchNumber, version);
+        cacheStore.addToCache(key, location.toAbsolutePath().toString());
+        String msg = String.format("Added Patch entry %s=%s for %s", key, location.toAbsolutePath(), type);
+        logger.info(msg);
+        return new CommandResponse(0, msg);
     }
 
     /**
@@ -119,7 +158,6 @@ public class AddPatchEntry extends CacheOperation {
     @Option(
             names = {"--user"},
             paramLabel = "<support email>",
-            required = true,
             description = "Oracle Support email id"
     )
     private String userId;
