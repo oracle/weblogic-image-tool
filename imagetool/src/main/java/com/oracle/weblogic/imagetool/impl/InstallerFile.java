@@ -26,7 +26,7 @@ public class InstallerFile extends AbstractFile {
     private final Logger logger = Logger.getLogger(InstallerFile.class.getName());
 
     public InstallerFile(CachePolicy cachePolicy, InstallerType type, String version, String userId, String password) {
-        super(type.toString() + CacheStore.CACHE_KEY_SEPARATOR + version, cachePolicy, userId, password);
+        super(type.toString(), version, cachePolicy, userId, password);
         this.type = type;
     }
 
@@ -36,11 +36,11 @@ public class InstallerFile extends AbstractFile {
     @Override
     public String resolve(CacheStore cacheStore) throws Exception {
         // check entry exists in cache
-        String filePath = cacheStore.getValueFromCache(key);
+        String filePath = cacheStore.getValueFromCache(getKey());
         switch (cachePolicy) {
             case ALWAYS:
                 if (!isFileOnDisk(filePath)) {
-                    throw new Exception("CachePolicy prohibits download. Please add cache entry for key: " + key);
+                    throw new Exception("CachePolicy prohibits download. Please add cache entry for key: " + getKey());
                 }
                 break;
             case FIRST:
@@ -56,6 +56,7 @@ public class InstallerFile extends AbstractFile {
     }
 
     private String downloadInstaller(CacheStore cacheStore) throws IOException {
+        String key = getKey();
         String urlPath = cacheStore.getValueFromCache(key + "_url");
         if (urlPath != null) {
             String fileName = new URL(urlPath).getPath();
