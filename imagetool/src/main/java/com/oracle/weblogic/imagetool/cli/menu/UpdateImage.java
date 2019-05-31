@@ -11,10 +11,9 @@ import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.ValidationResult;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,8 +25,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(
         name = "update",
@@ -90,17 +91,27 @@ public class UpdateImage extends ImageOperation {
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
 
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
+            String opatchBugNumberVersion = "";
 
             if (useCache == CachePolicy.ALWAYS) {
-                opatch_1394_required = (latestPSU || !patches.isEmpty()) &&
-                    (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0);
+                String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
+                if (opatchFile != null ) {
+                    opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
+                    logger.info(String.format("OPatch patch number %s cached file %s version %s", opatchBugNumber,
+                        opatchFile, opatchBugNumberVersion ));
+                } else {
+                    String msg = String.format("OPatch patch number --opatchBugNumber %s cannot be found in cache",
+                        opatchBugNumber);
+                    logger.severe(msg);
+                    throw new IOException(msg);
+                }
             } else {
-                String opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
-                opatch_1394_required = (latestPSU || !patches.isEmpty()) &&
-                    (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0 &&
-                        Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
+                opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
             }
 
+            opatch_1394_required = (latestPSU || !patches.isEmpty()) &&
+                (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0 &&
+                    Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
 
             //Do not update or install packages in offline only mode
             if (useCache != CachePolicy.ALWAYS) {
