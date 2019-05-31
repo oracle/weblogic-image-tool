@@ -97,7 +97,7 @@ ENV ORACLE_HOME=${ORACLE_HOME} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties
 
 # DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME
-ENV DOMAIN_HOME=${DOMAIN_HOME} \
+ENV DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
     PATH=$PATH:${JAVA_HOME}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
 
@@ -109,7 +109,6 @@ RUN if [ -z "$(getent group oracle)" ]; then hash groupadd &> /dev/null && group
 
 COPY --from=JDK_BUILD --chown=oracle:oracle $JAVA_HOME $JAVA_HOME/
 COPY --from=WLS_BUILD --chown=oracle:oracle $ORACLE_HOME $ORACLE_HOME/
-COPY --from=WDT_BUILD --chown=oracle:oracle $DOMAIN_HOME $DOMAIN_HOME/
 
 # PLACEHOLDER FOR %%WDT_COPY_DOMAIN%% #
 

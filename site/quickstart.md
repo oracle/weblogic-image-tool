@@ -1,12 +1,12 @@
 # Quick Start
 
-The Image Tool supports creating WebLogic docker image, applying WebLogic patches, and creating WebLogic domains.  It 
+The Image Tool supports creating WebLogic Docker image, applying WebLogic patches, and creating WebLogic domains.  It 
 can be used with or without Internet access.  
 
-Before you use the tool, you can customize the tool's cache store. The cache store is used to lookup where the Java, 
+Before you use the tool, you can customize the tool's cache store. The cache store is used to look up where the Java, 
 WebLogic installers, and WebLogic patches reside in the local file system.
 
-By default, it is stored in the user's ```$HOME/cache``` directory.  Under this directory, the lookup information is 
+By default, it is stored in the user's ```$HOME/cache``` directory.  Under this directory, the look up information is 
 stored in the file ```.metadata```.  All automatically downloaded patches also reside in this directory.  
 
 This default cache store location can be changed by running the ```setCacheDir``` command before using the cache store:
@@ -41,7 +41,7 @@ imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeus
 
 ```
 
-**Note**:  The value of version must be a valid WebLogic version number. This version number is used to verify and 
+**Note**:  The value of the version must be a valid WebLogic version number. This version number is used to verify and 
 find the correct patch file to download from Oracle Support.  The format of the version is a 5 digits tuple, separated
  by period.  For example,  ```12.2.1.3.0``` ```12.1.3.0.0```
 
@@ -136,7 +136,7 @@ oraclelinux         7-slim              f7512ac13c1b        6 weeks ago         
 ## Creating image with no Internet access
 
 
-In this use case, because there is no internet access.  You will be responsible for downloading all the installers and 
+In this use case, because there is no Internet access.  You will be responsible for downloading all the installers and 
 patches, plus setting up the cache.  You also have to provide a base operating system image that has the following packages 
 installed.
 
@@ -154,7 +154,7 @@ For each WebLogic patch, you will need to download it from Oracle Support and se
 imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic .zip -user username@mycompany.com --passwordEnv MYPWD
 ```
 
-You need to provide the credentials in the command line, it verifies the MD5 on the file system against the meta data
+You need to provide the credentials in the command line. It verifies the MD5 on the file system against the meta data
  on Oracle Support for this patch number
 
 Then, you can run the command to create the image:
