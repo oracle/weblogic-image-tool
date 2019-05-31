@@ -9,10 +9,10 @@ WebLogic installers, and WebLogic patches reside in the local file system.
 By default, it is stored in the user's ```$HOME/cache``` directory.  Under this directory, the look up information is 
 stored in the file ```.metadata```.  All automatically downloaded patches also reside in this directory.  
 
-This default cache store location can be changed by running the ```setCacheDir``` command before using the cache store:
+This default cache store location can be changed by setting the environment variable WLSIMG_CACHEDIR
 
 ```bash
-imagetool cache setCacheDir /path/to/dir
+export WLSIMG_CACHEDIR="/path/to/cachedir"
 ```
 
 The high level steps for creating an image are:
@@ -66,7 +66,7 @@ By default, it is created under the user's home directory. If you do not want to
  the home directory, you can first set the environment variable by:
  
  ```bash
-export WLSIMG_BLDDIR=/path/to/dir
+export WLSIMG_BLDDIR="/path/to/dir"
 ```
 
 The final image has the following structure:
