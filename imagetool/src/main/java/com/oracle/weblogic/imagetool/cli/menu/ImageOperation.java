@@ -139,7 +139,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
         logger.finer("Entering ImageOperation.getInitialBuildCmd");
         List<String> cmdBuilder = Stream.of("docker", "build",
-                "--force-rm", "--rm=true", "--no-cache").collect(Collectors.toList());
+                "--force-rm=true", "--no-cache").collect(Collectors.toList());
 
         cmdBuilder.add("--tag");
         cmdBuilder.add(imageTag);

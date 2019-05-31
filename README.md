@@ -29,30 +29,12 @@ The Image Tool provides three functions within the main script:
 
 - Build the project (`mvn clean package`), to create the ZIP installer in ./imagetool/target.
 - Unzip the release ZIP file to a desired location.
-- If running an OS with bash, run `cd your_unzipped_location/bin` and `source setup.sh`.
-- On Windows, set up with `imagetool.cmd` or the `imagetool.bat` script:
-    ```cmd
-    @ECHO OFF
-    java -cp "your_unzipped_folder/lib" com.oracle.weblogic.imagetool.cli.CLIDriver %*
-    ```
+- `cd your_unzipped_location/bin` and `source setup.sh`.
+- Run `imagetool help` to show the help screen.
 
-## Help Command
-- After completing the [Setup](#Setup) steps, execute `imagetool help` to show the help screen.
-- You can execute the JAR directly using the command `java -cp "your_unzipped_folder/lib" com.oracle.weblogic.imagetool.cli.CLIDriver help`.
+## Quick Start
 
-## Simple Example
-Let's give this a try!  
-- Get the installers from Oracle e-Delivery.
-- Add those installers to the Image Tool file cache.
-- Assuming Docker is installed, run `imagetool create`!
-```bash
-unzip imagetool-0.1.zip
-cd imagetool-0.1/bin
-source setup.sh
-imagetool cache addInstaller --type jdk --version 8u202 --path /tmp/jdk-8u202-linux-x64.tar.gz
-imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /tmp/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
-imagetool create --tag sample:wls
-```
+[Image Tool Quick Start Guide](site/quickstart.md)
 
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.

@@ -34,10 +34,13 @@ public class WLSCommandLine {
         cmd.setToggleBooleanFlags(false);
         cmd.setUnmatchedArgumentsAllowed(false);
         //cmd.registerConverter(CacheStore.class, x -> new CacheStoreFactory().getCacheStore(x));
-
         List<Object> results = cmd.parseWithHandlers(new CommandLine.RunLast().useOut(out).useAnsi(ansi),
                 new CommandLine.DefaultExceptionHandler<List<Object>>().useErr(err).useAnsi(ansi), args);
         @SuppressWarnings("unchecked") T result = results == null || results.isEmpty() ? null : (T) results.get(0);
+        if (result == null) {
+            CommandLine.usage(callable, System.out);
+           // System.exit(-1);
+        }
         return result;
     }
 }
