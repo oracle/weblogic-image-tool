@@ -24,6 +24,7 @@ public final class Constants {
     static final String WLS_PROD_ID = "15991";
     static final String FMW_PROD_ID = "27638";
     static final String OPATCH_PROD_ID = "31944";
+    public static final String OPATCH_PATCH_TYPE = "opatch";
     public static final String CACHE_DIR_KEY = "cache.dir";
     public static final String DEFAULT_WLS_VERSION = "12.2.1.3.0";
     public static final String DEFAULT_JDK_VERSION = "8u202";

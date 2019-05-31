@@ -109,6 +109,13 @@ public class AddPatchEntry extends CacheOperation {
      */
     private CommandResponse addToCache(String patchNumber) {
         String key = AbstractFile.generateKey(patchNumber, version);
+
+        // Check if it is an Opatch patch
+        String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
+        if (opatchNumber != null) {
+            int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
+            key = key.substring(0,lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
+        }
         cacheStore.addToCache(key, location.toAbsolutePath().toString());
         String msg = String.format("Added Patch entry %s=%s for %s", key, location.toAbsolutePath(), type);
         logger.info(msg);

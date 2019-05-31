@@ -175,10 +175,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     void addOPatch1394ToImage(Path tmpDir, String opatchBugNumber) throws Exception {
         // opatch patch now is in the format #####_opatch in the cache store
-        //
+        // So the version passing to the constructor of PatchFile is also "opatch".
+        // since opatch releases is on it's own and there is not really a patch to opatch
+        // and the version is embedded in the zip file version.txt
 
         String filePath =
-            new PatchFile(useCache, "opatch", "opatch", opatchBugNumber, userId, password).resolve(cacheStore);
+            new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
         Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
         filterStartTags.add("OPATCH_1394");
         if (this instanceof CreateImage) {

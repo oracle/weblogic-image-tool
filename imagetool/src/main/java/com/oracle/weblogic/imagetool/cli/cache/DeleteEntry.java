@@ -31,7 +31,7 @@ public class DeleteEntry extends CacheOperation {
     public CommandResponse call() {
         if (!Utils.isEmptyString(key)) {
             if (Constants.CACHE_DIR_KEY.equals(key.toLowerCase())) {
-                return new CommandResponse(-1, "Error: Cannot delete cache.dir entry. Use setCacheDir instead");
+                return new CommandResponse(0, "Cannot delete key: " + key);
             } else if (Constants.DELETE_ALL_FOR_SURE.equalsIgnoreCase(key)) {
                 Map<String, String> allEntries = cacheStore.getCacheItems();
                 //allEntries.remove(CACHE_DIR_KEY);

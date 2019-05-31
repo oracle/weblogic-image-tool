@@ -626,7 +626,8 @@ public class Utils {
                 }
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            logger.warning("Cannot read opatch file " + fileName);
+            logger.finest(ioe.getLocalizedMessage());
         }
         return null;
     }
