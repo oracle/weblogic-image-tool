@@ -47,7 +47,7 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     RCU_RUN_FLAG=${RCU_RUN_FLAG:-}
 
 # DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME
-ENV DOMAIN_HOME=${DOMAIN_HOME} \
+ENV DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
     PATH=$PATH:${JAVA_HOME}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
 
 COPY --from=JDK_BUILD --chown=oracle:oracle $JAVA_HOME $JAVA_HOME/
