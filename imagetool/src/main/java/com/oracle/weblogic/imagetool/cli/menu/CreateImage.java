@@ -396,7 +396,7 @@ public class CreateImage extends ImageOperation {
     private DomainType domainType;
 
     @Option(
-            names = "--run_rcu",
+            names = "--wdtRunRCU",
             description = "whether to run rcu to create the required database schemas"
     )
     private boolean rcu_run_flag = false;

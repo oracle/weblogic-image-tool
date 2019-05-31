@@ -207,7 +207,7 @@ The parameters mapping between the Image Tool and the WebLogic Deploy Tool are:
 | `--wdtArchive`       | `-archive_file`           |
 | `--wdtModel`         | `-model_file`             |
 | `--wdtVariables`     | `-variable_file`         |
-| `--run_rcu`          | `-run_rcu`                |
+| `--wdtRunRCU`        | `-run_rcu`                |
 | `--wdtDomainHome`    | `-domain_home`            |
 
 
