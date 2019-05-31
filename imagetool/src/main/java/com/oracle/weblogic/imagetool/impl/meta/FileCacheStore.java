@@ -6,19 +6,17 @@ package com.oracle.weblogic.imagetool.impl.meta;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.Utils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,18 +26,11 @@ public enum FileCacheStore implements CacheStore {
 
     private final Properties properties = new Properties();
     private String metadataPath;
-    private final String DEFAULT_CACHE_DIR = Paths.get(System.getProperty("user.home"), "cache")
-            .toAbsolutePath().toString();
-    private final Preferences preferences = Preferences.userRoot().node(Constants.WEBLOGIC_IMAGETOOL);
 
     FileCacheStore() {
         try {
-            metadataPath = preferences.get(Constants.METADATA_PREF_KEY, null);
-            if (metadataPath == null || metadataPath.isEmpty()) {
-                metadataPath = String.format("%s%s%s", DEFAULT_CACHE_DIR, File.separator, Constants.DEFAULT_META_FILE);
-                preferences.put(Constants.METADATA_PREF_KEY, metadataPath);
-                preferences.flush();
-            }
+            String userCacheDir = Utils.getCacheDir();
+            metadataPath = String.format("%s%s%s", userCacheDir, File.separator, Constants.DEFAULT_META_FILE);
             File metadataFile = new File(metadataPath);
             if (metadataFile.exists() && metadataFile.isFile()) {
                 loadProperties(metadataFile);
@@ -48,7 +39,7 @@ public enum FileCacheStore implements CacheStore {
                 metadataFile.createNewFile();
             }
             if (properties.getProperty(Constants.CACHE_DIR_KEY) == null) {
-                properties.put(Constants.CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
+                properties.put(Constants.CACHE_DIR_KEY, userCacheDir);
                 persistToDisk();
             }
             File cacheDir = new File(properties.getProperty(Constants.CACHE_DIR_KEY));
@@ -63,7 +54,7 @@ public enum FileCacheStore implements CacheStore {
 
     @Override
     public String getCacheDir() {
-        return properties.getProperty(Constants.CACHE_DIR_KEY, DEFAULT_CACHE_DIR);
+        return properties.getProperty(Constants.CACHE_DIR_KEY);
     }
 
     @Override
@@ -138,26 +129,5 @@ public enum FileCacheStore implements CacheStore {
         }
     }
 
-    public boolean setCacheDir(String cacheDirPath) {
-        if (cacheDirPath != null) {
-            properties.put(Constants.CACHE_DIR_KEY, cacheDirPath);
-            try {
-                metadataPath = getCacheDir() + File.separator + Constants.DEFAULT_META_FILE;
-                File metaDataFile = new File(metadataPath);
-                if (metaDataFile.exists() && metaDataFile.isFile()) {
-                    loadProperties(metaDataFile);
-                } else {
-                    metaDataFile.getParentFile().mkdirs();
-                    metaDataFile.createNewFile();
-                }
-                preferences.put(Constants.METADATA_PREF_KEY, metadataPath);
-                preferences.flush();
-                return persistToDisk();
-            } catch (BackingStoreException | IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return false;
-    }
 
 }

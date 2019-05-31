@@ -26,6 +26,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class Utils {
 
@@ -566,4 +569,67 @@ public class Utils {
 
         return workingDir;
     }
+
+    /**
+     * returns the cache store directory
+     * @return cache directory
+     */
+    public static String getCacheDir() throws IOException {
+        String cacheDir = System.getenv("WLSIMG_CACHEDIR");
+        if (cacheDir == null ) {
+            cacheDir = System.getProperty("user.home") + "/cache";
+        }
+        Path path = Paths.get(cacheDir);
+
+        boolean pathExists =
+            Files.exists(path,
+                new LinkOption[]{ LinkOption.NOFOLLOW_LINKS});
+
+        if (!pathExists) {
+            throw new IOException("Cache Directory does not exists " + cacheDir);
+        } else {
+            if (!Files.isDirectory(path)) {
+                throw new IOException("Cache Directory specified is not a directory " + cacheDir);
+            }
+            if (!Files.isWritable(path)) {
+                throw new IOException("Cache Directory specified is not writable " + cacheDir);
+            }
+        }
+
+        return cacheDir;
+    }
+
+    /**
+     * Return the version number inside a opatch file
+     * @param fileName full path to the opatch patch
+     * @return version number of the patch
+     */
+
+    public static String getOpatchVersionFromZip(String fileName) {
+
+        try {
+            ZipFile zipFile = new ZipFile(fileName);
+
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().endsWith("/version.txt")) {
+                    InputStream stream = zipFile.getInputStream(entry);
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+                    StringBuilder out = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        out.append(line);
+                    }
+                    return out.toString();
+                }
+            }
+        } catch (IOException ioe) {
+            logger.warning("Cannot read opatch file " + fileName);
+            logger.finest(ioe.getLocalizedMessage());
+        }
+        return null;
+    }
+
 }

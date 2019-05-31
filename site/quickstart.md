@@ -9,10 +9,10 @@ WebLogic installers, and WebLogic patches reside in the local file system.
 By default, it is stored in the user's ```$HOME/cache``` directory.  Under this directory, the lookup information is
 stored in the file ```.metadata```.  All automatically downloaded patches also reside in this directory.  
 
-This default cache store location can be changed by running the ```setCacheDir``` command before using the cache store:
+This default cache store location can be changed by setting the environment variable WLSIMG_CACHEDIR
 
 ```bash
-imagetool cache setCacheDir /path/to/dir
+export WLSIMG_CACHEDIR="/path/to/cachedir"
 ```
 
 The high level steps for creating an image are:
@@ -66,7 +66,7 @@ By default, it is created under the user's home directory. If you do not want to
  the home directory, you can first set the environment variable by:
 
  ```bash
-export WLSIMG_BLDDIR=/path/to/dir
+export WLSIMG_BLDDIR="/path/to/dir"
 ```
 
 The final image has the following structure:
@@ -151,7 +151,7 @@ For each WebLogic patch, you will need to download it from Oracle Support and se
 27342434 for WebLogic version 12.2.1.3.0:
 
 ```bash
-imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic .zip -user username@mycompany.com --passwordEnv MYPWD
+imagetool cache addPatch --patchId p27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic .zip -user username@mycompany.com --passwordEnv MYPWD
 ```
 
 You need to provide the credentials on the command line. It verifies the MD5 on the file system against the metadata
@@ -168,7 +168,7 @@ downloading the latest OPatch patch and setting up the cache.  For example, the 
 .4.0.0.  You can use this command to set up the cache after downloading from Oracle Support.
 
 ```bash
-imagetool cache addPatch --patchId 28186730 --version 13.9.4.0.0 --path /home/acmeuser/cache/p28186730_139400_Generic.zip
+imagetool cache addPatch --patchId p28186730 --version 13.9.4.0.0 --path /home/acmeuser/cache/p28186730_139400_Generic.zip
 ```
 
 ## Patching an existing image
@@ -207,7 +207,7 @@ The parameters mapping between the Image Tool and the WebLogic Deploy Tool are:
 | `--wdtArchive`       | `-archive_file`           |
 | `--wdtModel`         | `-model_file`             |
 | `--wdtVariables`     | `-variable_file`         |
-| `--run_rcu`          | `-run_rcu`                |
+| `--wdtRunRCU`        | `-run_rcu`                |
 | `--wdtDomainHome`    | `-domain_home`            |
 
 

@@ -171,7 +171,7 @@ public class CreateImage extends ImageOperation {
     List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
         logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir.toAbsolutePath().toString());
         if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) == 0) {
-            addOPatch1394ToImage(tmpDir);
+            addOPatch1394ToImage(tmpDir, opatchBugNumber);
         }
         //we need a local installerVersion variable for the command line Option. so propagate to super.
         super.installerVersion = installerVersion;
@@ -396,7 +396,7 @@ public class CreateImage extends ImageOperation {
     private DomainType domainType;
 
     @Option(
-            names = "--run_rcu",
+            names = "--wdtRunRCU",
             description = "whether to run rcu to create the required database schemas"
     )
     private boolean rcu_run_flag = false;
@@ -408,6 +408,14 @@ public class CreateImage extends ImageOperation {
         defaultValue = "/u01/domains/base_domain"
     )
     private Path wdtDomainHome;
+
+
+    @Option(
+        names = {"--opatchBugNumber"},
+        description = "use this opatch patch bug number",
+        defaultValue = "28186730"
+    )
+    private String opatchBugNumber;
 
 
 }
