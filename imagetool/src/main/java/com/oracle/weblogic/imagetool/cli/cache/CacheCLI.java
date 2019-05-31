@@ -24,8 +24,6 @@ import java.util.concurrent.Callable;
                 ListCacheItems.class,
                 AddInstallerEntry.class,
                 AddPatchEntry.class,
-                GetCacheDir.class,
-                SetCacheDir.class,
                 AddEntry.class,
                 DeleteEntry.class,
                 HelpCommand.class

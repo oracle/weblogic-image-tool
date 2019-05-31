@@ -571,6 +571,35 @@ public class Utils {
     }
 
     /**
+     * returns the cache store directory
+     * @return cache directory
+     */
+    public static String getCacheDir() throws IOException {
+        String cacheDir = System.getenv("WLSIMG_CACHEDIR");
+        if (cacheDir == null ) {
+            cacheDir = System.getProperty("user.home") + "/cache";
+        }
+        Path path = Paths.get(cacheDir);
+
+        boolean pathExists =
+            Files.exists(path,
+                new LinkOption[]{ LinkOption.NOFOLLOW_LINKS});
+
+        if (!pathExists) {
+            throw new IOException("Cache Directory does not exists " + cacheDir);
+        } else {
+            if (!Files.isDirectory(path)) {
+                throw new IOException("Cache Directory specified is not a directory " + cacheDir);
+            }
+            if (!Files.isWritable(path)) {
+                throw new IOException("Cache Directory specified is not writable " + cacheDir);
+            }
+        }
+
+        return cacheDir;
+    }
+
+    /**
      * Return the version number inside a opatch file
      * @param fileName full path to the opatch patch
      * @return version number of the patch

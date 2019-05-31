@@ -18,7 +18,6 @@ public class CacheStoreFactory implements Supplier<CacheStore> {
 
     static {
         cashStoreMap.put(Constants.FILE_CACHE, FileCacheStore.CACHE_STORE);
-        cashStoreMap.put(Constants.PREF_CACHE, PreferenceCacheStore.CACHE_STORE);
     }
 
     public CacheStore getCacheStore(String backingType) {
@@ -27,13 +26,6 @@ public class CacheStoreFactory implements Supplier<CacheStore> {
 
     @Override
     public CacheStore get() {
-        String backingType = null;
-        try {
-            backingType = System.getenv(Constants.CACHE_STORE_TYPE);
-            backingType = Utils.isEmptyString(backingType) ? System.getProperty(Constants.CACHE_STORE_TYPE, Constants.FILE_CACHE) : backingType;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return getCacheStore(backingType);
+        return FileCacheStore.CACHE_STORE;
     }
 }

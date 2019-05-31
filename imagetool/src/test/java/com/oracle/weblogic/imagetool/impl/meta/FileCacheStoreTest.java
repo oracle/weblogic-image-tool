@@ -19,22 +19,7 @@ import static org.junit.Assert.assertTrue;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FileCacheStoreTest {
 
-    private CacheStore cacheStore = new CacheStoreFactory().getCacheStore(Constants.FILE_CACHE);
-
-    @Test
-    public void a1setCacheDir() throws IOException {
-        Path cacheDirPath = Files.createTempDirectory("test_imagetool");
-        cacheDirPath.toFile().deleteOnExit();
-        // change the cache directory from default so it doesn't modify user data
-        cacheStore.setCacheDir(cacheDirPath.toAbsolutePath().toString());
-    }
-
-    @Test
-    public void a2getCacheDir() {
-        assertNotNull(cacheStore.getCacheDir());
-        File cacheDir = new File(cacheStore.getCacheDir());
-        assertTrue(cacheDir.exists() && cacheDir.isDirectory());
-    }
+    private CacheStore cacheStore = new CacheStoreFactory().get();
 
     @Test
     public void a3addToCache() {

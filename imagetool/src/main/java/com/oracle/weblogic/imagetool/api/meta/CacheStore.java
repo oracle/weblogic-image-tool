@@ -66,11 +66,4 @@ public interface CacheStore {
      */
     Map<String, String> getCacheItems();
 
-    /**
-     * Set cache directory to new location.
-     *
-     * @param value a directory path
-     * @return true if successful
-     */
-    boolean setCacheDir(String value);
 }
