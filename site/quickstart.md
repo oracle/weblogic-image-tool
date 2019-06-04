@@ -191,13 +191,13 @@ You can accomplish this by:
 Download the [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling/releases), and then add it to the cache store:
 
 ```bash
-imagetool cache addInstaller --type wdt --version 2.2 --path /home/acmeuser/cache/weblogic-deploy.zip
+imagetool cache addInstaller --type wdt --version 0.22 --path /home/acmeuser/cache/weblogic-deploy.zip
 ```
 
 Provide the command-line options for the WebLogic Deploy Tool:
 
 ```bash
-imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always --wdtVersion 2.2 --wdtArchive /home/acmeuser/wdt/domain1.zip --wdtDomainHome /u01/domains/simple_domain
+imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always --wdtVersion 0.22 --wdtArchive /home/acmeuser/wdt/domain1.zip --wdtDomainHome /u01/domains/simple_domain
 ```
 
 The parameters mapping between the Image Tool and the WebLogic Deploy Tool are:
