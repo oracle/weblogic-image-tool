@@ -96,13 +96,13 @@ COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
 # START %%CREATE_OPATCH_1394%% #
  && cd $OTMPDIR/opatch \
  && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
- && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent oracle_home=$ORACLE_HOME \
+ && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
 # END %%CREATE_OPATCH_1394%% #
 
 # START %%UPDATE_OPATCH_1394%% #
 RUN cd $OTMPDIR/opatch \
  && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
- && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent oracle_home=$ORACLE_HOME \
+ && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
  && rm -rf $OTMPDIR
 # END %%UPDATE_OPATCH_1394%% #
 
