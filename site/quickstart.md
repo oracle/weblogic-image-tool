@@ -37,8 +37,6 @@ imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wl
 
 ```bash
 imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
-.tar.gz
-
 ```
 
 **Note**:  The value of the version must be a valid WebLogic version number. This version number is used to verify and
@@ -151,7 +149,7 @@ For each WebLogic patch, you will need to download it from Oracle Support and se
 27342434 for WebLogic version 12.2.1.3.0:
 
 ```bash
-imagetool cache addPatch --patchId p27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic .zip -user username@mycompany.com --passwordEnv MYPWD
+imagetool cache addPatch --patchId p27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic .zip --user username@mycompany.com --passwordEnv MYPWD
 ```
 
 You need to provide the credentials on the command line. It verifies the MD5 on the file system against the metadata
@@ -179,7 +177,7 @@ have the option to automatically download using the tool or manually downloading
 After the cache is setup, you can use the following command to update an image:
 
 ```bash
-imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 --version 12.2.1.3.0 --useCache always
+imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 --useCache always
 ```
 
 ## Create an image with a WebLogic domain using the WebLogic Deploy Tool
