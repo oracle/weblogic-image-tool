@@ -119,7 +119,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         if (!patchLocations.isEmpty()) {
             retVal.add(Constants.BUILD_ARG);
             retVal.add("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
-            filterStartTags.add("PATCH_");
+            filterStartTags.add(Constants.PATCH);
             if (this instanceof CreateImage) {
                 filterStartTags.add("CREATE_PATCH_");
             } else if (this instanceof UpdateImage) {
@@ -182,7 +182,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String filePath =
             new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
         Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
-        filterStartTags.add("OPATCH_1394");
+        filterStartTags.add(Constants.OPATCH_PATCH);
         if (this instanceof CreateImage) {
             filterStartTags.add("CREATE_OPATCH_1394");
         } else if (this instanceof UpdateImage) {

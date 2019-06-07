@@ -44,6 +44,12 @@ public final class Constants {
     public static final String HTTPS = "https";
     public static final String PATCH_ID_REGEX = "^[pP]?(\\d+)";
 
+    //Option flags
+    public static final String YUM = "_YUM";
+    public static final String OPATCH_PATCH = "OPATCH_1394";
+    public static final String PATCH = "PATCH_";
+    public static final String WDT = "WDT_";
+
     private Constants() {
         //restrict access
     }

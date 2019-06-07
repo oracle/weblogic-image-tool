@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class DockerfileBuilder {
 
-    private final String[] EMPTY = new String[] {};
+    private final String[] OPTION_SKIPPED = new String[] {};
 
     private final String[] COPYRIGHT_NOTICE = new String[]{
             "#",
@@ -93,10 +93,8 @@ public class DockerfileBuilder {
             "",
             "RUN unzip $OTMPDIR/$WLS_PKG -d $OTMPDIR \\",
             " && $JAVA_HOME/bin/java -Xmx1024m -jar $OTMPDIR/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \\",
-            "    -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \\",
-            "# PLACEHOLDER FOR %%CREATE_OPATCH_1394%% #",
-            "# PLACEHOLDER FOR %%CREATE_PATCH_APPLY%% #",
-            " && rm -rf $JAVA_HOME $OTMPDIR"
+            "    -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation"
+//          " && rm -rf $JAVA_HOME $OTMPDIR"
     };
 
     private final String[] FINAL_BUILD = new String[] {
@@ -158,7 +156,154 @@ public class DockerfileBuilder {
             return PACKAGE_INSTALL_YUM;
         }
 
-        return EMPTY;
+        return OPTION_SKIPPED;
+    }
+
+    private String[] optionalOpatchPatchPrepare() {
+        if (optionFlags.contains(Constants.OPATCH_PATCH)) {
+            return new String[]{
+                    "COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/"
+            };
+        }
+
+        return OPTION_SKIPPED;
+    }
+
+    private String[] optionalOpatchPatchInstall() {
+        if (optionFlags.contains(Constants.OPATCH_PATCH)) {
+            return new String[]{
+                    "RUN cd $OTMPDIR/opatch \\",
+                    " && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \\",
+                    " && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \\"
+            };
+        }
+
+        return OPTION_SKIPPED;
+    }
+
+    private String[] optionalApplyPatchesPrepare() {
+        if (optionFlags.contains(Constants.PATCH)) {
+            return new String[] {
+                    "COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/"
+            };
+        }
+
+        return OPTION_SKIPPED;
+    }
+
+    private String[] optionalApplyPatchesInstall() {
+        if (optionFlags.contains(Constants.PATCH)) {
+            return new String[] {
+                    "RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \\",
+                    " && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME"
+            };
+        }
+
+        return OPTION_SKIPPED;
+    }
+
+
+    /**
+     * Thinking of changing the download WDT latest to:
+     * curl -s https://api.github.com/repos/oracle/weblogic-deploy-tooling/releases/latest|grep browser_download | grep "browser_download_url" | cut -d : -f 2,3 | tr -d \" | wget -qi -
+     */
+    private String[] optionalInstallWdt() {
+        //This has A LOT of room for improvement.  Copying what was already there, but this needs to be streamlined.
+        if (optionFlags.contains(Constants.WDT)) {
+            return new String[]{
+                    "FROM OS_UPDATE as WDT_BUILD",
+                    "",
+                    "ARG JAVA_HOME=/u01/jdk",
+                    "ARG ORACLE_HOME=/u01/oracle",
+                    "ARG WDT_PKG",
+                    "ARG WDT_MODEL",
+                    "ARG DOMAIN_TYPE",
+                    "ARG DOMAIN_PARENT",
+                    "ARG DOMAIN_HOME",
+                    "ARG WDT_ARCHIVE",
+                    "ARG WDT_VARIABLE",
+                    "ARG ADMIN_NAME",
+                    "ARG ADMIN_HOST",
+                    "ARG ADMIN_PORT",
+                    "ARG MANAGED_SERVER_PORT",
+                    "ARG SCRIPTS_DIR",
+                    "ARG WDT_HOME",
+                    "ARG RCU_RUN_FLAG",
+                    "",
+                    "ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \\",
+                    "    ADMIN_NAME=${ADMIN_NAME:-admin-server} \\",
+                    "    ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \\",
+                    "    ADMIN_PORT=${ADMIN_PORT:-7001} \\",
+                    "    MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \\",
+                    "    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \\",
+                    "    WDT_MODEL=${WDT_MODEL:-} \\",
+                    "    WLSDEPLOY_PROPERTIES=\"-Djava.security.egd=file:/dev/./urandom\" \\",
+                    "    DOMAIN_TYPE=${DOMAIN_TYPE:-WLS} \\",
+                    "    DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \\",
+                    "    WDT_ARCHIVE=${WDT_ARCHIVE:-} \\",
+                    "    WDT_VARIABLE=${WDT_VARIABLE:-} \\",
+                    "    LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \\",
+                    "    PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \\",
+                    "    WDT_HOME=${WDT_HOME:-/u01/app/weblogic-deploy} \\",
+                    "    SCRIPTS_DIR=${SCRIPTS_DIR:-scripts} \\",
+                    "    OTMPDIR=${OTMPDIR:-/tmp/delme} \\",
+                    "    RCU_RUN_FLAG=${RCU_RUN_FLAG:-}",
+                    "",
+                    "# DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME",
+                    "ENV DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \\",
+                    "    PATH=$PATH:${JAVA_HOME}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}",
+                    "",
+                    "COPY --from=JDK_BUILD --chown=oracle:oracle $JAVA_HOME $JAVA_HOME/",
+                    "COPY --from=WLS_BUILD --chown=oracle:oracle $ORACLE_HOME $ORACLE_HOME/",
+                    "COPY --chown=oracle:oracle ${WDT_PKG} ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE} ${OTMPDIR}/",
+                    "#COPY --chown=oracle:oracle ${SCRIPTS_DIR}/*.sh ${SCRIPT_HOME}/",
+                    "",
+                    "USER oracle",
+                    "",
+                    "RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \\",
+                    " && mkdir -p $(dirname ${DOMAIN_HOME}) \\",
+                    " && mkdir -p ${PROPERTIES_FILE_DIR} \\",
+                    " && if [ -n \"$WDT_MODEL\" ]; then MODEL_OPT=\"-model_file ${OTMPDIR}/${WDT_MODEL##*/}\"; fi \\",
+                    " && if [ -n \"$WDT_ARCHIVE\" ]; then ARCHIVE_OPT=\"-archive_file ${OTMPDIR}/${WDT_ARCHIVE##*/}\"; fi \\",
+                    " && if [ -n \"$WDT_VARIABLE\" ]; then VARIABLE_OPT=\"-variable_file ${OTMPDIR}/${WDT_VARIABLE##*/}\"; fi \\",
+                    " && if [ -n \"${RCU_RUN_FLAG}\" ]; then RCU_RUN_OPT=\"-run_rcu\"; fi \\",
+                    " && cd ${WDT_HOME}/bin \\",
+                    " && ${WDT_HOME}/bin/createDomain.sh \\",
+                    " -oracle_home ${ORACLE_HOME} \\",
+                    " -java_home ${JAVA_HOME} \\",
+                    " -domain_home ${DOMAIN_HOME} \\",
+                    " -domain_type ${DOMAIN_TYPE} \\",
+                    " $RCU_RUN_OPT \\",
+                    " $VARIABLE_OPT \\",
+                    " $MODEL_OPT \\",
+                    " $ARCHIVE_OPT \\",
+                    " && rm -rf ${JAVA_HOME} ${ORACLE_HOME} ${WDT_HOME} $OTMPDIR"
+            };
+        }
+
+        return OPTION_SKIPPED;
+    }
+
+    private String[] optionalCopyWdtDomain() {
+        //assumes that the domain was created previously in temp image so that it can be copied to final image
+        if (optionFlags.contains(Constants.WDT)) {
+            return new String[] {
+                    "COPY --from=WDT_BUILD --chown=oracle:oracle $DOMAIN_HOME $DOMAIN_HOME/"
+            };
+        }
+
+        return OPTION_SKIPPED;
+    }
+
+    private String[] optionalExposeWdtDomain() {
+        if (optionFlags.contains(Constants.WDT)) {
+            return new String[] {
+                    "# Expose admin server, managed server port",
+                    "EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT"
+            };
+        }
+
+        return OPTION_SKIPPED;
     }
 
 
@@ -188,9 +333,16 @@ public class DockerfileBuilder {
         writeArray(out, CREATE_ORACLE_USER);
         writeArray(out, INSTALL_JDK);
         writeArray(out, FMW_INSTALL_PREPARE_STEP);
+        writeArray(out, optionalOpatchPatchPrepare());
+        writeArray(out, optionalApplyPatchesPrepare());
         writeArray(out, FMW_INSTALL);
+        writeArray(out, optionalOpatchPatchInstall());
+        writeArray(out, optionalApplyPatchesInstall());
+        writeArray(out, optionalInstallWdt());
         writeArray(out, FINAL_BUILD);
+        writeArray(out, optionalCopyWdtDomain());
         writeArray(out, CLOSING_STATEMENTS);
+        writeArray(out, optionalExposeWdtDomain());
     }
 
     private static void writeArray(Writer out, String[] strings) throws IOException {

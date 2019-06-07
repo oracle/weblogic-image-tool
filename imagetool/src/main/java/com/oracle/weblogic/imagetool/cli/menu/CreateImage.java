@@ -12,6 +12,7 @@ import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
+import com.oracle.weblogic.imagetool.util.DockerfileBuilder;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -28,7 +29,6 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -107,7 +107,7 @@ public class CreateImage extends ImageOperation {
                 }
             } else {
                 if (useCache != CachePolicy.ALWAYS) {
-                    filterStartTags.add("_YUM");
+                    filterStartTags.add(Constants.YUM);
                 }
             }
 
@@ -121,7 +121,9 @@ public class CreateImage extends ImageOperation {
             copyResponseFilesToDir(tmpDirPath);
 
             // Create Dockerfile
-            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Dockerfile.create", filterStartTags, "/docker-files/Dockerfile.ph");
+            DockerfileBuilder dockerfile = new DockerfileBuilder(filterStartTags);
+            dockerfile.write(tmpDirPath + File.separator + "Dockerfile");
+//            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Dockerfile.create", filterStartTags, "/docker-files/Dockerfile.ph");
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
@@ -205,7 +207,7 @@ public class CreateImage extends ImageOperation {
                         retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
                     }
                 }
-                filterStartTags.add("WDT_");
+                filterStartTags.add(Constants.WDT);
                 Path targetLink = Files.copy(wdtModelPath, Paths.get(tmpDirPath, wdtModelPath.getFileName().toString())
                     );
                 retVal.add(Constants.BUILD_ARG);

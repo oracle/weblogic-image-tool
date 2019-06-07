@@ -449,7 +449,7 @@ public class Utils {
                 case "centos":
                 case "ol":
                 case "rhel":
-                    retVal = "_YUM";
+                    retVal = Constants.YUM;
                     break;
                 case "ubuntu":
                 case "debian":
