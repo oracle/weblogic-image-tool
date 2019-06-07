@@ -145,9 +145,6 @@ public class DockerfileBuilder {
 
     public DockerfileBuilder(final List<String> params) {
         optionFlags = params;
-        for (String param : params) {
-            System.out.println("*** DEBUG *** dockerfile parameter--- " + param);
-        }
     }
 
 
@@ -350,15 +347,5 @@ public class DockerfileBuilder {
             out.write(s);
             out.write(System.lineSeparator());
         }
-    }
-
-    public String toString() {
-        StringWriter s = new StringWriter();
-        try {
-            write(s);
-        } catch (IOException ioe) {
-            System.err.println("IOException on Dockerfile toString() "+ioe.getMessage());
-        }
-        return s.toString();
     }
 }
