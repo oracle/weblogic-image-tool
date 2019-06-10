@@ -171,7 +171,7 @@ public class DockerfileBuilder {
             return new String[]{
                     "RUN cd $OTMPDIR/opatch \\",
                     " && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \\",
-                    " && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \\"
+                    " && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME"
             };
         }
 
