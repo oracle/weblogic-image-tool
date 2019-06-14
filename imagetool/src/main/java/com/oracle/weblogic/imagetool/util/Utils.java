@@ -442,7 +442,7 @@ public class Utils {
     }
 
     public static String getPackageMgrStr(String osID) {
-        String retVal = "_YUM";
+        String retVal = Constants.YUM;
         if (osID != null) {
             osID = osID.replaceAll("[\"]", "");
             switch (osID) {
@@ -453,10 +453,10 @@ public class Utils {
                     break;
                 case "ubuntu":
                 case "debian":
-                    retVal = "_APT";
+                    retVal = Constants.APTGET;
                     break;
                 case "opensuse":
-                    retVal = "_SUSE";
+                    retVal = Constants.ZYPPER;
                     break;
             }
         }

@@ -46,6 +46,8 @@ public final class Constants {
 
     //Option flags
     public static final String YUM = "_YUM";
+    public static final String APTGET = "_APT";
+    public static final String ZYPPER = "_SUSE";
     public static final String OPATCH_PATCH = "OPATCH_1394";
     public static final String PATCH = "PATCH_";
     public static final String WDT = "WDT_";

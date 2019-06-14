@@ -142,9 +142,16 @@ public class DockerfileBuilder {
     };
 
     private final List<String> optionFlags;
+    private final Operation type;
 
-    public DockerfileBuilder(final List<String> params) {
+    public enum Operation {
+        CREATE,
+        UPDATE
+    }
+
+    public DockerfileBuilder(final List<String> params, Operation operation) {
         optionFlags = params;
+        type = operation;
     }
 
 
@@ -171,7 +178,8 @@ public class DockerfileBuilder {
             return new String[]{
                     "RUN cd $OTMPDIR/opatch \\",
                     " && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \\",
-                    " && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME"
+                    " && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME",
+                    "&& rm -rf $OTMPDIR"
             };
         }
 
@@ -192,7 +200,8 @@ public class DockerfileBuilder {
         if (optionFlags.contains(Constants.PATCH)) {
             return new String[] {
                     "RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \\",
-                    " && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME"
+                    " && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME",
+                    "&& rm -rf $OTMPDIR"
             };
         }
 
@@ -311,18 +320,46 @@ public class DockerfileBuilder {
      */
     public void write(String filename) throws IOException{
         PrintWriter output = new PrintWriter( new File(filename) );
-        write( output );
+        if ( type == Operation.CREATE ) {
+            writeCreate( output );
+        } else {
+            writeUpdate( output );
+        }
         output.flush();
         output.close();
     }
 
     /**
-     * Write the Dockerfile contents to the outputstream.
-     * Could be public method, but not currently needed.
+     * Write the Dockerfile contents to the outputstream for the Create Image use case.
      * @param out outputstream to be written
      * @throws IOException if failures occur in the java.io API
      */
-    private void write(Writer out) throws IOException {
+    protected void writeCreate(Writer out) throws IOException {
+        writeArray(out, COPYRIGHT_NOTICE);
+        writeArray(out, LINUX_BASE_IMAGE);
+        writeArray(out, USER_ROOT);
+        writeArray(out, optionalYumPackageInstall());
+        writeArray(out, CREATE_ORACLE_USER);
+        writeArray(out, INSTALL_JDK);
+        writeArray(out, FMW_INSTALL_PREPARE_STEP);
+        writeArray(out, optionalOpatchPatchPrepare());
+        writeArray(out, optionalApplyPatchesPrepare());
+        writeArray(out, FMW_INSTALL);
+        writeArray(out, optionalOpatchPatchInstall());
+        writeArray(out, optionalApplyPatchesInstall());
+        writeArray(out, optionalInstallWdt());
+        writeArray(out, FINAL_BUILD);
+        writeArray(out, optionalCopyWdtDomain());
+        writeArray(out, CLOSING_STATEMENTS);
+        writeArray(out, optionalExposeWdtDomain());
+    }
+
+    /**
+     * Write the Dockerfile contents to the outputstream for the Update Image use case.
+     * @param out outputstream to be written
+     * @throws IOException if failures occur in the java.io API
+     */
+    protected void writeUpdate(Writer out) throws IOException {
         writeArray(out, COPYRIGHT_NOTICE);
         writeArray(out, LINUX_BASE_IMAGE);
         writeArray(out, USER_ROOT);
