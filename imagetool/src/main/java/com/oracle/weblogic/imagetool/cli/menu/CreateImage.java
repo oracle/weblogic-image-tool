@@ -10,16 +10,11 @@ import com.oracle.weblogic.imagetool.api.model.DomainType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
-import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
-import com.oracle.weblogic.imagetool.util.DockerfileBuilder;
-import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -121,9 +116,7 @@ public class CreateImage extends ImageOperation {
             copyResponseFilesToDir(tmpDirPath);
 
             // Create Dockerfile
-            DockerfileBuilder dockerfile = new DockerfileBuilder(filterStartTags);
-            dockerfile.write(tmpDirPath + File.separator + "Dockerfile");
-//            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Dockerfile.create", filterStartTags, "/docker-files/Dockerfile.ph");
+            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Create_Image.mustache", filterStartTags);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);

@@ -4,6 +4,10 @@
 */
 package com.oracle.weblogic.imagetool.util;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -144,50 +148,18 @@ public class Utils {
         }
     }
 
-    public static void replacePlaceHolders(String destPath, String mainResource, List<String> filterPrefixes, String... placeHolderResources) throws IOException {
-        try (
-                PrintWriter printWriter = new PrintWriter(new FileWriter(new File(destPath)))
-        ) {
-            String mainContent = readResource(mainResource);
-            if (mainContent.indexOf("# PLACEHOLDER FOR %%") > 0) {
-
-                Map<String, String> placeHolderMap = new HashMap<>();
-                for (String placeHolderResource : placeHolderResources) {
-                    placeHolderMap.putAll(readPlaceHolderResource(placeHolderResource, filterPrefixes));
-                }
-
-                for (Map.Entry<String, String> entry : placeHolderMap.entrySet()) {
-                    String regex = MessageFormat.format("# PLACEHOLDER FOR %%{0}%% #", entry.getKey());
-                    mainContent = mainContent.replaceAll(regex, Matcher.quoteReplacement(entry.getValue()));
-                }
-            }
-            printWriter.println(mainContent);
-        }
-    }
-
-    private static Map<String, String> readPlaceHolderResource(String resourcePath, List<String> desiredPrefixes) throws IOException {
-        String resourceContent = readResource(resourcePath);
-        final String regex = "# START %%(\\S+)%%([_A-Z]*?) #(.*)# END %%(\\1)%%\\2 #";
-        final Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
-        final Matcher matcher = pattern.matcher(resourceContent);
-        Map<String, String> retMap = new HashMap<>();
-        while (matcher.find()) {
-            if (matcher.groupCount() == 4) {
-                String startTag = matcher.group(1);
-                String extraIdentifier = matcher.group(2);
-                String content = matcher.group(3);
-                String endTag = matcher.group(4);
-                if (startTag.equals(endTag) && desiredPrefixes.stream().anyMatch(
-                        x -> startTag.startsWith(x) || extraIdentifier.equalsIgnoreCase(x))) {
-                    //  this matching patten leaves LF in beginning and end
-                    int len = content.length()-2;
-                    retMap.put(startTag, content.substring(1).substring(0,len) );
-                }
-            } else {
-                logger.fine("pattern mismatch in resource " + resourcePath);
-            }
-        }
-        return retMap;
+    /**
+     * Create the Dockerfile to be used by the docker build command for this run.
+     * @param destPath the file folder that the Dockerfile should be written to.
+     * @param template the Dockerfile template that should be used to create the Dockerfile.
+     * @param filterPrefixes the list of options to be applied to the Dockerfile template.
+     * @throws IOException if an error occurs in the low level Java file operations.
+     */
+    public static void writeDockerfile(String destPath, String template, List<String> filterPrefixes) throws IOException {
+        DockerfileOptions dockerfileOptions = new DockerfileOptions(filterPrefixes);
+        MustacheFactory mf = new DefaultMustacheFactory("docker-files");
+        Mustache mustache = mf.compile(template);
+        mustache.execute(new FileWriter(destPath), dockerfileOptions).flush();
     }
 
     /**
