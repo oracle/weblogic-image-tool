@@ -83,7 +83,7 @@ public class CreateImage extends ImageOperation {
             // this handles wls, jdk and wdt install files.
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
-            Utils.validatePatchIds(patches);
+            Utils.validatePatchIds(patches, false);
 
             if (fromImage != null && !fromImage.isEmpty()) {
                 logger.finer("User specified fromImage " + fromImage);

@@ -44,6 +44,7 @@ public final class Constants {
     public static final String HTTPS = "https";
 //    public static final String PATCH_ID_REGEX = "^[pP]?(\\d+)";
     public static final String PATCH_ID_REGEX =  "^(\\d{8})(?:[_][0-9][0-9]\\.[0-9]\\.[0-9]\\.[0-9]\\.(\\d+))";
+    public static final String RIGID_PATCH_ID_REGEX =  "^(\\d{8})[_][0-9][0-9]\\.[0-9]\\.[0-9]\\.[0-9]\\.(\\d+)";
     private Constants() {
         //restrict access
     }

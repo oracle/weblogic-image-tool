@@ -13,7 +13,6 @@ Commands:
   addInstaller  Add cache entry for wls, fmw, jdk or wdt installer
   addPatch      Add cache entry for wls|fmw patch or psu
   getCacheDir   Prints the cache directory path
-  setCacheDir   Sets the cache directory where to download required artifacts
   addEntry      Command to add a cache entry. Use caution
   deleteEntry   Command to delete a cache entry
   help          Displays help information about the specified command
@@ -45,7 +44,7 @@ Commands:
     ```
 Note:  When adding a patch to the cache store. The patchId should be in the following format:  99999999_9.9.9.9.99999  The first 8 digits is the patch id, followed by an underscore and then release number.  This is needed if you want to distinguish a patch that has different versions of the patch.  
 
-For example, patch 29135930 has different versions from Oracle support.
+For example, patch 29135930 has several different versions from Oracle support, one for each release where the bug is fixed.
 
 | Patch Name | Release |
 | ---------|---------|

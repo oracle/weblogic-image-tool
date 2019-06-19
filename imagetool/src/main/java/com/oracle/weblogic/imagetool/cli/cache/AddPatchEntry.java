@@ -51,7 +51,7 @@ public class AddPatchEntry extends CacheOperation {
 
             List<String> patches = new ArrayList<>();
             patches.add(patchId);
-            Utils.validatePatchIds(patches);
+            Utils.validatePatchIds(patches, true);
 
             return addToCache(patchId);
         }
@@ -85,7 +85,7 @@ public class AddPatchEntry extends CacheOperation {
      */
     private CommandResponse addToCache(String patchNumber) {
         logger.info("adding key " + patchNumber);
-        String key = AbstractFile.generateKey(patchNumber, null);
+        String key = patchNumber;
 
         // Check if it is an Opatch patch
         String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
@@ -94,6 +94,11 @@ public class AddPatchEntry extends CacheOperation {
             key = key.substring(0,lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
         }
         logger.info("adding key " + key);
+        if (cacheStore.getValueFromCache(key) != null ) {
+            String error = String.format("Cache key %s already exists, remove it first", key);
+            logger.severe(error);
+            throw new IllegalArgumentException(error);
+        }
         cacheStore.addToCache(key, location.toAbsolutePath().toString());
         String msg = String.format("Added Patch entry %s=%s for %s", key, location.toAbsolutePath(), type);
         logger.info(msg);

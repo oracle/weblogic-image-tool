@@ -132,7 +132,7 @@ public class UpdateImage extends ImageOperation {
                     logger.warning("skipping patch conflict check. useCache set to " + useCache);
                 } else {
 
-                    Utils.validatePatchIds(patches);
+                    Utils.validatePatchIds(patches,false);
 
                     String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
                     if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {

@@ -638,17 +638,22 @@ public class Utils {
      * @throws IllegalAccessException when the first id failed the format validation
      */
 
-    public static void validatePatchIds(List<String> patches) throws IllegalAccessException {
-        Pattern patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
+    public static void validatePatchIds(List<String> patches, boolean rigid) throws IllegalAccessException {
+        Pattern patchIdPattern;
+        if (rigid)
+            patchIdPattern= Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
+        else
+            patchIdPattern= Pattern.compile(Constants.PATCH_ID_REGEX);
+
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
                 Matcher matcher = patchIdPattern.matcher(patchId);
                 if (!matcher.matches()) {
                     String error = String.format("Invalid patch id %s. Patch id must be in the format of 12345678[_12"
                         + ".2.1.3.0]:  "
-                        + "started with 8 digits patch id.  If the patch has different version, "
-                        + "it should be followed by an underscore and then 5 digits release tuple separated by "
-                        + "period", patchId);
+                        + "starting with 8 digits patch ID.  For patches that has multiple target versions, the "
+                        + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or 12.2.1."
+                        + "3.190416", patchId);
                     logger.severe(error);
                     throw new IllegalArgumentException(error);
                 }

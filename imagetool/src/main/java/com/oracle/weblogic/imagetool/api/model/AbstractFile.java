@@ -22,20 +22,10 @@ public abstract class AbstractFile implements FileResolver {
     protected String password;
 
     public AbstractFile(String id, String version, CachePolicy cachePolicy, String userId, String password) {
-        this.key = generateKey(id, version);
+        this.key = id;
         this.cachePolicy = cachePolicy;
         this.userId = userId;
         this.password = password;
-    }
-
-    public static String generateKey(String id, String version) {
-        String key = id;
-        if (id.indexOf('_') < 0) {
-            if (version != null) {
-                key = key + CacheStore.CACHE_KEY_SEPARATOR + version;
-            }
-        }
-        return key;
     }
 
     public static boolean isFileOnDisk(String filePath) {
