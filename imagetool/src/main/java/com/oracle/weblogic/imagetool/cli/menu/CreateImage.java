@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Command(
@@ -74,6 +76,8 @@ public class CreateImage extends ImageOperation {
 
             // this handles wls, jdk and wdt install files.
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
+
+            Utils.validatePatchIds(patches);
 
             if (fromImage != null && !fromImage.isEmpty()) {
                 logger.finer("User specified fromImage " + fromImage);

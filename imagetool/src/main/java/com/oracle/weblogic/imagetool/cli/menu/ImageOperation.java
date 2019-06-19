@@ -97,15 +97,9 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             patchLocations.add(psuResolver.resolve(cacheStore));
         }
         if (patches != null && !patches.isEmpty()) {
-            Pattern patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
             for (String patchId : patches) {
-                Matcher matcher = patchIdPattern.matcher(patchId);
-                if (matcher.matches() && matcher.groupCount() > 0) {
-                    patchLocations.add(new PatchFile(useCache, installerType.toString(), installerVersion,
-                            matcher.group(1), userId, password).resolve(cacheStore));
-                } else {
-                    logger.severe("Ignoring invalid patch id format: " + patchId);
-                }
+                patchLocations.add(new PatchFile(useCache, installerType.toString(), installerVersion,
+                        patchId, userId, password).resolve(cacheStore));
             }
         }
         for (String patchLocation : patchLocations) {

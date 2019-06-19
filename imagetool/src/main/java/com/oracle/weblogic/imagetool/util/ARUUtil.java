@@ -147,12 +147,12 @@ public class ARUUtil {
      * @return List of bug numbers
      * @throws IOException when failed to access the aru api
      */
-    public static List<String> getPatchesFor(String category, String version, List<String> patches, String userId, String password, String destDir)
+    public static List<String> getPatchesFor( List<String> patches, String userId, String password, String destDir)
             throws
             IOException {
         List<String> results = new ArrayList<>();
         for (String patch : patches) {
-            String rs = getPatch(category, version, patch, userId, password, destDir);
+            String rs = getPatch(patch, userId, password, destDir);
             if (rs != null) {
                 results.add(rs);
             }
@@ -223,8 +223,15 @@ public class ARUUtil {
         if (patches != null && !patches.isEmpty()) {
             payload.append("<candidate_patch_list>");
             for (String patch : patches) {
+
+                String bugReleaseNumber = ARUUtil.getPatchInfo(patch, userId, password);
+                int ind = patch.indexOf('_');
+                String baseBugNumber = patch;
+                if (ind > 0) {
+                    baseBugNumber = patch.substring(0,ind);
+                }
                 payload.append(String.format("<patch_group rel_id=\"%s\">%s</patch_group>",
-                        releaseNumber, patch));
+                    bugReleaseNumber, baseBugNumber));
             }
             payload.append("</candidate_patch_list>");
         }
@@ -241,25 +248,12 @@ public class ARUUtil {
 
                     NodeList nodeList = XPathUtil.applyXPathReturnNodeList(result, expression);
 
-                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder builder = dbf.newDocumentBuilder();
-                    Document doc = builder.newDocument();
-                    Element element = doc.createElement("conflict_check_results");
-
-                    for (int i = 0; i < nodeList.getLength(); i++) {
-                        Node n = nodeList.item(i);
-                        Node copyNode = doc.importNode(n, true);
-
-                        if (n instanceof Element)
-                            element.appendChild(copyNode);
-                    }
-
-                    doc.appendChild(element);
+                    Document doc = createResultDocument(nodeList);
 
                     validationResult.setResults(doc);
                     validationResult.setErrorMessage(parsePatchValidationError(doc));
 
-                } catch (XPathExpressionException | ParserConfigurationException xpe) {
+                } catch (XPathExpressionException  xpe) {
                     throw new IOException(xpe);
                 }
 
@@ -311,7 +305,7 @@ public class ARUUtil {
         String password) throws IOException {
 
         try {
-            String url = String.format(Constants.OPATCH_BUG_URL, bugNumber);
+            String url = String.format(Constants.BUG_SEARCH_URL, bugNumber);
             Document allPatches = HttpUtil.getXMLContent(url, userId, password);
             String version = XPathUtil.applyXPathReturnString(allPatches, "string(/results/patch[1]/release"
                 + "/@name)");
@@ -362,26 +356,10 @@ public class ARUUtil {
                 expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
             }
             NodeList nodeList = XPathUtil.applyXPathReturnNodeList(allReleases, expression);
-
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = dbf.newDocumentBuilder();
-            Document doc = builder.newDocument();
-            Element element = doc.createElement("results");
-
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node n = nodeList.item(i);
-                Node copyNode = doc.importNode(n, true);
-
-                if (n instanceof Element)
-                    element.appendChild(copyNode);
-            }
-
-            doc.appendChild(element);
-            //XPathUtil.prettyPrint(doc);
-
+            Document doc = createResultDocument(nodeList);
             return doc;
 
-        } catch (XPathExpressionException | ParserConfigurationException xpe) {
+        } catch (XPathExpressionException  xpe) {
             throw new IOException(xpe);
         }
     }
@@ -396,7 +374,7 @@ public class ARUUtil {
             url = String.format(Constants.LATEST_PSU_URL, Constants.FMW_PROD_ID, release);
 
         Document allPatches = HttpUtil.getXMLContent(url, userId, password);
-        return savePatch(allPatches, userId, password, destDir);
+        return savePatch(allPatches, userId, password, destDir, null);
     }
 
     private static SearchResult getAllPSU(String category, String release, String userId, String password) throws
@@ -412,66 +390,111 @@ public class ARUUtil {
 
     }
 
-    private static String getPatch(String category, String version, String bugNumber, String userId, String password, String destDir)
+    private static String getPatch(String bugNumber, String userId, String password, String destDir)
             throws
             IOException {
 
-        String releaseNumber = "";
-        if (!category.equals(Constants.OPATCH_PATCH_TYPE)) {
-            releaseNumber = getReleaseNumber(category, version, userId, password);
+        int ind =  bugNumber.indexOf('_');
+        String baseBugNumber = bugNumber;
+        if (ind > 0) {
+            baseBugNumber = bugNumber.substring(0,ind);
         }
-        String url;
-        if ("wls".equalsIgnoreCase(category)) {
-            url = String.format(Constants.PATCH_SEARCH_URL, Constants.WLS_PROD_ID, bugNumber, releaseNumber);
-        } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(category)) {
-            url = String.format(Constants.OPATCH_BUG_URL, bugNumber);
-        } else {
-            url = String.format(Constants.PATCH_SEARCH_URL, Constants.FMW_PROD_ID, bugNumber, releaseNumber);
-        }
+        String url = String.format(Constants.BUG_SEARCH_URL, baseBugNumber);
         Document allPatches = HttpUtil.getXMLContent(url, userId, password);
 
-        return savePatch(allPatches, userId, password, destDir);
+        return savePatch(allPatches, userId, password, destDir, bugNumber);
     }
 
-    private static String savePatch(Document allPatches, String userId, String password, String destDir) throws IOException {
+    private static String savePatch(Document allPatches, String userId, String password, String destDir,
+        String bugNumber) throws IOException {
+
+        logger.finest("Saving patch " + bugNumber);
         try {
 
-            // TODO: needs to make sure there is one and some filtering if not sorting
+            if (bugNumber != null ) {
+                int ind = bugNumber.indexOf('_');
+                String baseBugNumber= bugNumber;
+                String optionalRelease = null;
+                if (ind  > 0) {
+                    baseBugNumber = bugNumber.substring(0,ind);
+                    optionalRelease = bugNumber.substring(ind+1);
+                }
+                NodeList nodeList = XPathUtil.applyXPathReturnNodeList(allPatches, "/results/patch");
+                if (nodeList.getLength() > 0 && ind < 0) {
+                    // only base number is specified and there are multiple patches
+                    // ERROR
+                    String message = String.format("There are multiple patches found with id %s, please specify "
+                        + "the format as one of the following for the release you want", baseBugNumber);
+                    logger.warning(message);
+                    for (int i=1; i<=nodeList.getLength(); i++) {
+                        String xpath = String.format("string(/results/patch[%d]/release/@name)", i);
+                        String releaseNumber = XPathUtil.applyXPathReturnString(allPatches,xpath);
+                        logger.warning(bugNumber + "_" + releaseNumber);
+                    }
+                    throw new IOException("Multiple patches with same patch number detected");
+                }
+
+                String xpath =  String.format("/results/patch[release[@name='%s']]", optionalRelease);
+                NodeList matchedResult = XPathUtil.applyXPathReturnNodeList(allPatches, xpath);
+                allPatches = createResultDocument(matchedResult);
+                logger.finest(XPathUtil.prettyPrint(allPatches));
+            }
 
             String downLoadLink = XPathUtil.applyXPathReturnString(allPatches, "string"
-                    + "(/results/patch[1]/files/file/download_url/text())");
+                + "(/results/patch[1]/files/file/download_url/text())");
 
             String downLoadHost = XPathUtil.applyXPathReturnString(allPatches, "string"
-                    + "(/results/patch[1]/files/file/download_url/@host)");
+                + "(/results/patch[1]/files/file/download_url/@host)");
 
-            String bugName = XPathUtil.applyXPathReturnString(allPatches, "/results/patch[1]/name");
-
-            String releaseNumber = XPathUtil.applyXPathReturnString(allPatches,
-                    "string(/results/patch[1]/release/@id)");
-
-            String key = bugName + CacheStore.CACHE_KEY_SEPARATOR + releaseNumber;
+            String key = bugNumber;
 
             int index = downLoadLink.indexOf("patch_file=");
 
             if (index > 0) {
                 String fileName = destDir + File.separator + downLoadLink.substring(
-                        index + "patch_file=".length());
+                    index + "patch_file=".length());
                 HttpUtil.downloadFile(downLoadHost + downLoadLink, fileName, userId, password);
-                /*
-                if (!new File(fileName).exists()) {
-                    HttpUtil.downloadFile(downLoadHost + downLoadLink, fileName, userId, password);
-                } else {
-                    logger.info(String.format("patch %s already downloaded for bug %s", fileName, key));
-                }*/
-                return key + "=" + fileName;
+                String result = key + "=" + fileName;
+                logger.finest("savePatch returns " + result);
+                return result;
             }
 
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
         }
 
+        logger.finest("savePatch returns nothing");
         return null;
     }
+
+    public static String getPatchInfo(String bugNumber, String userId, String password)
+        throws
+        IOException {
+        logger.finest("Entering getPatchInfo " + bugNumber);
+
+        try {
+            int ind =  bugNumber.indexOf('_');
+            String optionalRelease = null;
+            String baseBugNumber = bugNumber;
+            if (ind > 0) {
+                baseBugNumber = bugNumber.substring(0,ind);
+                optionalRelease = bugNumber.substring(ind+1);
+            }
+            String url = String.format(Constants.BUG_SEARCH_URL, baseBugNumber);
+            Document allPatches = HttpUtil.getXMLContent(url, userId, password);
+
+            String xpath =  String.format("/results/patch/release[@name='%s']/@id", optionalRelease);
+            logger.finest("applying xpath: " + xpath);
+            String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
+            logger.finest(String.format("Exiting getPatchInfo %s = %s " , bugNumber, releaseNumber));
+            return releaseNumber;
+
+        } catch (XPathExpressionException xpe) {
+            throw new IOException(xpe);
+        }
+
+    }
+
 
     /**
      * Given a product category (wls, fmw, opatch) and version, determines the release number corresponding to that
@@ -559,6 +582,31 @@ public class ARUUtil {
             }
         }
         return stringBuilder.toString();
+    }
+
+
+    private static Document createResultDocument(NodeList nodeList) throws IOException {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = dbf.newDocumentBuilder();
+            Document doc = builder.newDocument();
+            Element element = doc.createElement("results");
+
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node n = nodeList.item(i);
+                Node copyNode = doc.importNode(n, true);
+
+                if (n instanceof Element)
+                    element.appendChild(copyNode);
+            }
+
+            doc.appendChild(element);
+
+            return doc;
+        } catch (ParserConfigurationException pce) {
+            throw new IOException(pce);
+        }
+
     }
 }
 

@@ -7,6 +7,7 @@ package com.oracle.weblogic.imagetool.cli.menu;
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -26,6 +27,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -128,6 +131,9 @@ public class UpdateImage extends ImageOperation {
                 if (useCache == CachePolicy.ALWAYS) {
                     logger.warning("skipping patch conflict check. useCache set to " + useCache);
                 } else {
+
+                    Utils.validatePatchIds(patches);
+
                     String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
                     if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {
                         logger.info("opatch-lsinventory file exists at: " + lsInvFile);

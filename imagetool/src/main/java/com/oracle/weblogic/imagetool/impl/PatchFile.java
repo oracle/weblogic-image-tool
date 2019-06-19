@@ -65,7 +65,7 @@ public class PatchFile extends AbstractFile {
 
     private String downloadPatch(CacheStore cacheStore) throws IOException {
         // try downloading it
-        List<String> patches = ARUUtil.getPatchesFor(category, version, Collections.singletonList(patchId),
+        List<String> patches = ARUUtil.getPatchesFor( Collections.singletonList(patchId),
                 userId, password, cacheStore.getCacheDir());
         String patchKey = getKey();
         // we ignore the release number coming from ARUUtil patchId_releaseNumber=/path/to/patch.zip

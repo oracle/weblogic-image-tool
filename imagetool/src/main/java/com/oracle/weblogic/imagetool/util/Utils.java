@@ -632,4 +632,25 @@ public class Utils {
         return null;
     }
 
+
+    public static void validatePatchIds(List<String> patches) throws IllegalAccessException {
+        Pattern patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
+        if (patches != null && !patches.isEmpty()) {
+            for (String patchId : patches) {
+                Matcher matcher = patchIdPattern.matcher(patchId);
+                if (!matcher.matches()) {
+                    String error = String.format("Invalid patch id %s. Patch id must be in the format of 12345678[_12"
+                        + ".2.1.3.0]:  "
+                        + "started with 8 digits patch id.  If the patch has different version, "
+                        + "it should be followed by an underscore and then 5 digits release tuple separated by "
+                        + "period", patchId);
+                    logger.severe(error);
+                    throw new IllegalArgumentException(error);
+                }
+            }
+
+        }
+
+    }
+
 }

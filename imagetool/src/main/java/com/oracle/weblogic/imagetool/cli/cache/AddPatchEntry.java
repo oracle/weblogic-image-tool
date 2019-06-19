@@ -81,25 +81,27 @@ public class AddPatchEntry extends CacheOperation {
      * @throws Exception if the ARU call to get patch details failed
      */
     private CommandResponse validateAndAddToCache(String patchNumber, String password) throws Exception {
-        boolean matches = false;
+//        boolean matches = false;
 
-        SearchResult searchResult = ARUUtil.getPatchDetail(type.toString(), version, patchNumber, userId, password);
+        return addToCache(patchNumber);
 
-        if (searchResult.isSuccess()) {
-            Document document = searchResult.getResults();
-            String patchDigest = XPathUtil.applyXPathReturnString(document, "string"
-                    + "(/results/patch[1]/files/file/digest[@type='SHA-256']/text())");
-            String localDigest = DigestUtils.sha256Hex(new FileInputStream(location.toFile()));
+//        SearchResult searchResult = ARUUtil.getPatchDetail(type.toString(), version, patchNumber, userId, password);
+//
+//        if (searchResult.isSuccess()) {
+//            Document document = searchResult.getResults();
+//            String patchDigest = XPathUtil.applyXPathReturnString(document, "string"
+//                    + "(/results/patch[1]/files/file/digest[@type='SHA-256']/text())");
+//            String localDigest = DigestUtils.sha256Hex(new FileInputStream(location.toFile()));
+//
+//            if (localDigest.equalsIgnoreCase(patchDigest)) {
+//                return addToCache(patchNumber);
+//            } else {
+//                return new CommandResponse(-1, String.format(
+//                        "Local file sha-256 digest %s != patch digest %s", localDigest, patchDigest));
+//            }
+//        }
 
-            if (localDigest.equalsIgnoreCase(patchDigest)) {
-                return addToCache(patchNumber);
-            } else {
-                return new CommandResponse(-1, String.format(
-                        "Local file sha-256 digest %s != patch digest %s", localDigest, patchDigest));
-            }
-        }
-
-        return new CommandResponse(-1, String.format("Unable to find patchId %s on Oracle Support", patchId));
+//        return new CommandResponse(-1, String.format("Unable to find patchId %s on Oracle Support", patchId));
     }
 
     /**

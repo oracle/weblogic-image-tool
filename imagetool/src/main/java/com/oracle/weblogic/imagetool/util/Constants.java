@@ -20,7 +20,7 @@ public final class Constants {
             + ".com/Orion/Services/search?product=%s&bug=%s&release=%s";
     static final String CONFLICTCHECKER_URL = "https://updates.oracle.com/Orion/Services/conflict_checks";
     static final String GET_LSINVENTORY_URL = "https://updates.oracle.com/Orion/Services/get_inventory_upi";
-    static final String OPATCH_BUG_URL = "https://updates.oracle.com/Orion/Services/search?bug=%s";
+    static final String BUG_SEARCH_URL = "https://updates.oracle.com/Orion/Services/search?bug=%s";
     static final String WLS_PROD_ID = "15991";
     static final String FMW_PROD_ID = "27638";
     static final String OPATCH_PROD_ID = "31944";
@@ -42,8 +42,8 @@ public final class Constants {
     public static final String CACHE_STORE_TYPE = "cacheStoreType";
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
-    public static final String PATCH_ID_REGEX = "^[pP]?(\\d+)";
-
+//    public static final String PATCH_ID_REGEX = "^[pP]?(\\d+)";
+    public static final String PATCH_ID_REGEX =  "^(\\d{8})(?:[_][0-9][0-9]\\.[0-9]\\.[0-9]\\.[0-9]\\.(\\d+))";
     private Constants() {
         //restrict access
     }
