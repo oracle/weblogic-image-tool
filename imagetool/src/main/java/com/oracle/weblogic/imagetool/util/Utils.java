@@ -632,6 +632,11 @@ public class Utils {
         return null;
     }
 
+    /**
+     * validatePatchIds validate the format of the patch ids
+     * @param patches list of patch ids
+     * @throws IllegalAccessException when the first id failed the format validation
+     */
 
     public static void validatePatchIds(List<String> patches) throws IllegalAccessException {
         Pattern patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);

@@ -467,6 +467,14 @@ public class ARUUtil {
         return null;
     }
 
+    /**
+     * getPatchInfo returns the internal release number from a patch number (with optional release info)
+     * @param bugNumber patch id in the format of 9999999_1.1.1.1.9999
+     * @param userId user id for support
+     * @param password password for support
+     * @return internal release number of this patch
+     * @throws IOException when the patch is not found or failed to connect to ARU
+     */
     public static String getPatchInfo(String bugNumber, String userId, String password)
         throws
         IOException {
@@ -487,6 +495,11 @@ public class ARUUtil {
             logger.finest("applying xpath: " + xpath);
             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
             logger.finest(String.format("Exiting getPatchInfo %s = %s " , bugNumber, releaseNumber));
+            if (releaseNumber == null || "".equals(releaseNumber)) {
+                String error = String.format("Patch id %s not found", bugNumber);
+                logger.severe(error);
+                throw new IOException(error);
+            }
             return releaseNumber;
 
         } catch (XPathExpressionException xpe) {

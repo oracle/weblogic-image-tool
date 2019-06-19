@@ -10,9 +10,12 @@ import com.oracle.weblogic.imagetool.api.model.DomainType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
+import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.ValidationResult;
+
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -25,9 +28,12 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -176,6 +182,25 @@ public class CreateImage extends ImageOperation {
         logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir.toAbsolutePath().toString());
         if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) == 0) {
             addOPatch1394ToImage(tmpDir, opatchBugNumber);
+            Set<String> toValidateSet = new HashSet<>();
+            if (latestPSU) {
+                toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
+                    userId, password));
+            }
+            toValidateSet.addAll(patches);
+
+            ValidationResult validationResult = ARUUtil.validatePatches(null,
+                new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
+                password);
+            if (validationResult.isSuccess()) {
+                logger.info("patch conflict check successful");
+            } else {
+                String error = validationResult.getErrorMessage();
+                logger.severe(error);
+                throw new IllegalArgumentException(error);
+            }
+
+
         }
         //we need a local installerVersion variable for the command line Option. so propagate to super.
         super.installerVersion = installerVersion;
