@@ -22,6 +22,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 @Command(
@@ -42,24 +44,16 @@ public class AddPatchEntry extends CacheOperation {
 
     @Override
     public CommandResponse call() throws Exception {
-        String password = handlePasswordOptions();
 
         if (patchId != null && !patchId.isEmpty()
                 && location != null && Files.exists(location)
                 && Files.isRegularFile(location)) {
 
-            String patchNumber;
-            if (patchId.matches(Constants.PATCH_ID_REGEX)) {
-                patchNumber = patchId.substring(1);
-            } else {
-                return new CommandResponse(-1, "Invalid patch id format: " + patchId);
-            }
-            if (userId != null && !userId.isEmpty() && password != null && !password.isEmpty() ) {
-                return validateAndAddToCache(patchNumber, password);
-            } else {
-                logger.info("Skipping patch validation, username and password were not provided");
-                return addToCache(patchNumber);
-            }
+            List<String> patches = new ArrayList<>();
+            patches.add(patchId);
+            Utils.validatePatchIds(patches);
+
+            return addToCache(patchId);
         }
 
         String msg = "Invalid arguments";
@@ -81,27 +75,7 @@ public class AddPatchEntry extends CacheOperation {
      * @throws Exception if the ARU call to get patch details failed
      */
     private CommandResponse validateAndAddToCache(String patchNumber, String password) throws Exception {
-//        boolean matches = false;
-
         return addToCache(patchNumber);
-
-//        SearchResult searchResult = ARUUtil.getPatchDetail(type.toString(), version, patchNumber, userId, password);
-//
-//        if (searchResult.isSuccess()) {
-//            Document document = searchResult.getResults();
-//            String patchDigest = XPathUtil.applyXPathReturnString(document, "string"
-//                    + "(/results/patch[1]/files/file/digest[@type='SHA-256']/text())");
-//            String localDigest = DigestUtils.sha256Hex(new FileInputStream(location.toFile()));
-//
-//            if (localDigest.equalsIgnoreCase(patchDigest)) {
-//                return addToCache(patchNumber);
-//            } else {
-//                return new CommandResponse(-1, String.format(
-//                        "Local file sha-256 digest %s != patch digest %s", localDigest, patchDigest));
-//            }
-//        }
-
-//        return new CommandResponse(-1, String.format("Unable to find patchId %s on Oracle Support", patchId));
     }
 
     /**
@@ -110,7 +84,8 @@ public class AddPatchEntry extends CacheOperation {
      * @return CLI command response
      */
     private CommandResponse addToCache(String patchNumber) {
-        String key = AbstractFile.generateKey(patchNumber, version);
+        logger.info("adding key " + patchNumber);
+        String key = AbstractFile.generateKey(patchNumber, null);
 
         // Check if it is an Opatch patch
         String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
@@ -118,25 +93,17 @@ public class AddPatchEntry extends CacheOperation {
             int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
             key = key.substring(0,lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
         }
+        logger.info("adding key " + key);
         cacheStore.addToCache(key, location.toAbsolutePath().toString());
         String msg = String.format("Added Patch entry %s=%s for %s", key, location.toAbsolutePath(), type);
         logger.info(msg);
         return new CommandResponse(0, msg);
     }
 
-    /**
-     * Determines the support password by parsing the possible three input options
-     *
-     * @return String form of password
-     * @throws IOException in case of error
-     */
-    private String handlePasswordOptions() throws IOException {
-        return Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
-    }
 
     @Option(
             names = {"--patchId"},
-            description = "Patch number. Ex: p28186730",
+            description = "Patch number. Ex: 28186730",
             required = true
     )
     private String patchId;
@@ -149,13 +116,6 @@ public class AddPatchEntry extends CacheOperation {
     )
     private WLSInstallerType type;
 
-    @Option(
-            names = {"--version"},
-            description = "version of mw this patch is for. Ex: 12.2.1.3.0",
-            required = true,
-            defaultValue = Constants.DEFAULT_WLS_VERSION
-    )
-    private String version;
 
     @Option(
             names = {"--path"},
@@ -164,31 +124,4 @@ public class AddPatchEntry extends CacheOperation {
     )
     private Path location;
 
-    @Option(
-            names = {"--user"},
-            paramLabel = "<support email>",
-            description = "Oracle Support email id"
-    )
-    private String userId;
-
-    @Option(
-            names = {"--password"},
-            paramLabel = "<password for support user id>",
-            description = "Password for support userId"
-    )
-    String passwordStr;
-
-    @Option(
-            names = {"--passwordEnv"},
-            paramLabel = "<environment variable>",
-            description = "environment variable containing the support password"
-    )
-    String passwordEnv;
-
-    @Option(
-            names = {"--passwordFile"},
-            paramLabel = "<password file>",
-            description = "path to file containing just the password"
-    )
-    Path passwordFile;
 }

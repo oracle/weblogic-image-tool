@@ -29,10 +29,13 @@ public abstract class AbstractFile implements FileResolver {
     }
 
     public static String generateKey(String id, String version) {
-        if (id.indexOf('_') > 0)
-            return id;
-        else
-            return id + CacheStore.CACHE_KEY_SEPARATOR + version;
+        String key = id;
+        if (id.indexOf('_') < 0) {
+            if (version != null) {
+                key = key + CacheStore.CACHE_KEY_SEPARATOR + version;
+            }
+        }
+        return key;
     }
 
     public static boolean isFileOnDisk(String filePath) {

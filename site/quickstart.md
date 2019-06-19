@@ -149,11 +149,8 @@ For each WebLogic patch, you will need to download it from Oracle Support and se
 27342434 for WebLogic version 12.2.1.3.0:
 
 ```bash
-imagetool cache addPatch --patchId p27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip --user username@mycompany.com --passwordEnv MYPWD
+imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip 
 ```
-
-You need to provide the credentials on the command line. It verifies the MD5 on the file system against the metadata
- on Oracle Support for this patch number.
 
 Then, you can run the command to create the image:
 
