@@ -38,6 +38,7 @@ public class CreateImage extends ImageOperation {
     private final Logger logger = Logger.getLogger(CreateImage.class.getName());
 
     public CreateImage() {
+        super();
     }
 
     public CreateImage(boolean isCLIMode) {
@@ -72,8 +73,7 @@ public class CreateImage extends ImageOperation {
 
             if (fromImage != null && !fromImage.isEmpty()) {
                 logger.finer("User specified fromImage " + fromImage);
-                cmdBuilder.add(Constants.BUILD_ARG);
-                cmdBuilder.add("BASE_IMAGE=" + fromImage);
+                dockerfileOptions.setBaseImage(fromImage);
 
                 tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
                     "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
@@ -97,12 +97,12 @@ public class CreateImage extends ImageOperation {
                 if (useCache != CachePolicy.ALWAYS) {
                     String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
                     if (!Utils.isEmptyString(pkgMgr)) {
-                        filterStartTags.add(pkgMgr);
+                        dockerfileOptions.setPackageInstaller(pkgMgr);
                     }
                 }
             } else {
                 if (useCache != CachePolicy.ALWAYS) {
-                    filterStartTags.add(Constants.YUM);
+                    dockerfileOptions.setPackageInstaller(Constants.YUM);
                 }
             }
 
@@ -116,7 +116,7 @@ public class CreateImage extends ImageOperation {
             copyResponseFilesToDir(tmpDirPath);
 
             // Create Dockerfile
-            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Create_Image.mustache", filterStartTags);
+            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Create_Image.mustache", dockerfileOptions);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
@@ -200,7 +200,7 @@ public class CreateImage extends ImageOperation {
                         retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
                     }
                 }
-                filterStartTags.add(Constants.WDT);
+                dockerfileOptions.setWdtEnabled();
                 Path targetLink = Files.copy(wdtModelPath, Paths.get(tmpDirPath, wdtModelPath.getFileName().toString())
                     );
                 retVal.add(Constants.BUILD_ARG);

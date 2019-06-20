@@ -74,30 +74,30 @@ ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
 COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{java_home}} {{java_home}}/
 COPY --chown={{userid}}:{{groupid}} $WLS_PKG $WLS_RESP $OTMPDIR/
 COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
-{{#update_opatch}}
+{{#isOpatchPatchingEnabled}}
 COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
-{{/update_opatch}}
-{{#patching_WLS}}
+{{/isOpatchPatchingEnabled}}
+{{#isPatchingEnabled}}
 COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/
-{{/patching_WLS}}
+{{/isPatchingEnabled}}
 
 USER {{userid}}
 
 RUN unzip $OTMPDIR/$WLS_PKG -d $OTMPDIR \
  && {{java_home}}/bin/java -Xmx1024m -jar $OTMPDIR/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
     -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
-{{#update_opatch}}
+{{#isOpatchPatchingEnabled}}
  && cd $OTMPDIR/opatch \
  && {{java_home}}/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
  && {{java_home}}/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
-{{/update_opatch}}
-{{#patching_WLS}}
+{{/isOpatchPatchingEnabled}}
+{{#isPatchingEnabled}}
  && $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \
  && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
-{{/patching_WLS}}
+{{/isPatchingEnabled}}
  && rm -rf {{java_home}} $OTMPDIR
 
-{{#use_WDT}}
+{{#isWdtEnabled}}
 FROM OS_UPDATE as WDT_BUILD
 
 ARG ORACLE_HOME=/u01/oracle
@@ -163,15 +163,15 @@ RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \
  $MODEL_OPT \
  $ARCHIVE_OPT \
  && rm -rf {{java_home}} ${ORACLE_HOME} ${WDT_HOME} $OTMPDIR
-{{/use_WDT}}
+{{/isWdtEnabled}}
 
 FROM {{baseImage}} as FINAL_BUILD
 
 ARG ORACLE_HOME=/u01/oracle
-{{#use_WDT}}
+{{#isWdtEnabled}}
 ARG DOMAIN_PARENT
 ARG DOMAIN_HOME
-{{/use_WDT}}
+{{/isWdtEnabled}}
 ARG ADMIN_NAME
 ARG ADMIN_HOST
 ARG ADMIN_PORT
@@ -179,7 +179,7 @@ ARG MANAGED_SERVER_PORT
 
 ENV ORACLE_HOME=${ORACLE_HOME} \
     JAVA_HOME={{java_home}} \
-{{#use_WDT}}
+{{#isWdtEnabled}}
     ADMIN_NAME=${ADMIN_NAME:-admin-server} \
     ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
     ADMIN_PORT=${ADMIN_PORT:-7001} \
@@ -187,7 +187,7 @@ ENV ORACLE_HOME=${ORACLE_HOME} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
     WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
-{{/use_WDT}}
+{{/isWdtEnabled}}
     LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties
 
@@ -204,17 +204,17 @@ RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && 
 
 COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} $JAVA_HOME {{java_home}}/
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} $ORACLE_HOME $ORACLE_HOME/
-{{#use_WDT}}
+{{#isWdtEnabled}}
 COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} $DOMAIN_HOME $DOMAIN_HOME/
-{{/use_WDT}}
+{{/isWdtEnabled}}
 
 USER {{userid}}
 WORKDIR $ORACLE_HOME
 
-{{#use_WDT}}
+{{#isWdtEnabled}}
 # Expose admin server, managed server port
 EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT
-{{/use_WDT}}
+{{/isWdtEnabled}}
 
 #ENTRYPOINT /bin/bash
 

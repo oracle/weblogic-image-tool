@@ -17,18 +17,18 @@ ENV PATCHDIR=${PATCHDIR:-patches} \
 
 USER oracle
 
-{{#update_opatch}}
+{{#isOpatchPatchingEnabled}}
 COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
 RUN cd $OTMPDIR/opatch \
  && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
  && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
  && rm -rf $OTMPDIR
-{{/update_opatch}}
+{{/isOpatchPatchingEnabled}}
 
-{{#patching_WLS}}
+{{#isPatchingEnabled}}
 COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/
 
 RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \
  && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
  && rm -rf $OTMPDIR
-{{/patching_WLS}}
+{{/isPatchingEnabled}}

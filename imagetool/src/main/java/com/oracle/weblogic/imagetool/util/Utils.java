@@ -152,14 +152,13 @@ public class Utils {
      * Create the Dockerfile to be used by the docker build command for this run.
      * @param destPath the file folder that the Dockerfile should be written to.
      * @param template the Dockerfile template that should be used to create the Dockerfile.
-     * @param filterPrefixes the list of options to be applied to the Dockerfile template.
+     * @param options the options to be applied to the Dockerfile template.
      * @throws IOException if an error occurs in the low level Java file operations.
      */
-    public static void writeDockerfile(String destPath, String template, List<String> filterPrefixes) throws IOException {
-        DockerfileOptions dockerfileOptions = new DockerfileOptions(filterPrefixes);
+    public static void writeDockerfile(String destPath, String template, DockerfileOptions options) throws IOException {
         MustacheFactory mf = new DefaultMustacheFactory("docker-files");
         Mustache mustache = mf.compile(template);
-        mustache.execute(new FileWriter(destPath), dockerfileOptions).flush();
+        mustache.execute(new FileWriter(destPath), options).flush();
     }
 
     /**
