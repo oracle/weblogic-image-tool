@@ -264,6 +264,17 @@ public class ARUUtil {
 
             }
 
+            // After checking for conflicts, make sure no error message
+
+            NodeList errorMessages = XPathUtil.applyXPathReturnNodeList(result, "/conflict_check/messages/message"
+                + "[@type='error']");
+
+            if (errorMessages.getLength()>0) {
+                validationResult.setSuccess(false);
+                String error = XPathUtil.prettyPrint(result);
+                validationResult.setErrorMessage(error);
+            }
+
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
 

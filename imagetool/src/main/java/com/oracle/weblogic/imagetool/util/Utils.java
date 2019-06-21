@@ -620,7 +620,7 @@ public class Utils {
         }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                logger.info("pattern match id " + patchId );
+                logger.finest("pattern match id " + patchId );
                 Matcher matcher = patchIdPattern.matcher(patchId);
                 if (!matcher.matches()) {
                     String error = String.format("Invalid patch id %s. Patch id must be in the format of 12345678[_12"
