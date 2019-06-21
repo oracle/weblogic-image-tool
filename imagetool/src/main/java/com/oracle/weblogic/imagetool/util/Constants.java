@@ -1,7 +1,6 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.util;
 
 import java.util.List;
@@ -28,8 +27,6 @@ public final class Constants {
     public static final String CACHE_DIR_KEY = "cache.dir";
     public static final String DEFAULT_WLS_VERSION = "12.2.1.3.0";
     public static final String DEFAULT_JDK_VERSION = "8u202";
-    public static final String WEBLOGIC_IMAGETOOL = "com/oracle/weblogicx/imagetool";
-    public static final String METADATA_PREF_KEY = "metadata.file";
     public static final String DEFAULT_META_FILE = ".metadata";
     public static final String DELETE_ALL_FOR_SURE = "deleteAll4Sure";
 
@@ -38,11 +35,15 @@ public final class Constants {
     ).collect(Collectors.toList());
     public static final String BUILD_ARG = "--build-arg";
     public static final String FILE_CACHE = "FILE";
-    public static final String PREF_CACHE = "PREF";
-    public static final String CACHE_STORE_TYPE = "cacheStoreType";
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
     public static final String PATCH_ID_REGEX = "^[pP]?(\\d+)";
+
+    //Option flags
+    public static final String YUM = "_YUM";
+    public static final String APTGET = "_APT";
+    public static final String ZYPPER = "_SUSE";
+
 
     private Constants() {
         //restrict access

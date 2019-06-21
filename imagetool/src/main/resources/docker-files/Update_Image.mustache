@@ -1,0 +1,34 @@
+#
+# Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+#
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+#
+#
+
+FROM {{baseImage}} as OS_UPDATE
+USER root
+
+ARG PATCHDIR
+ARG OTMPDIR
+
+ENV PATCHDIR=${PATCHDIR:-patches} \
+    OTMPDIR=${OTMPDIR:-/tmp/delme} \
+    OPATCH_NO_FUSER=true
+
+USER oracle
+
+{{#isOpatchPatchingEnabled}}
+COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
+RUN cd $OTMPDIR/opatch \
+ && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
+ && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
+ && rm -rf $OTMPDIR
+{{/isOpatchPatchingEnabled}}
+
+{{#isPatchingEnabled}}
+COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/
+
+RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \
+ && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
+ && rm -rf $OTMPDIR
+{{/isPatchingEnabled}}

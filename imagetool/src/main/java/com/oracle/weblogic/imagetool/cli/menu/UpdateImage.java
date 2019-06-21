@@ -41,6 +41,7 @@ public class UpdateImage extends ImageOperation {
     private final Logger logger = Logger.getLogger(UpdateImage.class.getName());
 
     public UpdateImage() {
+        super();
     }
 
     public UpdateImage(boolean isCLIMode) {
@@ -67,8 +68,7 @@ public class UpdateImage extends ImageOperation {
             if (fromImage == null || fromImage.isEmpty()) {
                 return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
             } else {
-                cmdBuilder.add(Constants.BUILD_ARG);
-                cmdBuilder.add("BASE_IMAGE=" + fromImage);
+                dockerfileOptions.setBaseImage(fromImage);
             }
 
             tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
@@ -117,7 +117,7 @@ public class UpdateImage extends ImageOperation {
             if (useCache != CachePolicy.ALWAYS) {
                 String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
                 if (!Utils.isEmptyString(pkgMgr)) {
-                    filterStartTags.add(pkgMgr);
+                    dockerfileOptions.setPackageInstaller(pkgMgr);
                 }
             }
 
@@ -162,7 +162,7 @@ public class UpdateImage extends ImageOperation {
             cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
 
             // create dockerfile
-            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Dockerfile.update", filterStartTags, "/docker-files/Dockerfile.ph");
+            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Update_Image.mustache", dockerfileOptions);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
