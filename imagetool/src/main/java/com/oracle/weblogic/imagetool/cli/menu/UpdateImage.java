@@ -4,10 +4,8 @@
 */
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -27,8 +25,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -44,6 +40,7 @@ public class UpdateImage extends ImageOperation {
     private final Logger logger = Logger.getLogger(UpdateImage.class.getName());
 
     public UpdateImage() {
+        super();
     }
 
     public UpdateImage(boolean isCLIMode) {
@@ -166,8 +163,7 @@ public class UpdateImage extends ImageOperation {
             cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
 
             // create dockerfile
-            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Update_Image.mustache", dockerfileOptions);
-
+            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Update_Image.mustache", dockerfileOptions);
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
 
