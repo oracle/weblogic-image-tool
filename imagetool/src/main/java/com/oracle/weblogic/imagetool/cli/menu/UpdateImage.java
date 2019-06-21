@@ -162,7 +162,7 @@ public class UpdateImage extends ImageOperation {
             cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
 
             // create dockerfile
-            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Update_Image.mustache", dockerfileOptions);
+            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Update_Image.mustache", dockerfileOptions);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
