@@ -12,7 +12,6 @@ Commands:
   listItems     List cache contents
   addInstaller  Add cache entry for wls, fmw, jdk or wdt installer
   addPatch      Add cache entry for wls|fmw patch or psu
-  getCacheDir   Prints the cache directory path
   addEntry      Command to add a cache entry. Use caution
   deleteEntry   Command to delete a cache entry
   help          Displays help information about the specified command
@@ -54,10 +53,6 @@ For example, patch 29135930 has several different versions from Oracle support, 
 
 If you have downloaded the release version ```12.2.1.3.190416``` of the patch, then you should use the argument as ```--patchId 29135930_12.2.1.3.190416```
 
-- `getCacheDir`: Get th cache directory. Used to display or set the directory where patches will be downloaded.
-    ```
-    imagetool cache getCacheDir
-    ```
 
 - `addEntry`: Consider this an expert mode where you can add key value pairs to the cache without any validation.
     ```
