@@ -23,6 +23,11 @@ public enum WLSInstallerType {
         return value;
     }
 
+    /**
+     * Create the WLS installer type Enum from the String value.
+     * @param value the installer type string, ignoring case.
+     * @return the enum installer type.
+     */
     public static WLSInstallerType fromValue(String value) {
         for (WLSInstallerType eachType : WLSInstallerType.values()) {
             if (eachType.value.equalsIgnoreCase(value)) {
