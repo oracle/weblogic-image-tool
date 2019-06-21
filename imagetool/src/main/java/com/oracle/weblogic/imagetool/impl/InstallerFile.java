@@ -36,26 +36,22 @@ public class InstallerFile extends AbstractFile {
     @Override
     public String resolve(CacheStore cacheStore) throws Exception {
         // check entry exists in cache
+        logger.finest("InstallerFile resolve " + getKey());
         String filePath = cacheStore.getValueFromCache(getKey());
-        switch (cachePolicy) {
-            case ALWAYS:
-                if (!isFileOnDisk(filePath)) {
-                    throw new Exception("CachePolicy prohibits download. Please add cache entry for key: " + getKey());
-                }
-                break;
-            case FIRST:
-                if (!isFileOnDisk(filePath)) {
-                    filePath = downloadInstaller(cacheStore);
-                }
-                break;
-            case NEVER:
+        if (!isFileOnDisk(filePath)) {
+            if (userId == null || password == null )
+                throw new Exception("Please provide user credentials for download installer file " + getKey());
+            else {
                 filePath = downloadInstaller(cacheStore);
-                break;
+            }
         }
+        logger.finest("InstallerFile resolve " + filePath);
+
         return filePath;
     }
 
     private String downloadInstaller(CacheStore cacheStore) throws IOException {
+        logger.finest("downloading installer");
         String key = getKey();
         String urlPath = cacheStore.getValueFromCache(key + "_url");
         if (urlPath != null) {

@@ -25,8 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,14 +53,20 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         handleProxyUrls();
         password = handlePasswordOptions();
         // check user support credentials if useCache not set to always and we are applying any patches
-        if (latestPSU || (!patches.isEmpty() && useCache != CachePolicy.ALWAYS)) {
-            if (Utils.isEmptyString(password)) {
-                return new CommandResponse(-1, "Failed to determine password. use one of the options to input password");
-            }
+
+        if (userId != null || password != null ) {
             if (!ARUUtil.checkCredentials(userId, password)) {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
         }
+//        if (latestPSU || (!patches.isEmpty() && useCache != CachePolicy.ALWAYS)) {
+//            if (Utils.isEmptyString(password)) {
+//                return new CommandResponse(-1, "Failed to determine password. use one of the options to input password");
+//            }
+//            if (!ARUUtil.checkCredentials(userId, password)) {
+//                return new CommandResponse(-1, "user Oracle support credentials do not match");
+//            }
+//        }
         logger.finer("Exiting ImageOperation call ");
         return new CommandResponse(0, null);
     }
@@ -93,8 +97,22 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
 
         if (latestPSU) {
-            FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion, null, userId, password);
-            patchLocations.add(psuResolver.resolve(cacheStore));
+            if (userId == null || password == null) {
+                throw new Exception("No credentials provided. Cannot determine "
+                    + "latestPSU");
+            } else {
+                String patchId = ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
+                    userId,
+                    password);
+                if (Utils.isEmptyString(patchId)) {
+                    throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
+                        installerType.toString(), installerVersion));
+                }
+                logger.finest("Found latest PSU " + patchId);
+                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion, patchId, userId, password);
+                patchLocations.add(psuResolver.resolve(cacheStore));
+            }
+
         }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
@@ -107,7 +125,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 File patch_file = new File(patchLocation);
                 Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patch_file.getName()) );
             } else {
-                logger.severe("null entry in patchLocations");
+                logger.severe("null entry in patchLocation");
             }
         }
         if (!patchLocations.isEmpty()) {
@@ -191,11 +209,9 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     @Option(
             names = {"--useCache"},
             paramLabel = "<Cache Policy>",
-            defaultValue = "first",
-            description = "Whether to use local cache or download installers.\n" +
-                    "first - default. try to use cache and download artifacts if required\n" +
-                    "always - use cache always and never download artifacts\n" +
-                    "never - never use cache and always download artifacts"
+            defaultValue = "always",
+            hidden = true,
+            description = "this should not be used"
     )
     CachePolicy useCache;
 

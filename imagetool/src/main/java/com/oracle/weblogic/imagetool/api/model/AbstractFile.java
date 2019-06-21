@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.api.model;
 
 import com.oracle.weblogic.imagetool.api.FileResolver;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.impl.PatchFile;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,12 +21,33 @@ public abstract class AbstractFile implements FileResolver {
     protected CachePolicy cachePolicy;
     protected String userId;
     protected String password;
+    private final static Logger logger = Logger.getLogger(AbstractFile.class.getName());
 
     public AbstractFile(String id, String version, CachePolicy cachePolicy, String userId, String password) {
-        this.key = id;
+        this.key = generateKey(id, version);
         this.cachePolicy = cachePolicy;
         this.userId = userId;
         this.password = password;
+    }
+
+    public String generateKey(String id, String version) {
+
+        // Note:  this will be invoked by InstallerFile or PatchFile
+        //  for patches there are specific format, currently installers are
+        //  wls, fmw, jdk.
+        //
+        //  Once the
+        String mykey = id;
+        if (id == null) {  // should never happens
+            mykey =  id + CacheStore.CACHE_KEY_SEPARATOR + version;
+        } else if (id.indexOf('_') < 0) {
+                if (version != null) {
+                    mykey = mykey + CacheStore.CACHE_KEY_SEPARATOR + version;
+                }
+        }
+
+        logger.finest("AbstractFile generating key returns " + mykey);
+        return mykey;
     }
 
     public static boolean isFileOnDisk(String filePath) {

@@ -640,13 +640,16 @@ public class Utils {
 
     public static void validatePatchIds(List<String> patches, boolean rigid) throws IllegalAccessException {
         Pattern patchIdPattern;
-        if (rigid)
-            patchIdPattern= Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
-        else
-            patchIdPattern= Pattern.compile(Constants.PATCH_ID_REGEX);
-
+        if (rigid) {
+            patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
+            logger.info("rigid pattern " );
+        }
+        else {
+            patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
+        }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
+                logger.info("pattern match id " + patchId );
                 Matcher matcher = patchIdPattern.matcher(patchId);
                 if (!matcher.matches()) {
                     String error = String.format("Invalid patch id %s. Patch id must be in the format of 12345678[_12"

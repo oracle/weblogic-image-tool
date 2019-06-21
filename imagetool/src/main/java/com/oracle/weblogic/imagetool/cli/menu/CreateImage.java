@@ -109,16 +109,22 @@ public class CreateImage extends ImageOperation {
                             baseImageProperties.getProperty("ORACLE_HOME"));
                 }
 
-                if (useCache != CachePolicy.ALWAYS) {
-                    String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-                    if (!Utils.isEmptyString(pkgMgr)) {
-                        filterStartTags.add(pkgMgr);
-                    }
+                String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+                if (!Utils.isEmptyString(pkgMgr)) {
+                    filterStartTags.add(pkgMgr);
                 }
+
+//                if (useCache != CachePolicy.ALWAYS) {
+//                    String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+//                    if (!Utils.isEmptyString(pkgMgr)) {
+//                        filterStartTags.add(pkgMgr);
+//                    }
+//                }
             } else {
-                if (useCache != CachePolicy.ALWAYS) {
-                    filterStartTags.add("_YUM");
-                }
+                  filterStartTags.add("_YUM");
+//                if (useCache != CachePolicy.ALWAYS) {
+//                    filterStartTags.add("_YUM");
+//                }
             }
 
             // build wdt args if user passes --wdtModelPath
@@ -334,7 +340,7 @@ public class CreateImage extends ImageOperation {
         logger.finer("Entering CreateImage.wdtKey: ");
         String wdtURLKey = wdtKey + "_url";
         if (cacheStore.getValueFromCache(wdtKey) == null) {
-            if (useCache == CachePolicy.ALWAYS) {
+            if (userId == null || password == null) {
                 throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
             }
             List<String> wdtTags = HttpUtil.getWDTTags();

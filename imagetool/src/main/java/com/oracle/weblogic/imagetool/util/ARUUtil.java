@@ -177,9 +177,14 @@ public class ARUUtil {
                                                    String version, String userId, String password) throws IOException {
 
         logger.finer("Entering ARUUtil.validatePatches");
+
         ValidationResult validationResult = new ValidationResult();
         validationResult.setSuccess(true);
         validationResult.setResults(null);
+        if (userId == null || password == null) {
+            logger.warning("No credentials provided, skipping validation of patches");
+            return validationResult;
+        }
 
         String releaseNumber = getReleaseNumber(category, version, userId, password);
 
@@ -420,7 +425,7 @@ public class ARUUtil {
                     optionalRelease = bugNumber.substring(ind+1);
                 }
                 NodeList nodeList = XPathUtil.applyXPathReturnNodeList(allPatches, "/results/patch");
-                if (nodeList.getLength() > 0 && ind < 0) {
+                if (nodeList.getLength() > 1 && ind < 0) {
                     // only base number is specified and there are multiple patches
                     // ERROR
                     String message = String.format("There are multiple patches found with id %s, please specify "
@@ -433,11 +438,13 @@ public class ARUUtil {
                     }
                     throw new IOException("Multiple patches with same patch number detected");
                 }
-
-                String xpath =  String.format("/results/patch[release[@name='%s']]", optionalRelease);
-                NodeList matchedResult = XPathUtil.applyXPathReturnNodeList(allPatches, xpath);
-                allPatches = createResultDocument(matchedResult);
-                logger.finest(XPathUtil.prettyPrint(allPatches));
+                if (optionalRelease != null ) {
+                    // TODO: do we need this ?
+                    String xpath =  String.format("/results/patch[release[@name='%s']]", optionalRelease);
+                    NodeList matchedResult = XPathUtil.applyXPathReturnNodeList(allPatches, xpath);
+                    allPatches = createResultDocument(matchedResult);
+                    logger.finest(XPathUtil.prettyPrint(allPatches));
+                }
             }
 
             String downLoadLink = XPathUtil.applyXPathReturnString(allPatches, "string"
@@ -491,7 +498,13 @@ public class ARUUtil {
             String url = String.format(Constants.BUG_SEARCH_URL, baseBugNumber);
             Document allPatches = HttpUtil.getXMLContent(url, userId, password);
 
-            String xpath =  String.format("/results/patch/release[@name='%s']/@id", optionalRelease);
+
+            String xpath;
+            if (optionalRelease != null)
+                xpath =  String.format("/results/patch/release[@name='%s']/@id", optionalRelease);
+            else
+                xpath =  String.format("/results/patch/release/@id");
+
             logger.finest("applying xpath: " + xpath);
             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
             logger.finest(String.format("Exiting getPatchInfo %s = %s " , bugNumber, releaseNumber));

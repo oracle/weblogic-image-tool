@@ -96,7 +96,7 @@ public class UpdateImage extends ImageOperation {
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
             String opatchBugNumberVersion = "";
 
-            if (useCache == CachePolicy.ALWAYS) {
+            if (userId == null && password == null) {
                 String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
                 if (opatchFile != null ) {
                     opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
@@ -117,19 +117,18 @@ public class UpdateImage extends ImageOperation {
                     Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
 
             //Do not update or install packages in offline only mode
-            if (useCache != CachePolicy.ALWAYS) {
-                String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-                if (!Utils.isEmptyString(pkgMgr)) {
-                    filterStartTags.add(pkgMgr);
-                }
+            // TODO: WHY we even need to update the package !!
+            String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+            if (!Utils.isEmptyString(pkgMgr)) {
+                filterStartTags.add(pkgMgr);
             }
 
             baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
             if (latestPSU || !patches.isEmpty()) {
                 logger.finer("Verifying Patches to WLS ");
-                if (useCache == CachePolicy.ALWAYS) {
-                    logger.warning("skipping patch conflict check. useCache set to " + useCache);
+                if (userId == null) {
+                    logger.warning("skipping patch conflict check, no support credentials provided ");
                 } else {
 
                     Utils.validatePatchIds(patches,false);

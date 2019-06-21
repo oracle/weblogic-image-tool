@@ -32,34 +32,37 @@ public class PatchFile extends AbstractFile {
     @Override
     public String resolve(CacheStore cacheStore) throws Exception {
         //patchId is null in case of latestPSU
-        if (Utils.isEmptyString(patchId)) {
-            if (cachePolicy == CachePolicy.ALWAYS) {
-                throw new Exception("CachePolicy prohibits download. Cannot determine latestPSU");
-            } else {
-                patchId = ARUUtil.getLatestPSUNumber(category, version, userId, password);
-                if (Utils.isEmptyString(patchId)) {
-                    throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
-                            category, version));
-                }
-            }
-        }
+
         String filePath = cacheStore.getValueFromCache(getKey());
         boolean fileExists = isFileOnDisk(filePath);
-        switch (cachePolicy) {
-            case ALWAYS:
-                if (!fileExists) {
-                    throw new Exception(String.format(
-                            "CachePolicy prohibits download. Download required patch %s for version %s and add it to cache %s_%s=/path/to/patch.zip",
-                            patchId, version, patchId, version));
-                }
-                break;
-            case NEVER:
-                filePath = downloadPatch(cacheStore);
-            case FIRST:
-                if (!fileExists) {
-                    filePath = downloadPatch(cacheStore);
-                }
+
+
+        logger.finest("PatchFile.resolve: Patch file in cache?: " + fileExists);
+
+        if (!fileExists) {
+            if (userId == null || password == null)
+                throw new Exception(String.format(
+                    "Patch %s is not in the cache store and you do not provide Oracle Support "
+                        + "credentials.  Please provide --user with one of the password option or "
+                        + "populate the cache store manually",
+                    patchId));
+            filePath = downloadPatch(cacheStore);
         }
+
+//        switch (cachePolicy) {
+//            case ALWAYS:
+//                if (!fileExists) {
+//                    if (userId == null || password == null)
+//                        throw new Exception(String.format(
+//                                "Patch %s is not in the cache store and you have not provide Oracle Support "
+//                                    + "credentials.  Please provide --user with one of the password option or "
+//                                    + "populate the cache store manually",
+//                                patchId));
+//                    filePath = downloadPatch(cacheStore);
+//                }
+//                break;
+//        }
+        logger.finest("PatchFile.resolve: resolved filepath " + filePath);
         return filePath;
     }
 
