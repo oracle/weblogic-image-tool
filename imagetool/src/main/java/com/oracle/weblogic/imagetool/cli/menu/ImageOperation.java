@@ -13,6 +13,7 @@ import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 import java.io.File;
@@ -36,16 +37,19 @@ import picocli.CommandLine.Unmatched;
 public abstract class ImageOperation implements Callable<CommandResponse> {
 
     private final Logger logger = Logger.getLogger(ImageOperation.class.getName());
-    final List<String> filterStartTags = new ArrayList<>();
+    // DockerfileOptions provides switches and values to the customize the Dockerfile template
+    protected DockerfileOptions dockerfileOptions;
     protected CacheStore cacheStore = new CacheStoreFactory().get();
     private String nonProxyHosts = null;
     boolean isCLIMode;
     String password;
 
     ImageOperation() {
+        dockerfileOptions = new DockerfileOptions();
     }
 
     ImageOperation(boolean isCLIMode) {
+        this();
         this.isCLIMode = isCLIMode;
     }
 
@@ -119,12 +123,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         if (!patchLocations.isEmpty()) {
             retVal.add(Constants.BUILD_ARG);
             retVal.add("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
-            filterStartTags.add("PATCH_");
-            if (this instanceof CreateImage) {
-                filterStartTags.add("CREATE_PATCH_");
-            } else if (this instanceof UpdateImage) {
-                filterStartTags.add("UPDATE_PATCH_");
-            }
+            dockerfileOptions.setPatchingEnabled();
         }
         logger.finer("Exiting ImageOperation.handlePatchFiles");
         return retVal;
@@ -182,12 +181,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String filePath =
             new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
         Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
-        filterStartTags.add("OPATCH_1394");
-        if (this instanceof CreateImage) {
-            filterStartTags.add("CREATE_OPATCH_1394");
-        } else if (this instanceof UpdateImage) {
-            filterStartTags.add("UPDATE_OPATCH_1394");
-        }
+        dockerfileOptions.setOPatchPatchingEnabled();
     }
 
     WLSInstallerType installerType = WLSInstallerType.WLS;

@@ -10,15 +10,11 @@ import com.oracle.weblogic.imagetool.api.model.DomainType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
-import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
-import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,7 +24,6 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -43,6 +38,7 @@ public class CreateImage extends ImageOperation {
     private final Logger logger = Logger.getLogger(CreateImage.class.getName());
 
     public CreateImage() {
+        super();
     }
 
     public CreateImage(boolean isCLIMode) {
@@ -77,8 +73,7 @@ public class CreateImage extends ImageOperation {
 
             if (fromImage != null && !fromImage.isEmpty()) {
                 logger.finer("User specified fromImage " + fromImage);
-                cmdBuilder.add(Constants.BUILD_ARG);
-                cmdBuilder.add("BASE_IMAGE=" + fromImage);
+                dockerfileOptions.setBaseImage(fromImage);
 
                 tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
                     "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
@@ -102,12 +97,12 @@ public class CreateImage extends ImageOperation {
                 if (useCache != CachePolicy.ALWAYS) {
                     String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
                     if (!Utils.isEmptyString(pkgMgr)) {
-                        filterStartTags.add(pkgMgr);
+                        dockerfileOptions.setPackageInstaller(pkgMgr);
                     }
                 }
             } else {
                 if (useCache != CachePolicy.ALWAYS) {
-                    filterStartTags.add("_YUM");
+                    dockerfileOptions.setPackageInstaller(Constants.YUM);
                 }
             }
 
@@ -121,7 +116,7 @@ public class CreateImage extends ImageOperation {
             copyResponseFilesToDir(tmpDirPath);
 
             // Create Dockerfile
-            Utils.replacePlaceHolders(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Dockerfile.create", filterStartTags, "/docker-files/Dockerfile.ph");
+            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Create_Image.mustache", dockerfileOptions);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
@@ -205,7 +200,7 @@ public class CreateImage extends ImageOperation {
                         retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
                     }
                 }
-                filterStartTags.add("WDT_");
+                dockerfileOptions.setWdtEnabled();
                 Path targetLink = Files.copy(wdtModelPath, Paths.get(tmpDirPath, wdtModelPath.getFileName().toString())
                     );
                 retVal.add(Constants.BUILD_ARG);
