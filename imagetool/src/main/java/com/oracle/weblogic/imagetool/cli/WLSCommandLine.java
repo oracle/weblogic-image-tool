@@ -1,14 +1,13 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
-package com.oracle.weblogic.imagetool.cli;
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
-import picocli.CommandLine;
+package com.oracle.weblogic.imagetool.cli;
 
 import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import picocli.CommandLine;
 
 public class WLSCommandLine {
 

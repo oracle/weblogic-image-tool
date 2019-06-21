@@ -4,18 +4,6 @@
 */
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import com.oracle.weblogic.imagetool.api.FileResolver;
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
-import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.impl.PatchFile;
-import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
-import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.DockerfileOptions;
-import com.oracle.weblogic.imagetool.util.Utils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +19,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.oracle.weblogic.imagetool.api.FileResolver;
+import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.api.model.CachePolicy;
+import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.impl.PatchFile;
+import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
+import com.oracle.weblogic.imagetool.util.ARUUtil;
+import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 

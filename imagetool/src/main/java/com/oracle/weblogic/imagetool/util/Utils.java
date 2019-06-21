@@ -1,55 +1,29 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.util;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 
 public class Utils {
 
     private static final Logger logger = Logger.getLogger(Utils.class.getName());
 
     /**
-     * Utility method to copy a resource from the jar to local file system
+     * Utility method to copy a resource from the jar to local file system.
      *
      * @param resourcePath resource path in the jar
      * @param destPath     local file to copy to.
@@ -109,7 +83,7 @@ public class Utils {
     }
 
     /**
-     * Set proxy based on the proxy urls
+     * Set proxy based on the proxy urls.
      *
      * @param httpProxyUrl  http proxy url
      * @param httpsProxyUrl https proxy url
@@ -162,7 +136,7 @@ public class Utils {
     }
 
     /**
-     * Reads a given resource and returns it's content as string
+     * Reads a given resource and returns it's content as string.
      *
      * @param resourcePath resource to read
      * @return content of the resource
@@ -182,7 +156,7 @@ public class Utils {
     }
 
     /**
-     * Executes the given docker command and writes the process stdout to log
+     * Executes the given docker command and writes the process stdout to log.
      *
      * @param isCLIMode whether the tool is being run in CLI mode
      * @param cmdBuilder command to execute
@@ -214,7 +188,7 @@ public class Utils {
     }
 
     /**
-     * Executes the given docker command and returns the stdout of the process as properties
+     * Executes the given docker command and returns the stdout of the process as properties.
      *
      * @param cmdBuilder command to execute
      * @return properties built from the stdout of the docker command
@@ -240,7 +214,7 @@ public class Utils {
     }
 
     /**
-     * Throws an Exception if the given process failed with error
+     * Throws an Exception if the given process failed with error.
      *
      * @param process process
      * @throws IOException
@@ -291,7 +265,7 @@ public class Utils {
     }
 
     /**
-     * Deletes files from given dir and its subdirectories
+     * Deletes files from given dir and its subdirectories.
      *
      * @param tmpDir dir
      * @throws IOException in case of error
@@ -435,7 +409,7 @@ public class Utils {
     }
 
     /**
-     * Constructs a docker command to run a script in the container with a volume mount
+     * Constructs a docker command to run a script in the container with a volume mount.
      *
      * @param hostDirToMount host dir
      * @param dockerImage    docker image tag
@@ -456,7 +430,7 @@ public class Utils {
     }
 
     /**
-     * Detect proxy settings if not provided by the user
+     * Detect proxy settings if not provided by the user.
      *
      * @param proxyUrl url set by the user
      * @param protocol http, https or none
@@ -492,7 +466,7 @@ public class Utils {
     }
 
     /**
-     * Utility method to parse password out of three inputs
+     * Utility method to parse password out of three inputs.
      * @param passwordStr password in plain string form
      * @param passwordFile file containing just the password
      * @param passwordEnv name of environment variable containing the password
@@ -513,7 +487,7 @@ public class Utils {
     }
 
     /**
-     * returns the working dir for docker build
+     * returns the working dir for docker build.
      * @return working directory
      */
     public static String getBuildWorkingDir() throws IOException {
@@ -542,7 +516,7 @@ public class Utils {
     }
 
     /**
-     * returns the cache store directory
+     * returns the cache store directory.
      * @return cache directory
      */
     public static String getCacheDir() throws IOException {
@@ -571,7 +545,7 @@ public class Utils {
     }
 
     /**
-     * Return the version number inside a opatch file
+     * Return the version number inside a opatch file.
      * @param fileName full path to the opatch patch
      * @return version number of the patch
      */

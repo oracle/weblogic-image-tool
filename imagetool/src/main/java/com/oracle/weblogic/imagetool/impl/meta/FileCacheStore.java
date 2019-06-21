@@ -1,24 +1,19 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.impl.meta;
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.Utils;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.Utils;
 
 public enum FileCacheStore implements CacheStore {
 

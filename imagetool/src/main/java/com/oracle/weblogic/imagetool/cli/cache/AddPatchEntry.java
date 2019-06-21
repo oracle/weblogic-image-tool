@@ -1,28 +1,23 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
-package com.oracle.weblogic.imagetool.cli.cache;
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.AbstractFile;
-import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
-import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.SearchResult;
-import com.oracle.weblogic.imagetool.util.Utils;
-import com.oracle.weblogic.imagetool.util.XPathUtil;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.w3c.dom.Document;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Logger;
+
+import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.api.model.AbstractFile;
+import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.util.*;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.w3c.dom.Document;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(
         name = "addPatch",

@@ -1,19 +1,18 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.impl;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Logger;
 
 public class PatchFile extends AbstractFile {
 

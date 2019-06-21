@@ -1,20 +1,11 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
-import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.DomainType;
-import com.oracle.weblogic.imagetool.api.model.InstallerType;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.impl.InstallerFile;
-import com.oracle.weblogic.imagetool.util.*;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +17,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import com.oracle.weblogic.imagetool.api.model.*;
+import com.oracle.weblogic.imagetool.impl.InstallerFile;
+import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
+import com.oracle.weblogic.imagetool.util.Utils;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(
         name = "create",
