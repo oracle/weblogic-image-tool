@@ -1,10 +1,7 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
- *
- * Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
- */
-package com.oracle.weblogic.imagetool.util;
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
-import javax.print.Doc;
+package com.oracle.weblogic.imagetool.util;
 
 public class DockerfileOptions {
 
@@ -13,13 +10,13 @@ public class DockerfileOptions {
     boolean use_pkg_installer_apk = false;
     boolean use_pkg_installer_zypper = false;
 
-    private boolean use_WDT = false;
-    private boolean patching_WLS = false;
-    private boolean update_opatch = false;
-    private String _userid = "oracle";
-    private String _groupid = "oracle";
-    private String _java_home = "/u01/jdk";
-    private String base_image = "oraclelinux:7-slim";
+    private boolean useWdt = false;
+    private boolean applyPatches = false;
+    private boolean updateOpatch = false;
+    private String username = "oracle";
+    private String groupname = "oracle";
+    private String javaHome = "/u01/jdk";
+    private String baseImageName = "oraclelinux:7-slim";
 
     /**
      * Options to be used with the Mustache template.
@@ -33,14 +30,14 @@ public class DockerfileOptions {
      * @return the userid
      */
     public String userid() {
-        return _userid;
+        return username;
     }
 
     /**
      * The userid that should own the JDK and FMW install binaries.
      */
     public void setUserId(String value) {
-        _userid = value;
+        username = value;
     }
 
     /**
@@ -49,14 +46,14 @@ public class DockerfileOptions {
      * @return the groupid
      */
     public String groupid() {
-        return _groupid;
+        return groupname;
     }
 
     /**
      * The groupid that should own the JDK and FMW install binaries.
      */
     public void setGroupId(String value) {
-        _groupid = value;
+        groupname = value;
     }
 
     /**
@@ -65,7 +62,7 @@ public class DockerfileOptions {
      * @return the image name
      */
     public String baseImage() {
-        return base_image;
+        return baseImageName;
     }
 
     /**
@@ -74,7 +71,7 @@ public class DockerfileOptions {
      * @return this DockerfileOptions object
      */
     public DockerfileOptions setBaseImage(String value) {
-        base_image = value;
+        baseImageName = value;
         return this;
     }
 
@@ -105,7 +102,7 @@ public class DockerfileOptions {
     }
 
     public String java_home() {
-        return _java_home;
+        return javaHome;
     }
 
     /**
@@ -114,7 +111,7 @@ public class DockerfileOptions {
      * @param value the folder where JAVA is or should be installed, aka JAVA_HOME.
      */
     public void setJavaHome(String value) {
-        _java_home = value;
+        javaHome = value;
     }
 
     /**
@@ -123,7 +120,7 @@ public class DockerfileOptions {
      * @return true if patching should be performed.
      */
     public boolean isPatchingEnabled() {
-        return patching_WLS;
+        return applyPatches;
     }
 
     /**
@@ -132,7 +129,7 @@ public class DockerfileOptions {
      * @return this DockerfileOptions object
      */
     public DockerfileOptions setPatchingEnabled() {
-        patching_WLS = true;
+        applyPatches = true;
         return this;
     }
 
@@ -142,7 +139,7 @@ public class DockerfileOptions {
      * @return true if OPatch patching should be performed.
      */
     public boolean isOpatchPatchingEnabled() {
-        return update_opatch;
+        return updateOpatch;
     }
 
     /**
@@ -151,7 +148,7 @@ public class DockerfileOptions {
      * @return this DockerfileOptions object
      */
     public DockerfileOptions setOPatchPatchingEnabled() {
-        update_opatch = true;
+        updateOpatch = true;
         return this;
     }
 
@@ -161,7 +158,7 @@ public class DockerfileOptions {
      * @return true if WDT domain create should be performed.
      */
     public boolean isWdtEnabled() {
-        return use_WDT;
+        return useWdt;
     }
 
     /**
@@ -170,7 +167,7 @@ public class DockerfileOptions {
      * @return this DockerfileOptions object
      */
     public DockerfileOptions setWdtEnabled() {
-        use_WDT = true;
+        useWdt = true;
         return this;
     }
 }
