@@ -1,7 +1,14 @@
 # Cache
 
-The Image Tool maintains a local file cache for patches and installers.  The `cache` command can be used to manipulate
-the local file cache. There are several subcommands of the cache feature:
+The Image Tool maintains a local file cache store, this store is used to look up where the Java,
+WebLogic installers, and WebLogic patches reside in the local file system.
+                                                                         
+By default, it is stored in the user's ```$HOME/cache``` directory.  Under this directory, the lookup information is
+stored in the file ```.metadata```.  All automatically downloaded patches also reside in this directory.  
+                                                                         
+This default cache store location can be changed by setting the environment variable WLSIMG_CACHEDIR
+
+The `cache` command can be used to manipulate the local file cache. There are several subcommands of the cache feature:
 
 ```
 Usage: imagetool cache [COMMAND]

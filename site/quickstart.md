@@ -151,11 +151,12 @@ For each WebLogic patch, you will need to download it from Oracle Support and se
 ```bash
 imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip 
 ```
+Note: Please refer to [Cache Command](cache.md) for the format of ```patchId``` 
 
 Then, you can run the command to create the image:
 
 ```bash
-imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always
+imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 
 ```
 
 Sometimes, a WebLogic patch may require patching the OPatch binaries before applying them.  We recommend
@@ -174,7 +175,7 @@ have the option to automatically download using the tool or manually downloading
 After the cache is setup, you can use the following command to update an image:
 
 ```bash
-imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 --useCache always
+imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 
 ```
 
 ## Create an image with a WebLogic domain using the WebLogic Deploy Tool
@@ -192,7 +193,7 @@ imagetool cache addInstaller --type wdt --version 0.22 --path /home/acmeuser/cac
 Provide the command-line options for the WebLogic Deploy Tool:
 
 ```bash
-imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always --wdtVersion 0.22 --wdtArchive /home/acmeuser/wdt/domain1.zip --wdtDomainHome /u01/domains/simple_domain
+imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0  --wdtVersion 0.22 --wdtArchive /home/acmeuser/wdt/domain1.zip --wdtDomainHome /u01/domains/simple_domain
 ```
 
 The parameters mapping between the Image Tool and the WebLogic Deploy Tool are:
