@@ -26,14 +26,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -606,7 +603,7 @@ public class Utils {
     /**
      * validatePatchIds validate the format of the patch ids
      * @param patches list of patch ids
-     * @throws IllegalAccessException when the first id failed the format validation
+     * @return true if all patch IDs are valid , false otherwise.
      */
 
     public static boolean validatePatchIds(List<String> patches, boolean rigid)  {
