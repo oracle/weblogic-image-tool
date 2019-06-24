@@ -44,8 +44,9 @@ public class AddPatchEntry extends CacheOperation {
 
             List<String> patches = new ArrayList<>();
             patches.add(patchId);
-            Utils.validatePatchIds(patches, true);
-
+            if (!Utils.validatePatchIds(patches, true)) {
+                return new CommandResponse(-1, "Patch ID validation failed");
+            }
             return addToCache(patchId);
         }
 

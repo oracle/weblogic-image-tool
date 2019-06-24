@@ -127,7 +127,9 @@ public class UpdateImage extends ImageOperation {
                     logger.warning("skipping patch conflict check, no support credentials provided ");
                 } else {
 
-                    Utils.validatePatchIds(patches,false);
+                    if (!Utils.validatePatchIds(patches,false)) {
+                        return new CommandResponse(-1, "Patch ID validation failed");
+                    }
 
                     String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
                     if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {

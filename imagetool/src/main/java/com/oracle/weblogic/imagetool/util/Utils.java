@@ -609,11 +609,11 @@ public class Utils {
      * @throws IllegalAccessException when the first id failed the format validation
      */
 
-    public static void validatePatchIds(List<String> patches, boolean rigid) throws IllegalAccessException {
+    public static boolean validatePatchIds(List<String> patches, boolean rigid)  {
+        boolean result = true;
         Pattern patchIdPattern;
         if (rigid) {
             patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
-            logger.info("rigid pattern " );
         }
         else {
             patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
@@ -629,12 +629,14 @@ public class Utils {
                         + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or 12.2.1."
                         + "3.190416", patchId);
                     logger.severe(error);
-                    throw new IllegalArgumentException(error);
+                    result = false;
+                    return result;
                 }
             }
 
         }
 
+        return result;
     }
 
 }
