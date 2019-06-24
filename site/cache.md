@@ -59,7 +59,8 @@ For example, patch 29135930 has several different versions from Oracle support, 
 | 29135930 | 12.2.1.3.18106 |
 
 If you have downloaded the release version ```12.2.1.3.190416``` of the patch, then you should use the argument as ```--patchId 29135930_12.2.1.3.190416```
-
+If the ```patchId``` is just a base number without underscore and release number, the value of the ```version``` will
+ be appended to the end.
 
 - `addEntry`: Consider this an expert mode where you can add key value pairs to the cache without any validation.
     ```
