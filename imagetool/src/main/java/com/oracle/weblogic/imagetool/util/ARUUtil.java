@@ -186,7 +186,6 @@ public class ARUUtil {
             return validationResult;
         }
 
-        String releaseNumber = getReleaseNumber(category, version, userId, password);
 
         StringBuffer payload = new StringBuffer
                 ("<conflict_check_request><platform>2000</platform>");
@@ -229,7 +228,11 @@ public class ARUUtil {
             payload.append("<candidate_patch_list>");
             for (String patch : patches) {
 
+                checkForMultiplePatches(patch, userId, password);
+                logger.info("Passed patch multiple versions test");
+
                 String bugReleaseNumber = ARUUtil.getPatchInfo(patch, userId, password);
+                logger.info(String.format("Patch %s release %s found " , patch, bugReleaseNumber));
                 int ind = patch.indexOf('_');
                 String baseBugNumber = patch;
                 if (ind > 0) {
@@ -265,15 +268,18 @@ public class ARUUtil {
             }
 
             // After checking for conflicts, make sure no error message
+            // We tested multiple version before we pass it to the conflict checker
+            // The conflict checker returns this regardless of whether we are using unique release number and patch
+            // therefore no need to report it,  leave it here if there is a use case that matters.
 
-            NodeList errorMessages = XPathUtil.applyXPathReturnNodeList(result, "/conflict_check/messages/message"
-                + "[@type='error']");
-
-            if (errorMessages.getLength()>0) {
-                validationResult.setSuccess(false);
-                String error = XPathUtil.prettyPrint(result);
-                validationResult.setErrorMessage(error);
-            }
+//            NodeList errorMessages = XPathUtil.applyXPathReturnNodeList(result, "/conflict_check/messages/message"
+//                + "[@type='error']");
+//
+//            if (errorMessages.getLength()>0) {
+//                validationResult.setSuccess(false);
+//                String error = XPathUtil.prettyPrint(result);
+//                validationResult.setErrorMessage(error);
+//            }
 
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
@@ -421,6 +427,41 @@ public class ARUUtil {
         return savePatch(allPatches, userId, password, destDir, bugNumber);
     }
 
+    private static void checkForMultiplePatches(String bugNumber, String userId, String password ) throws IOException {
+        if (bugNumber != null ) {
+            if (userId != null ) {
+                try {
+                    int ind = bugNumber.indexOf('_');
+                    String baseBugNumber= bugNumber;
+                    String optionalRelease = null;
+                    if (ind  > 0) {
+                        baseBugNumber = bugNumber.substring(0,ind);
+                        optionalRelease = bugNumber.substring(ind+1);
+                    }
+                    String url = String.format(Constants.BUG_SEARCH_URL, baseBugNumber);
+                    Document allPatches = HttpUtil.getXMLContent(url, userId, password);
+                    NodeList nodeList = XPathUtil.applyXPathReturnNodeList(allPatches, "/results/patch");
+                    if (nodeList.getLength() > 1 && ind < 0) {
+                        // only base number is specified and there are multiple patches
+                        // ERROR
+                        String message = String.format("There are multiple patches found with id %s, please specify "
+                            + "the format as one of the following for the release you want", baseBugNumber);
+                        logger.warning(message);
+                        for (int i=1; i<=nodeList.getLength(); i++) {
+                            String xpath = String.format("string(/results/patch[%d]/release/@name)", i);
+                            String releaseNumber = XPathUtil.applyXPathReturnString(allPatches,xpath);
+                            logger.warning(bugNumber + "_" + releaseNumber);
+                        }
+                        throw new IOException("Multiple patches with same patch number detected");
+                    }
+
+                } catch (XPathExpressionException xpe ) {
+                    throw new IOException(xpe);
+                }
+            }
+        }
+
+    }
     private static String savePatch(Document allPatches, String userId, String password, String destDir,
         String bugNumber) throws IOException {
 
@@ -508,7 +549,6 @@ public class ARUUtil {
             }
             String url = String.format(Constants.BUG_SEARCH_URL, baseBugNumber);
             Document allPatches = HttpUtil.getXMLContent(url, userId, password);
-
 
             String xpath;
             if (optionalRelease != null)

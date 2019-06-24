@@ -36,7 +36,7 @@ public abstract class AbstractFile implements FileResolver {
         //  for patches there are specific format, currently installers are
         //  wls, fmw, jdk.
         //
-        //  Once the
+        //
         String mykey = id;
         if (id == null) {  // should never happens
             mykey =  id + CacheStore.CACHE_KEY_SEPARATOR + version;

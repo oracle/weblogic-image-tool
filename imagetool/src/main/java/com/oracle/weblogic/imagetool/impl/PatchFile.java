@@ -42,26 +42,13 @@ public class PatchFile extends AbstractFile {
         if (!fileExists) {
             if (userId == null || password == null)
                 throw new Exception(String.format(
-                    "Patch %s is not in the cache store and you do not provide Oracle Support "
-                        + "credentials.  Please provide --user with one of the password option or "
+                    "Patch %s is not in the cache store and you have not provide Oracle Support "
+                        + "credentials in the command line.  Please provide --user with one of the password option or "
                         + "populate the cache store manually",
                     patchId));
             filePath = downloadPatch(cacheStore);
         }
 
-//        switch (cachePolicy) {
-//            case ALWAYS:
-//                if (!fileExists) {
-//                    if (userId == null || password == null)
-//                        throw new Exception(String.format(
-//                                "Patch %s is not in the cache store and you have not provide Oracle Support "
-//                                    + "credentials.  Please provide --user with one of the password option or "
-//                                    + "populate the cache store manually",
-//                                patchId));
-//                    filePath = downloadPatch(cacheStore);
-//                }
-//                break;
-//        }
         logger.finest("PatchFile.resolve: resolved filepath " + filePath);
         return filePath;
     }
