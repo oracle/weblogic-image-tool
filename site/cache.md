@@ -46,7 +46,7 @@ Commands:
 
 - `addPatch`: Add a patch to the cache. This command verifies if the path points to a valid patch by querying the Oracle support portal.
     ```
-    imagetool cache addPatch --type wls --version 12.2.1.3.0  --patchId 12345678 --path /path/to/patch.zip
+    imagetool cache addPatch --type wls --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
     ```
 Note:  When adding a patch to the cache store. The patchId should be in the following format:  99999999_9.9.9.9.99999  The first 8 digits is the patch id, followed by an underscore and then release number.  This is needed if you want to distinguish a patch that has different versions of the patch.  
 
@@ -59,8 +59,6 @@ For example, patch 29135930 has several different versions from Oracle support, 
 | 29135930 | 12.2.1.3.18106 |
 
 If you have downloaded the release version ```12.2.1.3.190416``` of the patch, then you should use the argument as ```--patchId 29135930_12.2.1.3.190416```
-If the ```patchId``` is just a base number without underscore and release number, the value of the ```version``` will
- be appended to the end.
 
 - `addEntry`: Consider this an expert mode where you can add key value pairs to the cache without any validation.
     ```
