@@ -211,7 +211,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             names = {"--patches"},
             paramLabel = "patchId",
             split = ",",
-            description = "Comma separated patch Ids. Ex: p12345678,p87654321"
+            description = "Comma separated patch Ids. Ex: 12345678,87654321"
     )
     List<String> patches = new ArrayList<>();
 
