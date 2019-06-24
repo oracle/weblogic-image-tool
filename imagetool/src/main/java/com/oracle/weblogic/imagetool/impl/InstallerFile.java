@@ -39,35 +39,13 @@ public class InstallerFile extends AbstractFile {
         logger.finest("InstallerFile resolve " + getKey());
         String filePath = cacheStore.getValueFromCache(getKey());
         if (!isFileOnDisk(filePath)) {
-            if (userId == null || password == null )
-                throw new Exception("Please provide user credentials for download installer file " + getKey());
-            else {
-                filePath = downloadInstaller(cacheStore);
-            }
+            throw new Exception("Please download the installer manually and put it in the cache  " + getKey());
         }
         logger.finest("InstallerFile resolve " + filePath);
 
         return filePath;
     }
 
-    private String downloadInstaller(CacheStore cacheStore) throws IOException {
-        logger.finest("downloading installer");
-        String key = getKey();
-        String urlPath = cacheStore.getValueFromCache(key + "_url");
-        if (urlPath != null) {
-            String fileName = new URL(urlPath).getPath();
-            fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
-            String targetFilePath = cacheStore.getCacheDir() + File.separator + key +
-                    File.separator + fileName;
-            new File(targetFilePath).getParentFile().mkdirs();
-            logger.info("Downloading from " + urlPath + " to " + targetFilePath);
-            HttpUtil.downloadFile(urlPath, targetFilePath, userId, password);
-            cacheStore.addToCache(key, targetFilePath);
-            return targetFilePath;
-        } else {
-            throw new IOException("Cannot find download link for entry " + key + "_url in cache");
-        }
-    }
 
     /**
      * Constructs the build-arg required to pass to the docker build
