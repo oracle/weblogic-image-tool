@@ -63,14 +63,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
         }
-//        if (latestPSU || (!patches.isEmpty() && useCache != CachePolicy.ALWAYS)) {
-//            if (Utils.isEmptyString(password)) {
-//                return new CommandResponse(-1, "Failed to determine password. use one of the options to input password");
-//            }
-//            if (!ARUUtil.checkCredentials(userId, password)) {
-//                return new CommandResponse(-1, "user Oracle support credentials do not match");
-//            }
-//        }
         logger.finer("Exiting ImageOperation call ");
         return new CommandResponse(0, null);
     }

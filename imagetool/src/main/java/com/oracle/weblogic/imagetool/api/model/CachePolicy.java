@@ -6,7 +6,7 @@
 package com.oracle.weblogic.imagetool.api.model;
 
 /**
- *
+ * @Deprecated
  *   This is subject to removal and there is no need to use it
  *   The logic is changed to use the presence of userId and password to
  *   determine whether to access online if the item is not in the cache.

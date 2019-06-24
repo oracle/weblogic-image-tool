@@ -114,10 +114,10 @@ public class UpdateImage extends ImageOperation {
 
             //Do not update or install packages in offline only mode
             // TODO: WHY we even need to update the package !!
-            String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-            if (!Utils.isEmptyString(pkgMgr)) {
-                dockerfileOptions.setPackageInstaller(pkgMgr);
-            }
+//            String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+//            if (!Utils.isEmptyString(pkgMgr)) {
+//                dockerfileOptions.setPackageInstaller(pkgMgr);
+//            }
 
             baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 

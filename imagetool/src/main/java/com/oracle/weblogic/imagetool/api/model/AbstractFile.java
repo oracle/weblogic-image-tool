@@ -6,7 +6,6 @@ package com.oracle.weblogic.imagetool.api.model;
 
 import com.oracle.weblogic.imagetool.api.FileResolver;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.impl.PatchFile;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
