@@ -7,7 +7,7 @@ package com.oracle.weblogic.imagetool.util;
 import org.w3c.dom.Document;
 
 /**
- * ValidaitonResult of patch conflicts check
+ * ValidaitonResult of patch conflicts check.
  */
 
 public class ValidationResult {
@@ -17,7 +17,7 @@ public class ValidationResult {
     private String errorMessage;
 
     /**
-     * Get the error errorMessage
+     * Get the error errorMessage.
      *
      * @return
      */
@@ -26,7 +26,7 @@ public class ValidationResult {
     }
 
     /**
-     * Set the error errorMessage
+     * Set the error errorMessage.
      *
      * @param errorMessage
      */
@@ -36,7 +36,8 @@ public class ValidationResult {
 
 
     /**
-     * @return true if no conflicts ; false if there is conflicts
+     * Returns true if no conflicts ; false if there is conflicts.
+     * @return true if no conflicts ; false if there is conflicts.
      */
     public boolean isSuccess() {
         return success;
@@ -47,6 +48,7 @@ public class ValidationResult {
     }
 
     /**
+     * Get the result object from the search.
      * @return dom document detailing about the conflicts
      */
     public Document getResults() {

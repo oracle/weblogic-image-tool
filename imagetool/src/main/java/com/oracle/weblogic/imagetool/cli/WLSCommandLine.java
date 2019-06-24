@@ -38,7 +38,7 @@ public class WLSCommandLine {
         @SuppressWarnings("unchecked") T result = results == null || results.isEmpty() ? null : (T) results.get(0);
         if (result == null) {
             CommandLine.usage(callable, System.out);
-           // System.exit(-1);
+            // System.exit(-1);
         }
         return result;
     }

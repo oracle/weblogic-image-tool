@@ -21,7 +21,17 @@ public class PatchFile extends AbstractFile {
     private String version;
     private final Logger logger = Logger.getLogger(PatchFile.class.getName());
 
-    public PatchFile(CachePolicy cachePolicy, String category, String version, String patchId, String userId, String password) {
+    /**
+     * Create an abstract file to hold the metadata for a patch file.
+     * @param cachePolicy the policy to apply.=
+     * @param category the patch category
+     * @param version the version of installer this patch is applicable to
+     * @param patchId the ID of the patch
+     * @param userId the username to use for retrieving the patch
+     * @param password the password to use with the userId to retrieve the patch
+     */
+    public PatchFile(CachePolicy cachePolicy, String category, String version, String patchId, String userId,
+                     String password) {
         super(patchId, version, cachePolicy, userId, password);
         this.category = category;
         this.version = version;
@@ -48,13 +58,16 @@ public class PatchFile extends AbstractFile {
             case ALWAYS:
                 if (!fileExists) {
                     throw new Exception(String.format(
-                            "CachePolicy prohibits download. Download required patch %s for version %s and add it to cache %s_%s=/path/to/patch.zip",
+                            "CachePolicy prohibits download. Download required patch %s for version %s and add it to "
+                                    + "cache %s_%s=/path/to/patch.zip",
                             patchId, version, patchId, version));
                 }
                 break;
             case NEVER:
                 filePath = downloadPatch(cacheStore);
+                break;
             case FIRST:
+            default:
                 if (!fileExists) {
                     filePath = downloadPatch(cacheStore);
                 }

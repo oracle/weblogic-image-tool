@@ -11,7 +11,11 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
@@ -79,7 +83,8 @@ public class UpdateImage extends ImageOperation {
             if (oracleHome == null) {
                 return new CommandResponse(-1, "ORACLE_HOME env variable undefined in base image: " + fromImage);
             }
-            installerType = WLSInstallerType.fromValue(baseImageProperties.getProperty("WLS_TYPE", WLSInstallerType.WLS.toString()));
+            installerType = WLSInstallerType.fromValue(baseImageProperties.getProperty("WLS_TYPE",
+                    WLSInstallerType.WLS.toString()));
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
@@ -89,13 +94,13 @@ public class UpdateImage extends ImageOperation {
 
             if (useCache == CachePolicy.ALWAYS) {
                 String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
-                if (opatchFile != null ) {
+                if (opatchFile != null) {
                     opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
                     logger.info(String.format("OPatch patch number %s cached file %s version %s", opatchBugNumber,
-                        opatchFile, opatchBugNumberVersion ));
+                            opatchFile, opatchBugNumberVersion));
                 } else {
                     String msg = String.format("OPatch patch number --opatchBugNumber %s cannot be found in cache",
-                        opatchBugNumber);
+                            opatchBugNumber);
                     logger.severe(msg);
                     throw new IOException(msg);
                 }
@@ -103,9 +108,9 @@ public class UpdateImage extends ImageOperation {
                 opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
             }
 
-            opatch_1394_required = (latestPSU || !patches.isEmpty()) &&
-                (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0 &&
-                    Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
+            opatchRequired = (latestPSU || !patches.isEmpty())
+                    && (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0
+                    && Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
 
             //Do not update or install packages in offline only mode
             if (useCache != CachePolicy.ALWAYS) {
@@ -115,7 +120,8 @@ public class UpdateImage extends ImageOperation {
                 }
             }
 
-            baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
+            baseImageProperties.keySet().forEach(x ->
+                    logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
             if (latestPSU || !patches.isEmpty()) {
                 logger.finer("Verifying Patches to WLS ");
@@ -156,7 +162,8 @@ public class UpdateImage extends ImageOperation {
             cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
 
             // create dockerfile
-            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Update_Image.mustache", dockerfileOptions);
+            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "/docker-files/Update_Image.mustache",
+                    dockerfileOptions);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
@@ -173,12 +180,13 @@ public class UpdateImage extends ImageOperation {
         Instant endTime = Instant.now();
         logger.finer("Exiting UpdateImage.call ");
 
-        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
+        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()
+                + "s" + ". image tag: " + imageTag);
     }
 
     @Override
     List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
-        if (opatch_1394_required) {
+        if (opatchRequired) {
             addOPatch1394ToImage(tmpDir, opatchBugNumber);
         }
         return super.handlePatchFiles(tmpDir, tmpPatchesDir);
@@ -192,11 +200,11 @@ public class UpdateImage extends ImageOperation {
     private String fromImage;
 
     @Option(
-        names = {"--opatchBugNumber"},
-        description = "use this opatch patch bug number",
-        defaultValue = "28186730"
+            names = {"--opatchBugNumber"},
+            description = "use this opatch patch bug number",
+            defaultValue = "28186730"
     )
     private String opatchBugNumber;
 
-    private boolean opatch_1394_required = false;
+    private boolean opatchRequired = false;
 }

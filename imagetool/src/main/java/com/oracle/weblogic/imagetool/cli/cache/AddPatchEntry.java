@@ -13,7 +13,11 @@ import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.util.*;
+import com.oracle.weblogic.imagetool.util.ARUUtil;
+import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.SearchResult;
+import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.XPathUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.w3c.dom.Document;
 import picocli.CommandLine.Command;
@@ -49,7 +53,7 @@ public class AddPatchEntry extends CacheOperation {
             } else {
                 return new CommandResponse(-1, "Invalid patch id format: " + patchId);
             }
-            if (userId != null && !userId.isEmpty() && password != null && !password.isEmpty() ) {
+            if (userId != null && !userId.isEmpty() && password != null && !password.isEmpty()) {
                 return validateAndAddToCache(patchNumber, password);
             } else {
                 logger.info("Skipping patch validation, username and password were not provided");
@@ -118,7 +122,7 @@ public class AddPatchEntry extends CacheOperation {
     }
 
     /**
-     * Determines the support password by parsing the possible three input options
+     * Determines the support password by parsing the possible three input options.
      *
      * @return String form of password
      * @throws IOException in case of error

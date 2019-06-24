@@ -20,7 +20,11 @@ import javax.xml.xpath.XPathExpressionException;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class ARUUtil {
 
@@ -28,7 +32,7 @@ public class ARUUtil {
     private static final Logger logger = Logger.getLogger(ARUUtil.class.getName());
 
     /**
-     * Return All WLS releases information
+     * Return All WLS releases information.
      *
      * @param userId   userid for support account
      * @param password password for support account
@@ -40,7 +44,7 @@ public class ARUUtil {
     }
 
     /**
-     * Return release number of a WLS release by version
+     * Return release number of a WLS release by version.
      *
      * @param version  wls version 12.2.1.3.0 etc ...
      * @param userId   user id for support account
@@ -54,7 +58,7 @@ public class ARUUtil {
     }
 
     /**
-     * Return release number of a FMW release by version
+     * Return release number of a FMW release by version.
      *
      * @param version  wls version 12.2.1.3.0 etc ...
      * @param userId   user id for support account
@@ -69,7 +73,7 @@ public class ARUUtil {
 
 
     /**
-     * Return All FMW releases information
+     * Return All FMW releases information.
      *
      * @param userId   userid for support account
      * @param password password for support account
@@ -81,7 +85,7 @@ public class ARUUtil {
 
 
     /**
-     * Download the latest PSU for given category and release
+     * Download the latest PSU for given category and release.
      *
      * @param category wls or fmw
      * @param version  version number like 12.2.1.3.0
@@ -90,13 +94,14 @@ public class ARUUtil {
      * @return bug number
      * @throws IOException when failed
      */
-    public static String getLatestPSUFor(String category, String version, String userId, String password, String destDir) throws IOException {
+    public static String getLatestPSUFor(String category, String version, String userId, String password,
+                                         String destDir) throws IOException {
         String releaseNumber = getReleaseNumber(category, version, userId, password);
         return getLatestPSU(category, releaseNumber, userId, password, destDir);
     }
 
     /**
-     * Get list of PSU available for given category and release
+     * Get list of PSU available for given category and release.
      *
      * @param category wls or fmw
      * @param version  version number like 12.2.1.3.0
@@ -111,7 +116,7 @@ public class ARUUtil {
     }
 
     /**
-     * Get list of PSU available for given category and release
+     * Get list of PSU available for given category and release.
      *
      * @param category wls or fmw
      * @param version  version number like 12.2.1.3.0
@@ -134,7 +139,7 @@ public class ARUUtil {
     }
 
     /**
-     * Download a list of FMW patches
+     * Download a list of FMW patches.
      *
      * @param patches  A list of patches number
      * @param userId   user email
@@ -142,7 +147,8 @@ public class ARUUtil {
      * @return List of bug numbers
      * @throws IOException when failed to access the aru api
      */
-    public static List<String> getPatchesFor(String category, String version, List<String> patches, String userId, String password, String destDir)
+    public static List<String> getPatchesFor(String category, String version, List<String> patches, String userId,
+                                             String password, String destDir)
             throws
             IOException {
         List<String> results = new ArrayList<>();
@@ -156,7 +162,7 @@ public class ARUUtil {
     }
 
     /**
-     * Validate patches conflicts by passing a list of patches
+     * Validate patches conflicts by passing a list of patches.
      *
      * @param lsInventoryPath opatch lsinventory result path (null if non is passed)
      * @param patches         A list of patches number
@@ -178,25 +184,24 @@ public class ARUUtil {
 
         String releaseNumber = getReleaseNumber(category, version, userId, password);
 
-        StringBuffer payload = new StringBuffer
-                ("<conflict_check_request><platform>2000</platform>");
+        StringBuilder payload = new StringBuilder("<conflict_check_request><platform>2000</platform>");
 
         if (lsInventoryPath != null) {
             String inventoryContent = new String(Files.readAllBytes(Paths.get(lsInventoryPath)));
-            String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent +
-                    "</lsinventory_output></inventory_upi_request>";
+            String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent
+                    + "</lsinventory_output></inventory_upi_request>";
 
             Document upiResult = HttpUtil.postCheckConflictRequest(Constants.GET_LSINVENTORY_URL, upiPayload, userId,
                     password);
 
             try {
-                NodeList upi_list = XPathUtil.applyXPathReturnNodeList(upiResult,
+                NodeList upiList = XPathUtil.applyXPathReturnNodeList(upiResult,
                         "/inventory_upi_response/upi");
-                if (upi_list.getLength() > 0) {
+                if (upiList.getLength() > 0) {
                     payload.append("<target_patch_list>");
 
-                    for (int ii = 0; ii < upi_list.getLength(); ii++) {
-                        Node upi = upi_list.item(ii);
+                    for (int ii = 0; ii < upiList.getLength(); ii++) {
+                        Node upi = upiList.item(ii);
                         NamedNodeMap m = upi.getAttributes();
                         payload.append(String.format("<installed_patch upi=\"%s\"/>",
                                 m.getNamedItem("number").getNodeValue()));
@@ -226,7 +231,8 @@ public class ARUUtil {
         payload.append("</conflict_check_request>");
 
         logger.finer("Posting to ARU conflict check");
-        Document result = HttpUtil.postCheckConflictRequest(Constants.CONFLICTCHECKER_URL, payload.toString(), userId, password);
+        Document result = HttpUtil.postCheckConflictRequest(Constants.CONFLICTCHECKER_URL, payload.toString(), userId,
+                password);
         try {
             NodeList conflictSets = XPathUtil.applyXPathReturnNodeList(result, "/conflict_check/conflict_sets/set");
             if (conflictSets.getLength() > 0) {
@@ -269,7 +275,7 @@ public class ARUUtil {
     }
 
     /**
-     * Return the patch detail
+     * Return the patch detail.
      *
      * @param category  wls or fmw
      * @param version   version of the product
@@ -295,28 +301,26 @@ public class ARUUtil {
     }
 
     /**
-     * Return the version of the opatch patch
+     * Return the version of the opatch patch.
+     *
      * @param bugNumber opatch bug number
-     * @param userId  user for support
-     * @param password password for support
+     * @param userId    user for support
+     * @param password  password for support
      * @return version name of the this opatch patch
-     * @throws IOException
+     * @throws IOException if XPath fails, and the patch release cannot be ascertained.
      */
     public static String getOPatchVersionByBugNumber(String bugNumber, String userId,
-        String password) throws IOException {
+                                                     String password) throws IOException {
 
         try {
             String url = String.format(Constants.OPATCH_BUG_URL, bugNumber);
             Document allPatches = HttpUtil.getXMLContent(url, userId, password);
-            String version = XPathUtil.applyXPathReturnString(allPatches, "string(/results/patch[1]/release"
-                + "/@name)");
-            return version;
+            return XPathUtil.applyXPathReturnString(allPatches, "string(/results/patch[1]/release/@name)");
         } catch (XPathExpressionException xe) {
             throw new IOException(xe.getMessage());
         }
 
     }
-
 
 
     private static SearchResult getSearchResult(Document result) throws IOException {
@@ -381,7 +385,8 @@ public class ARUUtil {
         }
     }
 
-    private static String getLatestPSU(String category, String release, String userId, String password, String destDir) throws
+    private static String getLatestPSU(String category, String release, String userId, String password, String destDir)
+            throws
             IOException {
 
         String url;
@@ -407,7 +412,8 @@ public class ARUUtil {
 
     }
 
-    private static String getPatch(String category, String version, String bugNumber, String userId, String password, String destDir)
+    private static String getPatch(String category, String version, String bugNumber, String userId, String password,
+                                   String destDir)
             throws
             IOException {
 
@@ -428,7 +434,8 @@ public class ARUUtil {
         return savePatch(allPatches, userId, password, destDir);
     }
 
-    private static String savePatch(Document allPatches, String userId, String password, String destDir) throws IOException {
+    private static String savePatch(Document allPatches, String userId, String password, String destDir)
+            throws IOException {
         try {
 
             // TODO: needs to make sure there is one and some filtering if not sorting
@@ -470,7 +477,7 @@ public class ARUUtil {
 
     /**
      * Given a product category (wls, fmw, opatch) and version, determines the release number corresponding to that
-     * in the ARU database
+     * in the ARU database.
      *
      * @param category wls, fmw, opatch
      * @param version  12.2.1.3.0 or such
@@ -503,7 +510,7 @@ public class ARUUtil {
     }
 
     /**
-     * Validates whether the given username and password are valid MOS credentials
+     * Validates whether the given username and password are valid MOS credentials.
      *
      * @param username support email id
      * @param password password
@@ -517,8 +524,8 @@ public class ARUUtil {
             HttpUtil.getXMLContent(Constants.ARU_LANG_URL, username, password);
         } catch (IOException e) {
             Throwable cause = (e.getCause() == null) ? e : e.getCause();
-            if (cause.getClass().isAssignableFrom(HttpResponseException.class) &&
-                    ((HttpResponseException) cause).getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+            if (cause.getClass().isAssignableFrom(HttpResponseException.class)
+                    && ((HttpResponseException) cause).getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 return false;
             }
         }
@@ -526,7 +533,7 @@ public class ARUUtil {
     }
 
     /**
-     * Parses the patch conflict check result and returns a string of patch conflicts grouped by each conflict
+     * Parses the patch conflict check result and returns a string of patch conflicts grouped by each conflict.
      *
      * @param conflictsResultNode xml node representing the conflict check result
      * @return String
@@ -539,7 +546,8 @@ public class ARUUtil {
                 stringBuilder.append("patch conflicts detected: ");
                 for (int i = 0; i < patchSets.getLength(); i++) {
                     stringBuilder.append("[");
-                    NodeList bugNumbers = XPathUtil.applyXPathReturnNodeList(patchSets.item(i), "patch/bug/number/text()");
+                    NodeList bugNumbers = XPathUtil.applyXPathReturnNodeList(patchSets.item(i), "patch/bug/number"
+                            + "/text()");
                     for (int j = 0; j < bugNumbers.getLength(); j++) {
                         stringBuilder.append(bugNumbers.item(j).getNodeValue());
                         stringBuilder.append(",");

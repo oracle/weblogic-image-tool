@@ -3,7 +3,11 @@
 
 package com.oracle.weblogic.imagetool.impl.meta;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
@@ -91,8 +95,8 @@ public enum FileCacheStore implements CacheStore {
     public Map<String, String> getCacheItems() {
         Stream<Map.Entry<Object, Object>> stream = properties.entrySet().stream();
         return stream.collect(Collectors.toMap(
-                e -> String.valueOf(e.getKey()),
-                e -> String.valueOf(e.getValue())));
+            e -> String.valueOf(e.getKey()),
+            e -> String.valueOf(e.getValue())));
     }
 
     private boolean persistToDisk() {

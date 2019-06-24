@@ -3,11 +3,31 @@
 
 package com.oracle.weblogic.imagetool.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -88,9 +108,10 @@ public class Utils {
      * @param httpProxyUrl  http proxy url
      * @param httpsProxyUrl https proxy url
      * @param nonProxyHosts string of non proxy hosts
-     * @throws Exception
+     * @throws IOException when HTTP/HTTPS call has a low level error.
      */
-    public static void setProxyIfRequired(String httpProxyUrl, String httpsProxyUrl, String nonProxyHosts) throws IOException {
+    public static void setProxyIfRequired(String httpProxyUrl, String httpsProxyUrl, String nonProxyHosts)
+            throws IOException {
         if (!isEmptyString(httpProxyUrl)) {
             setSystemProxy(httpProxyUrl, Constants.HTTP);
         }
@@ -124,9 +145,10 @@ public class Utils {
 
     /**
      * Create the Dockerfile to be used by the docker build command for this run.
+     *
      * @param destPath the file folder that the Dockerfile should be written to.
      * @param template the Dockerfile template that should be used to create the Dockerfile.
-     * @param options the options to be applied to the Dockerfile template.
+     * @param options  the options to be applied to the Dockerfile template.
      * @throws IOException if an error occurs in the low level Java file operations.
      */
     public static void writeDockerfile(String destPath, String template, DockerfileOptions options) throws IOException {
@@ -136,33 +158,13 @@ public class Utils {
     }
 
     /**
-     * Reads a given resource and returns it's content as string.
-     *
-     * @param resourcePath resource to read
-     * @return content of the resource
-     * @throws IOException
-     */
-    private static String readResource(String resourcePath) throws IOException {
-        try (BufferedReader resourceReader = new BufferedReader(new InputStreamReader(
-                Utils.class.getResourceAsStream(resourcePath)))) {
-            String line;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ((line = resourceReader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(System.lineSeparator());
-            }
-            return stringBuilder.toString();
-        }
-    }
-
-    /**
      * Executes the given docker command and writes the process stdout to log.
      *
-     * @param isCLIMode whether the tool is being run in CLI mode
+     * @param isCLIMode  whether the tool is being run in CLI mode
      * @param cmdBuilder command to execute
      * @param dockerLog  log file to write to
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException if an error occurs reading from the process inputstream.
+     * @throws InterruptedException when the process wait is interrupted.
      */
     public static void runDockerCommand(boolean isCLIMode, List<String> cmdBuilder, Path dockerLog)
             throws IOException, InterruptedException {
@@ -192,8 +194,8 @@ public class Utils {
      *
      * @param cmdBuilder command to execute
      * @return properties built from the stdout of the docker command
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException if an error occurs reading from the process inputstream.
+     * @throws InterruptedException when the process wait is interrupted.
      */
     public static Properties runDockerCommand(List<String> cmdBuilder) throws IOException, InterruptedException {
         // process builder
@@ -216,8 +218,8 @@ public class Utils {
     /**
      * Throws an Exception if the given process failed with error.
      *
-     * @param process process
-     * @throws IOException
+     * @param process the Docker process
+     * @throws IOException if an error occurs while reading standard error (stderr) from the Docker build.
      */
     private static void processError(Process process) throws IOException {
         try (BufferedReader stderr =
@@ -235,7 +237,7 @@ public class Utils {
 
     private static void writeFromInputToOutputStreams(InputStream inputStream, OutputStream... outputStreams) {
         Thread readerThread = new Thread(() -> {
-            try(
+            try (
                     BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
                     CloseableList<PrintWriter> printWriters = createPrintWriters(outputStreams)
             ) {
@@ -292,14 +294,13 @@ public class Utils {
      * @param thisVersion  - first version
      * @param otherVersion - second version
      * @return returns 0 if the versions are equal, greater than zero if thisVersion is newer,
-     * and less than zero if thisVersion is older.
+     *         and less than zero if thisVersion is older.
      */
     public static int compareVersions(String thisVersion, String otherVersion) {
         int result = 0;
 
         if (isEmptyString(thisVersion) || isEmptyString(otherVersion)) {
-            IllegalArgumentException iae = new IllegalArgumentException("cannot compare null strings");
-            throw iae;
+            throw new IllegalArgumentException("cannot compare null strings");
         }
 
         String[] tmp = thisVersion.split("-");
@@ -386,22 +387,30 @@ public class Utils {
         return (s == null) || s.isEmpty();
     }
 
+    /**
+     * Returns the package manager that should be used to install software on a given Linux OS.
+     * Defaults to YUM.  Known OS's include: ubuntu, debian, opensuse, centos, ol, and rhel.
+     *
+     * @param osID identifier for the OS, like ubuntu, debian, rhel, ol, ...
+     * @return
+     */
     public static String getPackageMgrStr(String osID) {
         String retVal = Constants.YUM;
         if (osID != null) {
             osID = osID.replaceAll("[\"]", "");
             switch (osID) {
-                case "centos":
-                case "ol":
-                case "rhel":
-                    retVal = Constants.YUM;
-                    break;
                 case "ubuntu":
                 case "debian":
                     retVal = Constants.APTGET;
                     break;
                 case "opensuse":
                     retVal = Constants.ZYPPER;
+                    break;
+                case "centos":
+                case "ol":
+                case "rhel":
+                default:
+                    retVal = Constants.YUM;
                     break;
             }
         }
@@ -421,7 +430,8 @@ public class Utils {
                                                String... args) {
         //docker run -v /user.dir/tmpdir:/tmp wls122130:min sh -c /tmp/test-env.sh
         final List<String> retVal = Stream.of(
-                "docker", "run", "--user=root", "--volume=" + hostDirToMount.toAbsolutePath().toString() + ":/tmp_scripts",
+                "docker", "run", "--user=root",
+                "--volume=" + hostDirToMount.toAbsolutePath().toString() + ":/tmp_scripts",
                 dockerImage, "/tmp_scripts/" + scriptToRun).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
@@ -452,6 +462,7 @@ public class Utils {
                     }
                     break;
                 case "none":
+                default:
                     retVal = System.getenv("no_proxy");
                     if (isEmptyString(retVal)) {
                         retVal = System.getProperty("http.nonProxyHosts", null);
@@ -467,13 +478,15 @@ public class Utils {
 
     /**
      * Utility method to parse password out of three inputs.
-     * @param passwordStr password in plain string form
+     *
+     * @param passwordStr  password in plain string form
      * @param passwordFile file containing just the password
-     * @param passwordEnv name of environment variable containing the password
+     * @param passwordEnv  name of environment variable containing the password
      * @return parsed value
      * @throws IOException in case of error
      */
-    public static String getPasswordFromInputs(String passwordStr, Path passwordFile, String passwordEnv) throws IOException {
+    public static String getPasswordFromInputs(String passwordStr, Path passwordFile, String passwordEnv)
+            throws IOException {
         if (!isEmptyString(passwordStr)) {
             return passwordStr;
         } else if (passwordFile != null && Files.isRegularFile(passwordFile) && Files.size(passwordFile) > 0) {
@@ -488,18 +501,19 @@ public class Utils {
 
     /**
      * returns the working dir for docker build.
+     *
      * @return working directory
      */
     public static String getBuildWorkingDir() throws IOException {
         String workingDir = System.getenv("WLSIMG_BLDDIR");
-        if (workingDir == null ) {
+        if (workingDir == null) {
             workingDir = System.getProperty("user.home");
         }
         Path path = Paths.get(workingDir);
 
         boolean pathExists =
-            Files.exists(path,
-                new LinkOption[]{ LinkOption.NOFOLLOW_LINKS});
+                Files.exists(path,
+                        new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
 
         if (!pathExists) {
             throw new IOException("Working Directory does not exists " + workingDir);
@@ -517,18 +531,19 @@ public class Utils {
 
     /**
      * returns the cache store directory.
+     *
      * @return cache directory
      */
     public static String getCacheDir() throws IOException {
         String cacheDir = System.getenv("WLSIMG_CACHEDIR");
-        if (cacheDir == null ) {
+        if (cacheDir == null) {
             cacheDir = System.getProperty("user.home") + "/cache";
         }
         Path path = Paths.get(cacheDir);
 
         boolean pathExists =
-            Files.exists(path,
-                new LinkOption[]{ LinkOption.NOFOLLOW_LINKS});
+                Files.exists(path,
+                        new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
 
         if (!pathExists) {
             throw new IOException("Cache Directory does not exists " + cacheDir);
@@ -546,6 +561,7 @@ public class Utils {
 
     /**
      * Return the version number inside a opatch file.
+     *
      * @param fileName full path to the opatch patch
      * @return version number of the patch
      */

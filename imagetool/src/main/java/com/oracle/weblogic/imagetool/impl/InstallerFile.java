@@ -42,13 +42,14 @@ public class InstallerFile extends AbstractFile {
                     throw new Exception("CachePolicy prohibits download. Please add cache entry for key: " + getKey());
                 }
                 break;
+            case NEVER:
+                filePath = downloadInstaller(cacheStore);
+                break;
             case FIRST:
+            default:
                 if (!isFileOnDisk(filePath)) {
                     filePath = downloadInstaller(cacheStore);
                 }
-                break;
-            case NEVER:
-                filePath = downloadInstaller(cacheStore);
                 break;
         }
         return filePath;
@@ -60,8 +61,7 @@ public class InstallerFile extends AbstractFile {
         if (urlPath != null) {
             String fileName = new URL(urlPath).getPath();
             fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
-            String targetFilePath = cacheStore.getCacheDir() + File.separator + key +
-                    File.separator + fileName;
+            String targetFilePath = cacheStore.getCacheDir() + File.separator + key + File.separator + fileName;
             new File(targetFilePath).getParentFile().mkdirs();
             logger.info("Downloading from " + urlPath + " to " + targetFilePath);
             HttpUtil.downloadFile(urlPath, targetFilePath, userId, password);
@@ -73,7 +73,7 @@ public class InstallerFile extends AbstractFile {
     }
 
     /**
-     * Constructs the build-arg required to pass to the docker build
+     * Constructs the build-arg required to pass to the docker build.
      *
      * @param location path to installer on local disk
      * @return list of args

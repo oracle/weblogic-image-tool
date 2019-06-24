@@ -1,7 +1,6 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.File;
@@ -10,7 +9,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,7 +41,7 @@ public class HttpUtil {
     private static final Logger logger = Logger.getLogger(HttpUtil.class.getName());
 
     /**
-     * Return the xml result of a GET from the url
+     * Return the xml result of a GET from the url.
      *
      * @param url      url of the aru server
      * @param username userid for support account
@@ -94,7 +92,7 @@ public class HttpUtil {
     }
 
     /**
-     * Downlod a file from the url
+     * Downlod a file from the url.
      *
      * @param url      url of the aru server
      * @param fileName full path to save the file
@@ -111,7 +109,7 @@ public class HttpUtil {
     }
 
     /**
-     * Check conflicts post method
+     * Check conflicts post method.
      *
      * @param url      url for conflict checker api
      * @param payload  payload containing patches to check for conflicts

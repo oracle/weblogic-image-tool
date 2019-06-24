@@ -18,7 +18,11 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import com.oracle.weblogic.imagetool.api.model.*;
+import com.oracle.weblogic.imagetool.api.model.CachePolicy;
+import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.api.model.DomainType;
+import com.oracle.weblogic.imagetool.api.model.InstallerType;
+import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
@@ -61,7 +65,8 @@ public class CreateImage extends ImageOperation {
 
             List<String> cmdBuilder = getInitialBuildCmd();
             tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
-                "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+                    "wlsimgbuilder_temp",
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
             String tmpDirPath = tmpDir.toAbsolutePath().toString();
             logger.info("tmp directory used for build context: " + tmpDirPath);
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
@@ -75,7 +80,8 @@ public class CreateImage extends ImageOperation {
                 dockerfileOptions.setBaseImage(fromImage);
 
                 tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
-                    "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+                        "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString(
+                                "rwxr-xr-x")));
                 logger.info("tmp directory for docker run: " + tmpDir2);
 
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
@@ -84,13 +90,14 @@ public class CreateImage extends ImageOperation {
                 List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir2, fromImage, "test-env.sh");
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
 
-                baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
+                baseImageProperties.keySet().forEach(x -> logger.info(
+                        x + "=" + baseImageProperties.getProperty(x.toString())));
 
                 boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
 
                 if (ohAlreadyExists) {
-                    return new CommandResponse(-1, "Oracle Home exists at location:" +
-                            baseImageProperties.getProperty("ORACLE_HOME"));
+                    return new CommandResponse(-1,
+                            "Oracle Home exists at location:" + baseImageProperties.getProperty("ORACLE_HOME"));
                 }
 
                 if (useCache != CachePolicy.ALWAYS) {
@@ -115,7 +122,8 @@ public class CreateImage extends ImageOperation {
             copyResponseFilesToDir(tmpDirPath);
 
             // Create Dockerfile
-            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Create_Image.mustache", dockerfileOptions);
+            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Create_Image.mustache",
+                    dockerfileOptions);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
@@ -129,7 +137,8 @@ public class CreateImage extends ImageOperation {
         }
         Instant endTime = Instant.now();
         logger.finer("Exiting CreateImage call ");
-        return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
+        return new CommandResponse(0, "build successful in "
+                + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
     /**
@@ -153,18 +162,19 @@ public class CreateImage extends ImageOperation {
             try {
                 Path targetLink = Files.copy(Paths.get(targetFilePath), Paths.get(tmpDirPath, targetFile.getName()));
                 retVal.addAll(eachInstaller.getBuildArg(tmpDir.relativize(targetLink).toString()));
-            } catch (Exception ee ) {
+            } catch (Exception ee) {
                 ee.printStackTrace();
             }
         }
-        logger.finer("Exiting CreateImage.handleInstallerFiles: " );
+        logger.finer("Exiting CreateImage.handleInstallerFiles: ");
         return retVal;
     }
 
     @Override
     List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
         logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir.toAbsolutePath().toString());
-        if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) == 0) {
+        if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion,
+                Constants.DEFAULT_WLS_VERSION) == 0) {
             addOPatch1394ToImage(tmpDir, opatchBugNumber);
         }
         //we need a local installerVersion variable for the command line Option. so propagate to super.
@@ -194,21 +204,21 @@ public class CreateImage extends ImageOperation {
                     }
                     retVal.add(Constants.BUILD_ARG);
                     retVal.add("DOMAIN_TYPE=" + domainType);
-                    if (rcu_run_flag) {
+                    if (runRcu) {
                         retVal.add(Constants.BUILD_ARG);
                         retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
                     }
                 }
                 dockerfileOptions.setWdtEnabled();
                 Path targetLink = Files.copy(wdtModelPath, Paths.get(tmpDirPath, wdtModelPath.getFileName().toString())
-                    );
+                );
                 retVal.add(Constants.BUILD_ARG);
                 retVal.add("WDT_MODEL=" + tmpDir.relativize(targetLink).toString());
 
                 if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
                     targetLink = Files.copy(wdtArchivePath, Paths.get(tmpDirPath,
-                        wdtArchivePath.getFileName().toString())
-                        );
+                            wdtArchivePath.getFileName().toString())
+                    );
                     retVal.add(Constants.BUILD_ARG);
                     retVal.add("WDT_ARCHIVE=" + tmpDir.relativize(targetLink).toString());
                 }
@@ -221,8 +231,8 @@ public class CreateImage extends ImageOperation {
 
                 if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
                     targetLink = Files.copy(wdtVariablesPath, Paths.get(tmpDirPath,
-                        wdtVariablesPath.getFileName().toString())
-                        );
+                            wdtVariablesPath.getFileName().toString())
+                    );
                     retVal.add(Constants.BUILD_ARG);
                     retVal.add("WDT_VARIABLE=" + tmpDir.relativize(targetLink).toString());
                     retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));
@@ -237,7 +247,7 @@ public class CreateImage extends ImageOperation {
                 throw new IOException("WDT model file " + wdtModelPath + " not found");
             }
         }
-        logger.finer("Exiting CreateImage.handleWDTArgsIfRequired: " );
+        logger.finer("Exiting CreateImage.handleWDTArgsIfRequired: ");
         return retVal;
     }
 
@@ -254,8 +264,8 @@ public class CreateImage extends ImageOperation {
         Properties variableProps = new Properties();
         variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
         List<Object> matchingKeys = variableProps.keySet().stream().filter(
-                x -> variableProps.getProperty(((String) x)) != null &&
-                        Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
+                x -> variableProps.getProperty(((String) x)) != null
+                        && Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
         ).collect(Collectors.toList());
         matchingKeys.forEach(x -> {
             retVal.add(Constants.BUILD_ARG);
@@ -266,7 +276,7 @@ public class CreateImage extends ImageOperation {
     }
 
     /**
-     * Builds a list of {@link InstallerFile} objects based on user input which are processed
+     * Builds a list of {@link InstallerFile} objects based on user input which are processed.
      * to download the required install artifacts
      *
      * @return list of InstallerFile
@@ -290,7 +300,7 @@ public class CreateImage extends ImageOperation {
     }
 
     /**
-     * Parses wdtVersion and constructs the url to download WDT and adds the url to cache
+     * Parses wdtVersion and constructs the url to download WDT and adds the url to cache.
      *
      * @param wdtKey key in the format wdt_0.17
      * @throws Exception in case of error
@@ -303,7 +313,8 @@ public class CreateImage extends ImageOperation {
                 throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
             }
             List<String> wdtTags = HttpUtil.getWDTTags();
-            String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) : "weblogic-deploy-tooling-" + wdtVersion;
+            String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) :
+                    "weblogic-deploy-tooling-" + wdtVersion;
             if (wdtTags.contains(tagToMatch)) {
                 String downloadLink = String.format(Constants.WDT_URL_FORMAT, tagToMatch);
                 logger.info("WDT Download link = " + downloadLink);
@@ -316,7 +327,7 @@ public class CreateImage extends ImageOperation {
     }
 
     /**
-     * Copies response files required for wls install to the tmp directory which provides docker build context
+     * Copies response files required for wls install to the tmp directory which provides docker build context.
      *
      * @param dirPath directory to copy to
      * @throws IOException in case of error
@@ -383,7 +394,8 @@ public class CreateImage extends ImageOperation {
 
     @Option(
             names = {"--domainType"},
-            description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: ${COMPLETION-CANDIDATES}",
+            description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: "
+                    + "${COMPLETION-CANDIDATES}",
             defaultValue = "wls",
             required = true
     )
@@ -393,21 +405,21 @@ public class CreateImage extends ImageOperation {
             names = "--wdtRunRCU",
             description = "whether to run rcu to create the required database schemas"
     )
-    private boolean rcu_run_flag = false;
+    private boolean runRcu = false;
 
 
     @Option(
-        names = {"--wdtDomainHome"},
-        description = "pass to the -domain_home for wdt",
-        defaultValue = "/u01/domains/base_domain"
+            names = {"--wdtDomainHome"},
+            description = "pass to the -domain_home for wdt",
+            defaultValue = "/u01/domains/base_domain"
     )
     private Path wdtDomainHome;
 
 
     @Option(
-        names = {"--opatchBugNumber"},
-        description = "use this opatch patch bug number",
-        defaultValue = "28186730"
+            names = {"--opatchBugNumber"},
+            description = "use this opatch patch bug number",
+            defaultValue = "28186730"
     )
     private String opatchBugNumber;
 

@@ -1,7 +1,6 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
@@ -60,7 +59,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         // check user support credentials if useCache not set to always and we are applying any patches
         if (latestPSU || (!patches.isEmpty() && useCache != CachePolicy.ALWAYS)) {
             if (Utils.isEmptyString(password)) {
-                return new CommandResponse(-1, "Failed to determine password. use one of the options to input password");
+                return new CommandResponse(-1, "Failed to determine password. use one of the options to input "
+                        + "password");
             }
             if (!ARUUtil.checkCredentials(userId, password)) {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
@@ -71,7 +71,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     /**
-     * Determines the support password by parsing the possible three input options
+     * Determines the support password by parsing the possible three input options.
      *
      * @return String form of password
      * @throws IOException in case of error
@@ -96,7 +96,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
 
         if (latestPSU) {
-            FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion, null, userId, password);
+            FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion, null,
+                    userId, password);
             patchLocations.add(psuResolver.resolve(cacheStore));
         }
         if (patches != null && !patches.isEmpty()) {
@@ -113,8 +114,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
         for (String patchLocation : patchLocations) {
             if (patchLocation != null) {
-                File patch_file = new File(patchLocation);
-                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patch_file.getName()) );
+                File patchFile = new File(patchLocation);
+                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
             } else {
                 logger.severe("null entry in patchLocations");
             }
@@ -129,7 +130,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     /**
-     * Builds the options for docker build command
+     * Builds the options for docker build command.
      *
      * @return list of options
      */
@@ -178,7 +179,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         // and the version is embedded in the zip file version.txt
 
         String filePath =
-            new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
+                new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
+                        userId, password).resolve(cacheStore);
         Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
         dockerfileOptions.setOPatchPatchingEnabled();
     }
@@ -191,10 +193,10 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             names = {"--useCache"},
             paramLabel = "<Cache Policy>",
             defaultValue = "first",
-            description = "Whether to use local cache or download installers.\n" +
-                    "first - default. try to use cache and download artifacts if required\n" +
-                    "always - use cache always and never download artifacts\n" +
-                    "never - never use cache and always download artifacts"
+            description = "Whether to use local cache or download installers.\n"
+                    + "first - default. try to use cache and download artifacts if required\n"
+                    + "always - use cache always and never download artifacts\n"
+                    + "never - never use cache and always download artifacts"
     )
     CachePolicy useCache;
 

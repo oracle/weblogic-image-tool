@@ -52,7 +52,7 @@ public interface CacheStore {
     boolean addToCache(String key, String value);
 
     /**
-     * Delete an entry from the cache
+     * Delete an entry from the cache.
      *
      * @param key key corresponding to an entry in the cache
      * @return value or null
@@ -60,7 +60,7 @@ public interface CacheStore {
     String deleteFromCache(String key);
 
     /**
-     * Returns a map of current items in the cache
+     * Returns a map of current items in the cache.
      *
      * @return map of current items
      */
