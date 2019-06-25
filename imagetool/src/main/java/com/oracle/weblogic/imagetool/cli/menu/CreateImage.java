@@ -100,6 +100,11 @@ public class CreateImage extends ImageOperation {
                 for (String xcmd : imageEnvCmd) {
                     logger.info("DEBUG: docker cmd " + xcmd);
                 }
+                try {
+                    Thread.sleep(60000);
+                } catch (Exception ex) {
+
+                }
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
                 baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
