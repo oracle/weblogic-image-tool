@@ -620,11 +620,16 @@ public class Utils {
                 logger.finest("pattern match id " + patchId );
                 Matcher matcher = patchIdPattern.matcher(patchId);
                 if (!matcher.matches()) {
-                    String error = String.format("Invalid patch id %s. Patch id must be in the format of 12345678[_12"
-                        + ".2.1.3.0]:  "
+                    String errorFormat;
+                    if (rigid)
+                        errorFormat = "12345678_12.2.1.3.0";
+                    else
+                        errorFormat = "12345678[_12.2.1.3.0]";
+
+                    String error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
                         + "starting with 8 digits patch ID.  For patches that has multiple target versions, the "
                         + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or 12.2.1."
-                        + "3.190416", patchId);
+                        + "3.190416", errorFormat, patchId);
                     logger.severe(error);
                     result = false;
                     return result;
