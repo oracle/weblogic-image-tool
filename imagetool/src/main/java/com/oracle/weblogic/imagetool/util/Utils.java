@@ -443,9 +443,14 @@ public class Utils {
     public static List<String> getDockerRunCmd(Path hostDirToMount, String dockerImage, String scriptToRun,
                                                String... args) {
         //docker run -v /user.dir/tmpdir:/tmp wls122130:min sh -c /tmp/test-env.sh
+
+        String runFrom = hostDirToMount.toAbsolutePath().toString() + "/" + scriptToRun;
+        String runTarget = "/" + scriptToRun;
+
         final List<String> retVal = Stream.of(
-                "docker", "run", "--user=root", "--volume=" + hostDirToMount.toAbsolutePath().toString() + ":/tmp_scripts",
-                dockerImage, "/tmp_scripts/" + scriptToRun).collect(Collectors.toList());
+                "docker", "run", "--user=root",
+                "--volume=" + runFrom + ":" + runTarget,
+                dockerImage, runTarget).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
         }
