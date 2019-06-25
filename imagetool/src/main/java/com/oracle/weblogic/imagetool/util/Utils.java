@@ -443,7 +443,7 @@ public class Utils {
     public static List<String> getDockerRunCmd(Path hostDirToMount, String dockerImage, String scriptToRun,
                                                String... args) {
         //docker run -v /user.dir/tmpdir:/tmp wls122130:min sh -c /tmp/test-env.sh
-        final List<String> retVal = Stream.of(
+        final List<String> retVal = Stream.of("/bin/sh",
                 "docker", "run", "--user=root", "--volume=" + hostDirToMount.toAbsolutePath().toString() + ":/tmp_scripts",
                 dockerImage, "/tmp_scripts/" + scriptToRun).collect(Collectors.toList());
         if (args != null && args.length > 0) {
