@@ -264,8 +264,8 @@ public class CreateImage extends ImageOperation {
         Properties variableProps = new Properties();
         variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
         List<Object> matchingKeys = variableProps.keySet().stream().filter(
-                x -> variableProps.getProperty(((String) x)) != null
-                        && Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
+            x -> variableProps.getProperty(((String) x)) != null
+                && Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
         ).collect(Collectors.toList());
         matchingKeys.forEach(x -> {
             retVal.add(Constants.BUILD_ARG);

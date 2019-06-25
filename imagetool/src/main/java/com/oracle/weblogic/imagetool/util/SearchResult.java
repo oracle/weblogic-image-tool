@@ -41,12 +41,19 @@ public class SearchResult {
     }
 
     /**
+     * Get the result object from the search.
+     *
      * @return dom document detailing about the conflicts
      */
     public Document getResults() {
         return results;
     }
 
+    /**
+     * Set the result object from the search.
+     *
+     * @param results dom document detailing about the conflicts
+     */
     public void setResults(Document results) {
         this.results = results;
     }

@@ -116,7 +116,7 @@ public class HttpUtil {
      * @param username user name for support
      * @param password password for support
      * @return dom document result of the conflict checker
-     * @throws IOException
+     * @throws IOException if HTTP client fails
      */
 
     public static Document postCheckConflictRequest(String url, String payload, String username, String password)
@@ -168,6 +168,11 @@ public class HttpUtil {
 
     }
 
+    /**
+     * Looks at the GitHub repo and retrieves the tags from the source code.
+     * @return a list of tags found.
+     * @throws IOException if the HTTP client fails.
+     */
     public static List<String> getWDTTags() throws IOException {
         List<String> retVal = new ArrayList<>();
         String results = Executor.newInstance(getOraClient(null, null)).execute(Request.Get(Constants.WDT_TAGS_URL))

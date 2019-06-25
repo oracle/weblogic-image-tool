@@ -5,10 +5,10 @@ package com.oracle.weblogic.imagetool.util;
 
 public class DockerfileOptions {
 
-    boolean use_pkg_installer_yum = false;
-    boolean use_pkg_installer_apt_get = false;
-    boolean use_pkg_installer_apk = false;
-    boolean use_pkg_installer_zypper = false;
+    boolean useYum = false;
+    boolean useAptGet = false;
+    boolean useApk = false;
+    boolean useZypper = false;
 
     private boolean useWdt = false;
     private boolean applyPatches = false;
@@ -82,19 +82,19 @@ public class DockerfileOptions {
      * @return this DockerfileOptions object
      */
     public DockerfileOptions setPackageInstaller(String option) {
-        use_pkg_installer_zypper = false;
-        use_pkg_installer_apt_get = false;
-        use_pkg_installer_apk = false;
-        use_pkg_installer_yum = false;
+        useZypper = false;
+        useAptGet = false;
+        useApk = false;
+        useYum = false;
         switch (option) {
             case Constants.YUM:
-                use_pkg_installer_yum = true;
+                useYum = true;
                 break;
             case Constants.APTGET:
-                use_pkg_installer_apt_get = true;
+                useAptGet = true;
                 break;
             case Constants.ZYPPER:
-                use_pkg_installer_zypper = true;
+                useZypper = true;
                 break;
             default:
         }

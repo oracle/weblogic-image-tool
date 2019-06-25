@@ -12,7 +12,7 @@ import com.oracle.weblogic.imagetool.util.Constants;
 
 public class CacheStoreFactory implements Supplier<CacheStore> {
 
-    private final static Map<String, CacheStore> cashStoreMap = new HashMap<>();
+    private static final Map<String, CacheStore> cashStoreMap = new HashMap<>();
 
     static {
         cashStoreMap.put(Constants.FILE_CACHE, FileCacheStore.CACHE_STORE);

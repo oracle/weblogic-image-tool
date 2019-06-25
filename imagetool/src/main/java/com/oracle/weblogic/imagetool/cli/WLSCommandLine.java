@@ -20,6 +20,19 @@ public class WLSCommandLine {
         return call(callable, false, args);
     }
 
+    /**
+     * Access point for PicoCLI.
+     * @param callable CLI driver
+     * @param out output stream
+     * @param err error stream
+     * @param ansi ANSI mode
+     * @param ignoreCaseForEnums ignore case for Enums
+     * @param isCLIMode true to use WLSCommandFactory
+     * @param args command line arguments
+     * @param <C> Callable class
+     * @param <T> Callable Type
+     * @return the result
+     */
     public static <C extends Callable<T>, T> T call(C callable, PrintStream out, PrintStream err,
                                                     CommandLine.Help.Ansi ansi, boolean ignoreCaseForEnums,
                                                     boolean isCLIMode, String... args) {
