@@ -27,6 +27,12 @@
         <property name="eachLine" value="true"/>
     </module>
 
+    <module name="RegexpHeader">
+        <property name="header"
+                  value="^// Copyright (\d\d\d\d, )+Oracle Corporation and\/or its affiliates\.  All rights reserved\.$\n^// Licensed under the Universal Permissive License v 1\.0 as shown at http://oss.oracle.com/licenses/upl\.$"/>
+        <property name="fileExtensions" value="java"/>
+    </module>
+
     <module name="TreeWalker">
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
