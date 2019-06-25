@@ -28,6 +28,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
@@ -441,11 +442,24 @@ public class Utils {
      * @return command
      */
     public static List<String> getDockerRunCmd(Path hostDirToMount, String dockerImage, String scriptToRun,
-                                               String... args) {
-        //docker run -v /user.dir/tmpdir:/tmp wls122130:min sh -c /tmp/test-env.sh
+                                               String... args) throws IOException {
+
+        // We are removing the volume mount option, -v won't work in remote docker daemon and also
+        // problematic if the mounted volume source is on a nfs volume as we have no idea what the docker volume
+        // driver is.
+        //
+        // Now are encoding the test script and decode on the fly and execute it.
+        // Warning:  don't pass in a big file
+        
+        byte fileBytes[] = Files.readAllBytes(Paths.get(hostDirToMount.toAbsolutePath().toString() +
+            File.separator + scriptToRun));
+        logger.info("file read");
+        String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
+
         final List<String> retVal = Stream.of(
-                "docker", "run", "--user=root", "--volume=" + hostDirToMount.toAbsolutePath().toString() + ":/tmp_scripts",
-                dockerImage, "/tmp_scripts/" + scriptToRun).collect(Collectors.toList());
+                "docker", "run", "--user=root",
+                dockerImage, "echo" , encodedFile, "|", "base64", "-d" , "|",
+                 "/bin/bash").collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
         }
