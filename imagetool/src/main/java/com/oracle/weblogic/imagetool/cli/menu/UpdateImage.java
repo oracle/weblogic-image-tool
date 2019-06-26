@@ -138,9 +138,17 @@ public class UpdateImage extends ImageOperation {
                         b64lsout = b64lsout.replace(" ","");
 
                         byte lsinventoryContent[] = Base64.getDecoder().decode(b64lsout);
+                        String lsinventoryText = new String(lsinventoryContent);
 
-                        logger.finest("ls inventory = " + new String(lsinventoryContent));
 
+                        logger.finest("ls inventory = " + lsinventoryText);
+
+                        // Any better way to do this ?
+                        
+                        if (lsinventoryText.contains("OPatch failed")) {
+                            logger.severe("ls inventory = " + lsinventoryText);
+                            return new CommandResponse(-1, "lsinventory failed");
+                        }
                         Set<String> toValidateSet = new HashSet<>();
                         if (latestPSU) {
                             toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
@@ -148,7 +156,7 @@ public class UpdateImage extends ImageOperation {
                         }
                         toValidateSet.addAll(patches);
                         ValidationResult validationResult =
-                            ARUUtil.validatePatches(new String(lsinventoryContent),
+                            ARUUtil.validatePatches(lsinventoryText,
                             new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
                             password);
                         if (!validationResult.isSuccess()) {
