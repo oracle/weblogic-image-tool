@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -164,7 +166,7 @@ public class Utils {
      * @param isCLIMode  whether the tool is being run in CLI mode
      * @param cmdBuilder command to execute
      * @param dockerLog  log file to write to
-     * @throws IOException if an error occurs reading from the process inputstream.
+     * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
     public static void runDockerCommand(boolean isCLIMode, List<String> cmdBuilder, Path dockerLog)
@@ -195,7 +197,7 @@ public class Utils {
      *
      * @param cmdBuilder command to execute
      * @return properties built from the stdout of the docker command
-     * @throws IOException if an error occurs reading from the process inputstream.
+     * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
     public static Properties runDockerCommand(List<String> cmdBuilder) throws IOException, InterruptedException {
@@ -283,7 +285,7 @@ public class Utils {
 
             if (Files.exists(tmpDir)) {
                 logger.warning("Unable to cleanup temp directory, it is safe to remove this directory manually "
-                    + tmpDir.toString());
+                        + tmpDir.toString());
             }
         }
     }
@@ -438,14 +440,14 @@ public class Utils {
         // Now are encoding the test script and decode on the fly and execute it.
         // Warning:  don't pass in a big file
 
-        byte fileBytes[] = Files.readAllBytes(Paths.get(hostDirToMount.toAbsolutePath().toString() +
-            File.separator + scriptToRun));
+        byte[] fileBytes = Files.readAllBytes(Paths.get(hostDirToMount.toAbsolutePath().toString()
+                + File.separator + scriptToRun));
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
         String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
         logger.finest("ONE COMMAND [" + oneCommand + "]");
         final List<String> retVal = Stream.of(
                 "docker", "run",
-                dockerImage, "/bin/bash" , "-c" , oneCommand).collect(Collectors.toList());
+                dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
         }
@@ -607,23 +609,23 @@ public class Utils {
     }
 
     /**
-     * validatePatchIds validate the format of the patch ids
+     * validatePatchIds validate the format of the patch ids.
+     *
      * @param patches list of patch ids
      * @return true if all patch IDs are valid , false otherwise.
      */
 
-    public static boolean validatePatchIds(List<String> patches, boolean rigid)  {
+    public static boolean validatePatchIds(List<String> patches, boolean rigid) {
         boolean result = true;
         Pattern patchIdPattern;
         if (rigid) {
             patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
-        }
-        else {
+        } else {
             patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
         }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                logger.finest("pattern match id " + patchId );
+                logger.finest("pattern match id " + patchId);
                 Matcher matcher = patchIdPattern.matcher(patchId);
                 if (!matcher.matches()) {
                     String errorFormat;
@@ -631,16 +633,17 @@ public class Utils {
                     if (rigid) {
                         errorFormat = "12345678_12.2.1.3.0";
                         error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
-                            + " starting with 8 digits patch ID.  The release version as found by searching for "
-                            + "patches on Oracle Support Site must be specified after the underscore with 5 places "
-                            + "such as 12.2.1.3.0 or 12.2.1.3.190416", errorFormat, patchId);
-                    }
-                    else {
+                                + " starting with 8 digits patch ID.  The release version as found by searching for "
+                                + "patches on Oracle Support Site must be specified after the underscore with 5 places "
+                                + "such as 12.2.1.3.0 or 12.2.1.3.190416", errorFormat, patchId);
+                    } else {
                         errorFormat = "12345678[_12.2.1.3.0]";
                         error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
-                            + " starting with 8 digits patch ID.  For patches that has multiple target versions, the "
-                            + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or 12.2.1."
-                            + "3.190416", errorFormat, patchId);
+                                + " starting with 8 digits patch ID.  For patches that has multiple target versions, "
+                                + "the "
+                                + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or "
+                                + "12.2.1."
+                                + "3.190416", errorFormat, patchId);
                     }
 
                     logger.severe(error);

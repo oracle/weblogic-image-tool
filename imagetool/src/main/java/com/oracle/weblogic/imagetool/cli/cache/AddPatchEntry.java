@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
@@ -67,8 +69,9 @@ public class AddPatchEntry extends CacheOperation {
 
     /**
      * Validate local patch file's digest against the digest stored in ARU.
+     *
      * @param patchNumber the ARU patch number without the 'p'
-     * @param password the password to be used for the ARU query (Oracle Support credential)
+     * @param password    the password to be used for the ARU query (Oracle Support credential)
      * @return true if the local file digest matches the digest stored in Oracle ARU
      * @throws Exception if the ARU call to get patch details failed
      */
@@ -78,6 +81,7 @@ public class AddPatchEntry extends CacheOperation {
 
     /**
      * Add patch to the cache.
+     *
      * @param patchNumber the patchId (minus the 'p') of the patch to add
      * @return CLI command response
      */
@@ -89,10 +93,10 @@ public class AddPatchEntry extends CacheOperation {
         String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
         if (opatchNumber != null) {
             int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
-            key = key.substring(0,lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
+            key = key.substring(0, lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
         }
         logger.info("adding key " + key);
-        if (cacheStore.getValueFromCache(key) != null ) {
+        if (cacheStore.getValueFromCache(key) != null) {
             String error = String.format("Cache key %s already exists, remove it first", key);
             logger.severe(error);
             throw new IllegalArgumentException(error);

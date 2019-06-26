@@ -56,7 +56,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         password = handlePasswordOptions();
         // check user support credentials if useCache not set to always and we are applying any patches
 
-        if (userId != null || password != null ) {
+        if (userId != null || password != null) {
             if (!ARUUtil.checkCredentials(userId, password)) {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
@@ -93,17 +93,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         if (latestPSU) {
             if (userId == null || password == null) {
                 throw new Exception("No credentials provided. Cannot determine "
-                    + "latestPSU");
+                        + "latestPSU");
             } else {
                 String patchId = ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                    userId,
-                    password);
+                        userId,
+                        password);
                 if (Utils.isEmptyString(patchId)) {
                     throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
-                        installerType.toString(), installerVersion));
+                            installerType.toString(), installerVersion));
                 }
                 logger.finest("Found latest PSU " + patchId);
-                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion, patchId, userId, password);
+                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion,
+                        patchId, userId, password);
                 patchLocations.add(psuResolver.resolve(cacheStore));
             }
 

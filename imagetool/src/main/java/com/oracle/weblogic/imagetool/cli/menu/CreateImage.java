@@ -12,9 +12,12 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -24,9 +27,11 @@ import com.oracle.weblogic.imagetool.api.model.DomainType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
+import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.ValidationResult;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -83,16 +88,13 @@ public class CreateImage extends ImageOperation {
                 logger.finer("User specified fromImage " + fromImage);
                 dockerfileOptions.setBaseImage(fromImage);
 
-//                tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
-//                    "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-//                logger.info("tmp directory for docker run: " + tmpDir2);
-//
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
                         tmpDir.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
 
                 List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
-                baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
+                baseImageProperties.keySet().forEach(x -> logger.info(
+                        x + "=" + baseImageProperties.getProperty(x.toString())));
 
                 boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
 
@@ -175,13 +177,13 @@ public class CreateImage extends ImageOperation {
             Set<String> toValidateSet = new HashSet<>();
             if (latestPSU) {
                 toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                    userId, password));
+                        userId, password));
             }
             toValidateSet.addAll(patches);
 
             ValidationResult validationResult = ARUUtil.validatePatches(null,
-                new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
-                password);
+                    new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
+                    password);
             if (validationResult.isSuccess()) {
                 logger.info("patch conflict check successful");
             } else {
@@ -280,7 +282,7 @@ public class CreateImage extends ImageOperation {
         variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
         List<Object> matchingKeys = variableProps.keySet().stream().filter(
             x -> variableProps.getProperty(((String) x)) != null
-                && Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
+                 && Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
         ).collect(Collectors.toList());
         matchingKeys.forEach(x -> {
             retVal.add(Constants.BUILD_ARG);
@@ -409,7 +411,8 @@ public class CreateImage extends ImageOperation {
 
     @Option(
             names = {"--wdtDomainType"},
-            description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: ${COMPLETION-CANDIDATES}",
+            description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: "
+                    + "${COMPLETION-CANDIDATES}",
             defaultValue = "wls",
             required = true
     )

@@ -5,14 +5,16 @@ package com.oracle.weblogic.imagetool.api.model;
 
 /**
  * Cache policy types.
- * @Deprecated
- *   This is subject to removal and there is no need to use it
- *   The logic is changed to use the presence of userId and password to
- *   determine whether to access online if the item is not in the cache.
- *   It allows the cache is just a store and nothing more
- *
+ * <p/>
  * always - Use only cache entries and never download artifacts
+ *
+ * @deprecated
+ *   This is subject to removal and there is no need to use it
+ *     The logic is changed to use the presence of userId and password to
+ *     determine whether to access online if the item is not in the cache.
+ *     It allows the cache is just a store and nothing more
  */
+@Deprecated
 public enum CachePolicy {
     ALWAYS("always");
 

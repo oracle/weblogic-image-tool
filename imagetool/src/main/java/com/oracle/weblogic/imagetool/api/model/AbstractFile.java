@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.api.model;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.FileResolver;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
@@ -14,19 +15,22 @@ import com.oracle.weblogic.imagetool.api.meta.CacheStore;
  */
 public abstract class AbstractFile implements FileResolver {
 
+    private static final Logger logger = Logger.getLogger(AbstractFile.class.getName());
+
     private String key;
     protected CachePolicy cachePolicy;
     protected String userId;
     protected String password;
-    private final static Logger logger = Logger.getLogger(AbstractFile.class.getName());
+
 
     /**
      * Construct a new abstract file.
-     * @param id cache ID
-     * @param version applicable product version.
+     *
+     * @param id          cache ID
+     * @param version     applicable product version.
      * @param cachePolicy applicable cache policy.
-     * @param userId userid to use for ARU.
-     * @param password password to use for ARU.
+     * @param userId      userid to use for ARU.
+     * @param password    password to use for ARU.
      */
     public AbstractFile(String id, String version, CachePolicy cachePolicy, String userId, String password) {
         this.key = generateKey(id, version);
@@ -44,11 +48,11 @@ public abstract class AbstractFile implements FileResolver {
         //
         String mykey = id;
         if (id == null) {  // should never happens
-            mykey =  id + CacheStore.CACHE_KEY_SEPARATOR + version;
+            mykey = id + CacheStore.CACHE_KEY_SEPARATOR + version;
         } else if (id.indexOf('_') < 0) {
-                if (version != null) {
-                    mykey = mykey + CacheStore.CACHE_KEY_SEPARATOR + version;
-                }
+            if (version != null) {
+                mykey = mykey + CacheStore.CACHE_KEY_SEPARATOR + version;
+            }
         }
 
         logger.finest("AbstractFile generating key returns " + mykey);

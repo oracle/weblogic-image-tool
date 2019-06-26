@@ -61,8 +61,6 @@ public class UpdateImage extends ImageOperation {
                 return result;
             }
 
-            List<String> cmdBuilder = getInitialBuildCmd();
-
             if (fromImage == null || fromImage.isEmpty()) {
                 return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
             } else {
@@ -112,13 +110,6 @@ public class UpdateImage extends ImageOperation {
                     && (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0
                     && Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
 
-            //Do not update or install packages in offline only mode
-            // TODO: WHY we even need to update the package !!
-//            String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-//            if (!Utils.isEmptyString(pkgMgr)) {
-//                dockerfileOptions.setPackageInstaller(pkgMgr);
-//            }
-
             baseImageProperties.keySet().forEach(x ->
                     logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
@@ -128,18 +119,17 @@ public class UpdateImage extends ImageOperation {
                     logger.warning("skipping patch conflict check, no support credentials provided ");
                 } else {
 
-                    if (!Utils.validatePatchIds(patches,false)) {
+                    if (!Utils.validatePatchIds(patches, false)) {
                         return new CommandResponse(-1, "Patch ID validation failed");
                     }
 
                     String b64lsout = baseImageProperties.getProperty("LSINV_TEXT", null);
-                    if (b64lsout != null ) {
+                    if (b64lsout != null) {
                         // remove space in the string to make a valid b64 string
-                        b64lsout = b64lsout.replace(" ","");
+                        b64lsout = b64lsout.replace(" ", "");
 
-                        byte lsinventoryContent[] = Base64.getDecoder().decode(b64lsout);
+                        byte[] lsinventoryContent = Base64.getDecoder().decode(b64lsout);
                         String lsinventoryText = new String(lsinventoryContent);
-
 
                         logger.finest("ls inventory = " + lsinventoryText);
 
@@ -152,13 +142,14 @@ public class UpdateImage extends ImageOperation {
                         Set<String> toValidateSet = new HashSet<>();
                         if (latestPSU) {
                             toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                                userId, password));
+                                    userId, password));
                         }
                         toValidateSet.addAll(patches);
                         ValidationResult validationResult =
-                            ARUUtil.validatePatches(lsinventoryText,
-                            new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
-                            password);
+                                ARUUtil.validatePatches(lsinventoryText,
+                                        new ArrayList<>(toValidateSet), installerType.toString(), installerVersion,
+                                        userId,
+                                        password);
                         if (!validationResult.isSuccess()) {
                             return new CommandResponse(-1, validationResult.getErrorMessage());
                         } else {
@@ -178,11 +169,13 @@ public class UpdateImage extends ImageOperation {
             Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
             Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
 
+            List<String> cmdBuilder = getInitialBuildCmd();
             // resolve required patches
             cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
 
             // create dockerfile
-            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Update_Image.mustache", dockerfileOptions);
+            Utils.writeDockerfile(
+                    tmpDirPath + File.separator + "Dockerfile", "Update_Image.mustache", dockerfileOptions);
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
 

@@ -12,7 +12,6 @@ import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
-import com.oracle.weblogic.imagetool.util.Utils;
 
 public class PatchFile extends AbstractFile {
 
@@ -23,12 +22,13 @@ public class PatchFile extends AbstractFile {
 
     /**
      * Create an abstract file to hold the metadata for a patch file.
+     *
      * @param cachePolicy the policy to apply.=
-     * @param category the patch category
-     * @param version the version of installer this patch is applicable to
-     * @param patchId the ID of the patch
-     * @param userId the username to use for retrieving the patch
-     * @param password the password to use with the userId to retrieve the patch
+     * @param category    the patch category
+     * @param version     the version of installer this patch is applicable to
+     * @param patchId     the ID of the patch
+     * @param userId      the username to use for retrieving the patch
+     * @param password    the password to use with the userId to retrieve the patch
      */
     public PatchFile(CachePolicy cachePolicy, String category, String version, String patchId, String userId,
                      String password) {
@@ -51,10 +51,11 @@ public class PatchFile extends AbstractFile {
         if (!fileExists) {
             if (userId == null || password == null)
                 throw new Exception(String.format(
-                    "Patch %s is not in the cache store and you have not provide Oracle Support "
-                        + "credentials in the command line.  Please provide --user with one of the password option or "
-                        + "populate the cache store manually",
-                    patchId));
+                        "Patch %s is not in the cache store and you have not provide Oracle Support "
+                                + "credentials in the command line.  Please provide --user with one of the password "
+                                + "option or "
+                                + "populate the cache store manually",
+                        patchId));
             filePath = downloadPatch(cacheStore);
         }
 
@@ -64,7 +65,7 @@ public class PatchFile extends AbstractFile {
 
     private String downloadPatch(CacheStore cacheStore) throws IOException {
         // try downloading it
-        List<String> patches = ARUUtil.getPatchesFor( Collections.singletonList(patchId),
+        List<String> patches = ARUUtil.getPatchesFor(Collections.singletonList(patchId),
                 userId, password, cacheStore.getCacheDir());
         String patchKey = getKey();
         // we ignore the release number coming from ARUUtil patchId_releaseNumber=/path/to/patch.zip
