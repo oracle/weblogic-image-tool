@@ -58,7 +58,7 @@ wls_12.2.1.3.0=/home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 
 During the image creation process, the tool creates a temporary directory prefixed by ```wlsimgbuilder_temp``` as
 the context root for the ```docker build``` command.  This temporary directory will be deleted upon successful
-completion.
+completion. See more details in [Cleanup section](#cleanup).
 
 By default, it is created under the user's home directory. If you do not want to create the temporary directory under
  the home directory, you can first set the environment variable by:
@@ -149,16 +149,14 @@ For each WebLogic patch, you will need to download it from Oracle Support and se
 27342434 for WebLogic version 12.2.1.3.0:
 
 ```bash
-imagetool cache addPatch --patchId p27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip --user username@mycompany.com --passwordEnv MYPWD
+imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip 
 ```
-
-You need to provide the credentials on the command line. It verifies the MD5 on the file system against the metadata
- on Oracle Support for this patch number.
+Note: Please refer to [Cache Command](cache.md) for the format of ```patchId``` 
 
 Then, you can run the command to create the image:
 
 ```bash
-imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always
+imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 
 ```
 
 Sometimes, a WebLogic patch may require patching the OPatch binaries before applying them.  We recommend
@@ -177,7 +175,7 @@ have the option to automatically download using the tool or manually downloading
 After the cache is setup, you can use the following command to update an image:
 
 ```bash
-imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 --useCache always
+imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434 
 ```
 
 ## Create an image with a WebLogic domain using the WebLogic Deploy Tool
@@ -195,7 +193,7 @@ imagetool cache addInstaller --type wdt --version 0.22 --path /home/acmeuser/cac
 Provide the command-line options for the WebLogic Deploy Tool:
 
 ```bash
-imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0 --useCache always --wdtVersion 0.22 --wdtArchive /home/acmeuser/wdt/domain1.zip --wdtDomainHome /u01/domains/simple_domain
+imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0 --patches 27342434 --version 12.2.1.3.0  --wdtVersion 0.22 --wdtArchive /home/acmeuser/wdt/domain1.zip --wdtDomainHome /u01/domains/simple_domain
 ```
 
 The parameters mapping between the Image Tool and the WebLogic Deploy Tool are:
@@ -207,6 +205,7 @@ The parameters mapping between the Image Tool and the WebLogic Deploy Tool are:
 | `--wdtVariables`     | `-variable_file`         |
 | `--wdtRunRCU`        | `-run_rcu`                |
 | `--wdtDomainHome`    | `-domain_home`            |
+| `--wdtDomainType`     | `-domain_type`           |
 
 
 The domain will be created under ```/u01/domains/base_domain``` if you do not specify ```--wdtDomainHome```.  
@@ -244,8 +243,8 @@ imagetool @/path/to/build_args
 ## Cleanup
 
 As described in the beginning, the Image Tool creates a temporary directory prefixed by ```wlsimgbuilder_temp```
-every time it runs.  This directory will be deleted under normal circumstances, however, if the process is aborted,
-the directory needs to be deleted manually.
+every time it runs.  This directory will be deleted under normal circumstances, however, if the process is aborted or
+ the tool is unable to remove the directory, the directory can be deleted manually later.
 
 If you see dangling images after the build, you can use the following commands to remove them:
 

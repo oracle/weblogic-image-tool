@@ -26,14 +26,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -305,7 +303,8 @@ public class Utils {
                     .forEach(File::delete);
 
             if (Files.exists(tmpDir)) {
-                logger.warning("Directory not cleaned up, please remove it manually " + tmpDir.toString());
+                logger.warning("Unable to cleanup temp directory, it is safe to remove this directory manually "
+                    + tmpDir.toString());
             }
         }
     }
@@ -444,11 +443,23 @@ public class Utils {
      * @return command
      */
     public static List<String> getDockerRunCmd(Path hostDirToMount, String dockerImage, String scriptToRun,
-                                               String... args) {
-        //docker run -v /user.dir/tmpdir:/tmp wls122130:min sh -c /tmp/test-env.sh
+                                               String... args) throws IOException {
+
+        // We are removing the volume mount option, -v won't work in remote docker daemon and also
+        // problematic if the mounted volume source is on a nfs volume as we have no idea what the docker volume
+        // driver is.
+        //
+        // Now are encoding the test script and decode on the fly and execute it.
+        // Warning:  don't pass in a big file
+
+        byte fileBytes[] = Files.readAllBytes(Paths.get(hostDirToMount.toAbsolutePath().toString() +
+            File.separator + scriptToRun));
+        String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
+        String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
+        logger.finest("ONE COMMAND [" + oneCommand + "]");
         final List<String> retVal = Stream.of(
-                "docker", "run", "--user=root", "--volume=" + hostDirToMount.toAbsolutePath().toString() + ":/tmp_scripts",
-                dockerImage, "/tmp_scripts/" + scriptToRun).collect(Collectors.toList());
+                "docker", "run",
+                dockerImage, "/bin/bash" , "-c" , oneCommand).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
         }
@@ -601,6 +612,54 @@ public class Utils {
             logger.finest(ioe.getLocalizedMessage());
         }
         return null;
+    }
+
+    /**
+     * validatePatchIds validate the format of the patch ids
+     * @param patches list of patch ids
+     * @return true if all patch IDs are valid , false otherwise.
+     */
+
+    public static boolean validatePatchIds(List<String> patches, boolean rigid)  {
+        boolean result = true;
+        Pattern patchIdPattern;
+        if (rigid) {
+            patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
+        }
+        else {
+            patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
+        }
+        if (patches != null && !patches.isEmpty()) {
+            for (String patchId : patches) {
+                logger.finest("pattern match id " + patchId );
+                Matcher matcher = patchIdPattern.matcher(patchId);
+                if (!matcher.matches()) {
+                    String errorFormat;
+                    String error;
+                    if (rigid) {
+                        errorFormat = "12345678_12.2.1.3.0";
+                        error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
+                            + " starting with 8 digits patch ID.  The release version as found by searching for "
+                            + "patches on Oracle Support Site must be specified after the underscore with 5 places "
+                            + "such as 12.2.1.3.0 or 12.2.1.3.190416", errorFormat, patchId);
+                    }
+                    else {
+                        errorFormat = "12345678[_12.2.1.3.0]";
+                        error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
+                            + " starting with 8 digits patch ID.  For patches that has multiple target versions, the "
+                            + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or 12.2.1."
+                            + "3.190416", errorFormat, patchId);
+                    }
+
+                    logger.severe(error);
+                    result = false;
+                    return result;
+                }
+            }
+
+        }
+
+        return result;
     }
 
 }

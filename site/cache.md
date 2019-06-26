@@ -1,7 +1,14 @@
 # Cache
 
-The Image Tool maintains a local file cache for patches and installers.  The `cache` command can be used to manipulate
-the local file cache. There are several subcommands of the cache feature:
+The Image Tool maintains a local file cache store, this store is used to look up where the Java,
+WebLogic installers, and WebLogic patches reside in the local file system.
+                                                                         
+By default, it is stored in the user's ```$HOME/cache``` directory.  Under this directory, the lookup information is
+stored in the file ```.metadata```.  All automatically downloaded patches also reside in this directory.  
+                                                                         
+This default cache store location can be changed by setting the environment variable WLSIMG_CACHEDIR
+
+The `cache` command can be used to manipulate the local file cache. There are several subcommands of the cache feature:
 
 ```
 Usage: imagetool cache [COMMAND]
@@ -12,8 +19,6 @@ Commands:
   listItems     List cache contents
   addInstaller  Add cache entry for wls, fmw, jdk or wdt installer
   addPatch      Add cache entry for wls|fmw patch or psu
-  getCacheDir   Prints the cache directory path
-  setCacheDir   Sets the cache directory where to download required artifacts
   addEntry      Command to add a cache entry. Use caution
   deleteEntry   Command to delete a cache entry
   help          Displays help information about the specified command
@@ -26,11 +31,12 @@ Commands:
     imagetool cache listItems
 
     Cache contents
-    jdk_8u202=/Users/xyz/Downloads/cache/server-jre-8u202-linux-x64.tar.gz
-    12345678_600000000012345=/Users/xyz/Downloads/cache/p12345678_122130_Generic.zip
-    87654321_600000000654321=/Users/xyz/Downloads/cache/p87654321_139400_Generic.zip
-    wls_12.2.1.3.0=/Users/xyz/Downloads/cache/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
-    cache.dir=/Users/xyz/Downloads/cache
+    jdk_8u202=/home/acmeuser/Downloads/cache/server-jre-8u202-linux-x64.tar.gz
+    wls_12.2.1.3.0=/home/acmeuser/Downloads/cache/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+    28186730_opatch=/home/acmeuser/cache/p28186730_139400_Generic.zip
+    29135930_12.2.1.3.190416=/home/acmeuser/cache/p29135930_12213190416_Generic.zip
+    29135930_12.2.1.3.0=/home/acmeuser/cache/p29135930_122130_Generic.zip
+    cache.dir=/home/acemeuser/cache
     ```
 
 - `addInstaller`: Add an installer to the cache, for example, JDK.
@@ -40,14 +46,19 @@ Commands:
 
 - `addPatch`: Add a patch to the cache. This command verifies if the path points to a valid patch by querying the Oracle support portal.
     ```
-    imagetool cache addPatch --type wls --version 12.2.1.3.0 --user abc@xyz.com --passwordEnv MYVAR --patchId p12345678 --path /path/to/patch.zip
+    imagetool cache addPatch --type wls --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
     ```
+Note:  When adding a patch to the cache store. The patchId should be in the following format:  99999999_9.9.9.9.99999  The first 8 digits is the patch id, followed by an underscore and then release number.  This is needed if you want to distinguish a patch that has different versions of the patch.  
 
-- `getCacheDir` and `setCacheDir`: Get or set the cache directory. Used to display or set the directory where patches will be downloaded.
-    ```
-    imagetool cache getCacheDir
-    imagetool cache setCacheDir /path/to/dir
-    ```
+For example, patch 29135930 has several different versions from Oracle support, one for each release where the bug is fixed.
+
+| Patch Name | Release |
+| ---------|---------|
+| 29135930 | 12.2.1.3.190416|
+| 29135930 | 12.2.1.3.0 |
+| 29135930 | 12.2.1.3.18106 |
+
+If you have downloaded the release version ```12.2.1.3.190416``` of the patch, then you should use the argument as ```--patchId 29135930_12.2.1.3.190416```
 
 - `addEntry`: Consider this an expert mode where you can add key value pairs to the cache without any validation.
     ```

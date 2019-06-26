@@ -4,28 +4,37 @@
 */
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.DomainType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
-import com.oracle.weblogic.imagetool.util.*;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import com.oracle.weblogic.imagetool.util.ARUUtil;
+import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
+import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.ValidationResult;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(
         name = "create",
@@ -71,20 +80,23 @@ public class CreateImage extends ImageOperation {
             // this handles wls, jdk and wdt install files.
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
+            if (!Utils.validatePatchIds(patches, false)) {
+                return new CommandResponse(-1, "Patch ID validation failed");
+            }
+
             if (fromImage != null && !fromImage.isEmpty()) {
                 logger.finer("User specified fromImage " + fromImage);
                 dockerfileOptions.setBaseImage(fromImage);
 
-                tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
-                    "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-                logger.info("tmp directory for docker run: " + tmpDir2);
-
+//                tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
+//                    "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+//                logger.info("tmp directory for docker run: " + tmpDir2);
+//
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
-                        tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
+                        tmpDir.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
 
-                List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir2, fromImage, "test-env.sh");
+                List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
-
                 baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
                 boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
@@ -94,16 +106,12 @@ public class CreateImage extends ImageOperation {
                             baseImageProperties.getProperty("ORACLE_HOME"));
                 }
 
-                if (useCache != CachePolicy.ALWAYS) {
-                    String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-                    if (!Utils.isEmptyString(pkgMgr)) {
-                        dockerfileOptions.setPackageInstaller(pkgMgr);
-                    }
+                String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+                if (!Utils.isEmptyString(pkgMgr)) {
+                    dockerfileOptions.setPackageInstaller(pkgMgr);
                 }
             } else {
-                if (useCache != CachePolicy.ALWAYS) {
-                    dockerfileOptions.setPackageInstaller(Constants.YUM);
-                }
+                dockerfileOptions.setPackageInstaller(Constants.YUM);
             }
 
             // build wdt args if user passes --wdtModelPath
@@ -126,7 +134,6 @@ public class CreateImage extends ImageOperation {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
             Utils.deleteFilesRecursively(tmpDir);
-            Utils.deleteFilesRecursively(tmpDir2);
         }
         Instant endTime = Instant.now();
         logger.finer("Exiting CreateImage call ");
@@ -167,6 +174,25 @@ public class CreateImage extends ImageOperation {
         logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir.toAbsolutePath().toString());
         if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) == 0) {
             addOPatch1394ToImage(tmpDir, opatchBugNumber);
+            Set<String> toValidateSet = new HashSet<>();
+            if (latestPSU) {
+                toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
+                    userId, password));
+            }
+            toValidateSet.addAll(patches);
+
+            ValidationResult validationResult = ARUUtil.validatePatches(null,
+                new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
+                password);
+            if (validationResult.isSuccess()) {
+                logger.info("patch conflict check successful");
+            } else {
+                String error = validationResult.getErrorMessage();
+                logger.severe(error);
+                throw new IllegalArgumentException(error);
+            }
+
+
         }
         //we need a local installerVersion variable for the command line Option. so propagate to super.
         super.installerVersion = installerVersion;
@@ -189,12 +215,12 @@ public class CreateImage extends ImageOperation {
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         if (wdtModelPath != null) {
             if (Files.isRegularFile(wdtModelPath)) {
-                if (domainType != DomainType.WLS) {
+                if (wdtDomainType != DomainType.WLS) {
                     if (installerType != WLSInstallerType.FMW) {
                         throw new IOException("FMW installer is required for JRF domain");
                     }
                     retVal.add(Constants.BUILD_ARG);
-                    retVal.add("DOMAIN_TYPE=" + domainType);
+                    retVal.add("DOMAIN_TYPE=" + wdtDomainType);
                     if (rcu_run_flag) {
                         retVal.add(Constants.BUILD_ARG);
                         retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
@@ -300,7 +326,7 @@ public class CreateImage extends ImageOperation {
         logger.finer("Entering CreateImage.wdtKey: ");
         String wdtURLKey = wdtKey + "_url";
         if (cacheStore.getValueFromCache(wdtKey) == null) {
-            if (useCache == CachePolicy.ALWAYS) {
+            if (userId == null || password == null) {
                 throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
             }
             List<String> wdtTags = HttpUtil.getWDTTags();
@@ -383,12 +409,12 @@ public class CreateImage extends ImageOperation {
     private String wdtVersion;
 
     @Option(
-            names = {"--domainType"},
+            names = {"--wdtDomainType"},
             description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: ${COMPLETION-CANDIDATES}",
             defaultValue = "wls",
             required = true
     )
-    private DomainType domainType;
+    private DomainType wdtDomainType;
 
     @Option(
             names = "--wdtRunRCU",
