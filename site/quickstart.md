@@ -205,6 +205,7 @@ The parameters mapping between the Image Tool and the WebLogic Deploy Tool are:
 | `--wdtVariables`     | `-variable_file`         |
 | `--wdtRunRCU`        | `-run_rcu`                |
 | `--wdtDomainHome`    | `-domain_home`            |
+| `--wdtDomainType`     | `-domain_type`           |
 
 
 The domain will be created under ```/u01/domains/base_domain``` if you do not specify ```--wdtDomainHome```.  

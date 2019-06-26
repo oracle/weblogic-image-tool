@@ -217,12 +217,12 @@ public class CreateImage extends ImageOperation {
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         if (wdtModelPath != null) {
             if (Files.isRegularFile(wdtModelPath)) {
-                if (domainType != DomainType.WLS) {
+                if (wdtDomainType != DomainType.WLS) {
                     if (installerType != WLSInstallerType.FMW) {
                         throw new IOException("FMW installer is required for JRF domain");
                     }
                     retVal.add(Constants.BUILD_ARG);
-                    retVal.add("DOMAIN_TYPE=" + domainType);
+                    retVal.add("DOMAIN_TYPE=" + wdtDomainType);
                     if (rcu_run_flag) {
                         retVal.add(Constants.BUILD_ARG);
                         retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
@@ -411,12 +411,12 @@ public class CreateImage extends ImageOperation {
     private String wdtVersion;
 
     @Option(
-            names = {"--domainType"},
+            names = {"--wdtDomainType"},
             description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: ${COMPLETION-CANDIDATES}",
             defaultValue = "wls",
             required = true
     )
-    private DomainType domainType;
+    private DomainType wdtDomainType;
 
     @Option(
             names = "--wdtRunRCU",
