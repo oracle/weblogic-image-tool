@@ -18,6 +18,7 @@ public abstract class AbstractFile implements FileResolver {
     protected CachePolicy cachePolicy;
     protected String userId;
     protected String password;
+    private final static Logger logger = Logger.getLogger(AbstractFile.class.getName());
 
     /**
      * Construct a new abstract file.
@@ -34,8 +35,24 @@ public abstract class AbstractFile implements FileResolver {
         this.password = password;
     }
 
-    public static String generateKey(String id, String version) {
-        return id + CacheStore.CACHE_KEY_SEPARATOR + version;
+    public String generateKey(String id, String version) {
+
+        // Note:  this will be invoked by InstallerFile or PatchFile
+        //  for patches there are specific format, currently installers are
+        //  wls, fmw, jdk.
+        //
+        //
+        String mykey = id;
+        if (id == null) {  // should never happens
+            mykey =  id + CacheStore.CACHE_KEY_SEPARATOR + version;
+        } else if (id.indexOf('_') < 0) {
+                if (version != null) {
+                    mykey = mykey + CacheStore.CACHE_KEY_SEPARATOR + version;
+                }
+        }
+
+        logger.finest("AbstractFile generating key returns " + mykey);
+        return mykey;
     }
 
     public static boolean isFileOnDisk(String filePath) {

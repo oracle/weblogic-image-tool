@@ -35,42 +35,16 @@ public class InstallerFile extends AbstractFile {
     @Override
     public String resolve(CacheStore cacheStore) throws Exception {
         // check entry exists in cache
+        logger.finest("InstallerFile resolve " + getKey());
         String filePath = cacheStore.getValueFromCache(getKey());
-        switch (cachePolicy) {
-            case ALWAYS:
-                if (!isFileOnDisk(filePath)) {
-                    throw new Exception("CachePolicy prohibits download. Please add cache entry for key: " + getKey());
-                }
-                break;
-            case NEVER:
-                filePath = downloadInstaller(cacheStore);
-                break;
-            case FIRST:
-            default:
-                if (!isFileOnDisk(filePath)) {
-                    filePath = downloadInstaller(cacheStore);
-                }
-                break;
+        if (!isFileOnDisk(filePath)) {
+            throw new Exception("Please download the installer manually and put it in the cache  " + getKey());
         }
+        logger.finest("InstallerFile resolve " + filePath);
+
         return filePath;
     }
 
-    private String downloadInstaller(CacheStore cacheStore) throws IOException {
-        String key = getKey();
-        String urlPath = cacheStore.getValueFromCache(key + "_url");
-        if (urlPath != null) {
-            String fileName = new URL(urlPath).getPath();
-            fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
-            String targetFilePath = cacheStore.getCacheDir() + File.separator + key + File.separator + fileName;
-            new File(targetFilePath).getParentFile().mkdirs();
-            logger.info("Downloading from " + urlPath + " to " + targetFilePath);
-            HttpUtil.downloadFile(urlPath, targetFilePath, userId, password);
-            cacheStore.addToCache(key, targetFilePath);
-            return targetFilePath;
-        } else {
-            throw new IOException("Cannot find download link for entry " + key + "_url in cache");
-        }
-    }
 
     /**
      * Constructs the build-arg required to pass to the docker build.
