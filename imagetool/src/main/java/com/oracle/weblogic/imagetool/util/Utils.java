@@ -303,7 +303,8 @@ public class Utils {
                     .forEach(File::delete);
 
             if (Files.exists(tmpDir)) {
-                logger.warning("Directory not cleaned up, please remove it manually " + tmpDir.toString());
+                logger.warning("Unable to cleanup temp directory, it is safe to remove this directory manually "
+                    + tmpDir.toString());
             }
         }
     }

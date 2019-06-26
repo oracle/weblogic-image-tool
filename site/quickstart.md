@@ -58,7 +58,7 @@ wls_12.2.1.3.0=/home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 
 During the image creation process, the tool creates a temporary directory prefixed by ```wlsimgbuilder_temp``` as
 the context root for the ```docker build``` command.  This temporary directory will be deleted upon successful
-completion.
+completion. See more details in [Cleanup section](#cleanup).
 
 By default, it is created under the user's home directory. If you do not want to create the temporary directory under
  the home directory, you can first set the environment variable by:
@@ -243,8 +243,8 @@ imagetool @/path/to/build_args
 ## Cleanup
 
 As described in the beginning, the Image Tool creates a temporary directory prefixed by ```wlsimgbuilder_temp```
-every time it runs.  This directory will be deleted under normal circumstances, however, if the process is aborted,
-the directory needs to be deleted manually.
+every time it runs.  This directory will be deleted under normal circumstances, however, if the process is aborted or
+ the tool is unable to remove the directory, the directory can be deleted manually later.
 
 If you see dangling images after the build, you can use the following commands to remove them:
 
