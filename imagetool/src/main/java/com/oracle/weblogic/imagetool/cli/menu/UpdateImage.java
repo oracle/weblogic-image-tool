@@ -4,7 +4,6 @@
 */
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
@@ -21,6 +20,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -93,7 +93,7 @@ public class UpdateImage extends ImageOperation {
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
             String opatchBugNumberVersion = "";
 
-            if (useCache == CachePolicy.ALWAYS) {
+            if (userId == null && password == null) {
                 String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
                 if (opatchFile != null ) {
                     opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
@@ -114,40 +114,60 @@ public class UpdateImage extends ImageOperation {
                     Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
 
             //Do not update or install packages in offline only mode
-            if (useCache != CachePolicy.ALWAYS) {
-                String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-                if (!Utils.isEmptyString(pkgMgr)) {
-                    dockerfileOptions.setPackageInstaller(pkgMgr);
-                }
-            }
+            // TODO: WHY we even need to update the package !!
+//            String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+//            if (!Utils.isEmptyString(pkgMgr)) {
+//                dockerfileOptions.setPackageInstaller(pkgMgr);
+//            }
 
             baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
             if (latestPSU || !patches.isEmpty()) {
                 logger.finer("Verifying Patches to WLS ");
-                if (useCache == CachePolicy.ALWAYS) {
-                    logger.warning("skipping patch conflict check. useCache set to " + useCache);
+                if (userId == null) {
+                    logger.warning("skipping patch conflict check, no support credentials provided ");
                 } else {
-                    String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
-                    if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {
-                        logger.info("opatch-lsinventory file exists at: " + lsInvFile);
+
+                    if (!Utils.validatePatchIds(patches,false)) {
+                        return new CommandResponse(-1, "Patch ID validation failed");
+                    }
+
+                    String b64lsout = baseImageProperties.getProperty("LSINV_TEXT", null);
+                    if (b64lsout != null ) {
+                        // remove space in the string to make a valid b64 string
+                        b64lsout = b64lsout.replace(" ","");
+
+                        byte lsinventoryContent[] = Base64.getDecoder().decode(b64lsout);
+                        String lsinventoryText = new String(lsinventoryContent);
+
+
+                        logger.finest("ls inventory = " + lsinventoryText);
+
+                        // Any better way to do this ?
+                        
+                        if (lsinventoryText.contains("OPatch failed")) {
+                            logger.severe("ls inventory = " + lsinventoryText);
+                            return new CommandResponse(-1, "lsinventory failed");
+                        }
                         Set<String> toValidateSet = new HashSet<>();
                         if (latestPSU) {
                             toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                                    userId, password));
+                                userId, password));
                         }
                         toValidateSet.addAll(patches);
-                        ValidationResult validationResult = ARUUtil.validatePatches(lsInvFile,
-                                new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
-                                password);
+                        ValidationResult validationResult =
+                            ARUUtil.validatePatches(lsinventoryText,
+                            new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
+                            password);
                         if (!validationResult.isSuccess()) {
                             return new CommandResponse(-1, validationResult.getErrorMessage());
                         } else {
                             logger.info("patch conflict check successful");
                         }
                     } else {
-                        return new CommandResponse(-1, "inventory file missing. required to check for conflicts");
+                        return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
                     }
+
                 }
             }
 
@@ -163,7 +183,6 @@ public class UpdateImage extends ImageOperation {
 
             // create dockerfile
             Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Update_Image.mustache", dockerfileOptions);
-
             // add directory to pass the context
             cmdBuilder.add(tmpDirPath);
 

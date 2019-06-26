@@ -25,7 +25,7 @@ Build WebLogic docker image
       --passwordFile=<password file>
                             path to file containing just the password
       --patches=patchId[,patchId...]
-                            Comma separated patch Ids. Ex: p12345678,p87654321
+                            Comma separated patch Ids. Ex: 12345678,87654321
 *     --tag=TAG             Tag for the final build image. Ex: store/oracle/weblogic:
                               12.2.1.3.0
       --type=<installerType>

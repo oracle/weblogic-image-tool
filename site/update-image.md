@@ -45,9 +45,8 @@ Update WebLogic docker image with selected patches
 
 - Update an image named `sample:1.0` with the selected patches applied.
     ```
-    imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,p87654321
+    imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,87654321
     ```
-    The patch numbers may or may not start with '`p`'.
 
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.

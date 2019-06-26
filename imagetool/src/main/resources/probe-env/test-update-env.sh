@@ -20,8 +20,12 @@ if [[ ! -z "$ORACLE_HOME" ]]; then
     echo WLS_VERSION=$($JAVA_HOME/bin/java -cp $ORACLE_HOME/wlserver/server/lib/weblogic.jar weblogic.version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)' | head -1)
   fi
   echo OPATCH_VERSION=$($ORACLE_HOME/OPatch/opatch version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)')
-  LSINV_TEXT=$($ORACLE_HOME/OPatch/opatch lsinventory 2> /dev/null)
-  if [[ ! -z "$LSINV_TEXT" ]]; then
-    echo "$LSINV_TEXT" > /tmp_scripts/opatch-lsinventory.txt 2> /dev/null
+  #LSINV_TEXT=$($ORACLE_HOME/OPatch/opatch lsinventory 2> /dev/null)
+  $ORACLE_HOME/OPatch/opatch lsinventory > /tmp/lsout 2> /dev/null
+
+  if [[  -f "/tmp/lsout" ]]; then
+    #1echo "$LSINV_TEXT" > /tmp_scripts/opatch-lsinventory.txt 2> /dev/null
+    #echo $LSINV_TEXT | base64 > /tmp/b64
+    echo LSINV_TEXT=$(base64 /tmp/lsout)
   fi
 fi
