@@ -20,6 +20,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -131,26 +132,34 @@ public class UpdateImage extends ImageOperation {
                         return new CommandResponse(-1, "Patch ID validation failed");
                     }
 
-                    String lsInvFile = tmpDir2.toAbsolutePath().toString() + File.separator + "opatch-lsinventory.txt";
-                    if (Files.exists(Paths.get(lsInvFile)) && Files.size(Paths.get(lsInvFile)) > 0) {
-                        logger.info("opatch-lsinventory file exists at: " + lsInvFile);
+                    String b64lsout = baseImageProperties.getProperty("LSINV_TEXT", null);
+                    if (b64lsout != null ) {
+                        // remove space in the string to make a valid b64 string
+                        b64lsout = b64lsout.replace(" ","");
+
+                        byte lsinventoryContent[] = Base64.getDecoder().decode(b64lsout);
+
+                        logger.finest("ls inventory = " + new String(lsinventoryContent));
+
                         Set<String> toValidateSet = new HashSet<>();
                         if (latestPSU) {
                             toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                                    userId, password));
+                                userId, password));
                         }
                         toValidateSet.addAll(patches);
-                        ValidationResult validationResult = ARUUtil.validatePatches(lsInvFile,
-                                new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
-                                password);
+                        ValidationResult validationResult =
+                            ARUUtil.validatePatches(new String(lsinventoryContent),
+                            new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
+                            password);
                         if (!validationResult.isSuccess()) {
                             return new CommandResponse(-1, validationResult.getErrorMessage());
                         } else {
                             logger.info("patch conflict check successful");
                         }
                     } else {
-                        return new CommandResponse(-1, "inventory file missing. required to check for conflicts");
+                        return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
                     }
+
                 }
             }
 

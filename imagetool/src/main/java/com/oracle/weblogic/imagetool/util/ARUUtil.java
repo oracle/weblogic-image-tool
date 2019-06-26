@@ -163,7 +163,7 @@ public class ARUUtil {
     /**
      * Validate patches conflicts by passing a list of patches
      *
-     * @param lsInventoryPath opatch lsinventory result path (null if non is passed)
+     * @param inventoryContent opatch lsinventory content (null if non is passed)
      * @param patches         A list of patches number
      * @param category        wls or fmw
      * @param version         version of the prduct
@@ -173,7 +173,7 @@ public class ARUUtil {
      * @throws IOException when failed to access the aru api
      */
 
-    public static ValidationResult validatePatches(String lsInventoryPath, List<String> patches, String category,
+    public static ValidationResult validatePatches(String inventoryContent, List<String> patches, String category,
                                                    String version, String userId, String password) throws IOException {
 
         logger.finer("Entering ARUUtil.validatePatches");
@@ -190,8 +190,7 @@ public class ARUUtil {
         StringBuffer payload = new StringBuffer
                 ("<conflict_check_request><platform>2000</platform>");
 
-        if (lsInventoryPath != null) {
-            String inventoryContent = new String(Files.readAllBytes(Paths.get(lsInventoryPath)));
+        if (inventoryContent != null) {
             String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent +
                     "</lsinventory_output></inventory_upi_request>";
 

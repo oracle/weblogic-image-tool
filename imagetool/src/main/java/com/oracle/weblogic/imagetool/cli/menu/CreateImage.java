@@ -88,14 +88,14 @@ public class CreateImage extends ImageOperation {
                 logger.finer("User specified fromImage " + fromImage);
                 dockerfileOptions.setBaseImage(fromImage);
 
-                tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
-                    "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-                logger.info("tmp directory for docker run: " + tmpDir2);
-
+//                tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
+//                    "wlsimgbuilder_temp", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+//                logger.info("tmp directory for docker run: " + tmpDir2);
+//
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
-                        tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
+                        tmpDir.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
 
-                List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir2, fromImage, "test-env.sh");
+                List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
                 baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 
@@ -134,7 +134,6 @@ public class CreateImage extends ImageOperation {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
             Utils.deleteFilesRecursively(tmpDir);
-            Utils.deleteFilesRecursively(tmpDir2);
         }
         Instant endTime = Instant.now();
         logger.finer("Exiting CreateImage call ");
