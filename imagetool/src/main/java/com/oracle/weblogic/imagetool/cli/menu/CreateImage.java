@@ -96,7 +96,6 @@ public class CreateImage extends ImageOperation {
                         tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
 
                 List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir2, fromImage, "test-env.sh");
-
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
                 baseImageProperties.keySet().forEach(x -> logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
 

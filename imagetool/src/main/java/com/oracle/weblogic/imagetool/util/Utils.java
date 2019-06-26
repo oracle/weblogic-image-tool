@@ -453,13 +453,12 @@ public class Utils {
 
         byte fileBytes[] = Files.readAllBytes(Paths.get(hostDirToMount.toAbsolutePath().toString() +
             File.separator + scriptToRun));
-        logger.info("file read");
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
-
+        String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
+        logger.finest("ONE COMMAND [" + oneCommand + "]");
         final List<String> retVal = Stream.of(
                 "docker", "run", "--user=root",
-                dockerImage, "echo" , encodedFile, "|", "base64", "-d" , "|",
-                 "/bin/bash").collect(Collectors.toList());
+                dockerImage, "/bin/bash" , "-c" , oneCommand).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
         }
