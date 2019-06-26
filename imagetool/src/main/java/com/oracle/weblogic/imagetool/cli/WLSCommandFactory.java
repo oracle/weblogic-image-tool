@@ -1,12 +1,11 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.cli;
 
-import picocli.CommandLine.IFactory;
-
 import java.lang.reflect.Constructor;
+
+import picocli.CommandLine.IFactory;
 
 public class WLSCommandFactory implements IFactory {
     @Override
