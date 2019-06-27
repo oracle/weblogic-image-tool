@@ -1,7 +1,5 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.api.meta;
 
@@ -52,7 +50,7 @@ public interface CacheStore {
     boolean addToCache(String key, String value);
 
     /**
-     * Delete an entry from the cache
+     * Delete an entry from the cache.
      *
      * @param key key corresponding to an entry in the cache
      * @return value or null
@@ -60,7 +58,7 @@ public interface CacheStore {
     String deleteFromCache(String key);
 
     /**
-     * Returns a map of current items in the cache
+     * Returns a map of current items in the cache.
      *
      * @return map of current items
      */

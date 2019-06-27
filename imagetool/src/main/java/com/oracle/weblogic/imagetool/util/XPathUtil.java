@@ -1,13 +1,11 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.util;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.logging.Logger;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -18,16 +16,17 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.logging.Logger;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class XPathUtil {
 
     private static final Logger logger = Logger.getLogger(XPathUtil.class.getName());
 
     /**
-     * Apply XPath and return the results as nodelist
+     * Apply XPath and return the results as nodelist.
      *
      * @param node       node
      * @param expression xpath expression
@@ -48,7 +47,7 @@ public class XPathUtil {
     }
 
     /**
-     * Apply XPath and return the results as string
+     * Apply XPath and return the results as string.
      *
      * @param doc        dom document
      * @param expression xpath expression
@@ -66,7 +65,7 @@ public class XPathUtil {
     }
 
     /**
-     * Pretty print the document
+     * Pretty print the document.
      *
      * @param xml dom document
      */

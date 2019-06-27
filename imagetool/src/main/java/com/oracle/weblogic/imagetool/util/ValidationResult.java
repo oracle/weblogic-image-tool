@@ -1,13 +1,12 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.util;
 
 import org.w3c.dom.Document;
 
 /**
- * ValidaitonResult of patch conflicts check
+ * ValidaitonResult of patch conflicts check.
  */
 
 public class ValidationResult {
@@ -17,18 +16,18 @@ public class ValidationResult {
     private String errorMessage;
 
     /**
-     * Get the error errorMessage
+     * Get the error errorMessage.
      *
-     * @return
+     * @return the error message.
      */
     public String getErrorMessage() {
         return errorMessage;
     }
 
     /**
-     * Set the error errorMessage
+     * Set the error errorMessage.
      *
-     * @param errorMessage
+     * @param errorMessage message
      */
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
@@ -36,7 +35,8 @@ public class ValidationResult {
 
 
     /**
-     * @return true if no conflicts ; false if there is conflicts
+     * Returns true if no conflicts ; false if there is conflicts.
+     * @return true if no conflicts ; false if there is conflicts.
      */
     public boolean isSuccess() {
         return success;
@@ -47,12 +47,19 @@ public class ValidationResult {
     }
 
     /**
+     * Get the result object from the search.
+     *
      * @return dom document detailing about the conflicts
      */
     public Document getResults() {
         return results;
     }
 
+    /**
+     * Set the result object from the search.
+     *
+     * @param results dom document detailing about the conflicts
+     */
     public void setResults(Document results) {
         this.results = results;
     }

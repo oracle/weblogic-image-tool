@@ -1,11 +1,14 @@
-package com.oracle.weblogic.imagetool.cli;
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
-import picocli.CommandLine.IVersionProvider;
+package com.oracle.weblogic.imagetool.cli;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import picocli.CommandLine.IVersionProvider;
 
 public class HelpVersionProvider implements IVersionProvider {
 

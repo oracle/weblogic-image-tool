@@ -1,12 +1,7 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
-package com.oracle.weblogic.imagetool.util;
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
+package com.oracle.weblogic.imagetool.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,12 +37,16 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+
 public class Utils {
 
     private static final Logger logger = Logger.getLogger(Utils.class.getName());
 
     /**
-     * Utility method to copy a resource from the jar to local file system
+     * Utility method to copy a resource from the jar to local file system.
      *
      * @param resourcePath resource path in the jar
      * @param destPath     local file to copy to.
@@ -107,14 +106,15 @@ public class Utils {
     }
 
     /**
-     * Set proxy based on the proxy urls
+     * Set proxy based on the proxy urls.
      *
      * @param httpProxyUrl  http proxy url
      * @param httpsProxyUrl https proxy url
      * @param nonProxyHosts string of non proxy hosts
-     * @throws Exception
+     * @throws IOException when HTTP/HTTPS call has a low level error.
      */
-    public static void setProxyIfRequired(String httpProxyUrl, String httpsProxyUrl, String nonProxyHosts) throws IOException {
+    public static void setProxyIfRequired(String httpProxyUrl, String httpsProxyUrl, String nonProxyHosts)
+            throws IOException {
         if (!isEmptyString(httpProxyUrl)) {
             setSystemProxy(httpProxyUrl, Constants.HTTP);
         }
@@ -148,9 +148,10 @@ public class Utils {
 
     /**
      * Create the Dockerfile to be used by the docker build command for this run.
+     *
      * @param destPath the file folder that the Dockerfile should be written to.
      * @param template the Dockerfile template that should be used to create the Dockerfile.
-     * @param options the options to be applied to the Dockerfile template.
+     * @param options  the options to be applied to the Dockerfile template.
      * @throws IOException if an error occurs in the low level Java file operations.
      */
     public static void writeDockerfile(String destPath, String template, DockerfileOptions options) throws IOException {
@@ -160,33 +161,13 @@ public class Utils {
     }
 
     /**
-     * Reads a given resource and returns it's content as string
+     * Executes the given docker command and writes the process stdout to log.
      *
-     * @param resourcePath resource to read
-     * @return content of the resource
-     * @throws IOException
-     */
-    private static String readResource(String resourcePath) throws IOException {
-        try (BufferedReader resourceReader = new BufferedReader(new InputStreamReader(
-                Utils.class.getResourceAsStream(resourcePath)))) {
-            String line;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ((line = resourceReader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(System.lineSeparator());
-            }
-            return stringBuilder.toString();
-        }
-    }
-
-    /**
-     * Executes the given docker command and writes the process stdout to log
-     *
-     * @param isCLIMode whether the tool is being run in CLI mode
+     * @param isCLIMode  whether the tool is being run in CLI mode
      * @param cmdBuilder command to execute
      * @param dockerLog  log file to write to
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException          if an error occurs reading from the process inputstream.
+     * @throws InterruptedException when the process wait is interrupted.
      */
     public static void runDockerCommand(boolean isCLIMode, List<String> cmdBuilder, Path dockerLog)
             throws IOException, InterruptedException {
@@ -212,12 +193,12 @@ public class Utils {
     }
 
     /**
-     * Executes the given docker command and returns the stdout of the process as properties
+     * Executes the given docker command and returns the stdout of the process as properties.
      *
      * @param cmdBuilder command to execute
      * @return properties built from the stdout of the docker command
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException          if an error occurs reading from the process inputstream.
+     * @throws InterruptedException when the process wait is interrupted.
      */
     public static Properties runDockerCommand(List<String> cmdBuilder) throws IOException, InterruptedException {
         // process builder
@@ -238,10 +219,10 @@ public class Utils {
     }
 
     /**
-     * Throws an Exception if the given process failed with error
+     * Throws an Exception if the given process failed with error.
      *
-     * @param process process
-     * @throws IOException
+     * @param process the Docker process
+     * @throws IOException if an error occurs while reading standard error (stderr) from the Docker build.
      */
     private static void processError(Process process) throws IOException {
         try (BufferedReader stderr =
@@ -259,7 +240,7 @@ public class Utils {
 
     private static void writeFromInputToOutputStreams(InputStream inputStream, OutputStream... outputStreams) {
         Thread readerThread = new Thread(() -> {
-            try(
+            try (
                     BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
                     CloseableList<PrintWriter> printWriters = createPrintWriters(outputStreams)
             ) {
@@ -289,7 +270,7 @@ public class Utils {
     }
 
     /**
-     * Deletes files from given dir and its subdirectories
+     * Deletes files from given dir and its subdirectories.
      *
      * @param tmpDir dir
      * @throws IOException in case of error
@@ -304,7 +285,7 @@ public class Utils {
 
             if (Files.exists(tmpDir)) {
                 logger.warning("Unable to cleanup temp directory, it is safe to remove this directory manually "
-                    + tmpDir.toString());
+                        + tmpDir.toString());
             }
         }
     }
@@ -317,14 +298,13 @@ public class Utils {
      * @param thisVersion  - first version
      * @param otherVersion - second version
      * @return returns 0 if the versions are equal, greater than zero if thisVersion is newer,
-     * and less than zero if thisVersion is older.
+     *         and less than zero if thisVersion is older.
      */
     public static int compareVersions(String thisVersion, String otherVersion) {
         int result = 0;
 
         if (isEmptyString(thisVersion) || isEmptyString(otherVersion)) {
-            IllegalArgumentException iae = new IllegalArgumentException("cannot compare null strings");
-            throw iae;
+            throw new IllegalArgumentException("cannot compare null strings");
         }
 
         String[] tmp = thisVersion.split("-");
@@ -411,16 +391,18 @@ public class Utils {
         return (s == null) || s.isEmpty();
     }
 
+    /**
+     * Returns the package manager that should be used to install software on a given Linux OS.
+     * Defaults to YUM.  Known OS's include: ubuntu, debian, opensuse, centos, ol, and rhel.
+     *
+     * @param osID identifier for the OS, like ubuntu, debian, rhel, ol, ...
+     * @return
+     */
     public static String getPackageMgrStr(String osID) {
         String retVal = Constants.YUM;
         if (osID != null) {
             osID = osID.replaceAll("[\"]", "");
             switch (osID) {
-                case "centos":
-                case "ol":
-                case "rhel":
-                    retVal = Constants.YUM;
-                    break;
                 case "ubuntu":
                 case "debian":
                     retVal = Constants.APTGET;
@@ -428,13 +410,19 @@ public class Utils {
                 case "opensuse":
                     retVal = Constants.ZYPPER;
                     break;
+                case "centos":
+                case "ol":
+                case "rhel":
+                default:
+                    retVal = Constants.YUM;
+                    break;
             }
         }
         return retVal;
     }
 
     /**
-     * Constructs a docker command to run a script in the container with a volume mount
+     * Constructs a docker command to run a script in the container with a volume mount.
      *
      * @param hostDirToMount host dir
      * @param dockerImage    docker image tag
@@ -452,14 +440,14 @@ public class Utils {
         // Now are encoding the test script and decode on the fly and execute it.
         // Warning:  don't pass in a big file
 
-        byte fileBytes[] = Files.readAllBytes(Paths.get(hostDirToMount.toAbsolutePath().toString() +
-            File.separator + scriptToRun));
+        byte[] fileBytes = Files.readAllBytes(Paths.get(hostDirToMount.toAbsolutePath().toString()
+                + File.separator + scriptToRun));
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
         String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
         logger.finest("ONE COMMAND [" + oneCommand + "]");
         final List<String> retVal = Stream.of(
                 "docker", "run",
-                dockerImage, "/bin/bash" , "-c" , oneCommand).collect(Collectors.toList());
+                dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
         }
@@ -467,7 +455,7 @@ public class Utils {
     }
 
     /**
-     * Detect proxy settings if not provided by the user
+     * Detect proxy settings if not provided by the user.
      *
      * @param proxyUrl url set by the user
      * @param protocol http, https or none
@@ -489,6 +477,7 @@ public class Utils {
                     }
                     break;
                 case "none":
+                default:
                     retVal = System.getenv("no_proxy");
                     if (isEmptyString(retVal)) {
                         retVal = System.getProperty("http.nonProxyHosts", null);
@@ -503,14 +492,16 @@ public class Utils {
     }
 
     /**
-     * Utility method to parse password out of three inputs
-     * @param passwordStr password in plain string form
+     * Utility method to parse password out of three inputs.
+     *
+     * @param passwordStr  password in plain string form
      * @param passwordFile file containing just the password
-     * @param passwordEnv name of environment variable containing the password
+     * @param passwordEnv  name of environment variable containing the password
      * @return parsed value
      * @throws IOException in case of error
      */
-    public static String getPasswordFromInputs(String passwordStr, Path passwordFile, String passwordEnv) throws IOException {
+    public static String getPasswordFromInputs(String passwordStr, Path passwordFile, String passwordEnv)
+            throws IOException {
         if (!isEmptyString(passwordStr)) {
             return passwordStr;
         } else if (passwordFile != null && Files.isRegularFile(passwordFile) && Files.size(passwordFile) > 0) {
@@ -524,19 +515,20 @@ public class Utils {
     }
 
     /**
-     * returns the working dir for docker build
+     * returns the working dir for docker build.
+     *
      * @return working directory
      */
     public static String getBuildWorkingDir() throws IOException {
         String workingDir = System.getenv("WLSIMG_BLDDIR");
-        if (workingDir == null ) {
+        if (workingDir == null) {
             workingDir = System.getProperty("user.home");
         }
         Path path = Paths.get(workingDir);
 
         boolean pathExists =
-            Files.exists(path,
-                new LinkOption[]{ LinkOption.NOFOLLOW_LINKS});
+                Files.exists(path,
+                        new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
 
         if (!pathExists) {
             throw new IOException("Working Directory does not exists " + workingDir);
@@ -553,19 +545,20 @@ public class Utils {
     }
 
     /**
-     * returns the cache store directory
+     * returns the cache store directory.
+     *
      * @return cache directory
      */
     public static String getCacheDir() throws IOException {
         String cacheDir = System.getenv("WLSIMG_CACHEDIR");
-        if (cacheDir == null ) {
+        if (cacheDir == null) {
             cacheDir = System.getProperty("user.home") + "/cache";
         }
         Path path = Paths.get(cacheDir);
 
         boolean pathExists =
-            Files.exists(path,
-                new LinkOption[]{ LinkOption.NOFOLLOW_LINKS});
+                Files.exists(path,
+                        new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
 
         if (!pathExists) {
             throw new IOException("Cache Directory does not exists " + cacheDir);
@@ -582,7 +575,8 @@ public class Utils {
     }
 
     /**
-     * Return the version number inside a opatch file
+     * Return the version number inside a opatch file.
+     *
      * @param fileName full path to the opatch patch
      * @return version number of the patch
      */
@@ -615,23 +609,23 @@ public class Utils {
     }
 
     /**
-     * validatePatchIds validate the format of the patch ids
+     * validatePatchIds validate the format of the patch ids.
+     *
      * @param patches list of patch ids
      * @return true if all patch IDs are valid , false otherwise.
      */
 
-    public static boolean validatePatchIds(List<String> patches, boolean rigid)  {
+    public static boolean validatePatchIds(List<String> patches, boolean rigid) {
         boolean result = true;
         Pattern patchIdPattern;
         if (rigid) {
             patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
-        }
-        else {
+        } else {
             patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
         }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                logger.finest("pattern match id " + patchId );
+                logger.finest("pattern match id " + patchId);
                 Matcher matcher = patchIdPattern.matcher(patchId);
                 if (!matcher.matches()) {
                     String errorFormat;
@@ -639,16 +633,17 @@ public class Utils {
                     if (rigid) {
                         errorFormat = "12345678_12.2.1.3.0";
                         error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
-                            + " starting with 8 digits patch ID.  The release version as found by searching for "
-                            + "patches on Oracle Support Site must be specified after the underscore with 5 places "
-                            + "such as 12.2.1.3.0 or 12.2.1.3.190416", errorFormat, patchId);
-                    }
-                    else {
+                                + " starting with 8 digits patch ID.  The release version as found by searching for "
+                                + "patches on Oracle Support Site must be specified after the underscore with 5 places "
+                                + "such as 12.2.1.3.0 or 12.2.1.3.190416", errorFormat, patchId);
+                    } else {
                         errorFormat = "12345678[_12.2.1.3.0]";
                         error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
-                            + " starting with 8 digits patch ID.  For patches that has multiple target versions, the "
-                            + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or 12.2.1."
-                            + "3.190416", errorFormat, patchId);
+                                + " starting with 8 digits patch ID.  For patches that has multiple target versions, "
+                                + "the "
+                                + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or "
+                                + "12.2.1."
+                                + "3.190416", errorFormat, patchId);
                     }
 
                     logger.severe(error);

@@ -1,14 +1,7 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
-package com.oracle.weblogic.imagetool.impl;
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.AbstractFile;
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
-import com.oracle.weblogic.imagetool.api.model.InstallerType;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
+package com.oracle.weblogic.imagetool.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +9,12 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+
+import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.api.model.AbstractFile;
+import com.oracle.weblogic.imagetool.api.model.CachePolicy;
+import com.oracle.weblogic.imagetool.api.model.InstallerType;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
 
 /**
  * This represents a WLS, JDK or WDT installer.
@@ -48,7 +47,7 @@ public class InstallerFile extends AbstractFile {
 
 
     /**
-     * Constructs the build-arg required to pass to the docker build
+     * Constructs the build-arg required to pass to the docker build.
      *
      * @param location path to installer on local disk
      * @return list of args
