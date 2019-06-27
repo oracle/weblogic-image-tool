@@ -1,12 +1,7 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
-package com.oracle.weblogic.imagetool.impl.meta;
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.Utils;
+package com.oracle.weblogic.imagetool.impl.meta;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,6 +14,10 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.Utils;
 
 public enum FileCacheStore implements CacheStore {
 
@@ -96,8 +95,8 @@ public enum FileCacheStore implements CacheStore {
     public Map<String, String> getCacheItems() {
         Stream<Map.Entry<Object, Object>> stream = properties.entrySet().stream();
         return stream.collect(Collectors.toMap(
-                e -> String.valueOf(e.getKey()),
-                e -> String.valueOf(e.getValue())));
+            e -> String.valueOf(e.getKey()),
+            e -> String.valueOf(e.getValue())));
     }
 
     private boolean persistToDisk() {

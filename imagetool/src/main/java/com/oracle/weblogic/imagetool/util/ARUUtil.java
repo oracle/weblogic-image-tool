@@ -1,8 +1,21 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.util;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import org.apache.http.HttpStatus;
@@ -13,27 +26,13 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-
 public class ARUUtil {
 
     private static final Map<String, String> releaseNumbersMap = new HashMap<>();
     private static final Logger logger = Logger.getLogger(ARUUtil.class.getName());
 
     /**
-     * Return All WLS releases information
+     * Return All WLS releases information.
      *
      * @param userId   userid for support account
      * @param password password for support account
@@ -45,7 +44,7 @@ public class ARUUtil {
     }
 
     /**
-     * Return release number of a WLS release by version
+     * Return release number of a WLS release by version.
      *
      * @param version  wls version 12.2.1.3.0 etc ...
      * @param userId   user id for support account
@@ -59,7 +58,7 @@ public class ARUUtil {
     }
 
     /**
-     * Return release number of a FMW release by version
+     * Return release number of a FMW release by version.
      *
      * @param version  wls version 12.2.1.3.0 etc ...
      * @param userId   user id for support account
@@ -74,7 +73,7 @@ public class ARUUtil {
 
 
     /**
-     * Return All FMW releases information
+     * Return All FMW releases information.
      *
      * @param userId   userid for support account
      * @param password password for support account
@@ -86,7 +85,7 @@ public class ARUUtil {
 
 
     /**
-     * Download the latest PSU for given category and release
+     * Download the latest PSU for given category and release.
      *
      * @param category wls or fmw
      * @param version  version number like 12.2.1.3.0
@@ -95,13 +94,14 @@ public class ARUUtil {
      * @return bug number
      * @throws IOException when failed
      */
-    public static String getLatestPSUFor(String category, String version, String userId, String password, String destDir) throws IOException {
+    public static String getLatestPSUFor(String category, String version, String userId, String password,
+                                         String destDir) throws IOException {
         String releaseNumber = getReleaseNumber(category, version, userId, password);
         return getLatestPSU(category, releaseNumber, userId, password, destDir);
     }
 
     /**
-     * Get list of PSU available for given category and release
+     * Get list of PSU available for given category and release.
      *
      * @param category wls or fmw
      * @param version  version number like 12.2.1.3.0
@@ -116,7 +116,7 @@ public class ARUUtil {
     }
 
     /**
-     * Get list of PSU available for given category and release
+     * Get list of PSU available for given category and release.
      *
      * @param category wls or fmw
      * @param version  version number like 12.2.1.3.0
@@ -139,7 +139,7 @@ public class ARUUtil {
     }
 
     /**
-     * Download a list of FMW patches
+     * Download a list of FMW patches.
      *
      * @param patches  A list of patches number
      * @param userId   user email
@@ -147,9 +147,8 @@ public class ARUUtil {
      * @return List of bug numbers
      * @throws IOException when failed to access the aru api
      */
-    public static List<String> getPatchesFor( List<String> patches, String userId, String password, String destDir)
-            throws
-            IOException {
+    public static List<String> getPatchesFor(List<String> patches, String userId, String password, String destDir)
+            throws IOException {
         List<String> results = new ArrayList<>();
         for (String patch : patches) {
             String rs = getPatch(patch, userId, password, destDir);
@@ -161,14 +160,14 @@ public class ARUUtil {
     }
 
     /**
-     * Validate patches conflicts by passing a list of patches
+     * Validate patches conflicts by passing a list of patches.
      *
      * @param inventoryContent opatch lsinventory content (null if non is passed)
-     * @param patches         A list of patches number
-     * @param category        wls or fmw
-     * @param version         version of the prduct
-     * @param userId          userid for support account
-     * @param password        password for support account
+     * @param patches          A list of patches number
+     * @param category         wls or fmw
+     * @param version          version of the prduct
+     * @param userId           userid for support account
+     * @param password         password for support account
      * @return validationResult validation result object
      * @throws IOException when failed to access the aru api
      */
@@ -187,24 +186,23 @@ public class ARUUtil {
         }
 
 
-        StringBuffer payload = new StringBuffer
-                ("<conflict_check_request><platform>2000</platform>");
+        StringBuilder payload = new StringBuilder("<conflict_check_request><platform>2000</platform>");
 
         if (inventoryContent != null) {
-            String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent +
-                    "</lsinventory_output></inventory_upi_request>";
+            String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent
+                    + "</lsinventory_output></inventory_upi_request>";
 
             Document upiResult = HttpUtil.postCheckConflictRequest(Constants.GET_LSINVENTORY_URL, upiPayload, userId,
                     password);
 
             try {
-                NodeList upi_list = XPathUtil.applyXPathReturnNodeList(upiResult,
+                NodeList upiList = XPathUtil.applyXPathReturnNodeList(upiResult,
                         "/inventory_upi_response/upi");
-                if (upi_list.getLength() > 0) {
+                if (upiList.getLength() > 0) {
                     payload.append("<target_patch_list>");
 
-                    for (int ii = 0; ii < upi_list.getLength(); ii++) {
-                        Node upi = upi_list.item(ii);
+                    for (int ii = 0; ii < upiList.getLength(); ii++) {
+                        Node upi = upiList.item(ii);
                         NamedNodeMap m = upi.getAttributes();
                         payload.append(String.format("<installed_patch upi=\"%s\"/>",
                                 m.getNamedItem("number").getNodeValue()));
@@ -231,21 +229,22 @@ public class ARUUtil {
                 logger.info("Passed patch multiple versions test");
 
                 String bugReleaseNumber = ARUUtil.getPatchInfo(patch, userId, password);
-                logger.info(String.format("Patch %s release %s found " , patch, bugReleaseNumber));
+                logger.info(String.format("Patch %s release %s found ", patch, bugReleaseNumber));
                 int ind = patch.indexOf('_');
                 String baseBugNumber = patch;
                 if (ind > 0) {
-                    baseBugNumber = patch.substring(0,ind);
+                    baseBugNumber = patch.substring(0, ind);
                 }
                 payload.append(String.format("<patch_group rel_id=\"%s\">%s</patch_group>",
-                    bugReleaseNumber, baseBugNumber));
+                        bugReleaseNumber, baseBugNumber));
             }
             payload.append("</candidate_patch_list>");
         }
         payload.append("</conflict_check_request>");
 
         logger.finer("Posting to ARU conflict check");
-        Document result = HttpUtil.postCheckConflictRequest(Constants.CONFLICTCHECKER_URL, payload.toString(), userId, password);
+        Document result = HttpUtil.postCheckConflictRequest(Constants.CONFLICTCHECKER_URL, payload.toString(), userId,
+                password);
         try {
             NodeList conflictSets = XPathUtil.applyXPathReturnNodeList(result, "/conflict_check/conflict_sets/set");
             if (conflictSets.getLength() > 0) {
@@ -260,25 +259,11 @@ public class ARUUtil {
                     validationResult.setResults(doc);
                     validationResult.setErrorMessage(parsePatchValidationError(doc));
 
-                } catch (XPathExpressionException  xpe) {
+                } catch (XPathExpressionException xpe) {
                     throw new IOException(xpe);
                 }
 
             }
-
-            // After checking for conflicts, make sure no error message
-            // We tested multiple version before we pass it to the conflict checker
-            // The conflict checker returns this regardless of whether we are using unique release number and patch
-            // therefore no need to report it,  leave it here if there is a use case that matters.
-
-//            NodeList errorMessages = XPathUtil.applyXPathReturnNodeList(result, "/conflict_check/messages/message"
-//                + "[@type='error']");
-//
-//            if (errorMessages.getLength()>0) {
-//                validationResult.setSuccess(false);
-//                String error = XPathUtil.prettyPrint(result);
-//                validationResult.setErrorMessage(error);
-//            }
 
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
@@ -289,7 +274,7 @@ public class ARUUtil {
     }
 
     /**
-     * Return the patch detail
+     * Return the patch detail.
      *
      * @param category  wls or fmw
      * @param version   version of the product
@@ -315,28 +300,26 @@ public class ARUUtil {
     }
 
     /**
-     * Return the version of the opatch patch
+     * Return the version of the opatch patch.
+     *
      * @param bugNumber opatch bug number
-     * @param userId  user for support
-     * @param password password for support
+     * @param userId    user for support
+     * @param password  password for support
      * @return version name of the this opatch patch
-     * @throws IOException
+     * @throws IOException if XPath fails, and the patch release cannot be ascertained.
      */
     public static String getOPatchVersionByBugNumber(String bugNumber, String userId,
-        String password) throws IOException {
+                                                     String password) throws IOException {
 
         try {
             String url = String.format(Constants.BUG_SEARCH_URL, bugNumber);
             Document allPatches = HttpUtil.getXMLContent(url, userId, password);
-            String version = XPathUtil.applyXPathReturnString(allPatches, "string(/results/patch[1]/release"
-                + "/@name)");
-            return version;
+            return XPathUtil.applyXPathReturnString(allPatches, "string(/results/patch[1]/release/@name)");
         } catch (XPathExpressionException xe) {
             throw new IOException(xe.getMessage());
         }
 
     }
-
 
 
     private static SearchResult getSearchResult(Document result) throws IOException {
@@ -380,12 +363,13 @@ public class ARUUtil {
             Document doc = createResultDocument(nodeList);
             return doc;
 
-        } catch (XPathExpressionException  xpe) {
+        } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
         }
     }
 
-    private static String getLatestPSU(String category, String release, String userId, String password, String destDir) throws
+    private static String getLatestPSU(String category, String release, String userId, String password, String destDir)
+            throws
             IOException {
 
         String url;
@@ -415,10 +399,10 @@ public class ARUUtil {
             throws
             IOException {
 
-        int ind =  bugNumber.indexOf('_');
+        int ind = bugNumber.indexOf('_');
         String baseBugNumber = bugNumber;
         if (ind > 0) {
-            baseBugNumber = bugNumber.substring(0,ind);
+            baseBugNumber = bugNumber.substring(0, ind);
         }
         String url = String.format(Constants.BUG_SEARCH_URL, baseBugNumber);
         Document allPatches = HttpUtil.getXMLContent(url, userId, password);
@@ -426,16 +410,16 @@ public class ARUUtil {
         return savePatch(allPatches, userId, password, destDir, bugNumber);
     }
 
-    private static void checkForMultiplePatches(String bugNumber, String userId, String password ) throws IOException {
-        if (bugNumber != null ) {
-            if (userId != null ) {
+    private static void checkForMultiplePatches(String bugNumber, String userId, String password) throws IOException {
+        if (bugNumber != null) {
+            if (userId != null) {
                 try {
                     int ind = bugNumber.indexOf('_');
-                    String baseBugNumber= bugNumber;
+                    String baseBugNumber = bugNumber;
                     String optionalRelease = null;
-                    if (ind  > 0) {
-                        baseBugNumber = bugNumber.substring(0,ind);
-                        optionalRelease = bugNumber.substring(ind+1);
+                    if (ind > 0) {
+                        baseBugNumber = bugNumber.substring(0, ind);
+                        optionalRelease = bugNumber.substring(ind + 1);
                     }
                     String url = String.format(Constants.BUG_SEARCH_URL, baseBugNumber);
                     Document allPatches = HttpUtil.getXMLContent(url, userId, password);
@@ -444,54 +428,55 @@ public class ARUUtil {
                         // only base number is specified and there are multiple patches
                         // ERROR
                         String message = String.format("There are multiple patches found with id %s, please specify "
-                            + "the format as one of the following for the release you want", baseBugNumber);
+                                + "the format as one of the following for the release you want", baseBugNumber);
                         logger.warning(message);
-                        for (int i=1; i<=nodeList.getLength(); i++) {
+                        for (int i = 1; i <= nodeList.getLength(); i++) {
                             String xpath = String.format("string(/results/patch[%d]/release/@name)", i);
-                            String releaseNumber = XPathUtil.applyXPathReturnString(allPatches,xpath);
+                            String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
                             logger.warning(bugNumber + "_" + releaseNumber);
                         }
                         throw new IOException("Multiple patches with same patch number detected");
                     }
 
-                } catch (XPathExpressionException xpe ) {
+                } catch (XPathExpressionException xpe) {
                     throw new IOException(xpe);
                 }
             }
         }
 
     }
+
     private static String savePatch(Document allPatches, String userId, String password, String destDir,
-        String bugNumber) throws IOException {
+                                    String bugNumber) throws IOException {
 
         logger.finest("Saving patch " + bugNumber);
         try {
 
-            if (bugNumber != null ) {
+            if (bugNumber != null) {
                 int ind = bugNumber.indexOf('_');
-                String baseBugNumber= bugNumber;
+                String baseBugNumber = bugNumber;
                 String optionalRelease = null;
-                if (ind  > 0) {
-                    baseBugNumber = bugNumber.substring(0,ind);
-                    optionalRelease = bugNumber.substring(ind+1);
+                if (ind > 0) {
+                    baseBugNumber = bugNumber.substring(0, ind);
+                    optionalRelease = bugNumber.substring(ind + 1);
                 }
                 NodeList nodeList = XPathUtil.applyXPathReturnNodeList(allPatches, "/results/patch");
                 if (nodeList.getLength() > 1 && ind < 0) {
                     // only base number is specified and there are multiple patches
                     // ERROR
                     String message = String.format("There are multiple patches found with id %s, please specify "
-                        + "the format as one of the following for the release you want", baseBugNumber);
+                            + "the format as one of the following for the release you want", baseBugNumber);
                     logger.warning(message);
-                    for (int i=1; i<=nodeList.getLength(); i++) {
+                    for (int i = 1; i <= nodeList.getLength(); i++) {
                         String xpath = String.format("string(/results/patch[%d]/release/@name)", i);
-                        String releaseNumber = XPathUtil.applyXPathReturnString(allPatches,xpath);
+                        String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
                         logger.warning(bugNumber + "_" + releaseNumber);
                     }
                     throw new IOException("Multiple patches with same patch number detected");
                 }
-                if (optionalRelease != null ) {
+                if (optionalRelease != null) {
                     // TODO: do we need this ?
-                    String xpath =  String.format("/results/patch[release[@name='%s']]", optionalRelease);
+                    String xpath = String.format("/results/patch[release[@name='%s']]", optionalRelease);
                     NodeList matchedResult = XPathUtil.applyXPathReturnNodeList(allPatches, xpath);
                     allPatches = createResultDocument(matchedResult);
                     logger.finest(XPathUtil.prettyPrint(allPatches));
@@ -499,10 +484,10 @@ public class ARUUtil {
             }
 
             String downLoadLink = XPathUtil.applyXPathReturnString(allPatches, "string"
-                + "(/results/patch[1]/files/file/download_url/text())");
+                    + "(/results/patch[1]/files/file/download_url/text())");
 
             String downLoadHost = XPathUtil.applyXPathReturnString(allPatches, "string"
-                + "(/results/patch[1]/files/file/download_url/@host)");
+                    + "(/results/patch[1]/files/file/download_url/@host)");
 
             String key = bugNumber;
 
@@ -510,7 +495,7 @@ public class ARUUtil {
 
             if (index > 0) {
                 String fileName = destDir + File.separator + downLoadLink.substring(
-                    index + "patch_file=".length());
+                        index + "patch_file=".length());
                 HttpUtil.downloadFile(downLoadHost + downLoadLink, fileName, userId, password);
                 String result = key + "=" + fileName;
                 logger.finest("savePatch returns " + result);
@@ -526,38 +511,39 @@ public class ARUUtil {
     }
 
     /**
-     * getPatchInfo returns the internal release number from a patch number (with optional release info)
+     * getPatchInfo returns the internal release number from a patch number (with optional release info).
+     *
      * @param bugNumber patch id in the format of 9999999_1.1.1.1.9999
-     * @param userId user id for support
-     * @param password password for support
+     * @param userId    user id for support
+     * @param password  password for support
      * @return internal release number of this patch
      * @throws IOException when the patch is not found or failed to connect to ARU
      */
     public static String getPatchInfo(String bugNumber, String userId, String password)
-        throws
-        IOException {
+            throws
+            IOException {
         logger.finest("Entering getPatchInfo " + bugNumber);
 
         try {
-            int ind =  bugNumber.indexOf('_');
+            int ind = bugNumber.indexOf('_');
             String optionalRelease = null;
             String baseBugNumber = bugNumber;
             if (ind > 0) {
-                baseBugNumber = bugNumber.substring(0,ind);
-                optionalRelease = bugNumber.substring(ind+1);
+                baseBugNumber = bugNumber.substring(0, ind);
+                optionalRelease = bugNumber.substring(ind + 1);
             }
             String url = String.format(Constants.BUG_SEARCH_URL, baseBugNumber);
             Document allPatches = HttpUtil.getXMLContent(url, userId, password);
 
             String xpath;
             if (optionalRelease != null)
-                xpath =  String.format("/results/patch/release[@name='%s']/@id", optionalRelease);
+                xpath = String.format("/results/patch/release[@name='%s']/@id", optionalRelease);
             else
-                xpath =  String.format("/results/patch/release/@id");
+                xpath = String.format("/results/patch/release/@id");
 
             logger.finest("applying xpath: " + xpath);
             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
-            logger.finest(String.format("Exiting getPatchInfo %s = %s " , bugNumber, releaseNumber));
+            logger.finest(String.format("Exiting getPatchInfo %s = %s ", bugNumber, releaseNumber));
             if (releaseNumber == null || "".equals(releaseNumber)) {
                 String error = String.format("Patch id %s not found", bugNumber);
                 logger.severe(error);
@@ -574,7 +560,7 @@ public class ARUUtil {
 
     /**
      * Given a product category (wls, fmw, opatch) and version, determines the release number corresponding to that
-     * in the ARU database
+     * in the ARU database.
      *
      * @param category wls, fmw, opatch
      * @param version  12.2.1.3.0 or such
@@ -607,7 +593,7 @@ public class ARUUtil {
     }
 
     /**
-     * Validates whether the given username and password are valid MOS credentials
+     * Validates whether the given username and password are valid MOS credentials.
      *
      * @param username support email id
      * @param password password
@@ -621,8 +607,8 @@ public class ARUUtil {
             HttpUtil.getXMLContent(Constants.ARU_LANG_URL, username, password);
         } catch (IOException e) {
             Throwable cause = (e.getCause() == null) ? e : e.getCause();
-            if (cause.getClass().isAssignableFrom(HttpResponseException.class) &&
-                    ((HttpResponseException) cause).getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+            if (cause.getClass().isAssignableFrom(HttpResponseException.class)
+                    && ((HttpResponseException) cause).getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 return false;
             }
         }
@@ -630,7 +616,7 @@ public class ARUUtil {
     }
 
     /**
-     * Parses the patch conflict check result and returns a string of patch conflicts grouped by each conflict
+     * Parses the patch conflict check result and returns a string of patch conflicts grouped by each conflict.
      *
      * @param conflictsResultNode xml node representing the conflict check result
      * @return String
@@ -643,7 +629,8 @@ public class ARUUtil {
                 stringBuilder.append("patch conflicts detected: ");
                 for (int i = 0; i < patchSets.getLength(); i++) {
                     stringBuilder.append("[");
-                    NodeList bugNumbers = XPathUtil.applyXPathReturnNodeList(patchSets.item(i), "patch/bug/number/text()");
+                    NodeList bugNumbers = XPathUtil.applyXPathReturnNodeList(patchSets.item(i), "patch/bug/number"
+                            + "/text()");
                     for (int j = 0; j < bugNumbers.getLength(); j++) {
                         stringBuilder.append(bugNumbers.item(j).getNodeValue());
                         stringBuilder.append(",");

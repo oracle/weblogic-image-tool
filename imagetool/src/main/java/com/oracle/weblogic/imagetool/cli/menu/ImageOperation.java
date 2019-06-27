@@ -1,20 +1,7 @@
-/* Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved. 
-*                                                              
-* Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl. 
-*/
-package com.oracle.weblogic.imagetool.cli.menu;
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
-import com.oracle.weblogic.imagetool.api.FileResolver;
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
-import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.impl.PatchFile;
-import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
-import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.DockerfileOptions;
-import com.oracle.weblogic.imagetool.util.Utils;
+package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +16,17 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.oracle.weblogic.imagetool.api.FileResolver;
+import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.api.model.CachePolicy;
+import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.impl.PatchFile;
+import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
+import com.oracle.weblogic.imagetool.util.ARUUtil;
+import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
@@ -58,7 +56,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         password = handlePasswordOptions();
         // check user support credentials if useCache not set to always and we are applying any patches
 
-        if (userId != null || password != null ) {
+        if (userId != null || password != null) {
             if (!ARUUtil.checkCredentials(userId, password)) {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
@@ -68,7 +66,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     /**
-     * Determines the support password by parsing the possible three input options
+     * Determines the support password by parsing the possible three input options.
      *
      * @return String form of password
      * @throws IOException in case of error
@@ -95,17 +93,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         if (latestPSU) {
             if (userId == null || password == null) {
                 throw new Exception("No credentials provided. Cannot determine "
-                    + "latestPSU");
+                        + "latestPSU");
             } else {
                 String patchId = ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                    userId,
-                    password);
+                        userId,
+                        password);
                 if (Utils.isEmptyString(patchId)) {
                     throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
-                        installerType.toString(), installerVersion));
+                            installerType.toString(), installerVersion));
                 }
                 logger.finest("Found latest PSU " + patchId);
-                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion, patchId, userId, password);
+                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion,
+                        patchId, userId, password);
                 patchLocations.add(psuResolver.resolve(cacheStore));
             }
 
@@ -118,8 +117,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
         for (String patchLocation : patchLocations) {
             if (patchLocation != null) {
-                File patch_file = new File(patchLocation);
-                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patch_file.getName()) );
+                File patchFile = new File(patchLocation);
+                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
             } else {
                 logger.severe("null entry in patchLocation");
             }
@@ -134,7 +133,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     /**
-     * Builds the options for docker build command
+     * Builds the options for docker build command.
      *
      * @return list of options
      */
@@ -183,7 +182,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         // and the version is embedded in the zip file version.txt
 
         String filePath =
-            new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
+                new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
+                        userId, password).resolve(cacheStore);
         Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
         dockerfileOptions.setOPatchPatchingEnabled();
     }
