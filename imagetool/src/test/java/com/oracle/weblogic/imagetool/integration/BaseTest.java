@@ -47,8 +47,10 @@ public class BaseTest {
 
         imagetoolZipfile = "imagetool-" + VERSION + "-SNAPSHOT.zip";
 
-        imagetool = "java -cp " + getImagetoolHome() + FS + "lib" + FS + "imagetool.jar" + PS +
-                getImagetoolHome() + FS + "lib" + FS + "* -Djava.util.logging.config.file=" +
+        // imagetool = "java -cp " + getImagetoolHome() + FS + "lib" + FS + "imagetool.jar" + PS +
+        //        getImagetoolHome() + FS + "lib" + FS + "* -Djava.util.logging.config.file=" +
+        //        getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
+        imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file=" +
                 getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
         logger.info("DEBUG: WLSIMG_BLDDIR=" + wlsImgBldDir);
@@ -72,6 +74,14 @@ public class BaseTest {
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
         logger.info("Executing command: " + command );
         ExecResult result = ExecCommand.exec(command);
+    }
+
+    protected static void cleanup() throws Exception {
+        logger.info("cleaning up cache entries");
+        logger.info("executing command: /bin/rm -rf " + wlsImgCacheDir);
+        ExecCommand.exec("/bin/rm -rf " + wlsImgCacheDir);
+        logger.info("executing command: /bin/mkdir " + wlsImgCacheDir);
+        ExecCommand.exec("/bin/mkdir " + wlsImgCacheDir);
     }
 
     protected static void pullDockerImage() throws Exception {
@@ -113,6 +123,22 @@ public class BaseTest {
         }
     }
 
+    protected void verifyExitValue(ExecResult result, String command) throws Exception {
+        if(result.exitValue() != 0) {
+            logger.info(result.stderr());
+            throw new Exception("executing the following command failed: " + command);
+        }
+    }
+
+    protected void verifyDockerImages(String imageTag) throws Exception {
+        // verify the docker image is created
+        ExecResult result = ExecCommand.exec("docker images | grep imagetool | grep " + imageTag +
+                "| wc -l");
+        if(Integer.parseInt(result.stdout()) != 1) {
+            throw new Exception("wls docker image is not created as expected");
+        }
+    }
+
     protected void logTestBegin(String testMethodName) throws Exception {
         logger.info("=======================================");
         logger.info("BEGIN test " + testMethodName + " ...");
@@ -127,6 +153,7 @@ public class BaseTest {
         String command = imagetool + " cache listItems";
         logger.info("executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
+        verifyExitValue(result, command);
         logger.info(result.stdout());
         return result;
     }
@@ -136,15 +163,17 @@ public class BaseTest {
                 " --path " + path;
         logger.info("executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
+        verifyExitValue(result, command);
         logger.info(result.stdout());
         return result;
     }
 
     protected ExecResult addPatchToCache(String type, String patchId, String version, String path) throws Exception {
-        String command = imagetool + " cache addPatch --type " + type + " --patchId " + patchId + " --version " +
+        String command = imagetool + " cache addPatch --type " + type + " --patchId " + patchId + "_" +
                 version + " --path " + path;
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
+        verifyExitValue(result, command);
         logger.info(result.stdout());
         return  result;
     }
@@ -153,6 +182,7 @@ public class BaseTest {
         String command = imagetool + " cache addEntry --key " + entryKey + " --value " + entryValue;
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
+        verifyExitValue(result, command);
         logger.info(result.stdout());
         return result;
     }
@@ -161,6 +191,7 @@ public class BaseTest {
         String command = imagetool + " cache deleteEntry --key " + entryKey;
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
+        verifyExitValue(result, command);
         logger.info(result.stdout());
         return result;
     }
