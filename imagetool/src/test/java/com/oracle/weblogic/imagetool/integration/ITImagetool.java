@@ -46,7 +46,8 @@ public class ITImagetool extends BaseTest {
         pullDockerImage();
 
         // download the installers for the test
-        downloadInstallers(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER);
+        downloadInstallers(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER,
+                FMW_INSTALLER);
     }
 
     @AfterClass

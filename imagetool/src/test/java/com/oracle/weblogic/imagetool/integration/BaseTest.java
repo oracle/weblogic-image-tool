@@ -47,9 +47,6 @@ public class BaseTest {
 
         imagetoolZipfile = "imagetool-" + VERSION + "-SNAPSHOT.zip";
 
-        // imagetool = "java -cp " + getImagetoolHome() + FS + "lib" + FS + "imagetool.jar" + PS +
-        //        getImagetoolHome() + FS + "lib" + FS + "* -Djava.util.logging.config.file=" +
-        //        getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
         imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file=" +
                 getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
@@ -60,20 +57,19 @@ public class BaseTest {
 
     protected static void setup() throws Exception {
 
-        logger.info("Setting up the test ..." +
-                "");
-        // unzip the weblogic-image-tool/imagetool/target/imagetool-${VERSION}-SNAPSHOT.zip
+        logger.info("Setting up the test ...");
         String command = "/bin/rm -rf " + getImagetoolHome();
         logger.info("Executing command: " + command);
         ExecCommand.exec(command);
 
+        // unzip the weblogic-image-tool/imagetool/target/imagetool-${VERSION}-SNAPSHOT.zip
         command = "/bin/unzip " + getTargetDir() + FS + imagetoolZipfile;
         logger.info("Executing command: " + command);
         ExecCommand.exec(command);
 
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
         logger.info("Executing command: " + command );
-        ExecResult result = ExecCommand.exec(command);
+        ExecCommand.exec(command);
     }
 
     protected static void cleanup() throws Exception {
