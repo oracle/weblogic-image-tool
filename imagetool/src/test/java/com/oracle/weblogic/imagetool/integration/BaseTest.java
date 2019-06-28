@@ -6,12 +6,10 @@ package com.oracle.weblogic.imagetool.integration;
 
 import com.oracle.weblogic.imagetool.integration.utils.ExecCommand;
 import com.oracle.weblogic.imagetool.integration.utils.ExecResult;
-
 import java.io.File;
 import java.util.logging.Logger;
 
 public class BaseTest {
-
 
     protected static final Logger logger = Logger.getLogger(ITImagetool.class.getName());
     protected static final String VERSION = "1.0.1";
@@ -21,13 +19,11 @@ public class BaseTest {
     private static final String OCIR_TENENT = "weblogick8s";
     protected static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
-
     private static String projectRoot = "";
     protected static String wlsImgBldDir = "";
     protected static String wlsImgCacheDir = "";
     protected static String imagetool = "";
     private static String imagetoolZipfile = "";
-
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");

@@ -17,17 +17,23 @@ import org.junit.runners.MethodSorters;
 public class ITImagetool extends BaseTest {
 
     private static final String JDK_INSTALLER = "jdk-8u202-linux-x64.tar.gz";
+    private static final String JDK_INSTALLER_8u212 = "jdk-8u212-linux-x64.tar.gz";
     private static final String WLS_INSTALLER = "fmw_12.2.1.3.0_wls_Disk1_1of1.zip";
     private static final String P27342434_INSTALLER = "p27342434_122130_Generic.zip";
     private static final String P28186730_INSTALLER = "p28186730_139400_Generic.zip";
+    private static final String P22987840_INSTALLER = "p22987840_122100_Generic.zip";
     private static final String WDT_INSTALLER = "weblogic-deploy.zip";
     private static final String FMW_INSTALLER = "fmw_12.2.1.3.0_infrastructure_Disk1_1of1.zip";
+    private static final String FMW_INSTALLER_1221 = "fmw_12.2.1.0.0_infrastructure_Disk1_1of1.zip";
     private static final String TEST_ENTRY_KEY = "mytestEntryKey";
     private static final String P27342434_ID = "27342434";
     private static final String P28186730_ID = "28186730";
+    private static final String P22987840_ID = "22987840";
     private static final String WLS_VERSION = "12.2.1.3.0";
+    private static final String WLS_VERSION_1221 = "12.2.1.0.0";
     private static final String OPATCH_VERSION = "13.9.4.0.0";
     private static final String JDK_VERSION = "8u202";
+    private static final String JDK_VERSION_8u212 = "8u212";
     private static final String WDT_VERSION = "1.1.1";
     private static final String WDT_ARCHIVE = "archive.zip";
     private static final String WDT_VARIABLES = "domain.properties";
@@ -56,6 +62,10 @@ public class ITImagetool extends BaseTest {
         cleanup();
     }
 
+    /**
+     * test cache listItems
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void test1CacheListItems() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -70,6 +80,10 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * add JDK installer to the cache
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void test2CacheAddInstallerJDK() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -85,6 +99,10 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * add WLS installer to the cache
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void test3CacheAddInstallerWLS() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -100,6 +118,10 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * create a WLS image with default WLS version
+     * @throws Exception
+     */
     @Test
     public void test4CreateWLSImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -115,6 +137,10 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * add Patch to the cache
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void test5CacheAddPatch() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -132,6 +158,10 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * add an entry to the cache
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void test6CacheAddEntry() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -148,6 +178,10 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * test delete an entry from the cache
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void test7CacheDeleteEntry() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -164,6 +198,11 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * create a WLS image without internet connection
+     * you need to have OCIR credentials to download the base OS docker image
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void test8CreateWLSImgUseCache() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -185,6 +224,10 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * update a WLS image with a patch
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void test9UpdateWLSImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -201,6 +244,10 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * create a WLS image using Weblogic Deploying Tool
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void testACreateWLSImgUsingWDT() throws Exception {
 
@@ -251,6 +298,11 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * create a FMW image with full internet access
+     * You need to provide Oracle Support credentials to download the patches
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void testBCreateFMWImgFullInternetAccess() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -285,6 +337,42 @@ public class ITImagetool extends BaseTest {
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * create a FMW image with non default JDK, FMW versions
+     * You need to download the jdk, fmw and patch installers from Oracle first
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testCCreateFMWImgNonDefault() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        // download the installers with non default version
+        downloadInstallers(JDK_INSTALLER_8u212, FMW_INSTALLER_1221, P22987840_INSTALLER);
+
+        // add fmw installer to the cache
+        String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER_1221;
+        addInstallerToCache("fmw", WLS_VERSION_1221, fmwPath);
+
+        // add jdk installer to the cache
+        String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER_8u212;
+        addInstallerToCache("jdk", JDK_VERSION_8u212, jdkPath);
+
+        // add the patch to the cache
+        String patchPath = getInstallerCacheDir() + FS + P22987840_INSTALLER;
+        addPatchToCache("fmw", P22987840_ID, WLS_VERSION_1221, patchPath);
+
+        String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221 +
+                " --tag imagetool:" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
+        logger.info("Executing command: " + command);
+        ExecCommand.exec(command, true);
+
+        // verify the docker image is created
+        verifyDockerImages(testMethodName);
+
         logTestEnd(testMethodName);
     }
 }
