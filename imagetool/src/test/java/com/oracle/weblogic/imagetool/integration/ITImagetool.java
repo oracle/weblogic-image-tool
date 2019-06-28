@@ -21,6 +21,7 @@ public class ITImagetool extends BaseTest {
     private static final String P27342434_INSTALLER = "p27342434_122130_Generic.zip";
     private static final String P28186730_INSTALLER = "p28186730_139400_Generic.zip";
     private static final String WDT_INSTALLER = "weblogic-deploy.zip";
+    private static final String FMW_INSTALLER = "fmw_12.2.1.3.0_infrastructure_Disk1_1of1.zip";
     private static final String TEST_ENTRY_KEY = "mytestEntryKey";
     private static final String P27342434_ID = "27342434";
     private static final String P28186730_ID = "28186730";
@@ -43,6 +44,9 @@ public class ITImagetool extends BaseTest {
         setup();
         // pull base OS docker image used for test
         pullDockerImage();
+
+        // download the installers for the test
+        downloadInstallers(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER);
     }
 
     @AfterClass
@@ -70,7 +74,7 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String jdkPath = getProjectRoot() + FS + ".." + FS + "caches" + FS + JDK_INSTALLER;
+        String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
         ExecResult result = listItemsInCache();
@@ -85,7 +89,7 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String wlsPath =  getProjectRoot() + FS + ".." + FS + "caches" + FS + WLS_INSTALLER;
+        String wlsPath =  getInstallerCacheDir() + FS + WLS_INSTALLER;
         addInstallerToCache("wls", WLS_VERSION, wlsPath);
 
         ExecResult result = listItemsInCache();
@@ -115,7 +119,7 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String patchPath = getProjectRoot() + FS + ".." + FS + "caches" + FS + P27342434_INSTALLER;
+        String patchPath = getInstallerCacheDir() + FS + P27342434_INSTALLER;
         deleteEntryFromCache(P27342434_ID + "_" + WLS_VERSION);
         addPatchToCache("wls", P27342434_ID, WLS_VERSION, patchPath);
 
@@ -132,7 +136,7 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String mytestEntryValue = getProjectRoot() + FS + ".." + FS + "caches" + FS + P27342434_INSTALLER;
+        String mytestEntryValue = getInstallerCacheDir() + FS + P27342434_INSTALLER;
         addEntryToCache(TEST_ENTRY_KEY, mytestEntryValue);
 
         // verify the result
@@ -165,7 +169,7 @@ public class ITImagetool extends BaseTest {
         logTestBegin(testMethodName);
 
         // need to add the required patches 28186730 for Opatch before create wls images
-        String patchPath = getProjectRoot() + FS + ".." + FS + "caches" + FS + P28186730_INSTALLER;
+        String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION + " --fromImage " +
@@ -203,32 +207,34 @@ public class ITImagetool extends BaseTest {
         logTestBegin(testMethodName);
 
         // add WDT installer to the cache
-        String wdtPath = getProjectRoot() + FS + ".." + FS + "caches" + FS + WDT_INSTALLER;
+        String wdtPath = getInstallerCacheDir() + FS + WDT_INSTALLER;
         addInstallerToCache("wdt", WDT_VERSION, wdtPath);
 
         // add WLS installer to the cache
-        String wlsPath =  getProjectRoot() + FS + ".." + FS + "caches" + FS + WLS_INSTALLER;
+        String wlsPath =  getInstallerCacheDir() + FS + WLS_INSTALLER;
         addInstallerToCache("wls", WLS_VERSION, wlsPath);
 
         // add jdk installer to the cache
-        String jdkPath = getProjectRoot() + FS + ".." + FS + "caches" + FS + JDK_INSTALLER;
+        String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
         // need to add the required patches 28186730 for Opatch before create wls images
         // delete the cache entry first
         deleteEntryFromCache(P28186730_ID + "_opatch");
-        String patchPath = getProjectRoot() + FS + ".." + FS + "caches" + FS + P28186730_INSTALLER;
+        String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 
         // add the patch to the cache
         deleteEntryFromCache(P27342434_ID + "_" + WLS_VERSION);
-        patchPath = getProjectRoot() + FS + ".." + FS + "caches" + FS + P27342434_INSTALLER;
+        patchPath = getInstallerCacheDir() + FS + P27342434_INSTALLER;
         addPatchToCache("wls", P27342434_ID, WLS_VERSION, patchPath);
 
-        String wdtResourcePath = getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "wdt" + FS;
-        String wdtArchive = wdtResourcePath + WDT_ARCHIVE;
-        String wdtModel = wdtResourcePath + WDT_MODEL;
-        String wdtVariables = wdtResourcePath + WDT_VARIABLES;
+        // build the wdt archive
+        buildWDTArchive();
+
+        String wdtArchive = getWDTResourcePath() + FS + WDT_ARCHIVE;
+        String wdtModel = getWDTResourcePath() + FS + WDT_MODEL;
+        String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
         String command = imagetool + " create --fromImage " +
                 BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
                 " --version " + WLS_VERSION + " --patches " + P27342434_ID + " --wdtVersion " + WDT_VERSION +
@@ -241,6 +247,43 @@ public class ITImagetool extends BaseTest {
         // verify the docker image is created
         verifyDockerImages(testMethodName);
 
+        logTestEnd(testMethodName);
+    }
+
+    @Test
+    public void testBCreateFMWImgFullInternetAccess() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String user = System.getenv("ORACLE_SUPPORT_USERNAME");
+        String password = System.getenv("ORACLE_SUPPORT_PASSWORD");
+        if(user == null || password == null) {
+            throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD" +
+            " for Oracle Support credentials to download the patches.");
+        }
+
+        String httpProxy = System.getenv("HTTP_PROXY");
+        String httpsProxy = System.getenv("HTTPS_PROXY");
+        if(httpProxy == null || httpsProxy == null) {
+            throw new Exception("Please set environment variable HTTP_PROXY and HTTPS_PROXY");
+        }
+
+        // add fmw installer to the cache
+        String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER;
+        addInstallerToCache("fmw", WLS_VERSION, fmwPath);
+
+        // add jdk installer to the cache
+        String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
+        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
+
+        String command = imagetool + " create --version=" + WLS_VERSION + " --tag imagetool:" + testMethodName +
+                " --latestPSU --user " + user + " --passwordEnv ORACLE_SUPPORT_PASSWORD --httpProxyUrl " +
+                httpProxy + " --httpsProxyUrl " + httpsProxy + " --type fmw";
+        logger.info("Executing command: " + command);
+        ExecCommand.exec(command, true);
+
+        // verify the docker image is created
+        verifyDockerImages(testMethodName);
         logTestEnd(testMethodName);
     }
 }

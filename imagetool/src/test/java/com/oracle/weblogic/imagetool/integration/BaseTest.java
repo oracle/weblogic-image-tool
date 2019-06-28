@@ -105,16 +105,41 @@ public class BaseTest {
         }
     }
 
-    protected  static String getProjectRoot() {
+    protected static void downloadInstallers(String... installers) throws Exception {
+        // create the cache dir for downloading installers if not exists
+        File cacheDir = new File(getInstallerCacheDir());
+        if( !cacheDir.exists()) {
+            cacheDir.mkdir();
+        }
+
+        // check the required installer is downloaded
+        for(String installer : installers) {
+            File installFile = new File(getInstallerCacheDir() + FS + installer);
+            if(!installFile.exists()) {
+                throw new Exception("Please download " + installer + " from oracle support site and put it in " +
+                        getInstallerCacheDir());
+            }
+        }
+    }
+
+    protected static String getProjectRoot() {
         return projectRoot;
     }
 
-    protected  static String getTargetDir() {
+    protected static String getTargetDir() {
         return getProjectRoot() + FS + "target";
     }
 
-    protected  static String getImagetoolHome() {
+    protected static String getImagetoolHome() {
         return getProjectRoot() + FS + "imagetool-" + VERSION + "-SNAPSHOT";
+    }
+
+    protected static String getInstallerCacheDir() {
+        return getProjectRoot() + FS + "caches";
+    }
+
+    protected static String getWDTResourcePath() {
+        return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "wdt";
     }
 
     protected void verifyResult(ExecResult result, String matchString) throws Exception {
@@ -151,46 +176,40 @@ public class BaseTest {
 
     protected ExecResult listItemsInCache() throws Exception {
         String command = imagetool + " cache listItems";
-        logger.info("executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
-        logger.info(result.stdout());
-        return result;
+        return executeAndVerify(command, false);
     }
 
     protected ExecResult addInstallerToCache(String type, String version, String path) throws Exception {
         String command = imagetool + " cache addInstaller --type " + type + " --version " + version +
                 " --path " + path;
-        logger.info("executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
-        logger.info(result.stdout());
-        return result;
+        return executeAndVerify(command, false);
     }
 
     protected ExecResult addPatchToCache(String type, String patchId, String version, String path) throws Exception {
         String command = imagetool + " cache addPatch --type " + type + " --patchId " + patchId + "_" +
                 version + " --path " + path;
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
-        logger.info(result.stdout());
-        return  result;
+        return executeAndVerify(command, false);
     }
 
     protected ExecResult addEntryToCache(String entryKey, String entryValue) throws Exception {
         String command = imagetool + " cache addEntry --key " + entryKey + " --value " + entryValue;
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
-        logger.info(result.stdout());
-        return result;
+        return executeAndVerify(command, false);
     }
 
     protected ExecResult deleteEntryFromCache(String entryKey) throws Exception {
         String command = imagetool + " cache deleteEntry --key " + entryKey;
+        return executeAndVerify(command, false);
+    }
+
+    protected ExecResult buildWDTArchive() throws Exception {
+        logger.info("Building WDT archive ...");
+        String command = "sh " + getWDTResourcePath() + FS + "build-archive.sh";
+        return executeAndVerify(command, true);
+    }
+
+    private ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {
         logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
+        ExecResult result = ExecCommand.exec(command, isRedirectToOut);
         verifyExitValue(result, command);
         logger.info(result.stdout());
         return result;
