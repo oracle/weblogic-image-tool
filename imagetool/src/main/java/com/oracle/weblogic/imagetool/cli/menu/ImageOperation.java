@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,6 +63,9 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
         }
+
+        handleChown();
+
         logger.finer("Exiting ImageOperation call ");
         return new CommandResponse(0, null);
     }
@@ -188,6 +193,28 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         dockerfileOptions.setOPatchPatchingEnabled();
     }
 
+    private void handleChown() {
+        if (osUserAndGroup.length != 2) {
+            throw new IllegalArgumentException("--chown value must be a colon separated user and group.  user:group");
+        }
+
+        Pattern p = Pattern.compile("^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$");
+        Matcher usr = p.matcher(osUserAndGroup[0]);
+        if (!usr.matches()) {
+            throw new IllegalArgumentException("--chown must contain a valid Unix username.  No more than 32 characters"
+                    + " and starts with a lowercase character.  Invalid value = " + osUserAndGroup[0]);
+        }
+        Matcher grp = p.matcher(osUserAndGroup[1]);
+        if (!grp.matches()) {
+            throw new IllegalArgumentException("--chown must contain a valid Unix groupid.  No more than 32 characters"
+                    + " and starts with a lowercase character.  Invalid value = " + osUserAndGroup[1]);
+        }
+
+        dockerfileOptions.setUserId(osUserAndGroup[0]);
+        dockerfileOptions.setGroupId(osUserAndGroup[1]);
+    }
+
+
     WLSInstallerType installerType = WLSInstallerType.WLS;
 
     String installerVersion = Constants.DEFAULT_WLS_VERSION;
@@ -276,6 +303,14 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             hidden = true
     )
     Path dockerLog;
+
+    @Option(
+            names = {"--chown"},
+            split = ":",
+            description = "userid:groupid for JDK/Middleware installs and patches. Default: ${DEFAULT-VALUE}.",
+            defaultValue = "oracle:oracle"
+    )
+    private String[] osUserAndGroup;
 
     @Unmatched
     List<String> unmatchedOptions;
