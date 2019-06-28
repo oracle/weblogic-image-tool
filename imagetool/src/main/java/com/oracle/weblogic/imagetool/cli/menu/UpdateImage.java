@@ -143,6 +143,10 @@ public class UpdateImage extends ImageOperation {
                         if (latestPSU) {
                             toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
                                     userId, password));
+                            if (installerType.toString().equals(Constants.INSTALLER_FMW)) {
+                                toValidateSet.add(ARUUtil.getLatestPSUNumber(Constants.INSTALLER_WLS, installerVersion,
+                                    userId, password));
+                            }
                         }
                         toValidateSet.addAll(patches);
                         ValidationResult validationResult =

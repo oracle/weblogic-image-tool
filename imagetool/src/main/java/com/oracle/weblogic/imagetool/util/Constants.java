@@ -31,7 +31,8 @@ public final class Constants {
     public static final String METADATA_PREF_KEY = "metadata.file";
     public static final String DEFAULT_META_FILE = ".metadata";
     public static final String DELETE_ALL_FOR_SURE = "deleteAll4Sure";
-
+    public static final String INSTALLER_WLS = "wls";
+    public static final String INSTALLER_FMW = "fmw";
     public static final List<String> REQD_WDT_BUILD_ARGS = Stream.of(
             "DOMAIN_NAME", "ADMIN_NAME", "ADMIN_HOST", "ADMIN_PORT", "MANAGED_SERVER_PORT"
     ).collect(Collectors.toList());
