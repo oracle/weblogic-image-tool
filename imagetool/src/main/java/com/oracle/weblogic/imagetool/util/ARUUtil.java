@@ -225,6 +225,10 @@ public class ARUUtil {
             payload.append("<candidate_patch_list>");
             for (String patch : patches) {
 
+                if (patch == null) {
+                    logger.finest("Skipping null patch");
+                    continue;
+                }
                 checkForMultiplePatches(patch, userId, password);
                 logger.info("Passed patch multiple versions test");
 
