@@ -53,27 +53,33 @@ public class BaseTest {
 
     protected static void setup() throws Exception {
 
-        logger.info("Setting up the test ...");
+        logger.info("Setting up the test environment ...");
         String command = "/bin/rm -rf " + getImagetoolHome();
-        logger.info("Executing command: " + command);
-        ExecCommand.exec(command);
+        executeNoVerify(command);
 
         // unzip the weblogic-image-tool/imagetool/target/imagetool-${VERSION}-SNAPSHOT.zip
         command = "/bin/unzip " + getTargetDir() + FS + imagetoolZipfile;
-        logger.info("Executing command: " + command);
-        ExecCommand.exec(command);
+        executeNoVerify(command);
 
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
-        logger.info("Executing command: " + command );
-        ExecCommand.exec(command);
+        executeNoVerify(command);
     }
 
     protected static void cleanup() throws Exception {
-        logger.info("cleaning up cache entries");
-        logger.info("executing command: /bin/rm -rf " + wlsImgCacheDir);
-        ExecCommand.exec("/bin/rm -rf " + wlsImgCacheDir);
-        logger.info("executing command: /bin/mkdir " + wlsImgCacheDir);
-        ExecCommand.exec("/bin/mkdir " + wlsImgCacheDir);
+        logger.info("cleaning up the test environment ...");
+        String command = "/bin/rm -rf " + wlsImgCacheDir;
+        executeNoVerify(command);
+
+        command = "/bin/mkdir " + wlsImgCacheDir;
+        executeNoVerify(command);
+
+        // clean up the docker images
+        command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG;
+        executeNoVerify(command);
+
+        // clean up the possible left over wlsimgbuilder_temp*
+        command = "/bin/rm -rf " + wlsImgBldDir + FS + "wlsimgbuilder_temp*";
+        executeNoVerify(command);
     }
 
     protected static void pullDockerImage() throws Exception {
@@ -132,6 +138,11 @@ public class BaseTest {
 
     protected static String getWDTResourcePath() {
         return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "wdt";
+    }
+
+    protected static void executeNoVerify(String command) throws Exception {
+        logger.info("executing command: " + command);
+        ExecCommand.exec(command);
     }
 
     protected void verifyResult(ExecResult result, String matchString) throws Exception {
