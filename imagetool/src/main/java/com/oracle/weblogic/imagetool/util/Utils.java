@@ -272,11 +272,12 @@ public class Utils {
     /**
      * Deletes files from given dir and its subdirectories.
      *
-     * @param tmpDir dir
+     * @param pathDir dir
      * @throws IOException in case of error
      */
-    public static void deleteFilesRecursively(Path tmpDir) throws IOException {
-        if (tmpDir != null) {
+    public static void deleteFilesRecursively(String pathDir) throws IOException {
+        if (pathDir != null) {
+            Path tmpDir = Paths.get(pathDir);
             Files.walk(tmpDir)
                     .sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
@@ -430,7 +431,7 @@ public class Utils {
      * @param args           args to the script
      * @return command
      */
-    public static List<String> getDockerRunCmd(Path hostDirToMount, String dockerImage, String scriptToRun,
+    public static List<String> getDockerRunCmd(String hostDirToMount, String dockerImage, String scriptToRun,
                                                String... args) throws IOException {
 
         // We are removing the volume mount option, -v won't work in remote docker daemon and also
@@ -440,8 +441,7 @@ public class Utils {
         // Now are encoding the test script and decode on the fly and execute it.
         // Warning:  don't pass in a big file
 
-        byte[] fileBytes = Files.readAllBytes(Paths.get(hostDirToMount.toAbsolutePath().toString()
-                + File.separator + scriptToRun));
+        byte[] fileBytes = Files.readAllBytes(Paths.get(hostDirToMount + File.separator + scriptToRun));
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
         String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
         logger.finest("ONE COMMAND [" + oneCommand + "]");
@@ -657,4 +657,15 @@ public class Utils {
         return result;
     }
 
+    /**
+     * Get the relative path of pathB when compared to pathA.
+     * For example, if pathB was /a/b/c and pathA was /a, then the result would be b/c.
+      * @param pathA the root path.
+     * @param pathB the path for which the relative path is requested.
+     * @return the relative path of pathB when compared to pathA.
+     */
+    public static String getRelativePath(String pathA, Path pathB) {
+        Path a = Paths.get(pathA);
+        return a.relativize(pathB).toString();
+    }
 }
