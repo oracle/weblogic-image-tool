@@ -8,9 +8,9 @@ FROM {{baseImage}} as OS_UPDATE
 USER root
 
 {{#useYum}}
-RUN yum -y --downloaddir={{tmpDir}} install gzip tar unzip \
- && yum -y --downloaddir={{tmpDir}} clean all \
- && rm -rf {{tmpDir}}
+RUN yum -y --downloaddir={{tempDir}} install gzip tar unzip \
+ && yum -y --downloaddir={{tempDir}} clean all \
+ && rm -rf {{tempDir}}
 {{/useYum}}
 {{#useAptGet}}
 RUN apt-get -y update \
@@ -41,13 +41,13 @@ ARG JAVA_PKG
 ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
     JAVA_HOME={{java_home}}
 
-COPY --chown={{userid}}:{{groupid}} $JAVA_PKG {{tmpDir}}/
+COPY --chown={{userid}}:{{groupid}} $JAVA_PKG {{tempDir}}/
 
 USER {{userid}}
 
-RUN tar xzf {{tmpDir}}/$JAVA_PKG -C /u01 \
+RUN tar xzf {{tempDir}}/$JAVA_PKG -C /u01 \
  && mv /u01/jdk* {{java_home}} \
- && rm -rf {{tmpDir}}
+ && rm -rf {{tempDir}}
 
 FROM OS_UPDATE as WLS_BUILD
 ARG WLS_PKG
@@ -68,30 +68,30 @@ ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
 
 # Install base WLS
 COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{java_home}} {{java_home}}/
-COPY --chown={{userid}}:{{groupid}} $WLS_PKG $WLS_RESP {{tmpDir}}/
+COPY --chown={{userid}}:{{groupid}} $WLS_PKG $WLS_RESP {{tempDir}}/
 COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
 {{#isOpatchPatchingEnabled}}
-COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{tmpDir}}/opatch/
+COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{tempDir}}/opatch/
 {{/isOpatchPatchingEnabled}}
 {{#isPatchingEnabled}}
-COPY --chown=oracle:oracle $PATCHDIR/* {{tmpDir}}/patches/
+COPY --chown=oracle:oracle $PATCHDIR/* {{tempDir}}/patches/
 {{/isPatchingEnabled}}
 
 USER {{userid}}
 
-RUN unzip {{tmpDir}}/$WLS_PKG -d {{tmpDir}} \
- && {{java_home}}/bin/java -Xmx1024m -jar {{tmpDir}}/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
-    -responseFile {{tmpDir}}/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
+RUN unzip {{tempDir}}/$WLS_PKG -d {{tempDir}} \
+ && {{java_home}}/bin/java -Xmx1024m -jar {{tempDir}}/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
+    -responseFile {{tempDir}}/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
 {{#isOpatchPatchingEnabled}}
- && cd {{tmpDir}}/opatch \
- && {{java_home}}/bin/jar -xf {{tmpDir}}/opatch/p28186730_139400_Generic.zip \
- && {{java_home}}/bin/java -jar {{tmpDir}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
+ && cd {{tempDir}}/opatch \
+ && {{java_home}}/bin/jar -xf {{tempDir}}/opatch/p28186730_139400_Generic.zip \
+ && {{java_home}}/bin/java -jar {{tempDir}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
 {{/isOpatchPatchingEnabled}}
 {{#isPatchingEnabled}}
- && $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{tmpDir}}/patches \
+ && $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{tempDir}}/patches \
  && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
 {{/isPatchingEnabled}}
- && rm -rf {{java_home}} {{tmpDir}}
+ && rm -rf {{java_home}} {{tempDir}}
 
 {{#isWdtEnabled}}
 FROM OS_UPDATE as WDT_BUILD
@@ -137,16 +137,16 @@ ENV DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
 
 COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{java_home}} {{java_home}}/
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} $ORACLE_HOME $ORACLE_HOME/
-COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE} {{tmpDir}}/
+COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE} {{tempDir}}/
 
 USER {{userid}}
 
-RUN unzip {{tmpDir}}/$WDT_PKG -d $(dirname $WDT_HOME) \
+RUN unzip {{tempDir}}/$WDT_PKG -d $(dirname $WDT_HOME) \
  && mkdir -p $(dirname ${DOMAIN_HOME}) \
  && mkdir -p ${PROPERTIES_FILE_DIR} \
- && if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file {{tmpDir}}/${WDT_MODEL##*/}"; fi \
- && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file {{tmpDir}}/${WDT_ARCHIVE##*/}"; fi \
- && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file {{tmpDir}}/${WDT_VARIABLE##*/}"; fi \
+ && if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file {{tempDir}}/${WDT_MODEL##*/}"; fi \
+ && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file {{tempDir}}/${WDT_ARCHIVE##*/}"; fi \
+ && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file {{tempDir}}/${WDT_VARIABLE##*/}"; fi \
  && if [ -n "${RCU_RUN_FLAG}" ]; then RCU_RUN_OPT="-run_rcu"; fi \
  && cd ${WDT_HOME}/bin \
  && ${WDT_HOME}/bin/createDomain.sh \
@@ -158,7 +158,7 @@ RUN unzip {{tmpDir}}/$WDT_PKG -d $(dirname $WDT_HOME) \
  $VARIABLE_OPT \
  $MODEL_OPT \
  $ARCHIVE_OPT \
- && rm -rf {{java_home}} ${ORACLE_HOME} ${WDT_HOME} {{tmpDir}}
+ && rm -rf {{java_home}} ${ORACLE_HOME} ${WDT_HOME} {{tempDir}}
 {{/isWdtEnabled}}
 
 FROM {{baseImage}} as FINAL_BUILD
