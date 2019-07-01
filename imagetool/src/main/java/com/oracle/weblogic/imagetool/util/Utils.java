@@ -656,16 +656,4 @@ public class Utils {
 
         return result;
     }
-
-    /**
-     * Get the relative path of pathB when compared to pathA.
-     * For example, if pathB was /a/b/c and pathA was /a, then the result would be b/c.
-      * @param pathA the root path.
-     * @param pathB the path for which the relative path is requested.
-     * @return the relative path of pathB when compared to pathA.
-     */
-    public static String getRelativePath(String pathA, Path pathB) {
-        Path a = Paths.get(pathA);
-        return a.relativize(pathB).toString();
-    }
 }
