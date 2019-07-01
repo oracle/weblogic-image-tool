@@ -32,8 +32,8 @@ public class AddInstallerEntry extends CacheOperation {
         if (location != null && Files.isRegularFile(location) && !Utils.isEmptyString(version)) {
             String key = String.format("%s%s%s", type, CacheStore.CACHE_KEY_SEPARATOR, version);
             if (cacheStore.getValueFromCache(key) != null) {
-                return new CommandResponse(-1, String.format("Installer already exists %s=%s. You can remove it "
-                        + "by deleteEntry command before updating it",
+                return new CommandResponse(-1, String.format("Installer already exists %s=%s. Try removing it "
+                        + "using the deleteEntry command before adding it again.",
                     key,
                     cacheStore.getValueFromCache(key)));
             }
