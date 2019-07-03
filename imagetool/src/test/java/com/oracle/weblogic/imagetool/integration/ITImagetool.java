@@ -390,7 +390,7 @@ public class ITImagetool extends BaseTest {
     /**
      * create a JRF domain image using WDT
      * You need to have OCR credentials to pull container-registry.oracle.com/database/enterprise:12.2.0.1-slim
-     * @throws Exception
+     * @throws Exception - if any error occurs
      */
     @Test
     public void testDCreateJRFDomainImgUsingWDT() throws Exception {
@@ -439,6 +439,62 @@ public class ITImagetool extends BaseTest {
                 " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
                 wdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
+
+        logger.info("Executing command: " + command);
+        ExecCommand.exec(command, true);
+
+        // verify the docker image is created
+        verifyDockerImages(testMethodName);
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * create a RestrictedJRF domain image using WDT
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testECreateJRFDomainImgUsingWDT() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String user = System.getenv("ORACLE_SUPPORT_USERNAME");
+        String password = System.getenv("ORACLE_SUPPORT_PASSWORD");
+        if(user == null || password == null) {
+            throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD" +
+                    " for Oracle Support credentials to download the patches.");
+        }
+
+        // add WDT installer to the cache
+        // delete the cache entry if any
+        deleteEntryFromCache("wdt_" + WDT_VERSION);
+        String wdtPath = getInstallerCacheDir() + FS + WDT_INSTALLER;
+        addInstallerToCache("wdt", WDT_VERSION, wdtPath);
+
+        // add FMW installer to the cache
+        // delete the cache entry if any
+        deleteEntryFromCache("fmw_" + WLS_VERSION);
+        String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER;
+        addInstallerToCache("fmw", WLS_VERSION, fmwPath);
+
+        // add jdk installer to the cache
+        // delete the cache entry if any
+        deleteEntryFromCache("jdk_" + JDK_VERSION);
+        String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
+        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
+
+        // build the wdt archive
+        buildWDTArchive();
+
+        String wdtArchive = getWDTResourcePath() + FS + WDT_ARCHIVE;
+        String wdtModel = getWDTResourcePath() + FS + WDT_MODEL;
+        String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
+        String command = imagetool + " create --fromImage " +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                " --version " + WLS_VERSION + " --latestPSU --user " + user +
+                " --passwordEnv ORACLE_SUPPORT_PASSWORD " + " --wdtVersion " + WDT_VERSION +
+                " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
+                wdtModel + " --wdtDomainType RestrictedJRF --type fmw --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
