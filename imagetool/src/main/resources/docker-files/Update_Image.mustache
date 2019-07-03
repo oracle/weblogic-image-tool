@@ -9,26 +9,24 @@ FROM {{baseImage}} as OS_UPDATE
 USER root
 
 ARG PATCHDIR
-ARG OTMPDIR
 
 ENV PATCHDIR=${PATCHDIR:-patches} \
-    OTMPDIR=${OTMPDIR:-/tmp/delme} \
     OPATCH_NO_FUSER=true
 
-USER oracle
+USER {{userid}}
 
 {{#isOpatchPatchingEnabled}}
-COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
-RUN cd $OTMPDIR/opatch \
- && $JAVA_HOME/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
- && $JAVA_HOME/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
- && rm -rf $OTMPDIR
+COPY --chown={{userid}}:{{groupid}} p28186730_139400_Generic.zip {{tempDir}}/opatch/
+RUN cd {{tempDir}}/opatch \
+ && $JAVA_HOME/bin/jar -xf {{tempDir}}/opatch/p28186730_139400_Generic.zip \
+ && $JAVA_HOME/bin/java -jar {{tempDir}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
+ && rm -rf {{tempDir}}
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/
+COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{tempDir}}/patches/
 
-RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \
+RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{tempDir}}/patches \
  && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
- && rm -rf $OTMPDIR
+ && rm -rf {{tempDir}}
 {{/isPatchingEnabled}}

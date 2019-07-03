@@ -17,6 +17,7 @@ public class DockerfileOptions {
     private String groupname = "oracle";
     private String javaHome = "/u01/jdk";
     private String baseImageName = "oraclelinux:7-slim";
+    private String tempDirectory = "/tmp/delme";
 
     /**
      * Options to be used with the Mustache template.
@@ -169,5 +170,24 @@ public class DockerfileOptions {
     public DockerfileOptions setWdtEnabled() {
         useWdt = true;
         return this;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides location where installers should write their temporary files.
+     *
+     * @return the full path to the temporary directory that should be used.
+     */
+    public String tempDir() {
+        return tempDirectory;
+    }
+
+    /**
+     * The location where installers should write their temporary files.
+     *
+     * @param value  the full path to the temporary directory that should be used.
+     */
+    public void setTempDirectory(String value) {
+
+        tempDirectory = value;
     }
 }
