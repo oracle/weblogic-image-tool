@@ -237,6 +237,32 @@ public class Utils {
                     "docker command failed with error: " + stringBuilder.toString());
         }
     }
+    //
+    //    public static boolean isJavaInstalled(String dockerImage) throws IOException, InterruptedException {
+    //        boolean result = false;
+    //        List<String> dockerInspectCommand = new ArrayList<>();
+    //        dockerInspectCommand.add("docker");
+    //        dockerInspectCommand.add("inspect");
+    //        dockerInspectCommand.add("--format='{{range .Config.Env}}{{println .}}{{end}}'");
+    //        dockerInspectCommand.add(dockerImage);
+    //        ProcessBuilder processBuilder = new ProcessBuilder(dockerInspectCommand);
+    //        Process process = processBuilder.start();
+    //        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+    //        String line;
+    //        while ((line = reader.readLine()) != null) {
+    //            System.out.println(line);
+    //            if (line.trim().startsWith("JAVA_HOME")) {
+    //                result = true;
+    //            }
+    //        }
+    //
+    //        int exitVal = process.waitFor();
+    //        if (exitVal != 0) {
+    //            throw new IOException("ERROR:  Unable to inspect image " + dockerImage + ",
+    //            docker returned " + exitVal);
+    //        }
+    //        return result;
+    //    }
 
     private static void writeFromInputToOutputStreams(InputStream inputStream, OutputStream... outputStreams) {
         Thread readerThread = new Thread(() -> {
