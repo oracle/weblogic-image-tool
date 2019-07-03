@@ -256,14 +256,20 @@ public class ITImagetool extends BaseTest {
         logTestBegin(testMethodName);
 
         // add WDT installer to the cache
+        // delete the cache entry first
+        deleteEntryFromCache("wdt_" + WDT_VERSION);
         String wdtPath = getInstallerCacheDir() + FS + WDT_INSTALLER;
         addInstallerToCache("wdt", WDT_VERSION, wdtPath);
 
         // add WLS installer to the cache
+        // delete the cache entry first
+        deleteEntryFromCache("wls_" + WLS_VERSION);
         String wlsPath =  getInstallerCacheDir() + FS + WLS_INSTALLER;
         addInstallerToCache("wls", WLS_VERSION, wlsPath);
 
         // add jdk installer to the cache
+        // delete the cache entry first
+        deleteEntryFromCache("jdk_" + JDK_VERSION);
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
@@ -323,10 +329,14 @@ public class ITImagetool extends BaseTest {
         }
 
         // add fmw installer to the cache
+        // delete the cache entry if any
+        deleteEntryFromCache("fmw_" + WLS_VERSION);
         String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER;
         addInstallerToCache("fmw", WLS_VERSION, fmwPath);
 
         // add jdk installer to the cache
+        // delete the cache entry if any
+        deleteEntryFromCache("jdk_" + JDK_VERSION);
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
@@ -394,14 +404,20 @@ public class ITImagetool extends BaseTest {
         createDBContainer();
 
         // add WDT installer to the cache
+        // delete the cache entry if any
+        deleteEntryFromCache("wdt_" + WDT_VERSION);
         String wdtPath = getInstallerCacheDir() + FS + WDT_INSTALLER;
         addInstallerToCache("wdt", WDT_VERSION, wdtPath);
 
         // add FMW installer to the cache
+        // delete the cache entry if any
+        deleteEntryFromCache("fmw_" + WLS_VERSION);
         String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER;
         addInstallerToCache("fmw", WLS_VERSION, fmwPath);
 
         // add jdk installer to the cache
+        // delete the cache entry if any
+        deleteEntryFromCache("jdk_" + JDK_VERSION);
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 

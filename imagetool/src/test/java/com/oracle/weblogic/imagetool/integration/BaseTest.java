@@ -82,7 +82,8 @@ public class BaseTest {
         executeNoVerify(command);
 
         // clean up the docker images
-        command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG;
+        command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":" +
+                ORACLE_DB_IMG_TAG;
         executeNoVerify(command);
 
         // clean up the possible left over wlsimgbuilder_temp*
