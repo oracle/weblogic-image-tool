@@ -7,6 +7,9 @@ package com.oracle.weblogic.imagetool.integration;
 import com.oracle.weblogic.imagetool.integration.utils.ExecCommand;
 import com.oracle.weblogic.imagetool.integration.utils.ExecResult;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 public class BaseTest {
@@ -17,13 +20,18 @@ public class BaseTest {
     protected static final String FS = File.separator;
     private static final String OCIR_SERVER = "phx.ocir.io";
     private static final String OCIR_TENENT = "weblogick8s";
+    private static final String OCR_SERVER = "container-registry.oracle.com";
     protected static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
+    protected static final String ORACLE_DB_IMG = "container-registry.oracle.com/database/enterprise";
+    protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     private static String projectRoot = "";
     protected static String wlsImgBldDir = "";
     protected static String wlsImgCacheDir = "";
     protected static String imagetool = "";
     private static String imagetoolZipfile = "";
+    private static int maxIterations = 50;
+    private static int waitTime = 5;
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -82,7 +90,7 @@ public class BaseTest {
         executeNoVerify(command);
     }
 
-    protected static void pullDockerImage() throws Exception {
+    protected static void pullBaseOSDockerImage() throws Exception {
         logger.info("Pulling OS base images from OCIR ...");
         String ocir_username = System.getenv("OCIR_USERNAME");
         String ocir_password = System.getenv("OCIR_PASSWORD");
@@ -91,16 +99,20 @@ public class BaseTest {
             throw new Exception("You need to set OCIR_USERNAME and OCIR_PASSWORD environment variable to pull images");
         }
 
-        ExecCommand.exec("docker login " + OCIR_SERVER + " -u " + OCIR_TENENT + "/" + ocir_username +
-                " -p " + ocir_password);
-        ExecCommand.exec("docker pull " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG);
+        pullDockerImage(OCIR_SERVER, OCIR_TENENT + "/" + ocir_username , ocir_password, BASE_OS_IMG,
+                BASE_OS_IMG_TAG);
+    }
 
-        // verify the docker image is pulled
-        ExecResult result = ExecCommand.exec("docker images | grep " + BASE_OS_IMG  + " | grep " +
-                BASE_OS_IMG_TAG + "| wc -l");
-        if(Integer.parseInt(result.stdout()) != 1) {
-            throw new Exception("Base OS docker image is not pulled as expected");
+    protected static void pullOracleDBDockerImage() throws Exception {
+        logger.info("Pulling Oracle DB image from OCR ...");
+        String ocr_username = System.getenv("OCR_USERNAME");
+        String ocr_password = System.getenv("OCR_PASSWORD");
+
+        if(ocr_username == null || ocr_password == null) {
+            throw new Exception("You need to set OCR_USERNAME and OCR_PASSWORD environment variable to pull images");
         }
+
+        pullDockerImage(OCR_SERVER, ocr_username, ocr_password, ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
     }
 
     protected static void downloadInstallers(String... installers) throws Exception {
@@ -210,11 +222,83 @@ public class BaseTest {
         return executeAndVerify(command, true);
     }
 
+    protected void createDBContainer() throws Exception {
+        logger.info("Creating an Oracle db docker container ...");
+        String command = "docker rm -f InfraDB";
+        ExecCommand.exec(command);
+        command = "docker run -d --name InfraDB -p 1521:1521 -p 5500:5500 --env=\"DB_PDB=InfraPDB1\"" +
+                " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":" +
+                ORACLE_DB_IMG_TAG;
+        ExecCommand.exec(command);
+
+        // wait for the db is ready
+        command = "docker ps | grep InfraDB";
+        checkCmdInLoop(command, "healthy");
+    }
+
+    protected static void replaceStringInFile(String filename, String originalString, String newString)
+            throws Exception {
+        Path path = Paths.get(filename);
+
+        String content = new String(Files.readAllBytes(path));
+        content = content.replaceAll(originalString, newString);
+        Files.write(path, content.getBytes());
+    }
+
     private ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command, isRedirectToOut);
         verifyExitValue(result, command);
         logger.info(result.stdout());
         return result;
+    }
+
+    private static void pullDockerImage(String repoServer, String username, String password,
+                                        String imagename, String imagetag) throws Exception {
+
+        ExecCommand.exec("docker login " + repoServer + " -u " + username +
+                " -p " + password);
+        ExecCommand.exec("docker pull " + imagename + ":" + imagetag);
+
+        // verify the docker image is pulled
+        ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +
+                imagetag + "| wc -l");
+        if(Integer.parseInt(result.stdout()) != 1) {
+            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected");
+        }
+    }
+
+    private static void checkCmdInLoop(String cmd, String matchStr)
+            throws Exception {
+        int i = 0;
+        while (i < maxIterations) {
+            ExecResult result = ExecCommand.exec(cmd);
+
+            // pod might not have been created or if created loop till condition
+            if (result.exitValue() != 0
+                    || (result.exitValue() == 0 && !result.stdout().contains(matchStr))) {
+                logger.info("Output for " + cmd + "\n" + result.stdout() + "\n " + result.stderr());
+                // check for last iteration
+                if (i == (maxIterations - 1)) {
+                    throw new RuntimeException(
+                            "FAILURE: " + cmd + " does not return the expected string " + matchStr + ", exiting!");
+                }
+                logger.info(
+                        "Waiting for the expected String " + matchStr
+                                + ": Ite ["
+                                + i
+                                + "/"
+                                + maxIterations
+                                + "], sleeping "
+                                + waitTime
+                                + " seconds more");
+
+                Thread.sleep(waitTime * 1000);
+                i++;
+            } else {
+                logger.info("get the expected String " + matchStr);
+                break;
+            }
+        }
     }
 }

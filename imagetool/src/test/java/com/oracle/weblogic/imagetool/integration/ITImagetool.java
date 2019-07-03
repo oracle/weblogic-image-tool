@@ -34,10 +34,11 @@ public class ITImagetool extends BaseTest {
     private static final String OPATCH_VERSION = "13.9.4.0.0";
     private static final String JDK_VERSION = "8u202";
     private static final String JDK_VERSION_8u212 = "8u212";
-    private static final String WDT_VERSION = "1.1.1";
+    private static final String WDT_VERSION = "1.1.2";
     private static final String WDT_ARCHIVE = "archive.zip";
     private static final String WDT_VARIABLES = "domain.properties";
     private static final String WDT_MODEL = "simple-topology.yaml";
+    private static final String WDT_MODEL1 = "simple-topology1.yaml";
 
     @BeforeClass
     public static void staticPrepare() throws Exception {
@@ -49,7 +50,7 @@ public class ITImagetool extends BaseTest {
 
         setup();
         // pull base OS docker image used for test
-        pullDockerImage();
+        pullBaseOSDockerImage();
 
         // download the installers for the test
         downloadInstallers(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER,
@@ -367,6 +368,62 @@ public class ITImagetool extends BaseTest {
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221 +
                 " --tag imagetool:" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
+        logger.info("Executing command: " + command);
+        ExecCommand.exec(command, true);
+
+        // verify the docker image is created
+        verifyDockerImages(testMethodName);
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * create a JRF domain image using WDT
+     * You need to have OCR credentials to pull container-registry.oracle.com/database/enterprise:12.2.0.1-slim
+     * @throws Exception
+     */
+    @Test
+    public void testDCreateJRFDomainImgUsingWDT() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        // pull oracle db image
+        pullOracleDBDockerImage();
+
+        // create a db container for RCU
+        createDBContainer();
+
+        // add WDT installer to the cache
+        String wdtPath = getInstallerCacheDir() + FS + WDT_INSTALLER;
+        addInstallerToCache("wdt", WDT_VERSION, wdtPath);
+
+        // add FMW installer to the cache
+        String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER;
+        addInstallerToCache("fmw", WLS_VERSION, fmwPath);
+
+        // add jdk installer to the cache
+        String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
+        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
+
+        // build the wdt archive
+        buildWDTArchive();
+
+        String wdtArchive = getWDTResourcePath() + FS + WDT_ARCHIVE;
+        String wdtModel = getWDTResourcePath() + FS + WDT_MODEL1;
+
+        // update wdt model file
+        String host = System.getenv("HOST");
+        if (host == null) {
+            throw new Exception("There is no HOST environment variable defined");
+        }
+        replaceStringInFile(wdtModel, "%DB_HOST%", host);
+
+        String command = imagetool + " create --fromImage " +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION +
+                " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
+                wdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
+
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
 
