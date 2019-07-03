@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,7 +90,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * @return list of strings
      * @throws Exception in case of error
      */
-    List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
+    List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
         logger.finer("Entering ImageOperation.handlePatchFiles");
         List<String> retVal = new LinkedList<>();
         List<String> patchLocations = new LinkedList<>();
@@ -130,7 +131,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
         if (!patchLocations.isEmpty()) {
             retVal.add(Constants.BUILD_ARG);
-            retVal.add("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
+            retVal.add("PATCHDIR=" + Paths.get(tmpDir).relativize(tmpPatchesDir).toString());
             dockerfileOptions.setPatchingEnabled();
         }
         logger.finer("Exiting ImageOperation.handlePatchFiles");
@@ -173,6 +174,20 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         return cmdBuilder;
     }
 
+    public String getTempDirectory() throws IOException {
+        Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
+                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+        String pathAsString = tmpDir.toAbsolutePath().toString();
+        logger.info("tmp directory used for docker build context: " + pathAsString);
+        return pathAsString;
+    }
+
+    public Path createPatchesTempDirectory(String tmpDir) throws IOException {
+        Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDir, "patches"));
+        Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
+        return tmpPatchesDir;
+    }
+
     void handleProxyUrls() throws IOException {
         httpProxyUrl = Utils.findProxyUrl(httpProxyUrl, Constants.HTTP);
         httpsProxyUrl = Utils.findProxyUrl(httpsProxyUrl, Constants.HTTPS);
@@ -180,7 +195,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         Utils.setProxyIfRequired(httpProxyUrl, httpsProxyUrl, nonProxyHosts);
     }
 
-    void addOPatch1394ToImage(Path tmpDir, String opatchBugNumber) throws Exception {
+    void addOPatch1394ToImage(String tmpDir, String opatchBugNumber) throws Exception {
         // opatch patch now is in the format #####_opatch in the cache store
         // So the version passing to the constructor of PatchFile is also "opatch".
         // since opatch releases is on it's own and there is not really a patch to opatch
@@ -189,7 +204,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String filePath =
                 new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
                         userId, password).resolve(cacheStore);
-        Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
+        Files.copy(Paths.get(filePath), Paths.get(tmpDir, new File(filePath).getName()));
         dockerfileOptions.setOPatchPatchingEnabled();
     }
 
