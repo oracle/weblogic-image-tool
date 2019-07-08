@@ -264,8 +264,10 @@ public class BaseTest {
         // verify the docker image is pulled
         ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +
                 imagetag + "| wc -l");
-        if(Integer.parseInt(result.stdout()) != 1) {
-            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected");
+        String resultString = result.stdout();
+        if(Integer.parseInt(resultString.trim()) != 1) {
+            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected."
+                    + " Expected 1 image, found " + resultString);
         }
     }
 
