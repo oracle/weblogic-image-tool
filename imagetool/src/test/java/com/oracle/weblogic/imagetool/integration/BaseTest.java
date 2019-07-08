@@ -25,6 +25,7 @@ public class BaseTest {
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
     protected static final String ORACLE_DB_IMG = "container-registry.oracle.com/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
+    private static final String DB_CONTAINER_NAME = "InfraDB";
     private static String projectRoot = "";
     protected static String wlsImgBldDir = "";
     protected static String wlsImgCacheDir = "";
@@ -82,6 +83,8 @@ public class BaseTest {
         executeNoVerify(command);
 
         // clean up the docker images
+        command = "docker stop " + DB_CONTAINER_NAME;
+        executeNoVerify(command);
         command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":" +
                 ORACLE_DB_IMG_TAG;
         executeNoVerify(command);
@@ -97,7 +100,8 @@ public class BaseTest {
         String ocir_password = System.getenv("OCIR_PASSWORD");
 
         if(ocir_username == null || ocir_password == null) {
-            throw new Exception("You need to set OCIR_USERNAME and OCIR_PASSWORD environment variable to pull images");
+            throw new Exception("You need to set OCIR_USERNAME and OCIR_PASSWORD environment variable to pull base" +
+                    " OS image " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG);
         }
 
         pullDockerImage(OCIR_SERVER, OCIR_TENENT + "/" + ocir_username , ocir_password, BASE_OS_IMG,
@@ -110,7 +114,8 @@ public class BaseTest {
         String ocr_password = System.getenv("OCR_PASSWORD");
 
         if(ocr_username == null || ocr_password == null) {
-            throw new Exception("You need to set OCR_USERNAME and OCR_PASSWORD environment variable to pull images");
+            throw new Exception("You need to set OCR_USERNAME and OCR_PASSWORD environment variable to pull DB " +
+                    "image " + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG);
         }
 
         pullDockerImage(OCR_SERVER, ocr_username, ocr_password, ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
@@ -123,13 +128,20 @@ public class BaseTest {
             cacheDir.mkdir();
         }
 
+        boolean missingInstaller = false;
+        StringBuffer errorMsg = new StringBuffer();
+        errorMsg.append("The test installers are missing. Please download: \n");
         // check the required installer is downloaded
         for(String installer : installers) {
             File installFile = new File(getInstallerCacheDir() + FS + installer);
             if(!installFile.exists()) {
-                throw new Exception("Please download " + installer + " from oracle support site and put it in " +
-                        getInstallerCacheDir());
+                missingInstaller = true;
+                errorMsg.append( "    " + installer + "\n");
             }
+        }
+        errorMsg.append("and put them in " + getInstallerCacheDir());
+        if(missingInstaller) {
+            throw new Exception(errorMsg.toString());
         }
     }
 
@@ -175,7 +187,7 @@ public class BaseTest {
         // verify the docker image is created
         ExecResult result = ExecCommand.exec("docker images | grep imagetool | grep " + imageTag +
                 "| wc -l");
-        if(Integer.parseInt(result.stdout()) != 1) {
+        if(Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("wls docker image is not created as expected");
         }
     }
@@ -225,15 +237,15 @@ public class BaseTest {
 
     protected void createDBContainer() throws Exception {
         logger.info("Creating an Oracle db docker container ...");
-        String command = "docker rm -f InfraDB";
+        String command = "docker rm -f " + DB_CONTAINER_NAME;
         ExecCommand.exec(command);
-        command = "docker run -d --name InfraDB -p 1521:1521 -p 5500:5500 --env=\"DB_PDB=InfraPDB1\"" +
+        command = "docker run -d --name " + DB_CONTAINER_NAME + " -p 1521:1521 -p 5500:5500 --env=\"DB_PDB=InfraPDB1\"" +
                 " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":" +
                 ORACLE_DB_IMG_TAG;
         ExecCommand.exec(command);
 
         // wait for the db is ready
-        command = "docker ps | grep InfraDB";
+        command = "docker ps | grep " + DB_CONTAINER_NAME;
         checkCmdInLoop(command, "healthy");
     }
 
@@ -264,7 +276,7 @@ public class BaseTest {
         // verify the docker image is pulled
         ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +
                 imagetag + "| wc -l");
-        if(Integer.parseInt(result.stdout()) != 1) {
+        if(Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected");
         }
     }

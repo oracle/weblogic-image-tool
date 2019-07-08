@@ -12,6 +12,10 @@ import org.junit.Test;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ITImagetool extends BaseTest {
@@ -39,6 +43,11 @@ public class ITImagetool extends BaseTest {
     private static final String WDT_VARIABLES = "domain.properties";
     private static final String WDT_MODEL = "simple-topology.yaml";
     private static final String WDT_MODEL1 = "simple-topology1.yaml";
+    private static final String WDT_MODEL2 = "simple-topology2.yaml";
+    private static String oracleSupportUsername;
+    private static String oracleSupportPassword;
+    private static String httpProxy;
+    private static String httpsProxy;
 
     @BeforeClass
     public static void staticPrepare() throws Exception {
@@ -51,16 +60,33 @@ public class ITImagetool extends BaseTest {
         setup();
         // pull base OS docker image used for test
         pullBaseOSDockerImage();
+        // pull oracle db image
+        pullOracleDBDockerImage();
 
         // download the installers for the test
         downloadInstallers(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER,
-                FMW_INSTALLER);
+                FMW_INSTALLER, JDK_INSTALLER_8u212, FMW_INSTALLER_1221, P22987840_INSTALLER);
+
+        // get Oracle support credentials
+        oracleSupportUsername = System.getenv("ORACLE_SUPPORT_USERNAME");
+        oracleSupportPassword = System.getenv("ORACLE_SUPPORT_PASSWORD");
+        if(oracleSupportUsername == null || oracleSupportPassword == null) {
+            throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD" +
+                    " for Oracle Support credentials to download the patches.");
+        }
+
+        // get http proxy
+        httpProxy = System.getenv("HTTP_PROXY");
+        httpsProxy = System.getenv("HTTPS_PROXY");
+        if(httpProxy == null || httpsProxy == null) {
+            throw new Exception("Please set environment variable HTTP_PROXY and HTTPS_PROXY");
+        }
     }
 
     @AfterClass
     public static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
-        cleanup();
+        //cleanup();
     }
 
     /**
@@ -315,19 +341,6 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String user = System.getenv("ORACLE_SUPPORT_USERNAME");
-        String password = System.getenv("ORACLE_SUPPORT_PASSWORD");
-        if(user == null || password == null) {
-            throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD" +
-            " for Oracle Support credentials to download the patches.");
-        }
-
-        String httpProxy = System.getenv("HTTP_PROXY");
-        String httpsProxy = System.getenv("HTTPS_PROXY");
-        if(httpProxy == null || httpsProxy == null) {
-            throw new Exception("Please set environment variable HTTP_PROXY and HTTPS_PROXY");
-        }
-
         // add fmw installer to the cache
         // delete the cache entry if any
         deleteEntryFromCache("fmw_" + WLS_VERSION);
@@ -341,7 +354,7 @@ public class ITImagetool extends BaseTest {
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
         String command = imagetool + " create --version=" + WLS_VERSION + " --tag imagetool:" + testMethodName +
-                " --latestPSU --user " + user + " --passwordEnv ORACLE_SUPPORT_PASSWORD --httpProxyUrl " +
+                " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --httpProxyUrl " +
                 httpProxy + " --httpsProxyUrl " + httpsProxy + " --type fmw";
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
@@ -360,9 +373,6 @@ public class ITImagetool extends BaseTest {
     public void testCCreateFMWImgNonDefault() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
-
-        // download the installers with non default version
-        downloadInstallers(JDK_INSTALLER_8u212, FMW_INSTALLER_1221, P22987840_INSTALLER);
 
         // add fmw installer to the cache
         String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER_1221;
@@ -397,9 +407,6 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        // pull oracle db image
-        pullOracleDBDockerImage();
-
         // create a db container for RCU
         createDBContainer();
 
@@ -426,19 +433,23 @@ public class ITImagetool extends BaseTest {
 
         String wdtArchive = getWDTResourcePath() + FS + WDT_ARCHIVE;
         String wdtModel = getWDTResourcePath() + FS + WDT_MODEL1;
+        String tmpWdtModel = System.getProperty("java.io.tmpdir") + FS + WDT_MODEL1;
 
         // update wdt model file
+        Path source = Paths.get(wdtModel);
+        Path dest = Paths.get(tmpWdtModel);
+        Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
         String host = System.getenv("HOST");
         if (host == null) {
             throw new Exception("There is no HOST environment variable defined");
         }
-        replaceStringInFile(wdtModel, "%DB_HOST%", host);
+        replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
         String command = imagetool + " create --fromImage " +
                 BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
                 " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
-                wdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
+                tmpWdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
 
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
@@ -454,16 +465,9 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testECreateJRFDomainImgUsingWDT() throws Exception {
+    public void testECreateRestricedJRFDomainImgUsingWDT() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
-
-        String user = System.getenv("ORACLE_SUPPORT_USERNAME");
-        String password = System.getenv("ORACLE_SUPPORT_PASSWORD");
-        if(user == null || password == null) {
-            throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD" +
-                    " for Oracle Support credentials to download the patches.");
-        }
 
         // add WDT installer to the cache
         // delete the cache entry if any
@@ -491,10 +495,61 @@ public class ITImagetool extends BaseTest {
         String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
         String command = imagetool + " create --fromImage " +
                 BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
-                " --version " + WLS_VERSION + " --latestPSU --user " + user +
-                " --passwordEnv ORACLE_SUPPORT_PASSWORD " + " --wdtVersion " + WDT_VERSION +
+                " --version " + WLS_VERSION + " --latestPSU --user " + oracleSupportUsername +
+                " --password " + oracleSupportPassword + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
                 wdtModel + " --wdtDomainType RestrictedJRF --type fmw --wdtVariables " + wdtVariables;
+
+        logger.info("Executing command: " + command);
+        ExecCommand.exec(command, true);
+
+        // verify the docker image is created
+        verifyDockerImages(testMethodName);
+
+        logTestEnd(testMethodName);
+    }
+
+    @Test
+    public void testFCreateWLSImgUsingMultiModels() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        // add WDT installer to the cache
+        // delete the cache entry first
+        deleteEntryFromCache("wdt_" + WDT_VERSION);
+        String wdtPath = getInstallerCacheDir() + FS + WDT_INSTALLER;
+        addInstallerToCache("wdt", WDT_VERSION, wdtPath);
+
+        // add WLS installer to the cache
+        // delete the cache entry first
+        deleteEntryFromCache("wls_" + WLS_VERSION);
+        String wlsPath =  getInstallerCacheDir() + FS + WLS_INSTALLER;
+        addInstallerToCache("wls", WLS_VERSION, wlsPath);
+
+        // add jdk installer to the cache
+        // delete the cache entry first
+        deleteEntryFromCache("jdk_" + JDK_VERSION);
+        String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
+        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
+
+        // need to add the required patches 28186730 for Opatch before create wls images
+        // delete the cache entry first
+        deleteEntryFromCache(P28186730_ID + "_opatch");
+        String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
+        addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+
+        // build the wdt archive
+        buildWDTArchive();
+
+        String wdtArchive = getWDTResourcePath() + FS + WDT_ARCHIVE;
+        String wdtModel = getWDTResourcePath() + FS + WDT_MODEL;
+        String wdtModel2 = getWDTResourcePath() + FS + WDT_MODEL2;
+        String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
+        String command = imagetool + " create --fromImage " +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION +
+                " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
+                wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
