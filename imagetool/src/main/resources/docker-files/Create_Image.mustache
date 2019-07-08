@@ -8,9 +8,9 @@ FROM {{baseImage}} as OS_UPDATE
 USER root
 
 {{#useYum}}
-RUN yum -y --downloaddir=$OTMPDIR install gzip tar unzip \
- && yum -y --downloaddir=$OTMPDIR clean all \
- && rm -rf $OTMPDIR
+RUN yum -y --downloaddir={{{tmpDir}}} install gzip tar unzip \
+ && yum -y --downloaddir={{{tmpDir}}} clean all \
+ && rm -rf {{{tmpDir}}}
 {{/useYum}}
 {{#useAptGet}}
 RUN apt-get -y update \
@@ -37,19 +37,17 @@ RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && 
 
 FROM OS_UPDATE as JDK_BUILD
 ARG JAVA_PKG
-ARG OTMPDIR
 
 ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
-    JAVA_HOME={{java_home}} \
-    OTMPDIR=${OTMPDIR:-/tmp/delme}
+    JAVA_HOME={{{java_home}}}
 
-COPY --chown={{userid}}:{{groupid}} $JAVA_PKG $OTMPDIR/
+COPY --chown={{userid}}:{{groupid}} $JAVA_PKG {{{tmpDir}}}/
 
 USER {{userid}}
 
-RUN tar xzf $OTMPDIR/$JAVA_PKG -C /u01 \
- && mv /u01/jdk* {{java_home}} \
- && rm -rf $OTMPDIR
+RUN tar xzf {{{tmpDir}}}/$JAVA_PKG -C /u01 \
+ && mv /u01/jdk* {{{java_home}}} \
+ && rm -rf {{{tmpDir}}}
 
 FROM OS_UPDATE as WLS_BUILD
 ARG WLS_PKG
@@ -57,52 +55,49 @@ ARG INV_LOC
 ARG WLS_RESP
 ARG ORACLE_HOME=/u01/oracle
 ARG ORAINST
-ARG OTMPDIR
 ARG PATCHDIR
 
 ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
-    JAVA_HOME={{java_home}} \
+    JAVA_HOME={{{java_home}}} \
     ORACLE_HOME=${ORACLE_HOME:-/u01/oracle} \
     INV_LOC=${INV_LOC:-/u01/oracle/oraInventory} \
     WLS_RESP=${WLS_RESP:-wls.rsp} \
     ORAINST=${ORAINST:-oraInst.loc} \
-    OTMPDIR=${OTMPDIR:-/tmp/delme} \
     OPATCH_NO_FUSER=true \
     PATCHDIR=${PATCHDIR:-patches}
 
 # Install base WLS
-COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{java_home}} {{java_home}}/
-COPY --chown={{userid}}:{{groupid}} $WLS_PKG $WLS_RESP $OTMPDIR/
+COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+COPY --chown={{userid}}:{{groupid}} $WLS_PKG $WLS_RESP {{{tmpDir}}}/
 COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
 {{#isOpatchPatchingEnabled}}
-COPY --chown=oracle:oracle p28186730_139400_Generic.zip $OTMPDIR/opatch/
+COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
 {{/isOpatchPatchingEnabled}}
 {{#isPatchingEnabled}}
-COPY --chown=oracle:oracle $PATCHDIR/* $OTMPDIR/patches/
+COPY --chown=oracle:oracle $PATCHDIR/* {{{tmpDir}}}/patches/
 {{/isPatchingEnabled}}
 
 USER {{userid}}
 
-RUN unzip $OTMPDIR/$WLS_PKG -d $OTMPDIR \
- && {{java_home}}/bin/java -Xmx1024m -jar $OTMPDIR/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
-    -responseFile $OTMPDIR/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
+RUN unzip {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
+ && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tmpDir}}}/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
+    -responseFile {{{tmpDir}}}/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
 {{#isOpatchPatchingEnabled}}
- && cd $OTMPDIR/opatch \
- && {{java_home}}/bin/jar -xf $OTMPDIR/opatch/p28186730_139400_Generic.zip \
- && {{java_home}}/bin/java -jar $OTMPDIR/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
+ && cd {{{tmpDir}}}/opatch \
+ && {{{java_home}}}/bin/jar -xf {{{tmpDir}}}/opatch/p28186730_139400_Generic.zip \
+ && {{{java_home}}}/bin/java -jar {{{tmpDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
 {{/isOpatchPatchingEnabled}}
 {{#isPatchingEnabled}}
- && $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir $OTMPDIR/patches \
+ && $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
  && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
 {{/isPatchingEnabled}}
- && rm -rf {{java_home}} $OTMPDIR
+ && rm -rf {{{java_home}}} {{{tmpDir}}}
 
 {{#isWdtEnabled}}
 FROM OS_UPDATE as WDT_BUILD
 
 ARG ORACLE_HOME=/u01/oracle
 ARG WDT_PKG
-ARG WDT_MODEL
 ARG DOMAIN_TYPE
 ARG DOMAIN_PARENT
 ARG DOMAIN_HOME
@@ -120,10 +115,9 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     ADMIN_NAME=${ADMIN_NAME:-admin-server} \
     ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
     ADMIN_PORT=${ADMIN_PORT:-7001} \
-    JAVA_HOME={{java_home}} \
+    JAVA_HOME={{{java_home}}} \
     MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
-    WDT_MODEL=${WDT_MODEL:-} \
     WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_TYPE=${DOMAIN_TYPE:-WLS} \
     DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
@@ -133,37 +127,35 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
     WDT_HOME=${WDT_HOME:-/u01/app/weblogic-deploy} \
     SCRIPTS_DIR=${SCRIPTS_DIR:-scripts} \
-    OTMPDIR=${OTMPDIR:-/tmp/delme} \
     RCU_RUN_FLAG=${RCU_RUN_FLAG:-}
 
 # DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME
 ENV DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
-    PATH=$PATH:{{java_home}}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
+    PATH=$PATH:{{{java_home}}}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
 
-COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{java_home}} {{java_home}}/
+COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} $ORACLE_HOME $ORACLE_HOME/
-COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE} ${OTMPDIR}/
+COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{#wdtModels}}{{.}} {{/wdtModels}}${WDT_ARCHIVE} ${WDT_VARIABLE} {{{tmpDir}}}/
 
 USER {{userid}}
 
-RUN unzip $OTMPDIR/$WDT_PKG -d $(dirname $WDT_HOME) \
+RUN unzip -q {{{tmpDir}}}/$WDT_PKG -d $(dirname $WDT_HOME) \
  && mkdir -p $(dirname ${DOMAIN_HOME}) \
  && mkdir -p ${PROPERTIES_FILE_DIR} \
- && if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file ${OTMPDIR}/${WDT_MODEL##*/}"; fi \
- && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file ${OTMPDIR}/${WDT_ARCHIVE##*/}"; fi \
- && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file ${OTMPDIR}/${WDT_VARIABLE##*/}"; fi \
+ && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file {{{tmpDir}}}/${WDT_ARCHIVE##*/}"; fi \
+ && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file {{{tmpDir}}}/${WDT_VARIABLE##*/}"; fi \
  && if [ -n "${RCU_RUN_FLAG}" ]; then RCU_RUN_OPT="-run_rcu"; fi \
  && cd ${WDT_HOME}/bin \
  && ${WDT_HOME}/bin/createDomain.sh \
  -oracle_home ${ORACLE_HOME} \
- -java_home {{java_home}} \
+ -java_home {{{java_home}}} \
  -domain_home ${DOMAIN_HOME} \
  -domain_type ${DOMAIN_TYPE} \
  $RCU_RUN_OPT \
  $VARIABLE_OPT \
- $MODEL_OPT \
+ {{{wdtModelFileArgument}}} \
  $ARCHIVE_OPT \
- && rm -rf {{java_home}} ${ORACLE_HOME} ${WDT_HOME} $OTMPDIR
+ && rm -rf {{{java_home}}} ${ORACLE_HOME} ${WDT_HOME} {{{tmpDir}}}
 {{/isWdtEnabled}}
 
 FROM {{baseImage}} as FINAL_BUILD
@@ -179,7 +171,7 @@ ARG ADMIN_PORT
 ARG MANAGED_SERVER_PORT
 
 ENV ORACLE_HOME=${ORACLE_HOME} \
-    JAVA_HOME={{java_home}} \
+    JAVA_HOME={{{java_home}}} \
 {{#isWdtEnabled}}
     ADMIN_NAME=${ADMIN_NAME:-admin-server} \
     ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
@@ -195,15 +187,15 @@ ENV ORACLE_HOME=${ORACLE_HOME} \
 # DO NOT COMBINE THESE BLOCKS. It won't work when formatting variables like DOMAIN_HOME
 ENV DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
-    PATH=$PATH:{{java_home}}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
+    PATH=$PATH:{{{java_home}}}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
 
 ## Create user and group
 RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd -g 1000 {{groupid}} || exit -1 ; fi \
  && if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -u 1100 -g {{groupid}} {{userid}} || exit -1; fi \
- && mkdir -p $(dirname {{java_home}}) $(dirname $ORACLE_HOME) $(dirname $DOMAIN_HOME) \
- && chown {{userid}}:{{groupid}} $(dirname {{java_home}}) $(dirname $ORACLE_HOME) $(dirname $DOMAIN_HOME)
+ && mkdir -p $(dirname {{{java_home}}}) $(dirname $ORACLE_HOME) $(dirname $DOMAIN_HOME) \
+ && chown {{userid}}:{{groupid}} $(dirname {{{java_home}}}) $(dirname $ORACLE_HOME) $(dirname $DOMAIN_HOME)
 
-COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} $JAVA_HOME {{java_home}}/
+COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} $JAVA_HOME {{{java_home}}}/
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} $ORACLE_HOME $ORACLE_HOME/
 {{#isWdtEnabled}}
 COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} $DOMAIN_HOME $DOMAIN_HOME/

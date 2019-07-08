@@ -23,7 +23,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.DomainType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
@@ -243,8 +242,7 @@ public class CreateImage extends ImageOperation {
                 }
             }
             logger.info("BUILD ARGS");
-            retVal.add(Constants.BUILD_ARG);
-            retVal.add("WDT_MODEL=" + modelCLIList.toString());
+            dockerfileOptions.setWdtModels(modelCLIList.toString());
             if (wdtDomainType != DomainType.WLS) {
                 if (installerType != WLSInstallerType.FMW) {
                     throw new IOException("FMW installer is required for JRF domain");

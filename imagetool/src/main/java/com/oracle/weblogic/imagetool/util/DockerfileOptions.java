@@ -3,6 +3,11 @@
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringJoiner;
+
 public class DockerfileOptions {
 
     boolean useYum = false;
@@ -10,18 +15,33 @@ public class DockerfileOptions {
     boolean useApk = false;
     boolean useZypper = false;
 
-    private boolean useWdt = false;
-    private boolean applyPatches = false;
-    private boolean updateOpatch = false;
-    private String username = "oracle";
-    private String groupname = "oracle";
-    private String javaHome = "/u01/jdk";
-    private String baseImageName = "oraclelinux:7-slim";
+    private boolean useWdt;
+    private boolean applyPatches;
+    private boolean updateOpatch;
+    private String username;
+    private String groupname;
+    private String javaHome;
+    private String tempDirectory;
+    private String baseImageName;
+    private ArrayList<String> wdtModelList;
 
     /**
      * Options to be used with the Mustache template.
      */
     public DockerfileOptions() {
+        wdtModelList = new ArrayList<>();
+
+        useWdt = false;
+        applyPatches = false;
+        updateOpatch = false;
+
+        username = "oracle";
+        groupname = "oracle";
+
+        javaHome = "/u01/jdk";
+        tempDirectory = "/tmp/delme";
+
+        baseImageName = "oraclelinux:7-slim";
     }
 
     /**
@@ -159,6 +179,48 @@ public class DockerfileOptions {
      */
     public boolean isWdtEnabled() {
         return useWdt;
+    }
+
+    /**
+     * If WDT is enabled, and the model is not in the archive, the model file argument must be set.
+     * @param value a model filename, or comma-separated model filenames.
+     */
+    public void setWdtModels(String value) {
+        if (value != null) {
+            wdtModelList.addAll(Arrays.asList(value.split(",")));
+        }
+    }
+
+    /**
+     * Referenced by Dockerfile template, a simple list of model filenames.
+     *
+     * @return a list of Strings with the model filenames.
+     */
+    public List<String> wdtModels() {
+        return wdtModelList;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides the WDT argument for 1..n model files.
+     *
+     * @return model_file argument for WDT command.
+     */
+    public String wdtModelFileArgument() {
+        StringJoiner result = new StringJoiner(",","-model_file ","");
+        result.setEmptyValue("");
+        for (String model : wdtModelList) {
+            result.add(tempDirectory + "/" + model);
+        }
+        return result.toString();
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides temporary location to write/copy files in the Docker image.
+     *
+     * @return the path to the temporary directory.
+     */
+    public String tmpDir() {
+        return tempDirectory;
     }
 
     /**
