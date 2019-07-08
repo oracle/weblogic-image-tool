@@ -277,7 +277,8 @@ public class BaseTest {
         ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +
                 imagetag + "| wc -l");
         if(Integer.parseInt(result.stdout().trim()) != 1) {
-            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected");
+            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected."
+                    + " Expected 1 image, found " + resultString);
         }
     }
 
