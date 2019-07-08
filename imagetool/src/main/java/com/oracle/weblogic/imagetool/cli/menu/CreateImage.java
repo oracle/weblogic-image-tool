@@ -13,11 +13,13 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -219,55 +221,64 @@ public class CreateImage extends ImageOperation {
         List<String> retVal = new LinkedList<>();
         String tmpDirPath = tmpDir.toAbsolutePath().toString();
         if (wdtModelPath != null) {
-            if (Files.isRegularFile(wdtModelPath)) {
-                if (wdtDomainType != DomainType.WLS) {
-                    if (installerType != WLSInstallerType.FMW) {
-                        throw new IOException("FMW installer is required for JRF domain");
+            Path targetLink;
+            List<String> modelFiles = Collections.list(new StringTokenizer(wdtModelPath.toString(), ",")).stream()
+                .map(token -> (String) token)
+                .collect(Collectors.toList());
+            StringBuffer modelCLIList = new StringBuffer();
+
+            for (String modelFile : modelFiles) {
+                logger.info("MODEL " + modelFile);
+                Path filePath = Paths.get(modelFile);
+                if (Files.isRegularFile(filePath)) {
+                    targetLink = Files.copy(filePath, Paths.get(tmpDirPath, filePath.getFileName().toString())
+                    );
+                    if (modelCLIList.length() != 0) {
+                        modelCLIList.append(',');
                     }
-                    retVal.add(Constants.BUILD_ARG);
-                    retVal.add("DOMAIN_TYPE=" + wdtDomainType);
-                    if (runRcu) {
-                        retVal.add(Constants.BUILD_ARG);
-                        retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
-                    }
+                    modelCLIList.append(tmpDir.relativize(targetLink).toString());
+
+                } else {
+                    throw new IOException("WDT model file " + modelFile + " not found");
                 }
-                dockerfileOptions.setWdtEnabled();
-                Path targetLink = Files.copy(wdtModelPath, Paths.get(tmpDirPath, wdtModelPath.getFileName().toString())
+            }
+            logger.info("BUILD ARGS");
+            retVal.add(Constants.BUILD_ARG);
+            retVal.add("WDT_MODEL=" + modelCLIList.toString());
+            if (wdtDomainType != DomainType.WLS) {
+                if (installerType != WLSInstallerType.FMW) {
+                    throw new IOException("FMW installer is required for JRF domain");
+                }
+                retVal.add(Constants.BUILD_ARG);
+                retVal.add("DOMAIN_TYPE=" + wdtDomainType);
+                if (runRcu) {
+                    retVal.add(Constants.BUILD_ARG);
+                    retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
+                }
+            }
+            dockerfileOptions.setWdtEnabled();
+
+            if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
+                targetLink = Files.copy(wdtArchivePath, Paths.get(tmpDirPath,
+                    wdtArchivePath.getFileName().toString())
                 );
                 retVal.add(Constants.BUILD_ARG);
-                retVal.add("WDT_MODEL=" + tmpDir.relativize(targetLink).toString());
-
-                if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
-                    targetLink = Files.copy(wdtArchivePath, Paths.get(tmpDirPath,
-                            wdtArchivePath.getFileName().toString())
-                    );
-                    retVal.add(Constants.BUILD_ARG);
-                    retVal.add("WDT_ARCHIVE=" + tmpDir.relativize(targetLink).toString());
-                }
-
-                if (wdtDomainHome != null) {
-                    retVal.add(Constants.BUILD_ARG);
-                    retVal.add("DOMAIN_HOME=" + wdtDomainHome);
-                }
-
-
-                if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
-                    targetLink = Files.copy(wdtVariablesPath, Paths.get(tmpDirPath,
-                            wdtVariablesPath.getFileName().toString())
-                    );
-                    retVal.add(Constants.BUILD_ARG);
-                    retVal.add("WDT_VARIABLE=" + tmpDir.relativize(targetLink).toString());
-                    retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));
-                }
-
-                Path tmpScriptsDir = Files.createDirectory(Paths.get(tmpDirPath, "scripts"));
-                String toScriptsPath = tmpScriptsDir.toAbsolutePath().toString();
-                Utils.copyResourceAsFile("/container-scripts/startAdminServer.sh", toScriptsPath, true);
-                Utils.copyResourceAsFile("/container-scripts/startManagedServer.sh", toScriptsPath, true);
-                Utils.copyResourceAsFile("/container-scripts/waitForAdminServer.sh", toScriptsPath, true);
-            } else {
-                throw new IOException("WDT model file " + wdtModelPath + " not found");
+                retVal.add("WDT_ARCHIVE=" + tmpDir.relativize(targetLink).toString());
             }
+            if (wdtDomainHome != null) {
+                retVal.add(Constants.BUILD_ARG);
+                retVal.add("DOMAIN_HOME=" + wdtDomainHome);
+            }
+
+            if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
+                targetLink = Files.copy(wdtVariablesPath, Paths.get(tmpDirPath,
+                    wdtVariablesPath.getFileName().toString())
+                );
+                retVal.add(Constants.BUILD_ARG);
+                retVal.add("WDT_VARIABLE=" + tmpDir.relativize(targetLink).toString());
+                retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));
+            }
+            logger.info("GOIND ERH");
         }
         logger.finer("Exiting CreateImage.handleWDTArgsIfRequired: ");
         return retVal;
@@ -307,7 +318,7 @@ public class CreateImage extends ImageOperation {
     private List<InstallerFile> gatherRequiredInstallers() throws Exception {
         logger.finer("Entering CreateImage.gatherRequiredInstallers: ");
         List<InstallerFile> retVal = new LinkedList<>();
-        if (wdtModelPath != null && Files.isRegularFile(wdtModelPath)) {
+        if (wdtModelPath != null) {
             InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
             retVal.add(wdtInstaller);
             addWDTURL(wdtInstaller.getKey());
