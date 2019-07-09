@@ -10,6 +10,10 @@ if [[ -f /etc/os-release ]]; then
   cat /etc/os-release | grep -oE '^VERSION_ID=[\"]?[[:digit:]\.]+[\"]?'
 fi
 
+if [[ ! -z "$JAVA_HOME" ]]; then
+  echo JAVA_HOME="$JAVA_HOME"
+fi
+
 if [[ ! -z "$ORACLE_HOME" ]]; then
   echo ORACLE_HOME="$ORACLE_HOME"
   WLS_TYPE=$(cat $ORACLE_HOME/inventory/registry.xml 2> /dev/null | grep -q 'WebLogic Server for FMW' && printf "fmw")
