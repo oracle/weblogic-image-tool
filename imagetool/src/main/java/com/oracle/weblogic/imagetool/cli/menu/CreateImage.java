@@ -227,7 +227,6 @@ public class CreateImage extends ImageOperation {
             StringBuffer modelCLIList = new StringBuffer();
 
             for (String modelFile : modelFiles) {
-                logger.info("MODEL " + modelFile);
                 Path filePath = Paths.get(modelFile);
                 if (Files.isRegularFile(filePath)) {
                     targetLink = Files.copy(filePath, Paths.get(tmpDirPath, filePath.getFileName().toString())
@@ -241,7 +240,6 @@ public class CreateImage extends ImageOperation {
                     throw new IOException("WDT model file " + modelFile + " not found");
                 }
             }
-            logger.info("BUILD ARGS");
             dockerfileOptions.setWdtModels(modelCLIList.toString());
             if (wdtDomainType != DomainType.WLS) {
                 if (installerType != WLSInstallerType.FMW) {
@@ -276,7 +274,6 @@ public class CreateImage extends ImageOperation {
                 retVal.add("WDT_VARIABLE=" + tmpDir.relativize(targetLink).toString());
                 retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));
             }
-            logger.info("GOIND ERH");
         }
         logger.finer("Exiting CreateImage.handleWDTArgsIfRequired: ");
         return retVal;
