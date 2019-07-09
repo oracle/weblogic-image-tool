@@ -13,7 +13,7 @@ ARG PATCHDIR
 ENV PATCHDIR=${PATCHDIR:-patches} \
     OPATCH_NO_FUSER=true
 
-USER oracle
+USER {{userid}}
 
 {{#isOpatchPatchingEnabled}}
 COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
@@ -24,7 +24,7 @@ RUN cd {{{tmpDir}}}/opatch \
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-COPY --chown=oracle:oracle $PATCHDIR/* {{{tmpDir}}}/patches/
+COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{{tempDir}}}/patches/
 
 RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
  && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \

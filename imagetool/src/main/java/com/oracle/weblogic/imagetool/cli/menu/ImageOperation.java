@@ -8,11 +8,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,6 +64,9 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 return new CommandResponse(-1, "user Oracle support credentials do not match");
             }
         }
+
+        handleChown();
+
         logger.finer("Exiting ImageOperation call ");
         return new CommandResponse(0, null);
     }
@@ -84,7 +90,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * @return list of strings
      * @throws Exception in case of error
      */
-    List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
+    List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
         logger.finer("Entering ImageOperation.handlePatchFiles");
         List<String> retVal = new LinkedList<>();
         List<String> patchLocations = new LinkedList<>();
@@ -125,7 +131,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
         if (!patchLocations.isEmpty()) {
             retVal.add(Constants.BUILD_ARG);
-            retVal.add("PATCHDIR=" + tmpDir.relativize(tmpPatchesDir).toString());
+            retVal.add("PATCHDIR=" + Paths.get(tmpDir).relativize(tmpPatchesDir).toString());
             dockerfileOptions.setPatchingEnabled();
         }
         logger.finer("Exiting ImageOperation.handlePatchFiles");
@@ -168,6 +174,20 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         return cmdBuilder;
     }
 
+    public String getTempDirectory() throws IOException {
+        Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
+                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+        String pathAsString = tmpDir.toAbsolutePath().toString();
+        logger.info("tmp directory used for docker build context: " + pathAsString);
+        return pathAsString;
+    }
+
+    public Path createPatchesTempDirectory(String tmpDir) throws IOException {
+        Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDir, "patches"));
+        Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
+        return tmpPatchesDir;
+    }
+
     void handleProxyUrls() throws IOException {
         httpProxyUrl = Utils.findProxyUrl(httpProxyUrl, Constants.HTTP);
         httpsProxyUrl = Utils.findProxyUrl(httpsProxyUrl, Constants.HTTPS);
@@ -175,7 +195,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         Utils.setProxyIfRequired(httpProxyUrl, httpsProxyUrl, nonProxyHosts);
     }
 
-    void addOPatch1394ToImage(Path tmpDir, String opatchBugNumber) throws Exception {
+    void addOPatch1394ToImage(String tmpDir, String opatchBugNumber) throws Exception {
         // opatch patch now is in the format #####_opatch in the cache store
         // So the version passing to the constructor of PatchFile is also "opatch".
         // since opatch releases is on it's own and there is not really a patch to opatch
@@ -184,9 +204,31 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String filePath =
                 new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
                         userId, password).resolve(cacheStore);
-        Files.copy(Paths.get(filePath), Paths.get(tmpDir.toAbsolutePath().toString(), new File(filePath).getName()));
+        Files.copy(Paths.get(filePath), Paths.get(tmpDir, new File(filePath).getName()));
         dockerfileOptions.setOPatchPatchingEnabled();
     }
+
+    private void handleChown() {
+        if (osUserAndGroup.length != 2) {
+            throw new IllegalArgumentException("--chown value must be a colon separated user and group.  user:group");
+        }
+
+        Pattern p = Pattern.compile("^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$");
+        Matcher usr = p.matcher(osUserAndGroup[0]);
+        if (!usr.matches()) {
+            throw new IllegalArgumentException("--chown must contain a valid Unix username.  No more than 32 characters"
+                    + " and starts with a lowercase character.  Invalid value = " + osUserAndGroup[0]);
+        }
+        Matcher grp = p.matcher(osUserAndGroup[1]);
+        if (!grp.matches()) {
+            throw new IllegalArgumentException("--chown must contain a valid Unix groupid.  No more than 32 characters"
+                    + " and starts with a lowercase character.  Invalid value = " + osUserAndGroup[1]);
+        }
+
+        dockerfileOptions.setUserId(osUserAndGroup[0]);
+        dockerfileOptions.setGroupId(osUserAndGroup[1]);
+    }
+
 
     WLSInstallerType installerType = WLSInstallerType.WLS;
 
@@ -276,6 +318,14 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             hidden = true
     )
     Path dockerLog;
+
+    @Option(
+            names = {"--chown"},
+            split = ":",
+            description = "userid:groupid for JDK/Middleware installs and patches. Default: ${DEFAULT-VALUE}.",
+            defaultValue = "oracle:oracle"
+    )
+    private String[] osUserAndGroup;
 
     @Unmatched
     List<String> unmatchedOptions;

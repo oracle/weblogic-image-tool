@@ -5,10 +5,7 @@ package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -51,8 +48,7 @@ public class UpdateImage extends ImageOperation {
         logger.finer("Entering UpdateImage.call ");
         Instant startTime = Instant.now();
 
-        Path tmpDir = null;
-        Path tmpDir2 = null;
+        String tmpDir = null;
 
         try {
 
@@ -67,13 +63,11 @@ public class UpdateImage extends ImageOperation {
                 dockerfileOptions.setBaseImage(fromImage);
             }
 
-            tmpDir2 = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
-                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-            logger.info("tmp directory in for docker run: " + tmpDir2);
+            tmpDir = getTempDirectory();
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
-                    tmpDir2.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
+                    tmpDir + File.separator + "test-env.sh", true);
 
-            List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir2, fromImage, "test-env.sh");
+            List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
 
             Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
 
@@ -88,7 +82,7 @@ public class UpdateImage extends ImageOperation {
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
 
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
-            String opatchBugNumberVersion = "";
+            String opatchBugNumberVersion;
 
             if (userId == null && password == null) {
                 String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
@@ -166,12 +160,8 @@ public class UpdateImage extends ImageOperation {
                 }
             }
 
-            // create a tmp directory for user.
-            tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
-                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-            String tmpDirPath = tmpDir.toAbsolutePath().toString();
-            Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
-            Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
+            // create a tmp patch directory.
+            Path tmpPatchesDir = createPatchesTempDirectory(tmpDir);
 
             List<String> cmdBuilder = getInitialBuildCmd();
             // resolve required patches
@@ -179,9 +169,9 @@ public class UpdateImage extends ImageOperation {
 
             // create dockerfile
             Utils.writeDockerfile(
-                    tmpDirPath + File.separator + "Dockerfile", "Update_Image.mustache", dockerfileOptions);
+                    tmpDir + File.separator + "Dockerfile", "Update_Image.mustache", dockerfileOptions);
             // add directory to pass the context
-            cmdBuilder.add(tmpDirPath);
+            cmdBuilder.add(tmpDir);
 
             logger.info("docker cmd = " + String.join(" ", cmdBuilder));
             Utils.runDockerCommand(isCLIMode, cmdBuilder, dockerLog);
@@ -190,7 +180,6 @@ public class UpdateImage extends ImageOperation {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
             Utils.deleteFilesRecursively(tmpDir);
-            Utils.deleteFilesRecursively(tmpDir2);
         }
         Instant endTime = Instant.now();
         logger.finer("Exiting UpdateImage.call ");
@@ -200,7 +189,7 @@ public class UpdateImage extends ImageOperation {
     }
 
     @Override
-    List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
+    List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
         if (opatchRequired) {
             addOPatch1394ToImage(tmpDir, opatchBugNumber);
         }

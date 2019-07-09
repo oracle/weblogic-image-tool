@@ -232,4 +232,23 @@ public class DockerfileOptions {
         useWdt = true;
         return this;
     }
+
+    /**
+     * Referenced by Dockerfile template, provides location where installers should write their temporary files.
+     *
+     * @return the full path to the temporary directory that should be used.
+     */
+    public String tempDir() {
+        return tempDirectory;
+    }
+
+    /**
+     * The location where installers should write their temporary files.
+     *
+     * @param value  the full path to the temporary directory that should be used.
+     */
+    public void setTempDirectory(String value) {
+
+        tempDirectory = value;
+    }
 }

@@ -30,8 +30,8 @@ RUN zypper -nq update \
 {{/useZypper}}
 
 ## Create user and group
-RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd -g 1000 {{groupid}} || exit -1 ; fi \
- && if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -u 1100 -g {{groupid}} {{userid}} || exit -1; fi \
+RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd {{groupid}} || exit -1 ; fi \
+ && if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -g {{groupid}} {{userid}} || exit -1; fi \
  && mkdir /u01 \
  && chown {{userid}}:{{groupid}} /u01
 
@@ -190,8 +190,8 @@ ENV DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
     PATH=$PATH:{{{java_home}}}/bin:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
 
 ## Create user and group
-RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd -g 1000 {{groupid}} || exit -1 ; fi \
- && if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -u 1100 -g {{groupid}} {{userid}} || exit -1; fi \
+RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd {{groupid}} || exit -1 ; fi \
+ && if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -g {{groupid}} {{userid}} || exit -1; fi \
  && mkdir -p $(dirname {{{java_home}}}) $(dirname $ORACLE_HOME) $(dirname $DOMAIN_HOME) \
  && chown {{userid}}:{{groupid}} $(dirname {{{java_home}}}) $(dirname $ORACLE_HOME) $(dirname $DOMAIN_HOME)
 

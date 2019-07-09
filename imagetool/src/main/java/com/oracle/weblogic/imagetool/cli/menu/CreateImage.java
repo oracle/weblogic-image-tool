@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -59,8 +58,7 @@ public class CreateImage extends ImageOperation {
         logger.finer("Entering CreateImage call ");
         Instant startTime = Instant.now();
 
-        Path tmpDir = null;
-        Path tmpDir2 = null;
+        String tmpDir = null;
 
         try {
 
@@ -70,13 +68,7 @@ public class CreateImage extends ImageOperation {
             }
 
             List<String> cmdBuilder = getInitialBuildCmd();
-            tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()),
-                    "wlsimgbuilder_temp",
-                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-            String tmpDirPath = tmpDir.toAbsolutePath().toString();
-            logger.info("tmp directory used for build context: " + tmpDirPath);
-            Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDirPath, "patches"));
-            Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
+            tmpDir = getTempDirectory();
 
             // this handles wls, jdk and wdt install files.
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
@@ -90,7 +82,7 @@ public class CreateImage extends ImageOperation {
                 dockerfileOptions.setBaseImage(fromImage);
 
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
-                        tmpDir.toAbsolutePath().toString() + File.separator + "test-env.sh", true);
+                        tmpDir + File.separator + "test-env.sh", true);
 
                 List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
@@ -113,20 +105,20 @@ public class CreateImage extends ImageOperation {
             }
 
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(handleWDTArgsIfRequired(tmpDir));
+            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir));
 
             // resolve required patches
-            cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
+            cmdBuilder.addAll(handlePatchFiles(tmpDir, createPatchesTempDirectory(tmpDir)));
 
             // Copy wls response file to tmpDir
-            copyResponseFilesToDir(tmpDirPath);
+            copyResponseFilesToDir(tmpDir);
 
             // Create Dockerfile
-            Utils.writeDockerfile(tmpDirPath + File.separator + "Dockerfile", "Create_Image.mustache",
+            Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile", "Create_Image.mustache",
                     dockerfileOptions);
 
             // add directory to pass the context
-            cmdBuilder.add(tmpDirPath);
+            cmdBuilder.add(tmpDir);
             logger.info("docker cmd = " + String.join(" ", cmdBuilder));
             Utils.runDockerCommand(isCLIMode, cmdBuilder, dockerLog);
         } catch (Exception ex) {
@@ -148,19 +140,18 @@ public class CreateImage extends ImageOperation {
      * @return list of strings
      * @throws Exception in case of error
      */
-    private List<String> handleInstallerFiles(Path tmpDir) throws Exception {
+    private List<String> handleInstallerFiles(String tmpDir) throws Exception {
 
-        logger.finer("Entering CreateImage.handleInstallerFiles: " + tmpDir.toAbsolutePath().toString());
+        logger.finer("Entering CreateImage.handleInstallerFiles: " + tmpDir);
         List<String> retVal = new LinkedList<>();
-        String tmpDirPath = tmpDir.toAbsolutePath().toString();
         List<InstallerFile> requiredInstallers = gatherRequiredInstallers();
-        for (InstallerFile eachInstaller : requiredInstallers) {
-            String targetFilePath = eachInstaller.resolve(cacheStore);
-            logger.finer("Entering CreateImage.handleInstallerFiles targetFilePath: " + targetFilePath);
-            File targetFile = new File(targetFilePath);
+        for (InstallerFile installerFile : requiredInstallers) {
+            String targetFilePath = installerFile.resolve(cacheStore);
+            logger.finer("CreateImage.handleInstallerFiles copying targetFilePath: " + targetFilePath);
+            String filename = new File(targetFilePath).getName();
             try {
-                Path targetLink = Files.copy(Paths.get(targetFilePath), Paths.get(tmpDirPath, targetFile.getName()));
-                retVal.addAll(eachInstaller.getBuildArg(tmpDir.relativize(targetLink).toString()));
+                Files.copy(Paths.get(targetFilePath), Paths.get(tmpDir, filename));
+                retVal.addAll(installerFile.getBuildArg(filename));
             } catch (Exception ee) {
                 ee.printStackTrace();
             }
@@ -170,8 +161,8 @@ public class CreateImage extends ImageOperation {
     }
 
     @Override
-    List<String> handlePatchFiles(Path tmpDir, Path tmpPatchesDir) throws Exception {
-        logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir.toAbsolutePath().toString());
+    List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
+        logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir);
         if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion,
                 Constants.DEFAULT_WLS_VERSION) == 0) {
             addOPatch1394ToImage(tmpDir, opatchBugNumber);
@@ -215,10 +206,9 @@ public class CreateImage extends ImageOperation {
      * @return list of build args
      * @throws IOException in case of error
      */
-    private List<String> handleWDTArgsIfRequired(Path tmpDir) throws IOException {
-        logger.finer("Entering CreateImage.handleWDTArgsIfRequired: " + tmpDir.toAbsolutePath().toString());
+    private List<String> handleWdtArgsIfRequired(String tmpDir) throws IOException {
+        logger.finer("Entering CreateImage.handleWdtArgsIfRequired: " + tmpDir);
         List<String> retVal = new LinkedList<>();
-        String tmpDirPath = tmpDir.toAbsolutePath().toString();
         if (wdtModelPath != null) {
             Path targetLink;
             List<String> modelFiles = Collections.list(new StringTokenizer(wdtModelPath.toString(), ",")).stream()
@@ -275,7 +265,7 @@ public class CreateImage extends ImageOperation {
                 retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));
             }
         }
-        logger.finer("Exiting CreateImage.handleWDTArgsIfRequired: ");
+        logger.finer("Exiting CreateImage.handleWdtArgsIfRequired: ");
         return retVal;
     }
 
@@ -286,8 +276,8 @@ public class CreateImage extends ImageOperation {
      * @return list of build args
      * @throws IOException in case of error
      */
-    private List<String> getWDTRequiredBuildArgs(Path wdtVariablesPath) throws IOException {
-        logger.finer("Entering CreateImage.getWDTRequiredBuildArgs: " + wdtVariablesPath.toAbsolutePath().toString());
+    private List<String> getWdtRequiredBuildArgs(Path wdtVariablesPath) throws IOException {
+        logger.finer("Entering CreateImage.getWdtRequiredBuildArgs: " + wdtVariablesPath.toAbsolutePath().toString());
         List<String> retVal = new LinkedList<>();
         Properties variableProps = new Properties();
         variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
@@ -299,7 +289,7 @@ public class CreateImage extends ImageOperation {
             retVal.add(Constants.BUILD_ARG);
             retVal.add(((String) x).toUpperCase() + "=" + variableProps.getProperty((String) x));
         });
-        logger.finer("Exiting CreateImage.getWDTRequiredBuildArgs: ");
+        logger.finer("Exiting CreateImage.getWdtRequiredBuildArgs: ");
         return retVal;
     }
 
@@ -316,7 +306,7 @@ public class CreateImage extends ImageOperation {
         if (wdtModelPath != null) {
             InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
             retVal.add(wdtInstaller);
-            addWDTURL(wdtInstaller.getKey());
+            addWdtUrl(wdtInstaller.getKey());
         }
         retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
                 userId, password));
@@ -333,9 +323,9 @@ public class CreateImage extends ImageOperation {
      * @param wdtKey key in the format wdt_0.17
      * @throws Exception in case of error
      */
-    private void addWDTURL(String wdtKey) throws Exception {
+    private void addWdtUrl(String wdtKey) throws Exception {
         logger.finer("Entering CreateImage.wdtKey: ");
-        String wdtURLKey = wdtKey + "_url";
+        String wdtUrlKey = wdtKey + "_url";
         if (cacheStore.getValueFromCache(wdtKey) == null) {
             if (userId == null || password == null) {
                 throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
@@ -346,7 +336,7 @@ public class CreateImage extends ImageOperation {
             if (wdtTags.contains(tagToMatch)) {
                 String downloadLink = String.format(Constants.WDT_URL_FORMAT, tagToMatch);
                 logger.info("WDT Download link = " + downloadLink);
-                cacheStore.addToCache(wdtURLKey, downloadLink);
+                cacheStore.addToCache(wdtUrlKey, downloadLink);
             } else {
                 throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
             }
