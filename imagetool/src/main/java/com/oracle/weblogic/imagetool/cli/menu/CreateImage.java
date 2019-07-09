@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -84,10 +85,18 @@ public class CreateImage extends ImageOperation {
 
                 List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
-                baseImageProperties.keySet().forEach(x -> logger.info(
-                        x + "=" + baseImageProperties.getProperty(x.toString())));
+                if (logger.isLoggable(Level.FINE)) {
+                    baseImageProperties.keySet().forEach(x -> logger.fine("ENV(" + fromImage + "): "
+                            + x + "=" + baseImageProperties.getProperty(x.toString())));
+                }
 
                 boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
+
+                String existingJavaHome = baseImageProperties.getProperty("JAVA_HOME", null);
+                if (existingJavaHome != null) {
+                    dockerfileOptions.disableJavaInstall(existingJavaHome);
+                    logger.info("JAVA_HOME detected in base image, skipping JDK install: " + existingJavaHome);
+                }
 
                 if (ohAlreadyExists) {
                     return new CommandResponse(-1,
