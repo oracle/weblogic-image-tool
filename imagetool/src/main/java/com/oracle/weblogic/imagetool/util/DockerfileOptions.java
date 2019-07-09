@@ -207,9 +207,9 @@ public class DockerfileOptions {
      * If WDT is enabled, and the model is not in the archive, the model file argument must be set.
      * @param value a model filename, or comma-separated model filenames.
      */
-    public void setWdtModels(String value) {
+    public void setWdtModels(List<String> value) {
         if (value != null) {
-            wdtModelList.addAll(Arrays.asList(value.split(",")));
+            wdtModelList.addAll(value);
         }
     }
 

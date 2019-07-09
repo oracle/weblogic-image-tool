@@ -12,14 +12,11 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -223,23 +220,20 @@ public class CreateImage extends ImageOperation {
         List<String> retVal = new LinkedList<>();
         if (wdtModelPath != null) {
             String[] modelFiles = wdtModelPath.toString().split(",");
-            StringBuilder modelList = new StringBuilder();
+            List<String> modelList = new ArrayList<>();
 
             for (String modelFile : modelFiles) {
-                Path filePath = Paths.get(modelFile);
-                if (Files.isRegularFile(filePath)) {
-                    Files.copy(filePath, Paths.get(tmpDir, filePath.getFileName().toString())
-                    );
-                    if (modelList.length() != 0) {
-                        modelList.append(',');
-                    }
-                    modelList.append(filePath.toString());
-
+                Path modelFilePath = Paths.get(modelFile);
+                if (Files.isRegularFile(modelFilePath)) {
+                    String modelFilename = modelFilePath.getFileName().toString();
+                    Files.copy(modelFilePath, Paths.get(tmpDir, modelFilename));
+                    modelList.add(modelFilename);
                 } else {
                     throw new IOException("WDT model file " + modelFile + " not found");
                 }
             }
-            dockerfileOptions.setWdtModels(modelList.toString());
+            dockerfileOptions.setWdtModels(modelList);
+
             if (wdtDomainType != DomainType.WLS) {
                 if (installerType != WLSInstallerType.FMW) {
                     throw new IOException("FMW installer is required for JRF domain");
