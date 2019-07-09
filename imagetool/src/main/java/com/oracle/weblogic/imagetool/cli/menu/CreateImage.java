@@ -12,12 +12,14 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -132,7 +134,9 @@ public class CreateImage extends ImageOperation {
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
-            Utils.deleteFilesRecursively(tmpDir);
+            if (cleanup) {
+                Utils.deleteFilesRecursively(tmpDir);
+            }
         }
         Instant endTime = Instant.now();
         logger.finer("Exiting CreateImage call ");
@@ -218,26 +222,24 @@ public class CreateImage extends ImageOperation {
         logger.finer("Entering CreateImage.handleWdtArgsIfRequired: " + tmpDir);
         List<String> retVal = new LinkedList<>();
         if (wdtModelPath != null) {
-            List<String> modelFiles = Collections.list(new StringTokenizer(wdtModelPath.toString(), ",")).stream()
-                .map(token -> (String) token)
-                .collect(Collectors.toList());
-            StringBuffer modelCLIList = new StringBuffer();
+            String[] modelFiles = wdtModelPath.toString().split(",");
+            StringBuilder modelList = new StringBuilder();
 
             for (String modelFile : modelFiles) {
                 Path filePath = Paths.get(modelFile);
                 if (Files.isRegularFile(filePath)) {
                     Files.copy(filePath, Paths.get(tmpDir, filePath.getFileName().toString())
                     );
-                    if (modelCLIList.length() != 0) {
-                        modelCLIList.append(',');
+                    if (modelList.length() != 0) {
+                        modelList.append(',');
                     }
-                    modelCLIList.append(filePath.toString());
+                    modelList.append(filePath.toString());
 
                 } else {
                     throw new IOException("WDT model file " + modelFile + " not found");
                 }
             }
-            dockerfileOptions.setWdtModels(modelCLIList.toString());
+            dockerfileOptions.setWdtModels(modelList.toString());
             if (wdtDomainType != DomainType.WLS) {
                 if (installerType != WLSInstallerType.FMW) {
                     throw new IOException("FMW installer is required for JRF domain");

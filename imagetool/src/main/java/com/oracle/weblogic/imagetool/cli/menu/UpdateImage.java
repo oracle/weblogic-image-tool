@@ -179,7 +179,9 @@ public class UpdateImage extends ImageOperation {
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
-            Utils.deleteFilesRecursively(tmpDir);
+            if (cleanup) {
+                Utils.deleteFilesRecursively(tmpDir);
+            }
         }
         Instant endTime = Instant.now();
         logger.finer("Exiting UpdateImage.call ");

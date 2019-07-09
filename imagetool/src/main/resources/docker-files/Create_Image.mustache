@@ -83,7 +83,7 @@ COPY --chown=oracle:oracle $PATCHDIR/* {{{tmpDir}}}/patches/
 
 USER {{userid}}
 
-RUN unzip {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
+RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tmpDir}}}/fmw_*.jar -silent ORACLE_HOME=$ORACLE_HOME \
     -responseFile {{{tmpDir}}}/$WLS_RESP -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
 {{#isOpatchPatchingEnabled}}

@@ -319,6 +319,15 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     )
     Path dockerLog;
 
+
+    @Option(
+            names = {"--cleanup"},
+            description = "Cleanup temporary files. Default: ${DEFAULT-VALUE}.",
+            defaultValue = "true",
+            hidden = true
+    )
+    boolean cleanup;
+
     @Option(
             names = {"--chown"},
             split = ":",
