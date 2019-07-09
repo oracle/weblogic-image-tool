@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -86,10 +87,18 @@ public class CreateImage extends ImageOperation {
 
                 List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
                 Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
-                baseImageProperties.keySet().forEach(x -> logger.info(
-                        x + "=" + baseImageProperties.getProperty(x.toString())));
+                if (logger.isLoggable(Level.FINE)) {
+                    baseImageProperties.keySet().forEach(x -> logger.fine("ENV(" + fromImage + "): "
+                            + x + "=" + baseImageProperties.getProperty(x.toString())));
+                }
 
                 boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
+
+                String existingJavaHome = baseImageProperties.getProperty("JAVA_HOME", null);
+                if (existingJavaHome != null) {
+                    dockerfileOptions.disableJavaInstall(existingJavaHome);
+                    logger.info("JAVA_HOME detected in base image, skipping JDK install: " + existingJavaHome);
+                }
 
                 if (ohAlreadyExists) {
                     return new CommandResponse(-1,
@@ -210,7 +219,6 @@ public class CreateImage extends ImageOperation {
         logger.finer("Entering CreateImage.handleWdtArgsIfRequired: " + tmpDir);
         List<String> retVal = new LinkedList<>();
         if (wdtModelPath != null) {
-            Path targetLink;
             List<String> modelFiles = Collections.list(new StringTokenizer(wdtModelPath.toString(), ",")).stream()
                 .map(token -> (String) token)
                 .collect(Collectors.toList());
@@ -219,12 +227,12 @@ public class CreateImage extends ImageOperation {
             for (String modelFile : modelFiles) {
                 Path filePath = Paths.get(modelFile);
                 if (Files.isRegularFile(filePath)) {
-                    targetLink = Files.copy(filePath, Paths.get(tmpDirPath, filePath.getFileName().toString())
+                    Files.copy(filePath, Paths.get(tmpDir, filePath.getFileName().toString())
                     );
                     if (modelCLIList.length() != 0) {
                         modelCLIList.append(',');
                     }
-                    modelCLIList.append(tmpDir.relativize(targetLink).toString());
+                    modelCLIList.append(filePath.toString());
 
                 } else {
                     throw new IOException("WDT model file " + modelFile + " not found");
@@ -245,11 +253,10 @@ public class CreateImage extends ImageOperation {
             dockerfileOptions.setWdtEnabled();
 
             if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
-                targetLink = Files.copy(wdtArchivePath, Paths.get(tmpDirPath,
-                    wdtArchivePath.getFileName().toString())
-                );
+                String wdtArchiveFilename = wdtArchivePath.getFileName().toString();
+                Files.copy(wdtArchivePath, Paths.get(tmpDir, wdtArchiveFilename));
                 retVal.add(Constants.BUILD_ARG);
-                retVal.add("WDT_ARCHIVE=" + tmpDir.relativize(targetLink).toString());
+                retVal.add("WDT_ARCHIVE=" + wdtArchiveFilename);
             }
             if (wdtDomainHome != null) {
                 retVal.add(Constants.BUILD_ARG);
@@ -257,12 +264,11 @@ public class CreateImage extends ImageOperation {
             }
 
             if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
-                targetLink = Files.copy(wdtVariablesPath, Paths.get(tmpDirPath,
-                    wdtVariablesPath.getFileName().toString())
-                );
+                String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
+                Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
                 retVal.add(Constants.BUILD_ARG);
-                retVal.add("WDT_VARIABLE=" + tmpDir.relativize(targetLink).toString());
-                retVal.addAll(getWDTRequiredBuildArgs(wdtVariablesPath));
+                retVal.add("WDT_VARIABLE=" + wdtVariableFilename);
+                retVal.addAll(getWdtRequiredBuildArgs(wdtVariablesPath));
             }
         }
         logger.finer("Exiting CreateImage.handleWdtArgsIfRequired: ");

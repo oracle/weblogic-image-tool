@@ -18,6 +18,8 @@ public class DockerfileOptions {
     private boolean useWdt;
     private boolean applyPatches;
     private boolean updateOpatch;
+    private boolean skipJavaInstall;
+
     private String username;
     private String groupname;
     private String javaHome;
@@ -34,6 +36,7 @@ public class DockerfileOptions {
         useWdt = false;
         applyPatches = false;
         updateOpatch = false;
+        skipJavaInstall = false;
 
         username = "oracle";
         groupname = "oracle";
@@ -132,6 +135,25 @@ public class DockerfileOptions {
      */
     public void setJavaHome(String value) {
         javaHome = value;
+    }
+
+    /**
+     * Disable the Java installation because Java is already installed.
+     *
+     * @param javaHome the JAVA_HOME from the base image.
+     */
+    public void disableJavaInstall(String javaHome) {
+        this.javaHome = javaHome;
+        skipJavaInstall = true;
+    }
+
+    /**
+     * Referenced by Dockerfile template, for enabling JDK install function.
+     *
+     * @return true if Java should be installed.
+     */
+    public boolean installJava() {
+        return !skipJavaInstall;
     }
 
     /**
