@@ -10,7 +10,7 @@ topology:
         cluster1:
             ClientCertProxyEnabled: true
             DynamicServers:
-                ServerTemplate: template1
+                ServerTemplate: template2
                 CalculatedListenPorts: false
                 ServerNamePrefix: 'ms-'
                 DynamicClusterSize: 2
@@ -25,5 +25,5 @@ topology:
                     PublicAddress: kubernetes
                     PublicPort: 30012
     ServerTemplate:
-        template1:
-            ListenPort: 8001
+        template2:
+            ListenPort: 9001
