@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 public class BaseTest {
 
     protected static final Logger logger = Logger.getLogger(ITImagetool.class.getName());
-    protected static final String VERSION = "1.0.1";
     protected static final String PS = File.pathSeparator;
     protected static final String FS = File.separator;
     private static final String OCIR_SERVER = "phx.ocir.io";
@@ -50,7 +49,7 @@ public class BaseTest {
             wlsImgCacheDir = System.getenv("HOME") + FS + "cache";
         }
 
-        imagetoolZipfile = "imagetool-" + VERSION + "-SNAPSHOT.zip";
+        imagetoolZipfile = getImagetoolZipfile();
 
         imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file=" +
                 getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
@@ -153,8 +152,10 @@ public class BaseTest {
         return getProjectRoot() + FS + "target";
     }
 
-    protected static String getImagetoolHome() {
-        return getProjectRoot() + FS + "imagetool-" + VERSION + "-SNAPSHOT";
+    protected static String getImagetoolHome() throws Exception {
+        int endIndex = getImagetoolZipfile().length() - 4;
+        String imagetooldir = getImagetoolZipfile().substring(0, endIndex);
+        return getProjectRoot() + FS + imagetooldir;
     }
 
     protected static String getInstallerCacheDir() {
@@ -315,5 +316,15 @@ public class BaseTest {
                 break;
             }
         }
+    }
+
+    private static String getImagetoolZipfile() throws Exception {
+        final File targetDir = new File(getTargetDir());
+        for (final File f : targetDir.listFiles()) {
+            if (f.isFile() && f.getName().endsWith("SNAPSHOT.zip")) {
+                return f.getName();
+            }
+        }
+        return null;
     }
 }
