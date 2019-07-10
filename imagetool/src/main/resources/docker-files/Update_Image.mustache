@@ -16,17 +16,17 @@ ENV PATCHDIR=${PATCHDIR:-patches} \
 USER {{userid}}
 
 {{#isOpatchPatchingEnabled}}
-COPY --chown={{userid}}:{{groupid}} p28186730_139400_Generic.zip {{tempDir}}/opatch/
-RUN cd {{tempDir}}/opatch \
- && $JAVA_HOME/bin/jar -xf {{tempDir}}/opatch/p28186730_139400_Generic.zip \
- && $JAVA_HOME/bin/java -jar {{tempDir}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
- && rm -rf {{tempDir}}
+COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
+RUN cd {{{tmpDir}}}/opatch \
+ && $JAVA_HOME/bin/jar -xf {{{tmpDir}}}/opatch/p28186730_139400_Generic.zip \
+ && $JAVA_HOME/bin/java -jar {{{tmpDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
+ && rm -rf {{{tmpDir}}}
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{tempDir}}/patches/
+COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{{tempDir}}}/patches/
 
-RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{tempDir}}/patches \
+RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
  && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
- && rm -rf {{tempDir}}
+ && rm -rf {{{tmpDir}}}
 {{/isPatchingEnabled}}

@@ -86,7 +86,7 @@ public class ITImagetool extends BaseTest {
     @AfterClass
     public static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
-        //cleanup();
+        cleanup();
     }
 
     /**
