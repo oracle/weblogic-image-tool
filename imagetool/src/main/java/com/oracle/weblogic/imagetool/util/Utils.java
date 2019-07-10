@@ -587,7 +587,7 @@ public class Utils {
                         new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
 
         if (!pathExists) {
-            throw new IOException("Cache Directory does not exists " + cacheDir);
+            Files.createDirectory(path);
         } else {
             if (!Files.isDirectory(path)) {
                 throw new IOException("Cache Directory specified is not a directory " + cacheDir);
