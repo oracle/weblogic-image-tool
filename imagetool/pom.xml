@@ -140,6 +140,12 @@
                     <argLine> 
                         -Xmx1024m -XX:MaxPermSize=256m
                     </argLine>
+                    <systemProperties>
+                        <property>
+                            <name>imagetoolversion</name>
+                            <value>${project.version}</value>
+                        </property>
+                    </systemProperties>
                 </configuration>
                 <executions>
                     <execution>
