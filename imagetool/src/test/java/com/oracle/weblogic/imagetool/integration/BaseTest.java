@@ -32,6 +32,8 @@ public class BaseTest {
     private static String imagetoolZipfile = "";
     private static int maxIterations = 50;
     private static int waitTime = 5;
+    private static String IMAGETOOLZIPFILE_PREFIX = "imagetool-";
+    private static String IMAGETOOLZIPFILE_SUFFIX = ".zip";
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -153,7 +155,7 @@ public class BaseTest {
     }
 
     protected static String getImagetoolHome() throws Exception {
-        int endIndex = getImagetoolZipfile().length() - 4;
+        int endIndex = getImagetoolZipfile().length() - IMAGETOOLZIPFILE_SUFFIX.length();
         String imagetooldir = getImagetoolZipfile().substring(0, endIndex);
         return getProjectRoot() + FS + imagetooldir;
     }
@@ -319,12 +321,7 @@ public class BaseTest {
     }
 
     private static String getImagetoolZipfile() throws Exception {
-        final File targetDir = new File(getTargetDir());
-        for (final File f : targetDir.listFiles()) {
-            if (f.isFile() && f.getName().endsWith("SNAPSHOT.zip")) {
-                return f.getName();
-            }
-        }
-        return null;
+        String version = System.getProperty("imagetoolversion");
+        return IMAGETOOLZIPFILE_PREFIX + version + IMAGETOOLZIPFILE_SUFFIX;
     }
 }
