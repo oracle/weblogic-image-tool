@@ -660,21 +660,11 @@ public class Utils {
                     String error;
                     if (rigid) {
                         errorFormat = "12345678_12.2.1.3.0";
-                        error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
-                                + " starting with 8 digits patch ID.  The release version as found by searching for "
-                                + "patches on Oracle Support Site must be specified after the underscore with 5 places "
-                                + "such as 12.2.1.3.0 or 12.2.1.3.190416", errorFormat, patchId);
                     } else {
                         errorFormat = "12345678[_12.2.1.3.0]";
-                        error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
-                                + " starting with 8 digits patch ID.  For patches that has multiple target versions, "
-                                + "the "
-                                + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or "
-                                + "12.2.1."
-                                + "3.190416", errorFormat, patchId);
                     }
 
-                    logger.severe(error);
+                    logger.severe("IMG-0004", patchId, errorFormat);
                     result = false;
                     return result;
                 }
