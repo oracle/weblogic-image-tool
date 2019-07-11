@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
@@ -26,6 +25,8 @@ import com.oracle.weblogic.imagetool.api.model.DomainType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
@@ -42,7 +43,7 @@ import picocli.CommandLine.Option;
 )
 public class CreateImage extends ImageOperation {
 
-    private final Logger logger = Logger.getLogger(CreateImage.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(CreateImage.class);
 
     public CreateImage() {
         super();
@@ -54,7 +55,7 @@ public class CreateImage extends ImageOperation {
 
     @Override
     public CommandResponse call() throws Exception {
-        logger.finer("Entering CreateImage call ");
+        logger.entering();
         Instant startTime = Instant.now();
 
         String tmpDir = null;
@@ -69,15 +70,12 @@ public class CreateImage extends ImageOperation {
             List<String> cmdBuilder = getInitialBuildCmd();
             tmpDir = getTempDirectory();
 
-            // this handles wls, jdk and wdt install files.
-            cmdBuilder.addAll(handleInstallerFiles(tmpDir));
-
             if (!Utils.validatePatchIds(patches, false)) {
                 return new CommandResponse(-1, "Patch ID validation failed");
             }
 
             if (fromImage != null && !fromImage.isEmpty()) {
-                logger.finer("User specified fromImage " + fromImage);
+                logger.finer("IMG-0002", fromImage);
                 dockerfileOptions.setBaseImage(fromImage);
 
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
@@ -95,7 +93,7 @@ public class CreateImage extends ImageOperation {
                 String existingJavaHome = baseImageProperties.getProperty("JAVA_HOME", null);
                 if (existingJavaHome != null) {
                     dockerfileOptions.disableJavaInstall(existingJavaHome);
-                    logger.info("JAVA_HOME detected in base image, skipping JDK install: " + existingJavaHome);
+                    logger.info("IMG-0000", existingJavaHome);
                 }
 
                 if (ohAlreadyExists) {
@@ -110,6 +108,9 @@ public class CreateImage extends ImageOperation {
             } else {
                 dockerfileOptions.setPackageInstaller(Constants.YUM);
             }
+
+            // this handles wls, jdk and wdt install files.
+            cmdBuilder.addAll(handleInstallerFiles(tmpDir));
 
             // build wdt args if user passes --wdtModelPath
             cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir));
@@ -136,7 +137,7 @@ public class CreateImage extends ImageOperation {
             }
         }
         Instant endTime = Instant.now();
-        logger.finer("Exiting CreateImage call ");
+        logger.exiting();
         return new CommandResponse(0, "build successful in "
                 + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
@@ -151,12 +152,12 @@ public class CreateImage extends ImageOperation {
      */
     private List<String> handleInstallerFiles(String tmpDir) throws Exception {
 
-        logger.finer("Entering CreateImage.handleInstallerFiles: " + tmpDir);
+        logger.entering(tmpDir);
         List<String> retVal = new LinkedList<>();
         List<InstallerFile> requiredInstallers = gatherRequiredInstallers();
         for (InstallerFile installerFile : requiredInstallers) {
             String targetFilePath = installerFile.resolve(cacheStore);
-            logger.finer("CreateImage.handleInstallerFiles copying targetFilePath: " + targetFilePath);
+            logger.finer("copying targetFilePath: {0}", targetFilePath);
             String filename = new File(targetFilePath).getName();
             try {
                 Files.copy(Paths.get(targetFilePath), Paths.get(tmpDir, filename));
@@ -165,7 +166,7 @@ public class CreateImage extends ImageOperation {
                 ee.printStackTrace();
             }
         }
-        logger.finer("Exiting CreateImage.handleInstallerFiles: ");
+        logger.exiting(retVal);
         return retVal;
     }
 
@@ -302,19 +303,22 @@ public class CreateImage extends ImageOperation {
      * @throws Exception in case of error
      */
     private List<InstallerFile> gatherRequiredInstallers() throws Exception {
-        logger.finer("Entering CreateImage.gatherRequiredInstallers: ");
+        logger.entering();
         List<InstallerFile> retVal = new LinkedList<>();
         if (wdtModelPath != null) {
+            logger.finer("IMG-0001", InstallerType.WDT, wdtVersion);
             InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
             retVal.add(wdtInstaller);
             addWdtUrl(wdtInstaller.getKey());
         }
+        logger.finer("IMG-0001", installerType, installerVersion);
         retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
                 userId, password));
-        retVal.add(new InstallerFile(useCache, InstallerType.JDK, jdkVersion, userId, password));
-        logger.finer("Exiting CreateImage.gatherRequiredInstallers: "
-                + installerType.toString() + ":" + installerVersion + ", "
-                + InstallerType.JDK + ":" + jdkVersion);
+        if (dockerfileOptions.installJava()) {
+            logger.finer("IMG-0001", InstallerType.JDK, jdkVersion);
+            retVal.add(new InstallerFile(useCache, InstallerType.JDK, jdkVersion, userId, password));
+        }
+        logger.exiting(retVal.size());
         return retVal;
     }
 

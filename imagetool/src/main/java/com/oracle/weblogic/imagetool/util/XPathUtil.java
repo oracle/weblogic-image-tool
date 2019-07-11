@@ -17,13 +17,15 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XPathUtil {
 
-    private static final Logger logger = Logger.getLogger(XPathUtil.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(XPathUtil.class);
 
     /**
      * Apply XPath and return the results as nodelist.

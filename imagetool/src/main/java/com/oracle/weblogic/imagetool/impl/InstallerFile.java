@@ -3,18 +3,15 @@
 
 package com.oracle.weblogic.imagetool.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 
 /**
  * This represents a WLS, JDK or WDT installer.
@@ -22,7 +19,7 @@ import com.oracle.weblogic.imagetool.util.HttpUtil;
 public class InstallerFile extends AbstractFile {
 
     private InstallerType type;
-    private final Logger logger = Logger.getLogger(InstallerFile.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(InstallerFile.class);
 
     public InstallerFile(CachePolicy cachePolicy, InstallerType type, String version, String userId, String password) {
         super(type.toString(), version, cachePolicy, userId, password);

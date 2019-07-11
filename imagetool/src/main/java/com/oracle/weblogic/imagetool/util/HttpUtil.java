@@ -13,6 +13,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -38,7 +40,7 @@ import org.xml.sax.SAXException;
 
 public class HttpUtil {
 
-    private static final Logger logger = Logger.getLogger(HttpUtil.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(HttpUtil.class);
 
     /**
      * Return the xml result of a GET from the url.
