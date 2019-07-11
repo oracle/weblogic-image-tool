@@ -40,10 +40,12 @@ import java.util.zip.ZipFile;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 
 public class Utils {
 
-    private static final Logger logger = Logger.getLogger(Utils.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(Utils.class);
 
     /**
      * Utility method to copy a resource from the jar to local file system.

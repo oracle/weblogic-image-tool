@@ -2,6 +2,8 @@
 **/build
 *.iml
 .idea/
+!.idea/codeStyles/Project.xml
+!.idea/codeStyles/codeStyleConfig.xml
 **/target
 **/.DS_Store
 .flattened-pom.xml

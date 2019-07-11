@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -26,6 +25,8 @@ import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
@@ -35,7 +36,7 @@ import picocli.CommandLine.Unmatched;
 
 public abstract class ImageOperation implements Callable<CommandResponse> {
 
-    private final Logger logger = Logger.getLogger(ImageOperation.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(ImageOperation.class);
     // DockerfileOptions provides switches and values to the customize the Dockerfile template
     protected DockerfileOptions dockerfileOptions;
     protected CacheStore cacheStore = new CacheStoreFactory().get();
@@ -91,7 +92,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * @throws Exception in case of error
      */
     List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
-        logger.finer("Entering ImageOperation.handlePatchFiles");
+        logger.entering();
         List<String> retVal = new LinkedList<>();
         List<String> patchLocations = new LinkedList<>();
         String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
@@ -134,7 +135,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             retVal.add("PATCHDIR=" + Paths.get(tmpDir).relativize(tmpPatchesDir).toString());
             dockerfileOptions.setPatchingEnabled();
         }
-        logger.finer("Exiting ImageOperation.handlePatchFiles");
+        logger.exiting(retVal.size());
         return retVal;
     }
 
@@ -178,7 +179,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
                 PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
         String pathAsString = tmpDir.toAbsolutePath().toString();
-        logger.info("tmp directory used for docker build context: " + pathAsString);
+        logger.info("IMG-0003", pathAsString);
         return pathAsString;
     }
 

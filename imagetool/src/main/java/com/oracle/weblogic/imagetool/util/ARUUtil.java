@@ -5,19 +5,18 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
 import org.w3c.dom.Document;
@@ -29,7 +28,7 @@ import org.w3c.dom.NodeList;
 public class ARUUtil {
 
     private static final Map<String, String> releaseNumbersMap = new HashMap<>();
-    private static final Logger logger = Logger.getLogger(ARUUtil.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(ARUUtil.class);
 
     /**
      * Return All WLS releases information.

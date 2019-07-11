@@ -14,10 +14,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -33,7 +34,7 @@ import picocli.CommandLine.Option;
 )
 public class UpdateImage extends ImageOperation {
 
-    private final Logger logger = Logger.getLogger(UpdateImage.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
 
     public UpdateImage() {
         super();

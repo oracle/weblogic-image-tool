@@ -5,17 +5,18 @@ package com.oracle.weblogic.imagetool.api.model;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.FileResolver;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 
 /**
  * Base class to represent either an installer or a patch file.
  */
 public abstract class AbstractFile implements FileResolver {
 
-    private static final Logger logger = Logger.getLogger(AbstractFile.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(AbstractFile.class);
 
     private String key;
     protected CachePolicy cachePolicy;
