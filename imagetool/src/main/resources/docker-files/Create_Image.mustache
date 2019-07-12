@@ -5,6 +5,7 @@
 #
 #
 FROM {{baseImage}} as OS_UPDATE
+LABEL WlsImageToolLayer="intermediate"
 USER root
 
 {{#useYum}}
@@ -37,6 +38,7 @@ RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && 
 
 {{#installJava}}
 FROM OS_UPDATE as JDK_BUILD
+LABEL WlsImageToolLayer="intermediate"
 ARG JAVA_PKG
 
 ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
@@ -52,6 +54,7 @@ RUN tar xzf {{{tempDir}}}/$JAVA_PKG -C /u01 \
 {{/installJava}}
 
 FROM OS_UPDATE as WLS_BUILD
+LABEL WlsImageToolLayer="intermediate"
 ARG WLS_PKG
 ARG INV_LOC
 ARG WLS_RESP
@@ -75,10 +78,10 @@ COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_hom
 COPY --chown={{userid}}:{{groupid}} $WLS_PKG $WLS_RESP {{{tempDir}}}/
 COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
 {{#isOpatchPatchingEnabled}}
-COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
+COPY --chown={{userid}}:{{groupid}} p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
 {{/isOpatchPatchingEnabled}}
 {{#isPatchingEnabled}}
-COPY --chown=oracle:oracle $PATCHDIR/* {{{tmpDir}}}/patches/
+COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{{tmpDir}}}/patches/
 {{/isPatchingEnabled}}
 
 USER {{userid}}
@@ -99,6 +102,7 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
 
 {{#isWdtEnabled}}
 FROM OS_UPDATE as WDT_BUILD
+LABEL WlsImageToolLayer="intermediate"
 
 ARG ORACLE_HOME=/u01/oracle
 ARG WDT_PKG
