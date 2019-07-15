@@ -67,7 +67,6 @@ public class CreateImage extends ImageOperation {
                 return result;
             }
 
-            List<String> cmdBuilder = getInitialBuildCmd();
             tmpDir = getTempDirectory();
 
             if (!Utils.validatePatchIds(patches, false)) {
@@ -108,6 +107,8 @@ public class CreateImage extends ImageOperation {
             } else {
                 dockerfileOptions.setPackageInstaller(Constants.YUM);
             }
+
+            List<String> cmdBuilder = getInitialBuildCmd();
 
             // this handles wls, jdk and wdt install files.
             cmdBuilder.addAll(handleInstallerFiles(tmpDir));
@@ -356,7 +357,13 @@ public class CreateImage extends ImageOperation {
      * @throws IOException in case of error
      */
     private void copyResponseFilesToDir(String dirPath) throws IOException {
-        Utils.copyResourceAsFile("/response-files/wls.rsp", dirPath, false);
+        if (fmwResponseFile != null && Files.isRegularFile(fmwResponseFile)) {
+            Path target = Paths.get(dirPath, "wls.rsp");
+            Files.copy(fmwResponseFile, target);
+        } else {
+            Utils.copyResourceAsFile("/response-files/wls.rsp", dirPath, false);
+        }
+
         Utils.copyResourceAsFile("/response-files/oraInst.loc", dirPath, false);
     }
 
@@ -447,4 +454,10 @@ public class CreateImage extends ImageOperation {
     private String opatchBugNumber;
 
 
+    @Option(
+            names = {"--fmwResponseFile"},
+            description = "path to a response file. Override the default responses for th FMW installation process",
+            defaultValue = "wls.rsp"
+    )
+    private Path fmwResponseFile;
 }
