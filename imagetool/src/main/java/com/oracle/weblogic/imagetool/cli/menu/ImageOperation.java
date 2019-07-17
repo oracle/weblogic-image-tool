@@ -146,7 +146,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      */
     List<String> getInitialBuildCmd() {
 
-        logger.finer("Entering ImageOperation.getInitialBuildCmd");
+        logger.entering();
         List<String> cmdBuilder = Stream.of("docker", "build",
                 "--force-rm=true", "--no-cache").collect(Collectors.toList());
 
@@ -171,7 +171,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         if (dockerPath != null && Files.isExecutable(dockerPath)) {
             cmdBuilder.set(0, dockerPath.toAbsolutePath().toString());
         }
-        logger.finer("Exiting ImageOperation.getInitialBuildCmd");
+        logger.exiting();
         return cmdBuilder;
     }
 

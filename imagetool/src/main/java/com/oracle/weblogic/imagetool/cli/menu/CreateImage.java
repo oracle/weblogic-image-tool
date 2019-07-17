@@ -193,7 +193,7 @@ public class CreateImage extends ImageOperation {
                     new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
                     password);
             if (validationResult.isSuccess()) {
-                logger.info("patch conflict check successful");
+                logger.info("IMG-0006");
             } else {
                 String error = validationResult.getErrorMessage();
                 logger.severe(error);
@@ -330,7 +330,7 @@ public class CreateImage extends ImageOperation {
      * @throws Exception in case of error
      */
     private void addWdtUrl(String wdtKey) throws Exception {
-        logger.finer("Entering CreateImage.wdtKey: ");
+        logger.entering(wdtKey);
         String wdtUrlKey = wdtKey + "_url";
         if (cacheStore.getValueFromCache(wdtKey) == null) {
             if (userId == null || password == null) {
@@ -341,13 +341,13 @@ public class CreateImage extends ImageOperation {
                     "weblogic-deploy-tooling-" + wdtVersion;
             if (wdtTags.contains(tagToMatch)) {
                 String downloadLink = String.format(Constants.WDT_URL_FORMAT, tagToMatch);
-                logger.info("WDT Download link = " + downloadLink);
+                logger.info("IMG-0007", downloadLink);
                 cacheStore.addToCache(wdtUrlKey, downloadLink);
             } else {
                 throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
             }
         }
-        logger.finer("Exiting CreateImage.wdtKey: ");
+        logger.exiting();
     }
 
     /**
@@ -357,11 +357,14 @@ public class CreateImage extends ImageOperation {
      * @throws IOException in case of error
      */
     private void copyResponseFilesToDir(String dirPath) throws IOException {
-        if (fmwResponseFile != null && Files.isRegularFile(fmwResponseFile)) {
+        if (installerResponseFile != null && Files.isRegularFile(installerResponseFile)) {
+            logger.fine("IMG-0005", installerResponseFile);
             Path target = Paths.get(dirPath, "wls.rsp");
-            Files.copy(fmwResponseFile, target);
+            Files.copy(installerResponseFile, target);
         } else {
-            Utils.copyResourceAsFile("/response-files/wls.rsp", dirPath, false);
+            final String responseFile = "/response-files/wls.rsp";
+            logger.fine("IMG-0005", responseFile);
+            Utils.copyResourceAsFile(responseFile, dirPath, false);
         }
 
         Utils.copyResourceAsFile("/response-files/oraInst.loc", dirPath, false);
@@ -455,9 +458,8 @@ public class CreateImage extends ImageOperation {
 
 
     @Option(
-            names = {"--fmwResponseFile"},
-            description = "path to a response file. Override the default responses for th FMW installation process",
-            defaultValue = "wls.rsp"
+            names = {"--installerResponseFile"},
+            description = "path to a response file. Override the default responses for the Oracle installer"
     )
-    private Path fmwResponseFile;
+    private Path installerResponseFile;
 }

@@ -84,7 +84,7 @@ drwxr-xr-x 18 root   root   4096 May 29 01:31 ..
 
 In this use case, the Image Tool will:
 
-1. Start with a base-level operating system image (oracle-linux:7-slim).
+1. Start with a base-level operating system image (oraclelinux:7-slim).
 2. Automatically update the image with the necessary packages for installing WebLogic.
 3. Install Java and WebLogic based on the provided installers.
 4. Optionally, automatically download and apply the patches specified.
