@@ -121,6 +121,7 @@ public class CreateImage extends ImageOperation {
 
             // Copy wls response file to tmpDir
             copyResponseFilesToDir(tmpDir);
+            Utils.setOracleHome(installerResponseFile, dockerfileOptions);
 
             // Create Dockerfile
             Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile", "Create_Image.mustache",

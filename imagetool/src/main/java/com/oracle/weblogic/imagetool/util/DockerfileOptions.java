@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -23,6 +22,7 @@ public class DockerfileOptions {
     private String username;
     private String groupname;
     private String javaHome;
+    private String oracleHome;
     private String tempDirectory;
     private String baseImageName;
     private ArrayList<String> wdtModelList;
@@ -42,6 +42,7 @@ public class DockerfileOptions {
         groupname = "oracle";
 
         javaHome = "/u01/jdk";
+        oracleHome = "/u01/oracle";
         tempDirectory = "/tmp/delme";
 
         baseImageName = "oraclelinux:7-slim";
@@ -126,6 +127,14 @@ public class DockerfileOptions {
 
     public String java_home() {
         return javaHome;
+    }
+
+    public String oracle_home() {
+        return oracleHome;
+    }
+
+    public void setOracleHome(String value) {
+        oracleHome = value;
     }
 
     /**
