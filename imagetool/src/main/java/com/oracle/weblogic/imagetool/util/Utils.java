@@ -701,7 +701,7 @@ public class Utils {
                     String oracleHome = matcher.group(1);
                     if (oracleHome != null) {
                         options.setOracleHome(oracleHome);
-                        logger.info("Oracle Home will be set to {0}", oracleHome);
+                        logger.info("IMG-0010", oracleHome);
                     }
                     break;
                 }
