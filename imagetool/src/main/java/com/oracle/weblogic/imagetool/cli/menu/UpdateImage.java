@@ -89,8 +89,7 @@ public class UpdateImage extends ImageOperation {
                 String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
                 if (opatchFile != null) {
                     opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
-                    logger.info(String.format("OPatch patch number %s cached file %s version %s", opatchBugNumber,
-                            opatchFile, opatchBugNumberVersion));
+                    logger.info("IMG-0008", opatchBugNumber, opatchFile, opatchBugNumberVersion);
                 } else {
                     String msg = String.format("OPatch patch number --opatchBugNumber %s cannot be found in cache",
                             opatchBugNumber);
@@ -111,7 +110,7 @@ public class UpdateImage extends ImageOperation {
             if (latestPSU || !patches.isEmpty()) {
                 logger.finer("Verifying Patches to WLS ");
                 if (userId == null) {
-                    logger.warning("skipping patch conflict check, no support credentials provided ");
+                    logger.warning("IMG-0009");
                 } else {
 
                     if (!Utils.validatePatchIds(patches, false)) {
@@ -152,7 +151,7 @@ public class UpdateImage extends ImageOperation {
                         if (!validationResult.isSuccess()) {
                             return new CommandResponse(-1, validationResult.getErrorMessage());
                         } else {
-                            logger.info("patch conflict check successful");
+                            logger.info("IMG-0006");
                         }
                     } else {
                         return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");

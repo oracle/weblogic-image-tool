@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -29,7 +30,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -532,7 +532,7 @@ public class Utils {
             throws IOException {
         if (!isEmptyString(passwordStr)) {
             return passwordStr;
-        } else if (passwordFile != null && Files.isRegularFile(passwordFile) && Files.size(passwordFile) > 0) {
+        } else if (validFile(passwordFile)) {
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(passwordFile.toFile()))) {
                 return bufferedReader.readLine();
             }
@@ -673,5 +673,46 @@ public class Utils {
         }
 
         return result;
+    }
+
+    /**
+     * Set the Oracle Home directory based on the installer response file.
+     * If no Oracle Home is provided in the response file, do nothing and accept the default value.
+     * @param installerResponseFile installer response file to parse.
+     * @param options Dockerfile options to use for the build (holds the Oracle Home argument)
+     */
+    public static void setOracleHome(Path installerResponseFile, DockerfileOptions options) throws IOException {
+        if (installerResponseFile == null) {
+            return;
+        }
+
+        Pattern pattern = Pattern.compile("^ORACLE_HOME=(.*)?");
+        Matcher matcher = pattern.matcher("");
+        logger.finest("Reading installer response file: {0}", installerResponseFile.getFileName());
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(installerResponseFile.toFile()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                logger.finest("Read response file line: {0}", line);
+
+                matcher.reset(line);
+                if (matcher.find()) {
+                    String oracleHome = matcher.group(1);
+                    if (oracleHome != null) {
+                        options.setOracleHome(oracleHome);
+                        logger.info("IMG-0010", oracleHome);
+                    }
+                    break;
+                }
+            }
+        } catch (FileNotFoundException notFound) {
+            logger.severe("Unable to find installer response file: {0}", installerResponseFile);
+            throw notFound;
+        }
+    }
+
+    private static boolean validFile(Path file) throws IOException {
+        return file != null && Files.isRegularFile(file) && Files.size(file) > 0;
     }
 }
