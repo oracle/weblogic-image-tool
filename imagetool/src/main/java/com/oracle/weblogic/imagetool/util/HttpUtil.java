@@ -88,6 +88,7 @@ public class HttpUtil {
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
                     userId, password));
         }
+        logger.finest("HTTPUtil.getOraClient for user");
         return HttpClientBuilder.create().setDefaultRequestConfig(config.build())
                 .setDefaultCookieStore(cookieStore).useSystemProperties()
                 .setDefaultCredentialsProvider(credentialsProvider).build();
@@ -105,9 +106,17 @@ public class HttpUtil {
 
     public static void downloadFile(String url, String fileName, String username, String password)
             throws IOException {
-        Executor.newInstance(getOraClient(username, password))
-                .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
-                .saveContent(new File(fileName));
+        logger.finest("HTTPUtil.downloadFile "  + url);
+        try {
+            Executor.newInstance(getOraClient(username, password))
+                    .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+                    .saveContent(new File(fileName));
+        } catch (Exception ex) {
+            String message = String.format("Failed to download and save file %s from %s: %s", fileName, url,
+                    ex.getLocalizedMessage());
+            throw new IOException(message);
+        }
+        logger.finest("HTTPUtil.downloadFile saved to "  + fileName);
     }
 
     /**
