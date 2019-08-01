@@ -68,7 +68,9 @@ public class Utils {
         Files.copy(Utils.class.getResourceAsStream(resourcePath), Paths.get(destPath),
                 StandardCopyOption.REPLACE_EXISTING);
         if (markExec) {
-            Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
+            if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+                Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
+            }
         }
     }
 
