@@ -4,7 +4,7 @@ Oracle is finding ways for organizations using WebLogic Server to run important 
 the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker
 and Kubernetes, WebLogic now runs in a cloud neutral infrastructure.  To help simplify and automate the creation of
 Docker images for WebLogic Server, we are providing this open-source
-Oracle WebLogic Image Tool.  This tool let's you create a new image, with installations of a JDK and WebLogic Server,
+Oracle WebLogic Image Tool.  This tool let's you create a new Linux based image, with installations of a JDK and WebLogic Server,
 and optionally, configure a WebLogic domain with your applications, apply WebLogic Server patches, or update an existing
 image.
 

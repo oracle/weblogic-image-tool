@@ -1,6 +1,6 @@
 # Quick Start
 
-The Image Tool supports creating WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains.  It
+The Image Tool supports creating Linux based WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains.  It
 can be used with or without Internet access.  
 
 Before you use the tool, you can customize the tool's cache store. The cache store is used to look up where the Java,
