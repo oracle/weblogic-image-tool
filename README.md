@@ -29,7 +29,8 @@ The Image Tool provides three functions within the main script:
 
 - Build the project (`mvn clean package`), to create the ZIP installer in ./imagetool/target.
 - Unzip the release ZIP file to a desired location.
-- `cd your_unzipped_location/bin` and `source setup.sh`.
+- For Linux environment `cd your_unzipped_location/bin` and `source setup.sh`. 
+- For Windows environment `cd your_unzipped_location\bin` and `.\imagetool.cmd`. 
 - Run `imagetool help` to show the help screen.
 
 ## Quick Start
