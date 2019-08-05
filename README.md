@@ -4,7 +4,7 @@ Oracle is finding ways for organizations using WebLogic Server to run important 
 the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker
 and Kubernetes, WebLogic now runs in a cloud neutral infrastructure.  To help simplify and automate the creation of
 Docker images for WebLogic Server, we are providing this open-source
-Oracle WebLogic Image Tool.  This tool let's you create a new image, with installations of a JDK and WebLogic Server,
+Oracle WebLogic Image Tool.  This tool let's you create a new Linux based image, with installations of a JDK and WebLogic Server,
 and optionally, configure a WebLogic domain with your applications, apply WebLogic Server patches, or update an existing
 image.
 
@@ -29,7 +29,8 @@ The Image Tool provides three functions within the main script:
 
 - Build the project (`mvn clean package`), to create the ZIP installer in ./imagetool/target.
 - Unzip the release ZIP file to a desired location.
-- `cd your_unzipped_location/bin` and `source setup.sh`.
+- For Linux environment `cd your_unzipped_location/bin` and `source setup.sh`. 
+- For Windows environment `cd your_unzipped_location\bin` and `.\imagetool.cmd`. 
 - Run `imagetool help` to show the help screen.
 
 ## Quick Start

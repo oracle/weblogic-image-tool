@@ -358,10 +358,10 @@ public class CreateImage extends ImageOperation {
      * @throws IOException in case of error
      */
     private void copyResponseFilesToDir(String dirPath) throws IOException {
-        if (installerResponseFile != null && Files.isRegularFile(installerResponseFile)) {
+        if (installerResponseFile != null && Files.isRegularFile(Paths.get(installerResponseFile))) {
             logger.fine("IMG-0005", installerResponseFile);
             Path target = Paths.get(dirPath, "wls.rsp");
-            Files.copy(installerResponseFile, target);
+            Files.copy(Paths.get(installerResponseFile), target);
         } else {
             final String responseFile = "/response-files/wls.rsp";
             logger.fine("IMG-0005", responseFile);
@@ -447,7 +447,7 @@ public class CreateImage extends ImageOperation {
             description = "pass to the -domain_home for wdt",
             defaultValue = "/u01/domains/base_domain"
     )
-    private Path wdtDomainHome;
+    private String  wdtDomainHome;
 
 
     @Option(
@@ -462,5 +462,5 @@ public class CreateImage extends ImageOperation {
             names = {"--installerResponseFile"},
             description = "path to a response file. Override the default responses for the Oracle installer"
     )
-    private Path installerResponseFile;
+    private String installerResponseFile;
 }

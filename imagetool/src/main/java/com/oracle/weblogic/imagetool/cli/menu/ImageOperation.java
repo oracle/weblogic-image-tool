@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -176,8 +175,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     public String getTempDirectory() throws IOException {
-        Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
-                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
+        Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp");
         String pathAsString = tmpDir.toAbsolutePath().toString();
         logger.info("IMG-0003", pathAsString);
         return pathAsString;
