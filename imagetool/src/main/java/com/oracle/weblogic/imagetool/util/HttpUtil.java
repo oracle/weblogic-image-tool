@@ -53,7 +53,7 @@ public class HttpUtil {
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
 
-        logger.finest("HTTPUtil.getXMLContent " + url);
+        logger.entering(url);
         String xmlString = Executor.newInstance(getOraClient(username, password))
                 .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .returnContent().asString();
@@ -62,7 +62,7 @@ public class HttpUtil {
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xmlString));
             Document doc = docBuilder.parse(is);
-            logger.finest("HTTPUtil.getXMLContent result " + XPathUtil.prettyPrint(doc));
+            logger.exiting(XPathUtil.prettyPrint(doc));
             return doc;
         } catch (ParserConfigurationException ex) {
             throw new IllegalStateException(ex);
@@ -74,6 +74,7 @@ public class HttpUtil {
     }
 
     private static HttpClient getOraClient(String userId, String password) {
+        logger.entering(userId);
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
         config.setCookieSpec(CookieSpecs.STANDARD);
@@ -88,6 +89,7 @@ public class HttpUtil {
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
                     userId, password));
         }
+        logger.exiting();
         return HttpClientBuilder.create().setDefaultRequestConfig(config.build())
                 .setDefaultCookieStore(cookieStore).useSystemProperties()
                 .setDefaultCredentialsProvider(credentialsProvider).build();
@@ -105,9 +107,18 @@ public class HttpUtil {
 
     public static void downloadFile(String url, String fileName, String username, String password)
             throws IOException {
-        Executor.newInstance(getOraClient(username, password))
-                .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
-                .saveContent(new File(fileName));
+        logger.entering(url);
+        try {
+            Executor.newInstance(getOraClient(username, password))
+                    .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+                    .saveContent(new File(fileName));
+        } catch (Exception ex) {
+            String message = String.format("Failed to download and save file %s from %s: %s", fileName, url,
+                    ex.getLocalizedMessage());
+            logger.info(message);
+            throw new IOException(message, ex);
+        }
+        logger.exiting(fileName);
     }
 
     /**
