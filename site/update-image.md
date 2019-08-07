@@ -32,6 +32,20 @@ Update WebLogic docker image with selected patches
                               12.2.1.3.0
 *     --user=<support email>
                             Oracle Support email id
+      --wdtArchive=<wdtArchivePath>
+                            path to wdt archive file used by wdt model
+      --wdtModel=<wdtModelPath>
+                            path to the wdt model file to create domain with
+      --wdtDomainHome=<wdtDomainHome>
+                            path to the domain home for create domain
+      --wdtDomainType=<wdtDomainType>
+                            type of the domain to create                           
+      --wdtVariables=<wdtVariablesPath>
+                            path to wdt variables file used by wdt model
+      --wdtVersion=<wdtVersion>
+                            wdt version to create the domain
+      --wdtBldProperties=<wdtBldProperties>
+                            specify additional properties for WLST                            
 ```
 
 ## Usage scenarios

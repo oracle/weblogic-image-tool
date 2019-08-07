@@ -359,6 +359,11 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 retVal.add("DOMAIN_HOME=" + wdtDomainHome);
             }
 
+            if (wdtBldProperties != null) {
+                retVal.add(Constants.BUILD_ARG);
+                retVal.add("WLSDEPLOY_PROPERTIES=" + wdtBldProperties);
+            }
+
             if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
                 String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
                 Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
@@ -549,6 +554,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             defaultValue = "/u01/domains/base_domain"
     )
     private String  wdtDomainHome;
+
+    @Option(
+            names = {"--wdtBldProperties"},
+            description = "pass to the wdt as WLSDEPLOY_PROPERTIES argument"
+    )
+    private String  wdtBldProperties;
 
     @Unmatched
     List<String> unmatchedOptions;

@@ -116,6 +116,7 @@ ARG MANAGED_SERVER_PORT
 ARG SCRIPTS_DIR
 ARG WDT_HOME
 ARG RCU_RUN_FLAG
+ARG WLSDEPLOY_PROPERTIES
 
 ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     ADMIN_NAME=${ADMIN_NAME:-admin-server} \
@@ -124,7 +125,7 @@ ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
     JAVA_HOME={{{java_home}}} \
     MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
-    WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
+    WLSDEPLOY_PROPERTIES="${WLSDEPLOY_PROPERTIES} -Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_TYPE=${DOMAIN_TYPE:-WLS} \
     DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
     WDT_ARCHIVE=${WDT_ARCHIVE:-} \
