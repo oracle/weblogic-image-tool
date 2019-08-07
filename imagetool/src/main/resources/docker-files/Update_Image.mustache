@@ -109,7 +109,7 @@ ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
     WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
-    DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain}
+    DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
     PATH=$PATH:${DOMAIN_HOME}/bin
 {{/isWdtEnabled}}
 
