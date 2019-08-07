@@ -80,12 +80,7 @@ public class CreateImage extends ImageOperation {
                 Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
                         tmpDir + File.separator + "test-env.sh", true);
 
-                List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
-                Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
-                if (logger.isLoggable(Level.FINE)) {
-                    baseImageProperties.keySet().forEach(x -> logger.fine("ENV(" + fromImage + "): "
-                            + x + "=" + baseImageProperties.getProperty(x.toString())));
-                }
+                Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
 
                 boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
 
@@ -144,34 +139,6 @@ public class CreateImage extends ImageOperation {
                 + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
-    /**
-     * Builds a list of build args to pass on to docker with the required installer files.
-     * Also, creates links to installer files instead of copying over to build context dir.
-     *
-     * @param tmpDir build context directory
-     * @return list of strings
-     * @throws Exception in case of error
-     */
-    private List<String> handleInstallerFiles(String tmpDir) throws Exception {
-
-        logger.entering(tmpDir);
-        List<String> retVal = new LinkedList<>();
-        List<InstallerFile> requiredInstallers = gatherRequiredInstallers();
-        for (InstallerFile installerFile : requiredInstallers) {
-            String targetFilePath = installerFile.resolve(cacheStore);
-            logger.finer("copying targetFilePath: {0}", targetFilePath);
-            String filename = new File(targetFilePath).getName();
-            try {
-                Files.copy(Paths.get(targetFilePath), Paths.get(tmpDir, filename));
-                retVal.addAll(installerFile.getBuildArg(filename));
-            } catch (Exception ee) {
-                ee.printStackTrace();
-            }
-        }
-        logger.exiting(retVal);
-        return retVal;
-    }
-
     @Override
     List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
         logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir);
@@ -210,109 +177,15 @@ public class CreateImage extends ImageOperation {
     }
 
     /**
-     * Checks whether the user requested a domain to be created with WDT.
-     * If so, returns the required build args to pass to docker and creates required file links to pass
-     * the model, archive, variables file to build process
-     *
-     * @param tmpDir the tmp directory which is passed to docker as the build context directory
-     * @return list of build args
-     * @throws IOException in case of error
-     */
-    private List<String> handleWdtArgsIfRequired(String tmpDir) throws IOException {
-        logger.finer("Entering CreateImage.handleWdtArgsIfRequired: " + tmpDir);
-        List<String> retVal = new LinkedList<>();
-        if (wdtModelPath != null) {
-            String[] modelFiles = wdtModelPath.toString().split(",");
-            List<String> modelList = new ArrayList<>();
-
-            for (String modelFile : modelFiles) {
-                Path modelFilePath = Paths.get(modelFile);
-                if (Files.isRegularFile(modelFilePath)) {
-                    String modelFilename = modelFilePath.getFileName().toString();
-                    Files.copy(modelFilePath, Paths.get(tmpDir, modelFilename));
-                    modelList.add(modelFilename);
-                } else {
-                    throw new IOException("WDT model file " + modelFile + " not found");
-                }
-            }
-            dockerfileOptions.setWdtModels(modelList);
-
-            if (wdtDomainType != DomainType.WLS) {
-                if (installerType != WLSInstallerType.FMW) {
-                    throw new IOException("FMW installer is required for JRF domain");
-                }
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("DOMAIN_TYPE=" + wdtDomainType);
-                if (runRcu) {
-                    retVal.add(Constants.BUILD_ARG);
-                    retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
-                }
-            }
-            dockerfileOptions.setWdtEnabled();
-
-            if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
-                String wdtArchiveFilename = wdtArchivePath.getFileName().toString();
-                Files.copy(wdtArchivePath, Paths.get(tmpDir, wdtArchiveFilename));
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("WDT_ARCHIVE=" + wdtArchiveFilename);
-            }
-            if (wdtDomainHome != null) {
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("DOMAIN_HOME=" + wdtDomainHome);
-            }
-
-            if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
-                String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
-                Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("WDT_VARIABLE=" + wdtVariableFilename);
-                retVal.addAll(getWdtRequiredBuildArgs(wdtVariablesPath));
-            }
-        }
-        logger.finer("Exiting CreateImage.handleWdtArgsIfRequired: ");
-        return retVal;
-    }
-
-    /**
-     * Certain environment variables need to be set in docker images for WDT domains to work.
-     *
-     * @param wdtVariablesPath wdt variables file path.
-     * @return list of build args
-     * @throws IOException in case of error
-     */
-    private List<String> getWdtRequiredBuildArgs(Path wdtVariablesPath) throws IOException {
-        logger.finer("Entering CreateImage.getWdtRequiredBuildArgs: " + wdtVariablesPath.toAbsolutePath().toString());
-        List<String> retVal = new LinkedList<>();
-        Properties variableProps = new Properties();
-        variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
-        List<Object> matchingKeys = variableProps.keySet().stream().filter(
-            x -> variableProps.getProperty(((String) x)) != null
-                 && Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
-        ).collect(Collectors.toList());
-        matchingKeys.forEach(x -> {
-            retVal.add(Constants.BUILD_ARG);
-            retVal.add(((String) x).toUpperCase() + "=" + variableProps.getProperty((String) x));
-        });
-        logger.finer("Exiting CreateImage.getWdtRequiredBuildArgs: ");
-        return retVal;
-    }
-
-    /**
      * Builds a list of {@link InstallerFile} objects based on user input which are processed.
      * to download the required install artifacts
      *
      * @return list of InstallerFile
      * @throws Exception in case of error
      */
-    private List<InstallerFile> gatherRequiredInstallers() throws Exception {
+    protected List<InstallerFile> gatherRequiredInstallers() throws Exception {
         logger.entering();
-        List<InstallerFile> retVal = new LinkedList<>();
-        if (wdtModelPath != null) {
-            logger.finer("IMG-0001", InstallerType.WDT, wdtVersion);
-            InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
-            retVal.add(wdtInstaller);
-            addWdtUrl(wdtInstaller.getKey());
-        }
+        List<InstallerFile> retVal = super.gatherRequiredInstallers();
         logger.finer("IMG-0001", installerType, installerVersion);
         retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
                 userId, password));
@@ -324,32 +197,6 @@ public class CreateImage extends ImageOperation {
         return retVal;
     }
 
-    /**
-     * Parses wdtVersion and constructs the url to download WDT and adds the url to cache.
-     *
-     * @param wdtKey key in the format wdt_0.17
-     * @throws Exception in case of error
-     */
-    private void addWdtUrl(String wdtKey) throws Exception {
-        logger.entering(wdtKey);
-        String wdtUrlKey = wdtKey + "_url";
-        if (cacheStore.getValueFromCache(wdtKey) == null) {
-            if (userId == null || password == null) {
-                throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
-            }
-            List<String> wdtTags = HttpUtil.getWDTTags();
-            String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) :
-                    "weblogic-deploy-tooling-" + wdtVersion;
-            if (wdtTags.contains(tagToMatch)) {
-                String downloadLink = String.format(Constants.WDT_URL_FORMAT, tagToMatch);
-                logger.info("IMG-0007", downloadLink);
-                cacheStore.addToCache(wdtUrlKey, downloadLink);
-            } else {
-                throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
-            }
-        }
-        logger.exiting();
-    }
 
     /**
      * Copies response files required for wls install to the tmp directory which provides docker build context.
@@ -373,7 +220,7 @@ public class CreateImage extends ImageOperation {
 
     @Option(
             names = {"--type"},
-            description = "Installer type. default: ${DEFAULT-VALUE}. supported values: ${COMPLETION-CANDIDATES}",
+            description = "Installer type. Default: ${DEFAULT-VALUE}. Supported values: ${COMPLETION-CANDIDATES}",
             required = true,
             defaultValue = "wls"
     )
@@ -381,7 +228,7 @@ public class CreateImage extends ImageOperation {
 
     @Option(
             names = {"--version"},
-            description = "Installer version. default: ${DEFAULT-VALUE}",
+            description = "Installer version. Default: ${DEFAULT-VALUE}",
             required = true,
             defaultValue = Constants.DEFAULT_WLS_VERSION
     )
@@ -389,7 +236,7 @@ public class CreateImage extends ImageOperation {
 
     @Option(
             names = {"--jdkVersion"},
-            description = "Version of server jdk to install. default: ${DEFAULT-VALUE}",
+            description = "Version of server jdk to install. Default: ${DEFAULT-VALUE}",
             required = true,
             defaultValue = Constants.DEFAULT_JDK_VERSION
     )
@@ -402,61 +249,11 @@ public class CreateImage extends ImageOperation {
     private String fromImage;
 
     @Option(
-            names = {"--wdtModel"},
-            description = "path to the wdt model file to create domain with"
-    )
-    private Path wdtModelPath;
-
-    @Option(
-            names = {"--wdtArchive"},
-            description = "path to wdt archive file used by wdt model"
-    )
-    private Path wdtArchivePath;
-
-    @Option(
-            names = {"--wdtVariables"},
-            description = "path to wdt variables file used by wdt model"
-    )
-    private Path wdtVariablesPath;
-
-    @Option(
-            names = {"--wdtVersion"},
-            description = "wdt version to create the domain",
-            defaultValue = "latest"
-    )
-    private String wdtVersion;
-
-    @Option(
-            names = {"--wdtDomainType"},
-            description = "type of domain to create. default: ${DEFAULT-VALUE}. supported values: "
-                    + "${COMPLETION-CANDIDATES}",
-            defaultValue = "wls",
-            required = true
-    )
-    private DomainType wdtDomainType;
-
-    @Option(
-            names = "--wdtRunRCU",
-            description = "whether to run rcu to create the required database schemas"
-    )
-    private boolean runRcu = false;
-
-
-    @Option(
-            names = {"--wdtDomainHome"},
-            description = "pass to the -domain_home for wdt",
-            defaultValue = "/u01/domains/base_domain"
-    )
-    private String  wdtDomainHome;
-
-
-    @Option(
             names = {"--opatchBugNumber"},
             description = "use this opatch patch bug number",
             defaultValue = "28186730"
     )
     private String opatchBugNumber;
-
 
     @Option(
             names = {"--installerResponseFile"},

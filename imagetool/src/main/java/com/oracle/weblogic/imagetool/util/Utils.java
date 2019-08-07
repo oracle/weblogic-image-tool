@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -455,6 +456,27 @@ public class Utils {
             }
         }
         return retVal;
+    }
+
+    /**
+     * Reads the docker image environment variables into Java Properties.
+     * @param dockerImage the name of the Docker image to read from
+     * @param tmpDir the directory to use on the container to copy a script
+     * @return The key/value pairs representing the ENV of the Docker image
+     * @throws IOException when the Docker command fails
+     * @throws InterruptedException when the Docker command is interrupted
+     */
+    public static Properties getBaseImageProperties(String dockerImage, String tmpDir)
+        throws IOException, InterruptedException {
+
+        List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, dockerImage, "test-env.sh");
+        Properties result = Utils.runDockerCommand(imageEnvCmd);
+
+        if (logger.isLoggable(Level.FINE)) {
+            result.keySet().forEach(x -> logger.fine(
+                "ENV(" + dockerImage + "): " + x + "=" + result.getProperty(x.toString())));
+        }
+        return result;
     }
 
     /**

@@ -60,17 +60,20 @@ public class UpdateImage extends ImageOperation {
 
             if (fromImage == null || fromImage.isEmpty()) {
                 return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
-            } else {
-                dockerfileOptions.setBaseImage(fromImage);
             }
+
+            dockerfileOptions.setBaseImage(fromImage);
 
             tmpDir = getTempDirectory();
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
 
-            List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, fromImage, "test-env.sh");
+            Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
 
-            Properties baseImageProperties = Utils.runDockerCommand(imageEnvCmd);
+            String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+            if (!Utils.isEmptyString(pkgMgr)) {
+                dockerfileOptions.setPackageInstaller(pkgMgr);
+            }
 
             String oracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
             if (oracleHome == null) {
@@ -164,6 +167,13 @@ public class UpdateImage extends ImageOperation {
             Path tmpPatchesDir = createPatchesTempDirectory(tmpDir);
 
             List<String> cmdBuilder = getInitialBuildCmd();
+
+            // this handles wls, jdk and wdt install files.
+            cmdBuilder.addAll(handleInstallerFiles(tmpDir));
+
+            // build wdt args if user passes --wdtModelPath
+            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir));
+
             // resolve required patches
             cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
 
