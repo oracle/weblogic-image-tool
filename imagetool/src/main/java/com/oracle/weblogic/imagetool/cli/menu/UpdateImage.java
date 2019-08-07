@@ -107,9 +107,6 @@ public class UpdateImage extends ImageOperation {
                     && (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0
                     && Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
 
-            baseImageProperties.keySet().forEach(x ->
-                    logger.info(x + "=" + baseImageProperties.getProperty(x.toString())));
-
             if (latestPSU || !patches.isEmpty()) {
                 logger.finer("Verifying Patches to WLS ");
                 if (userId == null) {
