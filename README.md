@@ -15,7 +15,7 @@ The Image Tool provides three functions within the main script:
   Java and WebLogic software.  Additionally, you can create a WebLogic domain in the image at the same time.
   - [Update Image](site/update-image.md) - The `update` command creates a new Docker image by applying WebLogic patches 
   to an existing image.  Additionally, you can create a WebLogic domain if one did not exist previously.
-  - [Cache](site/cache.md) - The Image Tool maintains metadata on the local filesystem for patches and installers.  
+  - [Cache](site/cache.md) - The Image Tool maintains metadata on the local file system for patches and installers.  
   The `cache` command can be used to manipulate the local metadata.
 
 ## Prerequisites
