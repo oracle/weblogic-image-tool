@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +23,10 @@ import com.oracle.weblogic.imagetool.api.FileResolver;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.api.model.DomainType;
+import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -29,6 +34,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
@@ -228,6 +234,169 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         dockerfileOptions.setGroupId(osUserAndGroup[1]);
     }
 
+    /**
+     * Builds a list of build args to pass on to docker with the required installer files.
+     * And, copies the installers over to build context dir.
+     *
+     * @param tmpDir build context directory
+     * @return list of build argument parameters for docker build
+     * @throws Exception in case of error
+     */
+    protected List<String> handleInstallerFiles(String tmpDir) throws Exception {
+
+        logger.entering(tmpDir);
+        List<String> retVal = new LinkedList<>();
+        List<InstallerFile> requiredInstallers = gatherRequiredInstallers();
+        for (InstallerFile installerFile : requiredInstallers) {
+            String targetFilePath = installerFile.resolve(cacheStore);
+            logger.finer("copying targetFilePath: {0}", targetFilePath);
+            String filename = new File(targetFilePath).getName();
+            try {
+                Files.copy(Paths.get(targetFilePath), Paths.get(tmpDir, filename));
+                retVal.addAll(installerFile.getBuildArg(filename));
+            } catch (Exception ee) {
+                ee.printStackTrace();
+            }
+        }
+        logger.exiting(retVal);
+        return retVal;
+    }
+
+    /**
+     * Builds a list of {@link InstallerFile} objects based on user input which are processed.
+     * to download the required install artifacts
+     *
+     * @return list of InstallerFile
+     * @throws Exception in case of error
+     */
+    protected List<InstallerFile> gatherRequiredInstallers() throws Exception {
+        logger.entering();
+        List<InstallerFile> result = new LinkedList<>();
+        if (wdtModelPath != null) {
+            logger.finer("IMG-0001", InstallerType.WDT, wdtVersion);
+            InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
+            result.add(wdtInstaller);
+            addWdtUrl(wdtInstaller.getKey());
+        }
+        logger.exiting(result.size());
+        return result;
+    }
+
+
+    /**
+     * Certain environment variables need to be set in docker images for WDT domains to work.
+     *
+     * @param wdtVariablesPath wdt variables file path.
+     * @return list of build args
+     * @throws IOException in case of error
+     */
+    private List<String> getWdtRequiredBuildArgs(Path wdtVariablesPath) throws IOException {
+        logger.finer("Entering CreateImage.getWdtRequiredBuildArgs: " + wdtVariablesPath.toAbsolutePath().toString());
+        List<String> retVal = new LinkedList<>();
+        Properties variableProps = new Properties();
+        variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
+        List<Object> matchingKeys = variableProps.keySet().stream().filter(
+            x -> variableProps.getProperty(((String) x)) != null
+                && Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
+        ).collect(Collectors.toList());
+        matchingKeys.forEach(x -> {
+            retVal.add(Constants.BUILD_ARG);
+            retVal.add(((String) x).toUpperCase() + "=" + variableProps.getProperty((String) x));
+        });
+        logger.finer("Exiting CreateImage.getWdtRequiredBuildArgs: ");
+        return retVal;
+    }
+
+    /**
+     * Checks whether the user requested a domain to be created with WDT.
+     * If so, returns the required build args to pass to docker and creates required file links to pass
+     * the model, archive, variables file to build process
+     *
+     * @param tmpDir the tmp directory which is passed to docker as the build context directory
+     * @return list of build args
+     * @throws IOException in case of error
+     */
+    protected List<String> handleWdtArgsIfRequired(String tmpDir) throws IOException {
+        logger.finer("Entering CreateImage.handleWdtArgsIfRequired: " + tmpDir);
+        List<String> retVal = new LinkedList<>();
+        if (wdtModelPath != null) {
+            String[] modelFiles = wdtModelPath.toString().split(",");
+            List<String> modelList = new ArrayList<>();
+
+            for (String modelFile : modelFiles) {
+                Path modelFilePath = Paths.get(modelFile);
+                if (Files.isRegularFile(modelFilePath)) {
+                    String modelFilename = modelFilePath.getFileName().toString();
+                    Files.copy(modelFilePath, Paths.get(tmpDir, modelFilename));
+                    modelList.add(modelFilename);
+                } else {
+                    throw new IOException("WDT model file " + modelFile + " not found");
+                }
+            }
+            dockerfileOptions.setWdtModels(modelList);
+
+            if (wdtDomainType != DomainType.WLS) {
+                if (installerType != WLSInstallerType.FMW) {
+                    throw new IOException("FMW installer is required for JRF domain");
+                }
+                retVal.add(Constants.BUILD_ARG);
+                retVal.add("DOMAIN_TYPE=" + wdtDomainType);
+                if (runRcu) {
+                    retVal.add(Constants.BUILD_ARG);
+                    retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
+                }
+            }
+            dockerfileOptions.setWdtEnabled();
+
+            if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
+                String wdtArchiveFilename = wdtArchivePath.getFileName().toString();
+                Files.copy(wdtArchivePath, Paths.get(tmpDir, wdtArchiveFilename));
+                retVal.add(Constants.BUILD_ARG);
+                retVal.add("WDT_ARCHIVE=" + wdtArchiveFilename);
+            }
+            if (wdtDomainHome != null) {
+                retVal.add(Constants.BUILD_ARG);
+                retVal.add("DOMAIN_HOME=" + wdtDomainHome);
+            }
+
+            if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
+                String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
+                Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
+                retVal.add(Constants.BUILD_ARG);
+                retVal.add("WDT_VARIABLE=" + wdtVariableFilename);
+                retVal.addAll(getWdtRequiredBuildArgs(wdtVariablesPath));
+            }
+        }
+        logger.finer("Exiting CreateImage.handleWdtArgsIfRequired: ");
+        return retVal;
+    }
+
+    /**
+     * Parses wdtVersion and constructs the url to download WDT and adds the url to cache.
+     *
+     * @param wdtKey key in the format wdt_0.17
+     * @throws Exception in case of error
+     */
+    private void addWdtUrl(String wdtKey) throws Exception {
+        logger.entering(wdtKey);
+        String wdtUrlKey = wdtKey + "_url";
+        if (cacheStore.getValueFromCache(wdtKey) == null) {
+            if (userId == null || password == null) {
+                throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
+            }
+            List<String> wdtTags = HttpUtil.getWDTTags();
+            String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) :
+                    "weblogic-deploy-tooling-" + wdtVersion;
+            if (wdtTags.contains(tagToMatch)) {
+                String downloadLink = String.format(Constants.WDT_URL_FORMAT, tagToMatch);
+                logger.info("IMG-0007", downloadLink);
+                cacheStore.addToCache(wdtUrlKey, downloadLink);
+            } else {
+                throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
+            }
+        }
+        logger.exiting();
+    }
 
     WLSInstallerType installerType = WLSInstallerType.WLS;
 
@@ -334,6 +503,52 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             defaultValue = "oracle:oracle"
     )
     private String[] osUserAndGroup;
+
+
+    @Option(
+            names = {"--wdtModel"},
+            description = "path to the WDT model file that defines the Domain to create"
+    )
+    private Path wdtModelPath;
+
+    @Option(
+            names = {"--wdtArchive"},
+            description = "path to the WDT archive file used by the WDT model"
+    )
+    private Path wdtArchivePath;
+
+    @Option(
+            names = {"--wdtVariables"},
+            description = "path to the WDT variables file for use with the WDT model"
+    )
+    private Path wdtVariablesPath;
+
+    @Option(
+            names = {"--wdtVersion"},
+            description = "WDT tool version to use",
+            defaultValue = "latest"
+    )
+    private String wdtVersion;
+
+    @Option(
+            names = {"--wdtDomainType"},
+            description = "WDT Domain Type. Default: ${DEFAULT-VALUE}. Supported values: ${COMPLETION-CANDIDATES}"
+    )
+    private DomainType wdtDomainType = DomainType.WLS;
+
+    @Option(
+            names = "--wdtRunRCU",
+            description = "instruct WDT to run RCU when creating the Domain"
+    )
+    private boolean runRcu = false;
+
+
+    @Option(
+            names = {"--wdtDomainHome"},
+            description = "pass to the -domain_home for wdt",
+            defaultValue = "/u01/domains/base_domain"
+    )
+    private String  wdtDomainHome;
 
     @Unmatched
     List<String> unmatchedOptions;

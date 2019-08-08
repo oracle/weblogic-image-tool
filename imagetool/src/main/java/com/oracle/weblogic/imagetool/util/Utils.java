@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -167,20 +168,21 @@ public class Utils {
     /**
      * Executes the given docker command and writes the process stdout to log.
      *
-     * @param isCLIMode  whether the tool is being run in CLI mode
+     * @param useStandardOut  write output to stdout (when running in command-line mode)
      * @param cmdBuilder command to execute
      * @param dockerLog  log file to write to
      * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
-    public static void runDockerCommand(boolean isCLIMode, List<String> cmdBuilder, Path dockerLog)
+    public static void runDockerCommand(boolean useStandardOut, List<String> cmdBuilder, Path dockerLog)
             throws IOException, InterruptedException {
         // process builder
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
+        logger.entering(useStandardOut, cmdBuilder, dockerLog);
         Path dockerLogPath = createFile(dockerLog, "dockerbuild.log");
+        logger.finer("Docker log: {0}", dockerLogPath);
         List<OutputStream> outputStreams = new ArrayList<>();
 
-        if (isCLIMode) {
+        if (useStandardOut) {
             outputStreams.add(System.out);
         }
 
@@ -189,8 +191,12 @@ public class Utils {
             outputStreams.add(new FileOutputStream(dockerLogPath.toFile()));
         }
 
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
+        logger.finest("Starting docker process...");
         final Process process = processBuilder.start();
+        logger.finest("Docker process started");
         writeFromInputToOutputStreams(process.getInputStream(), outputStreams.toArray(new OutputStream[0]));
+        logger.finest("Waiting for Docker to finish");
         if (process.waitFor() != 0) {
             processError(process);
         }
@@ -450,6 +456,27 @@ public class Utils {
             }
         }
         return retVal;
+    }
+
+    /**
+     * Reads the docker image environment variables into Java Properties.
+     * @param dockerImage the name of the Docker image to read from
+     * @param tmpDir the directory to use on the container to copy a script
+     * @return The key/value pairs representing the ENV of the Docker image
+     * @throws IOException when the Docker command fails
+     * @throws InterruptedException when the Docker command is interrupted
+     */
+    public static Properties getBaseImageProperties(String dockerImage, String tmpDir)
+        throws IOException, InterruptedException {
+
+        List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, dockerImage, "test-env.sh");
+        Properties result = Utils.runDockerCommand(imageEnvCmd);
+
+        if (logger.isLoggable(Level.FINE)) {
+            result.keySet().forEach(x -> logger.fine(
+                "ENV(" + dockerImage + "): " + x + "=" + result.getProperty(x.toString())));
+        }
+        return result;
     }
 
     /**

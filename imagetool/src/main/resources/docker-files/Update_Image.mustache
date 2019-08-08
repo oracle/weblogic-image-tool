@@ -4,29 +4,112 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
 #
+{{#isWdtEnabled}}
+    FROM {{baseImage}} as WDT_BUILD
+    LABEL WlsImageToolLayer="intermediate"
+
+    ARG WDT_PKG
+    ARG DOMAIN_TYPE
+    ARG DOMAIN_PARENT
+    ARG DOMAIN_HOME
+    ARG WDT_ARCHIVE
+    ARG WDT_VARIABLE
+    ARG ADMIN_NAME
+    ARG ADMIN_HOST
+    ARG ADMIN_PORT
+    ARG MANAGED_SERVER_PORT
+    ARG SCRIPTS_DIR
+    ARG RCU_RUN_FLAG
+
+    ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
+    ADMIN_NAME=${ADMIN_NAME:-admin-server} \
+    ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
+    ADMIN_PORT=${ADMIN_PORT:-7001} \
+    JAVA_HOME={{{java_home}}} \
+    MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
+    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
+    WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
+    DOMAIN_TYPE=${DOMAIN_TYPE:-WLS} \
+    DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
+    WDT_ARCHIVE=${WDT_ARCHIVE:-} \
+    WDT_VARIABLE=${WDT_VARIABLE:-} \
+    LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
+    PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
+    SCRIPTS_DIR=${SCRIPTS_DIR:-scripts} \
+    RCU_RUN_FLAG=${RCU_RUN_FLAG:-} \
+    DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
+    PATH=$PATH:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:${DOMAIN_HOME}/bin:{{{oracle_home}}}
+
+    USER root
+
+    COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{#wdtModels}}{{.}} {{/wdtModels}}${WDT_ARCHIVE} ${WDT_VARIABLE} {{{tmpDir}}}/
+
+    USER {{userid}}
+
+    RUN mkdir -p $(dirname {{{wdt_home}}}) \
+    && mkdir -p $(dirname ${DOMAIN_HOME}) \
+    && mkdir -p ${PROPERTIES_FILE_DIR} \
+    && cd $(dirname {{{wdt_home}}}) \
+    && jar xf {{{tmpDir}}}/$WDT_PKG  \
+    && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file {{{tmpDir}}}/${WDT_ARCHIVE##*/}"; fi \
+    && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file {{{tmpDir}}}/${WDT_VARIABLE##*/}"; fi \
+    && if [ -n "${RCU_RUN_FLAG}" ]; then RCU_RUN_OPT="-run_rcu"; fi \
+    && cd {{{wdt_home}}}/bin \
+    && chmod u+x ./*.sh \
+    && ./createDomain.sh \
+    -oracle_home {{{oracle_home}}} \
+    -java_home {{{java_home}}} \
+    -domain_home ${DOMAIN_HOME} \
+    -domain_type ${DOMAIN_TYPE} \
+    $RCU_RUN_OPT \
+    $VARIABLE_OPT \
+    {{{wdtModelFileArgument}}} \
+    $ARCHIVE_OPT \
+    && rm -rf {{{tempDir}}}
+{{/isWdtEnabled}}
 
 FROM {{baseImage}} as OS_UPDATE
 USER root
 
 ARG PATCHDIR
+{{#isWdtEnabled}}
+    ARG DOMAIN_PARENT
+    ARG DOMAIN_HOME
+{{/isWdtEnabled}}
 
 ENV PATCHDIR=${PATCHDIR:-patches} \
     OPATCH_NO_FUSER=true
 
+{{#isWdtEnabled}}
+ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
+    ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
+    ADMIN_PORT=${ADMIN_PORT:-7001} \
+    MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
+    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
+    WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
+    DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
+    DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
+    PATH=$PATH:${DOMAIN_HOME}/bin
+{{/isWdtEnabled}}
+
 USER {{userid}}
 
 {{#isOpatchPatchingEnabled}}
-COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
-RUN cd {{{tmpDir}}}/opatch \
- && $JAVA_HOME/bin/jar -xf {{{tmpDir}}}/opatch/p28186730_139400_Generic.zip \
- && $JAVA_HOME/bin/java -jar {{{tmpDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
- && rm -rf {{{tmpDir}}}
+    COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
+    RUN cd {{{tmpDir}}}/opatch \
+    && $JAVA_HOME/bin/jar -xf {{{tmpDir}}}/opatch/p28186730_139400_Generic.zip \
+    && $JAVA_HOME/bin/java -jar {{{tmpDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
+    && rm -rf {{{tmpDir}}}
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{{tempDir}}}/patches/
+    COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{{tempDir}}}/patches/
 
-RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
- && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
- && rm -rf {{{tmpDir}}}
+    RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
+    && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
+    && rm -rf {{{tmpDir}}}
 {{/isPatchingEnabled}}
+
+{{#isWdtEnabled}}
+    COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} $DOMAIN_HOME $DOMAIN_HOME/
+{{/isWdtEnabled}}
