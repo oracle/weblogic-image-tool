@@ -557,7 +557,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     @Option(
             names = {"--wdtJavaOptions"},
-            description = "Java options for WDT"
+            description = "Java command line options for WDT"
     )
     private String wdtJavaOptions;
 

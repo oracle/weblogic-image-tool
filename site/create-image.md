@@ -58,7 +58,7 @@ Build WebLogic docker image
       --wdtVersion=<wdtVersion>
                     WDT tool version to use
       --wdtJavaOptions=<wdtJavaOptions>
-                    Java options for WDT
+                    Java command line options for WDT
 ```
 
 ## Usage scenarios
