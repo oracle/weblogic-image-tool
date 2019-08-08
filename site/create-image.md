@@ -57,8 +57,8 @@ Build WebLogic docker image
                     path to the WDT variables file for use with the WDT model
       --wdtVersion=<wdtVersion>
                     WDT tool version to use
-      --wdtBldProperties=<wdtBldProperties>
-                    specify additional properties for WLST
+      --wdtJavaOptions=<wdtJavaOptions>
+                    Java options for WDT
 ```
 
 ## Usage scenarios

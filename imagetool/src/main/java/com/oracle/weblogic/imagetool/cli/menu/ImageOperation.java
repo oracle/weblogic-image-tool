@@ -359,9 +359,9 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 retVal.add("DOMAIN_HOME=" + wdtDomainHome);
             }
 
-            if (wdtBldProperties != null) {
+            if (wdtJavaOptions != null) {
                 retVal.add(Constants.BUILD_ARG);
-                retVal.add("WLSDEPLOY_PROPERTIES=" + wdtBldProperties);
+                retVal.add("WLSDEPLOY_PROPERTIES=" + wdtJavaOptions);
             }
 
             if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
@@ -556,10 +556,10 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     private String  wdtDomainHome;
 
     @Option(
-            names = {"--wdtBldProperties"},
-            description = "pass to the wdt as WLSDEPLOY_PROPERTIES argument"
+            names = {"--wdtJavaOptions"},
+            description = "Java options for WDT"
     )
-    private String  wdtBldProperties;
+    private String wdtJavaOptions;
 
     @Unmatched
     List<String> unmatchedOptions;
