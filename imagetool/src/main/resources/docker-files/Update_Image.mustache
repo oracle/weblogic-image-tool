@@ -19,7 +19,6 @@
     ARG ADMIN_PORT
     ARG MANAGED_SERVER_PORT
     ARG SCRIPTS_DIR
-    ARG WDT_HOME
     ARG RCU_RUN_FLAG
     ARG WLSDEPLOY_PROPERTIES
 
@@ -37,7 +36,6 @@
     WDT_VARIABLE=${WDT_VARIABLE:-} \
     LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
-    WDT_HOME=${WDT_HOME:-/u01/app/weblogic-deploy} \
     SCRIPTS_DIR=${SCRIPTS_DIR:-scripts} \
     RCU_RUN_FLAG=${RCU_RUN_FLAG:-} \
     DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
@@ -45,40 +43,21 @@
 
     USER root
 
-    {{#useYum}}
-        RUN yum -y --downloaddir={{{tmpDir}}} install gzip tar unzip \
-        && yum -y --downloaddir={{{tmpDir}}} clean all \
-        && rm -rf {{{tmpDir}}}
-    {{/useYum}}
-    {{#useAptGet}}
-        RUN apt-get -y update \
-        && apt-get -y upgrade \
-        && apt-get -y install gzip tar unzip \
-        && apt-get -y clean all
-    {{/useAptGet}}
-    {{#useApk}}
-        RUN apk update \
-        && apk upgrade \
-        && rm -rf /var/cache/apk/*
-    {{/useApk}}
-    {{#useZypper}}
-        RUN zypper -nq update \
-        && zypper -nq clean \
-        && rm -rf /var/cache/zypp/*
-    {{/useZypper}}
-
     COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{#wdtModels}}{{.}} {{/wdtModels}}${WDT_ARCHIVE} ${WDT_VARIABLE} {{{tmpDir}}}/
 
     USER {{userid}}
 
-    RUN unzip -q {{{tmpDir}}}/$WDT_PKG -d $(dirname $WDT_HOME) \
+    RUN mkdir -p $(dirname {{{wdt_home}}}) \
     && mkdir -p $(dirname ${DOMAIN_HOME}) \
     && mkdir -p ${PROPERTIES_FILE_DIR} \
+    && cd $(dirname {{{wdt_home}}}) \
+    && jar xf {{{tmpDir}}}/$WDT_PKG  \
     && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file {{{tmpDir}}}/${WDT_ARCHIVE##*/}"; fi \
     && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file {{{tmpDir}}}/${WDT_VARIABLE##*/}"; fi \
     && if [ -n "${RCU_RUN_FLAG}" ]; then RCU_RUN_OPT="-run_rcu"; fi \
-    && cd ${WDT_HOME}/bin \
-    && ${WDT_HOME}/bin/createDomain.sh \
+    && cd {{{wdt_home}}}/bin \
+    && chmod u+x ./*.sh \
+    && ./createDomain.sh \
     -oracle_home {{{oracle_home}}} \
     -java_home {{{java_home}}} \
     -domain_home ${DOMAIN_HOME} \
@@ -87,7 +66,7 @@
     $VARIABLE_OPT \
     {{{wdtModelFileArgument}}} \
     $ARCHIVE_OPT \
-    && rm -rf ${WDT_HOME} {{{tempDir}}}
+    && rm -rf {{{tempDir}}}
 {{/isWdtEnabled}}
 
 FROM {{baseImage}} as OS_UPDATE
@@ -95,8 +74,8 @@ USER root
 
 ARG PATCHDIR
 {{#isWdtEnabled}}
-ARG DOMAIN_PARENT
-ARG DOMAIN_HOME
+    ARG DOMAIN_PARENT
+    ARG DOMAIN_HOME
 {{/isWdtEnabled}}
 
 ENV PATCHDIR=${PATCHDIR:-patches} \
@@ -117,19 +96,19 @@ ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
 USER {{userid}}
 
 {{#isOpatchPatchingEnabled}}
-COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
-RUN cd {{{tmpDir}}}/opatch \
- && $JAVA_HOME/bin/jar -xf {{{tmpDir}}}/opatch/p28186730_139400_Generic.zip \
- && $JAVA_HOME/bin/java -jar {{{tmpDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
- && rm -rf {{{tmpDir}}}
+    COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
+    RUN cd {{{tmpDir}}}/opatch \
+    && $JAVA_HOME/bin/jar -xf {{{tmpDir}}}/opatch/p28186730_139400_Generic.zip \
+    && $JAVA_HOME/bin/java -jar {{{tmpDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
+    && rm -rf {{{tmpDir}}}
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{{tempDir}}}/patches/
+    COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{{tempDir}}}/patches/
 
-RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
- && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
- && rm -rf {{{tmpDir}}}
+    RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
+    && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
+    && rm -rf {{{tmpDir}}}
 {{/isPatchingEnabled}}
 
 {{#isWdtEnabled}}

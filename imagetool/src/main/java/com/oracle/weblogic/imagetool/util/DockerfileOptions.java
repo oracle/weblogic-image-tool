@@ -23,6 +23,7 @@ public class DockerfileOptions {
     private String groupname;
     private String javaHome;
     private String oracleHome;
+    private String wdtHome;
     private String tempDirectory;
     private String baseImageName;
     private ArrayList<String> wdtModelList;
@@ -43,6 +44,7 @@ public class DockerfileOptions {
 
         javaHome = "/u01/jdk";
         oracleHome = "/u01/oracle";
+        wdtHome = "/u01/app/weblogic-deploy";
         tempDirectory = "/tmp/delme";
 
         baseImageName = "oraclelinux:7-slim";
@@ -131,6 +133,18 @@ public class DockerfileOptions {
 
     public String oracle_home() {
         return oracleHome;
+    }
+
+    public String wdt_home() {
+        return wdtHome;
+    }
+
+    public String work_dir() {
+        if (isWdtEnabled()) {
+            return wdt_home();
+        } else {
+            return oracle_home();
+        }
     }
 
     public void setOracleHome(String value) {
