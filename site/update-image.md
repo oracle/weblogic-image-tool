@@ -52,6 +52,8 @@ Update WebLogic docker image with selected patches
                     path to the WDT variables file for use with the WDT model
       --wdtVersion=<wdtVersion>
                     WDT tool version to use
+      --wdtJavaOptions=<wdtJavaOptions>
+                    Java command line options for WDT
 ```
 
 ## Usage scenarios
