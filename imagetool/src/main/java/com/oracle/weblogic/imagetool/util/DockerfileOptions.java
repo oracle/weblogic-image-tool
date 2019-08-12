@@ -306,7 +306,7 @@ public class DockerfileOptions {
      * @return the name of the WDT script file.
      */
     public String wdtCommand() {
-        return wdtOperation.toString();
+        return wdtOperation.getScript();
     }
 
     /**
