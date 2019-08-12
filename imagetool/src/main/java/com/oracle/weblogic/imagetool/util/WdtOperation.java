@@ -6,7 +6,8 @@ package com.oracle.weblogic.imagetool.util;
 public enum WdtOperation {
 
     CREATE("createDomain.sh"),
-    UPDATE("updateDomain.sh");
+    UPDATE("updateDomain.sh"),
+    DEPLOY("deployApps.sh");
 
     WdtOperation(String script) {
         this.script = script;
