@@ -1,12 +1,12 @@
 # Update Image
 
-Once you have created a Docker image with the Image Tool, you may want to change it from time to time.  The `update` 
+After you have created a Docker image with the Image Tool, you may want to change it from time to time.  The `update` 
 command should be used to update these existing Docker images created with the Image Tool.  For example, you may want to:
 * Apply a WebLogic patch
 * Apply the latest PSU from Oracle 
 * Create a new WebLogic domain (if one did not already exist) 
 * Deploy a new application to an existing domain
-* Modify the domain configuration (add a datasource, change a port number, ...)
+* Modify the domain configuration (add a data source, change a port number, ...)
  
 The required options for the `update` command are marked with an asterisk (*), below. 
 **NOTE:** The password can be provided in one of the three ways:
