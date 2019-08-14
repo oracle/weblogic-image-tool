@@ -1,7 +1,15 @@
 # Update Image
 
-Use the `update` command to apply patches to an existing WebLogic Docker image. The required options for the command
-are marked with an asterisk (*). The password can be provided in one of the three ways:
+After you have created a Docker image with the Image Tool, you may want to change it from time to time.  The `update` 
+command should be used to update these existing Docker images created with the Image Tool.  For example, you may want to:
+* Apply a WebLogic patch
+* Apply the latest PSU from Oracle 
+* Create a new WebLogic domain (if one did not already exist) 
+* Deploy a new application to an existing domain
+* Modify the domain configuration (add a data source, change a port number, ...)
+ 
+The required options for the `update` command are marked with an asterisk (*), below. 
+**NOTE:** The password can be provided in one of the three ways:
 
 * Plain text
 * Environment variable
@@ -47,6 +55,9 @@ Update WebLogic docker image with selected patches
                       RestrictedJRF
       --wdtModel=<wdtModelPath>
                     path to the WDT model file that defines the Domain to create
+      --wdtOperation=<wdtOperation>
+                    Create a new domain, or update an existing domain.  Default:
+                      CREATE. Supported values: CREATE, UPDATE, DEPLOY                    
       --wdtRunRCU   instruct WDT to run RCU when creating the Domain
       --wdtVariables=<wdtVariablesPath>
                     path to the WDT variables file for use with the WDT model
@@ -76,5 +87,11 @@ installer is accessed from the cache with key wdt_1.1.1.  The model and archive 
     imagetool update --fromImage wls:12.2.1.3.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
     ```
     
+- Use `deployApps` from WDT to deploy a new application, the WLS Metrics Exporter.  The model and archive to use are 
+located in a subfolder named `wdt`.
+    ```
+    imagetool update --tag mydomain:2 --fromImage mydomain:1 --wdtOperation deploy --wdtArchive ./wdt/exporter_archive.zip --wdtModel ./wdt/exporter_model.yaml --wdtVersion 1.1.1   
+    ``` 
+     
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.

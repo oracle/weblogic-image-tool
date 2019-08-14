@@ -27,6 +27,7 @@ public class DockerfileOptions {
     private String tempDirectory;
     private String baseImageName;
     private ArrayList<String> wdtModelList;
+    private WdtOperation wdtOperation;
 
     /**
      * Options to be used with the Mustache template.
@@ -48,6 +49,8 @@ public class DockerfileOptions {
         tempDirectory = "/tmp/delme";
 
         baseImageName = "oraclelinux:7-slim";
+
+        wdtOperation = WdtOperation.CREATE;
     }
 
     /**
@@ -295,5 +298,23 @@ public class DockerfileOptions {
     public void setTempDirectory(String value) {
 
         tempDirectory = value;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides the command to run for WDT.  The default is createDomain.sh.
+     *
+     * @return the name of the WDT script file.
+     */
+    public String wdtCommand() {
+        return wdtOperation.getScript();
+    }
+
+    /**
+     * Set the desired WDT Operation to use during update.
+     *
+     * @param value  CREATE or UPDATE.
+     */
+    public void setWdtCommand(WdtOperation value) {
+        wdtOperation = value;
     }
 }

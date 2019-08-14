@@ -23,6 +23,7 @@ import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.ValidationResult;
+import com.oracle.weblogic.imagetool.util.WdtOperation;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -170,6 +171,7 @@ public class UpdateImage extends ImageOperation {
 
             // build wdt args if user passes --wdtModelPath
             cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir));
+            dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
             cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
@@ -218,6 +220,13 @@ public class UpdateImage extends ImageOperation {
             defaultValue = "28186730"
     )
     private String opatchBugNumber;
+
+    @Option(
+        names = {"--wdtOperation"},
+        description = "Create a new domain, or update an existing domain.  Default: ${DEFAULT-VALUE}. "
+            + "Supported values: ${COMPLETION-CANDIDATES}"
+    )
+    private WdtOperation wdtOperation = WdtOperation.CREATE;
 
     private boolean opatchRequired = false;
 }

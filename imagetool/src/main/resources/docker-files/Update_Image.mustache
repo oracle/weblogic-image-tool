@@ -57,9 +57,8 @@
     && if [ -n "${RCU_RUN_FLAG}" ]; then RCU_RUN_OPT="-run_rcu"; fi \
     && cd {{{wdt_home}}}/bin \
     && chmod u+x ./*.sh \
-    && ./createDomain.sh \
+    && ./{{wdtCommand}} \
     -oracle_home {{{oracle_home}}} \
-    -java_home {{{java_home}}} \
     -domain_home ${DOMAIN_HOME} \
     -domain_type ${DOMAIN_TYPE} \
     $RCU_RUN_OPT \
