@@ -312,7 +312,7 @@ public class DockerfileOptions {
     /**
      * Set the desired WDT Operation to use during update.
      *
-     * @param value  CREATE or UPDATE.
+     * @param value  CREATE, DEPLOY, or UPDATE.
      */
     public void setWdtCommand(WdtOperation value) {
         wdtOperation = value;
