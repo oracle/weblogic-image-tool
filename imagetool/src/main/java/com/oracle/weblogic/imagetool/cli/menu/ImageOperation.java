@@ -317,9 +317,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * @throws IOException in case of error
      */
     protected List<String> handleWdtArgsIfRequired(String tmpDir) throws IOException {
-        logger.finer("Entering CreateImage.handleWdtArgsIfRequired: " + tmpDir);
+        logger.entering(tmpDir);
+
         List<String> retVal = new LinkedList<>();
         if (wdtModelPath != null) {
+            dockerfileOptions.setWdtEnabled();
+            dockerfileOptions.setWdtModelOnly(wdtModelOnly);
             String[] modelFiles = wdtModelPath.toString().split(",");
             List<String> modelList = new ArrayList<>();
 
@@ -335,34 +338,31 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             }
             dockerfileOptions.setWdtModels(modelList);
 
+            dockerfileOptions.setWdtDomainType(wdtDomainType);
             if (wdtDomainType != DomainType.WLS) {
                 if (installerType != WLSInstallerType.FMW) {
                     throw new IOException("FMW installer is required for JRF domain");
                 }
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("DOMAIN_TYPE=" + wdtDomainType);
                 if (runRcu) {
                     retVal.add(Constants.BUILD_ARG);
                     retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
                 }
             }
-            dockerfileOptions.setWdtEnabled();
 
             if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
                 String wdtArchiveFilename = wdtArchivePath.getFileName().toString();
                 Files.copy(wdtArchivePath, Paths.get(tmpDir, wdtArchiveFilename));
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("WDT_ARCHIVE=" + wdtArchiveFilename);
+                //Until WDT supports multiple archives, take single file argument from CLI and convert to list
+                List<String> archives = new ArrayList<>();
+                archives.add(wdtArchiveFilename);
+                dockerfileOptions.setWdtArchives(archives);
             }
             if (wdtDomainHome != null) {
                 retVal.add(Constants.BUILD_ARG);
                 retVal.add("DOMAIN_HOME=" + wdtDomainHome);
             }
 
-            if (wdtJavaOptions != null) {
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("WLSDEPLOY_PROPERTIES=" + wdtJavaOptions);
-            }
+            dockerfileOptions.setJavaOptions(wdtJavaOptions);
 
             if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
                 String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
@@ -372,7 +372,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 retVal.addAll(getWdtRequiredBuildArgs(wdtVariablesPath));
             }
         }
-        logger.finer("Exiting CreateImage.handleWdtArgsIfRequired: ");
+        logger.exiting();
         return retVal;
     }
 
@@ -560,6 +560,14 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             description = "Java command line options for WDT"
     )
     private String wdtJavaOptions;
+
+
+    @Option(
+        names = {"--wdtModelOnly"},
+        description = "Install WDT and copy the models to the image, but do not create the domain. "
+            + "Default: ${DEFAULT-VALUE}."
+    )
+    private boolean wdtModelOnly = false;
 
     @Unmatched
     List<String> unmatchedOptions;

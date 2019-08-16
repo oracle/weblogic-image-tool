@@ -100,66 +100,61 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
  && rm -rf {{{tempDir}}}
 
 {{#isWdtEnabled}}
-    FROM OS_UPDATE as WDT_BUILD
+    FROM WLS_BUILD as WDT_BUILD
     LABEL WlsImageToolLayer="intermediate"
 
     ARG WDT_PKG
-    ARG DOMAIN_TYPE
     ARG DOMAIN_PARENT
     ARG DOMAIN_HOME
-    ARG WDT_ARCHIVE
-    ARG WDT_VARIABLE
-    ARG ADMIN_NAME
-    ARG ADMIN_HOST
-    ARG ADMIN_PORT
-    ARG MANAGED_SERVER_PORT
-    ARG SCRIPTS_DIR
     ARG RCU_RUN_FLAG
-    ARG WLSDEPLOY_PROPERTIES
 
     ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
-    ADMIN_NAME=${ADMIN_NAME:-admin-server} \
-    ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
-    ADMIN_PORT=${ADMIN_PORT:-7001} \
-    JAVA_HOME={{{java_home}}} \
-    MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
-    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
-    WLSDEPLOY_PROPERTIES="${WLSDEPLOY_PROPERTIES} -Djava.security.egd=file:/dev/./urandom" \
-    DOMAIN_TYPE=${DOMAIN_TYPE:-WLS} \
-    DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
-    WDT_ARCHIVE=${WDT_ARCHIVE:-} \
-    WDT_VARIABLE=${WDT_VARIABLE:-} \
-    LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
-    PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
-    SCRIPTS_DIR=${SCRIPTS_DIR:-scripts} \
-    RCU_RUN_FLAG=${RCU_RUN_FLAG:-} \
-    DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
-    PATH=$PATH:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:${DOMAIN_HOME}/bin:{{{oracle_home}}}
+        WLSDEPLOY_PROPERTIES="{{wlsdeploy_properties}} -Djava.security.egd=file:/dev/./urandom" \
+        DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
+        LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
+        PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
+        RCU_RUN_FLAG=${RCU_RUN_FLAG:-} \
+        DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
+        PATH=$PATH:${DOMAIN_HOME}/bin
 
-    {{#installJava}}
-        COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
-    {{/installJava}}
-    COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
-    COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{#wdtModels}}{{.}} {{/wdtModels}}${WDT_ARCHIVE} ${WDT_VARIABLE} {{{tmpDir}}}/
+    COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{{tmpDir}}}/
+
+    RUN mkdir -p {{{wdt_home}}} \
+    && chown {{userid}}:{{groupid}} {{{wdt_home}}}
 
     USER {{userid}}
 
-    RUN unzip -q {{{tmpDir}}}/$WDT_PKG -d $(dirname {{{wdt_home}}}) \
+    RUN cd {{{wdt_home}}} \
+    && mkdir models archives variables \
     && mkdir -p $(dirname ${DOMAIN_HOME}) \
-    && mkdir -p ${PROPERTIES_FILE_DIR} \
-    && if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file {{{tmpDir}}}/${WDT_ARCHIVE##*/}"; fi \
-    && if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file {{{tmpDir}}}/${WDT_VARIABLE##*/}"; fi \
-    && if [ -n "${RCU_RUN_FLAG}" ]; then RCU_RUN_OPT="-run_rcu"; fi \
-    && cd {{{wdt_home}}}/bin \
-    && {{{wdt_home}}}/bin/createDomain.sh \
-    -oracle_home {{{oracle_home}}} \
-    -domain_home ${DOMAIN_HOME} \
-    -domain_type ${DOMAIN_TYPE} \
-    $RCU_RUN_OPT \
-    $VARIABLE_OPT \
-    {{{wdtModelFileArgument}}} \
-    $ARCHIVE_OPT \
-    && rm -rf {{{tempDir}}}
+    && mkdir -p ${PROPERTIES_FILE_DIR}
+
+    {{#wdtModels}}
+        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
+    {{/wdtModels}}
+
+    {{#wdtArchives}}
+        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/archives/
+    {{/wdtArchives}}
+
+    {{#wdtVariables}}
+        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/variables/
+    {{/wdtVariables}}
+
+    USER {{userid}}
+
+    RUN unzip -q {{{tmpDir}}}/$WDT_PKG -d {{{wdt_home}}} \
+    && if [ -n "${RCU_RUN_FLAG}" ]; then RCU_RUN_OPT="-run_rcu"; fi
+    {{^modelOnly}}
+        RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
+        && ./createDomain.sh \
+        -oracle_home {{{oracle_home}}} \
+        -domain_home ${DOMAIN_HOME} \
+        -domain_type {{domainType}} \
+        $RCU_RUN_OPT \
+        {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
+    {{/modelOnly}}
+
 {{/isWdtEnabled}}
 
 FROM {{baseImage}} as FINAL_BUILD
@@ -183,7 +178,6 @@ ENV ORACLE_HOME={{{oracle_home}}} \
     ADMIN_PORT=${ADMIN_PORT:-7001} \
     MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
-    WLSDEPLOY_PROPERTIES="-Djava.security.egd=file:/dev/./urandom" \
     DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
     DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
 {{/isWdtEnabled}}
@@ -202,11 +196,16 @@ RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && 
 {{/installJava}}
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
 {{#isWdtEnabled}}
-    COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} $DOMAIN_HOME $DOMAIN_HOME/
+    {{#modelOnly}}
+        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+    {{/modelOnly}}
+    {{^modelOnly}}
+        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} $DOMAIN_HOME $DOMAIN_HOME/
+    {{/modelOnly}}
 {{/isWdtEnabled}}
 
 USER {{userid}}
-WORKDIR {{{work_dir}}}
+WORKDIR /
 
 {{#isWdtEnabled}}
     # Expose admin server, managed server port

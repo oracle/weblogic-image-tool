@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
+import com.oracle.weblogic.imagetool.api.model.DomainType;
+
 public class DockerfileOptions {
 
     boolean useYum = false;
@@ -23,19 +25,23 @@ public class DockerfileOptions {
     private String groupname;
     private String javaHome;
     private String oracleHome;
-    private String wdtHome;
     private String tempDirectory;
     private String baseImageName;
+
+    // WDT values
+    private String wdtHome;
     private ArrayList<String> wdtModelList;
+    private ArrayList<String> wdtArchiveList;
+    private ArrayList<String> wdtVariableList;
     private WdtOperation wdtOperation;
+    private DomainType wdtDomainType;
+    private String wdtJavaOptions;
+    private boolean wdtModelOnly;
 
     /**
      * Options to be used with the Mustache template.
      */
     public DockerfileOptions() {
-        wdtModelList = new ArrayList<>();
-
-        useWdt = false;
         applyPatches = false;
         updateOpatch = false;
         skipJavaInstall = false;
@@ -45,12 +51,17 @@ public class DockerfileOptions {
 
         javaHome = "/u01/jdk";
         oracleHome = "/u01/oracle";
-        wdtHome = "/u01/app/weblogic-deploy";
-        tempDirectory = "/tmp/delme";
+        tempDirectory = "/tmp/imagetool";
 
         baseImageName = "oraclelinux:7-slim";
 
+        // WDT values
+        useWdt = false;
+        wdtHome = "/u01/wdt";
         wdtOperation = WdtOperation.CREATE;
+        wdtModelList = new ArrayList<>();
+        wdtArchiveList = new ArrayList<>();
+        wdtVariableList = new ArrayList<>();
     }
 
     /**
@@ -232,11 +243,13 @@ public class DockerfileOptions {
     /**
      * If WDT is enabled, and the model is not in the archive, the model file argument must be set.
      * @param value a model filename, or comma-separated model filenames.
+     * @return this
      */
-    public void setWdtModels(List<String> value) {
+    public DockerfileOptions setWdtModels(List<String> value) {
         if (value != null) {
             wdtModelList.addAll(value);
         }
+        return this;
     }
 
     /**
@@ -257,9 +270,79 @@ public class DockerfileOptions {
         StringJoiner result = new StringJoiner(",","-model_file ","");
         result.setEmptyValue("");
         for (String model : wdtModelList) {
-            result.add(tempDirectory + "/" + model);
+            result.add(wdtHome + "/models/" + model);
         }
         return result.toString();
+    }
+
+    /**
+     * Set the path to the archive file to be used with WDT.
+     * @param value an archive filename, or comma-separated archive filenames.
+     * @return this
+     */
+    public DockerfileOptions setWdtArchives(List<String> value) {
+        if (value != null) {
+            wdtArchiveList.addAll(value);
+        }
+        return this;
+    }
+
+    /**
+     * Referenced by Dockerfile template, a simple list of archive filenames.
+     *
+     * @return a list of Strings with the archive filenames.
+     */
+    public List<String> wdtArchives() {
+        return wdtArchiveList;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides the WDT argument for 1..n archive files.
+     *
+     * @return archive_file argument for WDT command.
+     */
+    public String wdtArchiveFileArgument() {
+        StringJoiner result = new StringJoiner(",","-archive_file ","");
+        result.setEmptyValue("");
+        for (String model : wdtArchiveList) {
+            result.add(wdtHome + "/archives/" + model);
+        }
+        return result.toString();
+    }
+
+    /**
+     * Referenced by Dockerfile template, a simple list of variable filenames.
+     *
+     * @return a list of Strings with the archive filenames.
+     */
+    public List<String> wdtVariables() {
+        return wdtVariableList;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides the WDT argument for 1..n variable files.
+     *
+     * @return variable_file argument for WDT command.
+     */
+    public String wdtVariableFileArgument() {
+        StringJoiner result = new StringJoiner(",","-variable_file ","");
+        result.setEmptyValue("");
+        for (String model : wdtVariableList) {
+            result.add(wdtHome + "/variables/" + model);
+        }
+        return result.toString();
+    }
+
+    /**
+     * Set the path to the variable file to be used with WDT.
+     * @param value an variable filename, or comma-separated variable filenames.
+     * @return this
+     */
+    public DockerfileOptions setWdtVariables(List<String> value) {
+        if (value != null) {
+            wdtVariableList.addAll(value);
+        }
+        return this;
     }
 
     /**
@@ -314,7 +397,45 @@ public class DockerfileOptions {
      *
      * @param value  CREATE, DEPLOY, or UPDATE.
      */
-    public void setWdtCommand(WdtOperation value) {
+    public DockerfileOptions setWdtCommand(WdtOperation value) {
         wdtOperation = value;
+        return this;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides the domain type for WDT.
+     *
+     * @return the name of the WDT domain type.
+     */
+    public String domainType() {
+        return wdtDomainType.name();
+    }
+
+    /**
+     * Set the desired WDT domain type parameter.
+     *
+     * @param value  WLS, JRF, ...
+     */
+    public DockerfileOptions setWdtDomainType(DomainType value) {
+        wdtDomainType = value;
+        return this;
+    }
+
+    public DockerfileOptions setJavaOptions(String value) {
+        wdtJavaOptions = value;
+        return this;
+    }
+
+    public DockerfileOptions setWdtModelOnly(boolean value) {
+        wdtModelOnly = value;
+        return this;
+    }
+
+    public boolean modelOnly() {
+        return wdtModelOnly;
+    }
+
+    public String wlsdeploy_properties() {
+        return wdtJavaOptions;
     }
 }
