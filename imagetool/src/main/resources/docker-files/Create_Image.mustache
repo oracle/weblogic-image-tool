@@ -154,6 +154,14 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
         $RCU_RUN_OPT \
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
     {{/modelOnly}}
+    {{#modelOnly}}
+        RUN cd {{{wdt_home}}} \
+        && cd weblogic-deploy/bin \
+        && chmod u+x ./*.sh \
+        && ./validateModel.sh \
+        -oracle_home {{{oracle_home}}} \
+        {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
+    {{/modelOnly}}
 
 {{/isWdtEnabled}}
 
