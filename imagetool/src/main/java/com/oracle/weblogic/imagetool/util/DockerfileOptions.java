@@ -11,6 +11,10 @@ import com.oracle.weblogic.imagetool.api.model.DomainType;
 
 public class DockerfileOptions {
 
+    private static final String DEFAULT_JAVA_HOME = "/u01/jdk";
+    private static final String DEFAULT_ORACLE_HOME = "/u01/oracle";
+    private static final String DEFAULT_DOMAIN_HOME = "/u01/domains/base_domain";
+
     boolean useYum = false;
     boolean useAptGet = false;
     boolean useApk = false;
@@ -25,6 +29,7 @@ public class DockerfileOptions {
     private String groupname;
     private String javaHome;
     private String oracleHome;
+    private String domainHome;
     private String tempDirectory;
     private String baseImageName;
 
@@ -49,8 +54,9 @@ public class DockerfileOptions {
         username = "oracle";
         groupname = "oracle";
 
-        javaHome = "/u01/jdk";
-        oracleHome = "/u01/oracle";
+        javaHome = DEFAULT_JAVA_HOME;
+        oracleHome = DEFAULT_ORACLE_HOME;
+        domainHome = DEFAULT_DOMAIN_HOME;
         tempDirectory = "/tmp/imagetool";
 
         baseImageName = "oraclelinux:7-slim";
@@ -149,20 +155,46 @@ public class DockerfileOptions {
         return oracleHome;
     }
 
+    public String domain_home() {
+        return domainHome;
+    }
+
     public String wdt_home() {
         return wdtHome;
     }
 
     public String work_dir() {
-        if (isWdtEnabled()) {
-            return wdt_home();
+        if (isWdtEnabled() && !modelOnly()) {
+            return domain_home();
         } else {
             return oracle_home();
         }
     }
 
+    /**
+     * Set the ORACLE_HOME environment variable for the Dockerfile to be written.
+     *
+     * @param value the folder where Oracle Middleware is or should be installed, aka ORACLE_HOME.
+     */
     public void setOracleHome(String value) {
-        oracleHome = value;
+        if (value != null) {
+            oracleHome = value;
+        } else {
+            oracleHome = DEFAULT_ORACLE_HOME;
+        }
+    }
+
+    /**
+     * Set the Domain directory to be used by WDT domain creation.
+     * WDT -domain_home.
+     * @param value the full path to the domain directory
+     */
+    public void setDomainHome(String value) {
+        if (value != null) {
+            domainHome = value;
+        } else {
+            domainHome = DEFAULT_DOMAIN_HOME;
+        }
     }
 
     /**
@@ -171,7 +203,11 @@ public class DockerfileOptions {
      * @param value the folder where JAVA is or should be installed, aka JAVA_HOME.
      */
     public void setJavaHome(String value) {
-        javaHome = value;
+        if (value != null) {
+            javaHome = value;
+        } else {
+            javaHome = DEFAULT_JAVA_HOME;
+        }
     }
 
     /**

@@ -9,18 +9,15 @@
     LABEL WlsImageToolLayer="intermediate"
 
     ARG WDT_PKG
-    ARG DOMAIN_PARENT
-    ARG DOMAIN_HOME
     ARG RCU_RUN_FLAG
 
     ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
-        DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
         WLSDEPLOY_PROPERTIES={{wlsdeploy_properties}} \
         LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
         PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
         RCU_RUN_FLAG=${RCU_RUN_FLAG:-} \
-        DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
-        PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:${DOMAIN_HOME}/bin:{{{oracle_home}}}
+        DOMAIN_HOME={{{domain_home}}} \
+        PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{domain_home}}}/bin:{{{oracle_home}}}
 
     USER root
 
@@ -33,7 +30,7 @@
 
     RUN cd {{{wdt_home}}} \
     && mkdir models archives variables \
-    && mkdir -p $(dirname ${DOMAIN_HOME}) \
+    && mkdir -p $(dirname {{{domain_home}}}) \
     && mkdir -p ${PROPERTIES_FILE_DIR}
 
     {{#wdtModels}}
@@ -58,7 +55,7 @@
         && chmod u+x ./*.sh \
         && ./{{wdtCommand}} \
         -oracle_home {{{oracle_home}}} \
-        -domain_home ${DOMAIN_HOME} \
+        -domain_home {{{domain_home}}} \
         -domain_type {{domainType}} \
         $RCU_RUN_OPT \
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
@@ -78,10 +75,6 @@ FROM {{baseImage}} as OS_UPDATE
 USER root
 
 ARG PATCHDIR
-{{#isWdtEnabled}}
-    ARG DOMAIN_PARENT
-    ARG DOMAIN_HOME
-{{/isWdtEnabled}}
 
 ENV PATCHDIR=${PATCHDIR:-patches} \
     OPATCH_NO_FUSER=true
@@ -92,9 +85,8 @@ ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
     ADMIN_PORT=${ADMIN_PORT:-7001} \
     MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
-    DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
-    DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
-    PATH=${PATH}:${DOMAIN_HOME}/bin
+    DOMAIN_HOME={{{domain_home}}} \
+    PATH=${PATH}:{{{domain_home}}}/bin
 {{/isWdtEnabled}}
 
 USER {{userid}}
@@ -120,6 +112,6 @@ USER {{userid}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
     {{/modelOnly}}
     {{^modelOnly}}
-        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} $DOMAIN_HOME $DOMAIN_HOME/
+        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
     {{/modelOnly}}
 {{/isWdtEnabled}}

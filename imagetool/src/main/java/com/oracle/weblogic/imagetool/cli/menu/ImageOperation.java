@@ -357,10 +357,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 archives.add(wdtArchiveFilename);
                 dockerfileOptions.setWdtArchives(archives);
             }
-            if (wdtDomainHome != null) {
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("DOMAIN_HOME=" + wdtDomainHome);
-            }
+            dockerfileOptions.setDomainHome(wdtDomainHome);
 
             dockerfileOptions.setJavaOptions(wdtJavaOptions);
 

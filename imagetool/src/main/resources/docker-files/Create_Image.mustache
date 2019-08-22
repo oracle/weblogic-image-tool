@@ -108,18 +108,14 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
     LABEL WlsImageToolLayer="intermediate"
 
     ARG WDT_PKG
-    ARG DOMAIN_PARENT
-    ARG DOMAIN_HOME
     ARG RCU_RUN_FLAG
 
     ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
         WLSDEPLOY_PROPERTIES="{{wlsdeploy_properties}} -Djava.security.egd=file:/dev/./urandom" \
-        DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
         LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
         PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
         RCU_RUN_FLAG=${RCU_RUN_FLAG:-} \
-        DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
-        PATH=${PATH}:${DOMAIN_HOME}/bin
+        DOMAIN_HOME={{{domain_home}}}
 
     COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{{tmpDir}}}/
 
@@ -130,7 +126,7 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
 
     RUN cd {{{wdt_home}}} \
     && mkdir models archives variables \
-    && mkdir -p $(dirname ${DOMAIN_HOME}) \
+    && mkdir -p $(dirname {{{domain_home}}}) \
     && mkdir -p ${PROPERTIES_FILE_DIR}
 
     {{#wdtModels}}
@@ -153,7 +149,7 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
         RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
         && ./createDomain.sh \
         -oracle_home {{{oracle_home}}} \
-        -domain_home ${DOMAIN_HOME} \
+        -domain_home {{{domain_home}}} \
         -domain_type {{domainType}} \
         $RCU_RUN_OPT \
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
@@ -171,10 +167,6 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
 
 FROM {{baseImage}} as FINAL_BUILD
 
-{{#isWdtEnabled}}
-ARG DOMAIN_PARENT
-ARG DOMAIN_HOME
-{{/isWdtEnabled}}
 ARG ADMIN_NAME
 ARG ADMIN_HOST
 ARG ADMIN_PORT
@@ -190,12 +182,11 @@ ENV ORACLE_HOME={{{oracle_home}}} \
     ADMIN_PORT=${ADMIN_PORT:-7001} \
     MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
-    DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
-    DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
+    DOMAIN_HOME={{{domain_home}}} \
 {{/isWdtEnabled}}
     LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
-    PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}{{#isWdtEnabled}}:${DOMAIN_HOME}/bin{{/isWdtEnabled}}
+    PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}{{#isWdtEnabled}}:${{{domain_home}}}/bin{{/isWdtEnabled}}
 
 ## Create user and group
 RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd {{groupid}} || exit -1 ; fi \
@@ -214,7 +205,7 @@ COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
     {{/modelOnly}}
     {{^modelOnly}}
-        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} $DOMAIN_HOME $DOMAIN_HOME/
+        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
     {{/modelOnly}}
 {{/isWdtEnabled}}
 
