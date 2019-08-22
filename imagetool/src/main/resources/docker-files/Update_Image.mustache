@@ -20,7 +20,7 @@
         PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
         RCU_RUN_FLAG=${RCU_RUN_FLAG:-} \
         DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
-        PATH=$PATH:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:${DOMAIN_HOME}/bin:{{{oracle_home}}}
+        PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:${DOMAIN_HOME}/bin:{{{oracle_home}}}
 
     USER root
 
@@ -94,7 +94,7 @@ ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
     DOMAIN_PARENT=${DOMAIN_PARENT:-/u01/domains} \
     DOMAIN_HOME=${DOMAIN_HOME:-/u01/domains/base_domain} \
-    PATH=$PATH:${DOMAIN_HOME}/bin
+    PATH=${PATH}:${DOMAIN_HOME}/bin
 {{/isWdtEnabled}}
 
 USER {{userid}}
