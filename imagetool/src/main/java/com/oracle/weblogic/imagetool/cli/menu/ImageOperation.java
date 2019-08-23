@@ -46,16 +46,16 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     protected DockerfileOptions dockerfileOptions;
     protected CacheStore cacheStore = new CacheStoreFactory().get();
     private String nonProxyHosts = null;
-    boolean isCLIMode;
+    boolean isCliMode;
     String password;
 
     ImageOperation() {
         dockerfileOptions = new DockerfileOptions();
     }
 
-    ImageOperation(boolean isCLIMode) {
+    ImageOperation(boolean isCliMode) {
         this();
-        this.isCLIMode = isCLIMode;
+        this.isCliMode = isCliMode;
     }
 
     @Override
@@ -136,8 +136,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             }
         }
         if (!patchLocations.isEmpty()) {
-            retVal.add(Constants.BUILD_ARG);
-            retVal.add("PATCHDIR=" + Paths.get(tmpDir).relativize(tmpPatchesDir).toString());
             dockerfileOptions.setPatchingEnabled();
         }
         logger.exiting(retVal.size());
@@ -193,7 +191,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         return tmpPatchesDir;
     }
 
-    void handleProxyUrls() throws IOException {
+    private void handleProxyUrls() throws IOException {
         httpProxyUrl = Utils.findProxyUrl(httpProxyUrl, Constants.HTTP);
         httpsProxyUrl = Utils.findProxyUrl(httpsProxyUrl, Constants.HTTPS);
         nonProxyHosts = Utils.findProxyUrl(nonProxyHosts, "none");

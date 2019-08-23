@@ -303,12 +303,7 @@ public class DockerfileOptions {
      * @return model_file argument for WDT command.
      */
     public String wdtModelFileArgument() {
-        StringJoiner result = new StringJoiner(",","-model_file ","");
-        result.setEmptyValue("");
-        for (String model : wdtModelList) {
-            result.add(wdtHome + "/models/" + model);
-        }
-        return result.toString();
+        return wdtGetFileArgument("-model_file ", wdtModelList);
     }
 
     /**
@@ -338,12 +333,7 @@ public class DockerfileOptions {
      * @return archive_file argument for WDT command.
      */
     public String wdtArchiveFileArgument() {
-        StringJoiner result = new StringJoiner(",","-archive_file ","");
-        result.setEmptyValue("");
-        for (String model : wdtArchiveList) {
-            result.add(wdtHome + "/archives/" + model);
-        }
-        return result.toString();
+        return wdtGetFileArgument("-archive_file ", wdtArchiveList);
     }
 
     /**
@@ -361,10 +351,14 @@ public class DockerfileOptions {
      * @return variable_file argument for WDT command.
      */
     public String wdtVariableFileArgument() {
-        StringJoiner result = new StringJoiner(",","-variable_file ","");
+        return wdtGetFileArgument("-variable_file ", wdtVariableList);
+    }
+
+    private String wdtGetFileArgument(String wdtParameterName, List<String> filenames) {
+        StringJoiner result = new StringJoiner(",", wdtParameterName,"");
         result.setEmptyValue("");
-        for (String model : wdtVariableList) {
-            result.add(wdtHome + "/variables/" + model);
+        for (String name : filenames) {
+            result.add(wdtHome + "/models/" + name);
         }
         return result.toString();
     }

@@ -29,7 +29,7 @@
     USER {{userid}}
 
     RUN cd {{{wdt_home}}} \
-    && mkdir models archives variables \
+    && mkdir models \
     && mkdir -p $(dirname {{{domain_home}}}) \
     && mkdir -p ${PROPERTIES_FILE_DIR}
 
@@ -38,11 +38,11 @@
     {{/wdtModels}}
 
     {{#wdtArchives}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/archives/
+        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
     {{/wdtArchives}}
 
     {{#wdtVariables}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/variables/
+        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
     {{/wdtVariables}}
 
     RUN cd {{{wdt_home}}} \
@@ -71,13 +71,10 @@
 
 {{/isWdtEnabled}}
 
-FROM {{baseImage}} as OS_UPDATE
+FROM {{baseImage}} as FINAL_BUILD
 USER root
 
-ARG PATCHDIR
-
-ENV PATCHDIR=${PATCHDIR:-patches} \
-    OPATCH_NO_FUSER=true
+ENV OPATCH_NO_FUSER=true
 
 {{#isWdtEnabled}}
 ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
@@ -100,7 +97,7 @@ USER {{userid}}
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} $PATCHDIR/* {{{tempDir}}}/patches/
+    COPY --chown={{userid}}:{{groupid}} patches/* {{{tempDir}}}/patches/
 
     RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
     && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \

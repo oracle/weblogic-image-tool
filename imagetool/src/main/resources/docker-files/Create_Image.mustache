@@ -58,15 +58,13 @@ LABEL WlsImageToolLayer="intermediate"
 ARG WLS_PKG
 ARG INV_LOC
 ARG ORAINST
-ARG PATCHDIR
 
 ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
     JAVA_HOME={{{java_home}}} \
     ORACLE_HOME={{{oracle_home}}} \
     INV_LOC=${INV_LOC:-/u01/oracle/oraInventory} \
     ORAINST=${ORAINST:-oraInst.loc} \
-    OPATCH_NO_FUSER=true \
-    PATCHDIR=${PATCHDIR:-patches}
+    OPATCH_NO_FUSER=true
 
 RUN mkdir -p {{{oracle_home}}} \
  && chown {{userid}}:{{groupid}} {{{oracle_home}}}
@@ -84,7 +82,7 @@ COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} ${PATCHDIR}/* {{{tmpDir}}}/patches/
+    COPY --chown={{userid}}:{{groupid}} patches/* {{{tmpDir}}}/patches/
 {{/isPatchingEnabled}}
 
 USER {{userid}}
@@ -125,7 +123,7 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
     USER {{userid}}
 
     RUN cd {{{wdt_home}}} \
-    && mkdir models archives variables \
+    && mkdir models \
     && mkdir -p $(dirname {{{domain_home}}}) \
     && mkdir -p ${PROPERTIES_FILE_DIR}
 
@@ -134,11 +132,11 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
     {{/wdtModels}}
 
     {{#wdtArchives}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/archives/
+        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
     {{/wdtArchives}}
 
     {{#wdtVariables}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/variables/
+        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
     {{/wdtVariables}}
 
     USER {{userid}}
