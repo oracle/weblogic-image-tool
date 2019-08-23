@@ -119,7 +119,7 @@ public class CreateImage extends ImageOperation {
             // add directory to pass the context
             cmdBuilder.add(tmpDir);
             logger.info("docker cmd = " + String.join(" ", cmdBuilder));
-            Utils.runDockerCommand(isCLIMode, cmdBuilder, dockerLog);
+            Utils.runDockerCommand(isCliMode, cmdBuilder, dockerLog);
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
