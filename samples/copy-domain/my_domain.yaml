@@ -1,0 +1,6 @@
+domainInfo:
+  AdminPassword: welcome1
+topology:
+  Server:
+    AdminServer:
+      ListenPort: 7001
