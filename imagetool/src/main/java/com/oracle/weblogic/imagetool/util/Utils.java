@@ -715,7 +715,7 @@ public class Utils {
             return;
         }
         Path installerResponseFile = Paths.get(installerResponse);
-        Pattern pattern = Pattern.compile("^ORACLE_HOME=(.*)?");
+        Pattern pattern = Pattern.compile("^\\s*ORACLE_HOME=(.*)?");
         Matcher matcher = pattern.matcher("");
         logger.finest("Reading installer response file: {0}", installerResponseFile.getFileName());
 
