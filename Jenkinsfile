@@ -30,5 +30,10 @@ pipeline {
                 }
             }
         }
-    }
+        stage ('SystemTest') {
+            steps {
+                sh 'mvn verify'
+            }
+        }
+     }
 }
