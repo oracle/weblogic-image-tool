@@ -10,7 +10,7 @@ better solution, I found that I could copy my old domain from one Docker image t
 to do was keep my base image and domain image separate.
 
 Here is an example of what I mean. 
-###Setup
+### Setup
 Load the WebLogic Image Tool cache with pointers to the installers:
 ```bash
 imagetool cache addInstaller --type jdk --path ./installers/jdk-8u201-linux-i586.tar.gz --version 8u201
@@ -28,14 +28,14 @@ With the WebLogic Image Tool update feature, create a new image with a domain st
 imagetool update --fromImage base:1 --wdtModel ./my_domain.yaml --wdtVersion 1.1.1 --tag mydomain:1
 ```
 
-###Create a Patched Base
+### Create a Patched Base
 Using the same WebLogic Image Tool command that we used to create `base:1`, this time I will create `base:2` 
 and apply the latest PSU for 12.2.1.3.0.
 ```bash
 imagetool create --jdkVersion 8u202 --version 12.2.1.3.0 --latestPSU --tag base:2 --user {your OTN credential} --passwordENV MY_PASSWORD
 ```
 
-###Rebase My Domain
+### Rebase My Domain
 I cannot change the image `mydomain:1`, but I can copy it to a new image that is based on my patched Oracle Home.
 Using the provided Dockerfile and build script, I create `mydomain:2` which is based on the patched base image `base:2`. 
 
@@ -43,7 +43,7 @@ Using the provided Dockerfile and build script, I create `mydomain:2` which is b
 docker build -tag mydomain:2 --build-arg NEW_BASE=base:2 --build-arg OLD_DOMAIN=mydomain:1 --build-arg DOMAIN_DIR=/u01/domains/base_domain --force-rm=true --no-cache 
 ```
 
-###The Dockerfile
+### The Dockerfile
 ```dockerfile
 ARG NEW_BASE
 
