@@ -29,7 +29,7 @@ import picocli.CommandLine.Option;
 
 @Command(
         name = "update",
-        description = "Update WebLogic docker image with selected patches",
+        description = "Update an existing docker image that was previously created with the image tool",
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
