@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -351,9 +353,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 String wdtArchiveFilename = wdtArchivePath.getFileName().toString();
                 Files.copy(wdtArchivePath, Paths.get(tmpDir, wdtArchiveFilename));
                 //Until WDT supports multiple archives, take single file argument from CLI and convert to list
-                List<String> archives = new ArrayList<>();
-                archives.add(wdtArchiveFilename);
-                dockerfileOptions.setWdtArchives(archives);
+                dockerfileOptions.setWdtArchives(Collections.singletonList(wdtArchiveFilename));
             }
             dockerfileOptions.setDomainHome(wdtDomainHome);
 
@@ -362,9 +362,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
                 String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
                 Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("WDT_VARIABLE=" + wdtVariableFilename);
-                retVal.addAll(getWdtRequiredBuildArgs(wdtVariablesPath));
+                //Until WDT supports multiple variable files, take single file argument from CLI and convert to list
+                dockerfileOptions.setWdtVariables(Collections.singletonList(wdtVariableFilename));
             }
         }
         logger.exiting();
