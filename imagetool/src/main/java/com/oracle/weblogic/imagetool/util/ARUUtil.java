@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.apache.http.HttpStatus;
@@ -31,109 +32,28 @@ public class ARUUtil {
     private static final LoggingFacade logger = LoggingFactory.getLogger(ARUUtil.class);
 
     /**
-     * Return All WLS releases information.
-     *
-     * @param userId   userid for support account
-     * @param password password for support account
-     * @throws IOException when failed to access the aru api
-     */
-
-    public static Document getAllWLSReleases(String userId, String password) throws IOException {
-        return getAllReleases("wls", userId, password);
-    }
-
-    /**
-     * Return release number of a WLS release by version.
-     *
-     * @param version  wls version 12.2.1.3.0 etc ...
-     * @param userId   user id for support account
-     * @param password password for support account
-     * @return release number or empty string if not found
-     * @throws IOException when failed to access the aru api
-     */
-    private static String getWLSReleaseNumber(String version, String userId, String password) throws
-            IOException {
-        return getReleaseNumber("wls", version, userId, password);
-    }
-
-    /**
-     * Return release number of a FMW release by version.
-     *
-     * @param version  wls version 12.2.1.3.0 etc ...
-     * @param userId   user id for support account
-     * @param password password for support account
-     * @return release number or empty string if not found
-     * @throws IOException when failed to access the aru api
-     */
-    private static String getFMWReleaseNumber(String version, String userId, String password) throws
-            IOException {
-        return getReleaseNumber("fmw", version, userId, password);
-    }
-
-
-    /**
-     * Return All FMW releases information.
-     *
-     * @param userId   userid for support account
-     * @param password password for support account
-     * @throws IOException when failed to access the aru api
-     */
-    public static void getAllFMWReleases(String userId, String password) throws IOException {
-        getAllReleases("fmw", userId, password);
-    }
-
-
-    /**
-     * Download the latest PSU for given category and release.
-     *
-     * @param category wls or fmw
-     * @param version  version number like 12.2.1.3.0
-     * @param userId   user
-     * @param password password
-     * @return bug number
-     * @throws IOException when failed
-     */
-    public static String getLatestPSUFor(String category, String version, String userId, String password,
-                                         String destDir) throws IOException {
-        String releaseNumber = getReleaseNumber(category, version, userId, password);
-        return getLatestPSU(category, releaseNumber, userId, password, destDir);
-    }
-
-    /**
      * Get list of PSU available for given category and release.
      *
      * @param category wls or fmw
      * @param version  version number like 12.2.1.3.0
      * @param userId   user
      * @return Document listing of all patches (full details)
-     * @throws IOException when failed
      */
-    public static SearchResult getAllPSUFor(String category, String version, String userId, String password) throws
-            IOException {
-        String releaseNumber = getReleaseNumber(category, version, userId, password);
-        return getAllPSU(category, releaseNumber, userId, password);
-    }
-
-    /**
-     * Get list of PSU available for given category and release.
-     *
-     * @param category wls or fmw
-     * @param version  version number like 12.2.1.3.0
-     * @param userId   user
-     * @return Document listing of all patches (full details)
-     * @throws IOException when failed
-     */
-    public static String getLatestPSUNumber(String category, String version, String userId, String password) {
+    public static String getLatestPSUNumber(WLSInstallerType category, String version, String userId, String password) {
+        logger.entering(category, version, userId);
         try {
             String releaseNumber = getReleaseNumber(category, version, userId, password);
             SearchResult searchResult = getAllPSU(category, releaseNumber, userId, password);
             if (searchResult.isSuccess()) {
                 Document results = searchResult.getResults();
-                return XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
+                String result = XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
+                logger.exiting(result);
+                return result;
             }
         } catch (IOException | XPathExpressionException e) {
             //suppress exception
         }
+        logger.exiting();
         return null;
     }
 
@@ -163,18 +83,16 @@ public class ARUUtil {
      *
      * @param inventoryContent opatch lsinventory content (null if non is passed)
      * @param patches          A list of patches number
-     * @param category         wls or fmw
-     * @param version          version of the prduct
      * @param userId           userid for support account
      * @param password         password for support account
      * @return validationResult validation result object
      * @throws IOException when failed to access the aru api
      */
 
-    public static ValidationResult validatePatches(String inventoryContent, List<String> patches, String category,
-                                                   String version, String userId, String password) throws IOException {
+    public static ValidationResult validatePatches(String inventoryContent, List<String> patches,
+                                                   String userId, String password) throws IOException {
 
-        logger.finer("Entering ARUUtil.validatePatches");
+        logger.entering(inventoryContent, patches, userId);
 
         ValidationResult validationResult = new ValidationResult();
         validationResult.setSuccess(true);
@@ -245,7 +163,7 @@ public class ARUUtil {
         }
         payload.append("</conflict_check_request>");
 
-        logger.finer("Posting to ARU conflict check");
+        logger.fine("Posting to ARU conflict check");
         Document result = HttpUtil.postCheckConflictRequest(Constants.CONFLICTCHECKER_URL, payload.toString(), userId,
                 password);
         try {
@@ -272,34 +190,8 @@ public class ARUUtil {
             throw new IOException(xpe);
 
         }
-        logger.finer("Exiting ARUUtil.validatePatches");
+        logger.exiting(validationResult);
         return validationResult;
-    }
-
-    /**
-     * Return the patch detail.
-     *
-     * @param category  wls or fmw
-     * @param version   version of the product
-     * @param bugNumber bug number
-     * @param userId    user id for support
-     * @param password  password for support
-     * @return dom document detail about the patch
-     * @throws IOException when something goes wrong
-     */
-    public static SearchResult getPatchDetail(String category, String version, String bugNumber, String userId, String
-            password)
-            throws
-            IOException {
-
-        String releaseNumber = getReleaseNumber(category, version, userId, password);
-        String url;
-        if ("wls".equalsIgnoreCase(category))
-            url = String.format(Constants.PATCH_SEARCH_URL, Constants.WLS_PROD_ID, bugNumber, releaseNumber);
-        else
-            url = String.format(Constants.PATCH_SEARCH_URL, Constants.FMW_PROD_ID, bugNumber, releaseNumber);
-
-        return getSearchResult(HttpUtil.getXMLContent(url, userId, password));
     }
 
     /**
@@ -346,24 +238,26 @@ public class ARUUtil {
     }
 
 
-    private static Document getAllReleases(String category, String userId, String password) throws IOException {
+    private static Document getAllReleases(WLSInstallerType category, String userId, String password)
+        throws IOException {
 
-
+        logger.entering(category, userId);
         Document allReleases = HttpUtil.getXMLContent(Constants.REL_URL, userId, password);
 
         try {
 
             String expression;
 
-            if ("wls".equalsIgnoreCase(category)) {
+            if (WLSInstallerType.WLS == category) {
                 expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
-            } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(category)) {
+            } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(category.toString())) {
                 expression = "/results/release[starts-with(text(), 'OPatch')]";
             } else {
                 expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
             }
             NodeList nodeList = XPathUtil.applyXPathReturnNodeList(allReleases, expression);
             Document doc = createResultDocument(nodeList);
+            logger.exiting();
             return doc;
 
         } catch (XPathExpressionException xpe) {
@@ -371,25 +265,12 @@ public class ARUUtil {
         }
     }
 
-    private static String getLatestPSU(String category, String release, String userId, String password, String destDir)
-            throws
-            IOException {
+    private static SearchResult getAllPSU(WLSInstallerType category, String release, String userId, String password)
+        throws IOException {
 
         String url;
-        if ("wls".equalsIgnoreCase(category))
-            url = String.format(Constants.LATEST_PSU_URL, Constants.WLS_PROD_ID, release);
-        else
-            url = String.format(Constants.LATEST_PSU_URL, Constants.FMW_PROD_ID, release);
 
-        Document allPatches = HttpUtil.getXMLContent(url, userId, password);
-        return savePatch(allPatches, userId, password, destDir, null);
-    }
-
-    private static SearchResult getAllPSU(String category, String release, String userId, String password) throws
-            IOException {
-
-        String url;
-        if ("wls".equalsIgnoreCase(category))
+        if (WLSInstallerType.WLS == category)
             url = String.format(Constants.LATEST_PSU_URL, Constants.WLS_PROD_ID, release);
         else
             url = String.format(Constants.LATEST_PSU_URL, Constants.FMW_PROD_ID, release);
@@ -452,7 +333,7 @@ public class ARUUtil {
     private static String savePatch(Document allPatches, String userId, String password, String destDir,
                                     String bugNumber) throws IOException {
 
-        logger.finest("Saving patch " + bugNumber);
+        logger.entering(bugNumber);
         try {
 
             if (bugNumber != null) {
@@ -492,16 +373,14 @@ public class ARUUtil {
             String downLoadHost = XPathUtil.applyXPathReturnString(allPatches, "string"
                     + "(/results/patch[1]/files/file/download_url/@host)");
 
-            String key = bugNumber;
-
             int index = downLoadLink.indexOf("patch_file=");
 
             if (index > 0) {
                 String fileName = destDir + File.separator + downLoadLink.substring(
                         index + "patch_file=".length());
                 HttpUtil.downloadFile(downLoadHost + downLoadLink, fileName, userId, password);
-                String result = key + "=" + fileName;
-                logger.finest("savePatch returns " + result);
+                String result = bugNumber + "=" + fileName;
+                logger.exiting(result);
                 return result;
             }
 
@@ -509,7 +388,7 @@ public class ARUUtil {
             throw new IOException(xpe);
         }
 
-        logger.finest("savePatch returns nothing");
+        logger.exiting();
         return null;
     }
 
@@ -522,7 +401,7 @@ public class ARUUtil {
      * @return internal release number of this patch
      * @throws IOException when the patch is not found or failed to connect to ARU
      */
-    public static String getPatchInfo(String bugNumber, String userId, String password)
+    private static String getPatchInfo(String bugNumber, String userId, String password)
             throws
             IOException {
         logger.finest("Entering getPatchInfo " + bugNumber);
@@ -542,7 +421,7 @@ public class ARUUtil {
             if (optionalRelease != null)
                 xpath = String.format("/results/patch/release[@name='%s']/@id", optionalRelease);
             else
-                xpath = String.format("/results/patch/release/@id");
+                xpath = "/results/patch/release/@id";
 
             logger.finest("applying xpath: " + xpath);
             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
@@ -572,16 +451,19 @@ public class ARUUtil {
      * @return release number
      * @throws IOException in case of error
      */
-    public static String getReleaseNumber(String category, String version, String userId, String password) throws
-            IOException {
+    private static String getReleaseNumber(WLSInstallerType category, String version, String userId, String password)
+        throws IOException {
+        logger.entering(category, version, userId);
         String key = category + CacheStore.CACHE_KEY_SEPARATOR + version;
         String retVal = releaseNumbersMap.getOrDefault(key, null);
         if (Utils.isEmptyString(retVal)) {
+            logger.info("IMG-0011");
             Document allReleases = getAllReleases(category, userId, password);
 
             String expression = String.format("string(/results/release[@name = '%s']/@id)", version);
             try {
                 retVal = XPathUtil.applyXPathReturnString(allReleases, expression);
+                logger.fine("Release number for {0} is {1}", category, retVal);
             } catch (XPathExpressionException xpe) {
                 throw new IOException(xpe);
             }
@@ -592,6 +474,7 @@ public class ARUUtil {
                         category, version));
             }
         }
+        logger.exiting(retVal);
         return retVal;
     }
 

@@ -62,7 +62,8 @@ public class HttpUtil {
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xmlString));
             Document doc = docBuilder.parse(is);
-            logger.exiting(XPathUtil.prettyPrint(doc));
+            logger.finest(doc);
+            logger.exiting();
             return doc;
         } catch (ParserConfigurationException ex) {
             throw new IllegalStateException(ex);
@@ -135,7 +136,7 @@ public class HttpUtil {
     public static Document postCheckConflictRequest(String url, String payload, String username, String password)
             throws IOException {
 
-        logger.finest("HTTPUtil.postCheckConflictRequest: " + payload);
+        logger.entering(url, payload);
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
         config.setRedirectsEnabled(true);
@@ -163,13 +164,14 @@ public class HttpUtil {
         String xmlString =
                 httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
                         .returnContent().asString();
-        logger.finest("Returned Raw result " + xmlString);
+        logger.finest("Returned Raw result: {0}", xmlString);
         try {
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xmlString));
             Document doc = docBuilder.parse(is);
-            logger.finest("HTTPUtil.postCheckConflictRequest result " + XPathUtil.prettyPrint(doc));
+            logger.finest(doc);
+            logger.exiting();
             return doc;
         } catch (ParserConfigurationException ex) {
             throw new IllegalStateException(ex);

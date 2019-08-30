@@ -5,15 +5,11 @@ package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
@@ -22,7 +18,6 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
-import com.oracle.weblogic.imagetool.util.ValidationResult;
 import com.oracle.weblogic.imagetool.util.WdtOperation;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -104,10 +99,11 @@ public class UpdateImage extends ImageOperation {
                 opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
             }
 
-            opatchRequired = (latestPSU || !patches.isEmpty())
-                    && (Utils.compareVersions(installerVersion, Constants.DEFAULT_WLS_VERSION) >= 0
-                    && Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0);
+            if (applyingPatches() && Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0) {
+                addOPatch1394ToImage(tmpDir, opatchBugNumber);
+            }
 
+            String lsinventoryText = null;
             if (latestPSU || !patches.isEmpty()) {
                 logger.finer("Verifying Patches to WLS ");
                 if (userId == null) {
@@ -124,7 +120,7 @@ public class UpdateImage extends ImageOperation {
                         b64lsout = b64lsout.replace(" ", "");
 
                         byte[] lsinventoryContent = Base64.getDecoder().decode(b64lsout);
-                        String lsinventoryText = new String(lsinventoryContent);
+                        lsinventoryText = new String(lsinventoryContent);
 
                         logger.finest("ls inventory = " + lsinventoryText);
 
@@ -134,35 +130,12 @@ public class UpdateImage extends ImageOperation {
                             logger.severe("ls inventory = " + lsinventoryText);
                             return new CommandResponse(-1, "lsinventory failed");
                         }
-                        Set<String> toValidateSet = new HashSet<>();
-                        if (latestPSU) {
-                            toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                                    userId, password));
-                            if (installerType.toString().equals(Constants.INSTALLER_FMW)) {
-                                toValidateSet.add(ARUUtil.getLatestPSUNumber(Constants.INSTALLER_WLS, installerVersion,
-                                    userId, password));
-                            }
-                        }
-                        toValidateSet.addAll(patches);
-                        ValidationResult validationResult =
-                                ARUUtil.validatePatches(lsinventoryText,
-                                        new ArrayList<>(toValidateSet), installerType.toString(), installerVersion,
-                                        userId,
-                                        password);
-                        if (!validationResult.isSuccess()) {
-                            return new CommandResponse(-1, validationResult.getErrorMessage());
-                        } else {
-                            logger.info("IMG-0006");
-                        }
                     } else {
                         return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
                     }
 
                 }
             }
-
-            // create a tmp patch directory.
-            Path tmpPatchesDir = createPatchesTempDirectory(tmpDir);
 
             List<String> cmdBuilder = getInitialBuildCmd();
 
@@ -174,7 +147,7 @@ public class UpdateImage extends ImageOperation {
             dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
-            cmdBuilder.addAll(handlePatchFiles(tmpDir, tmpPatchesDir));
+            cmdBuilder.addAll(handlePatchFiles(lsinventoryText));
 
             // create dockerfile
             Utils.writeDockerfile(
@@ -200,12 +173,18 @@ public class UpdateImage extends ImageOperation {
     }
 
     @Override
-    List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
-        if (opatchRequired) {
-            addOPatch1394ToImage(tmpDir, opatchBugNumber);
-        }
-        return super.handlePatchFiles(tmpDir, tmpPatchesDir);
+    public WLSInstallerType getInstallerType() {
+        return installerType;
     }
+
+    @Override
+    public String getInstallerVersion() {
+        return installerVersion;
+    }
+
+    // Installer type and version are not parameters for update.  These are derived from the fromImage.
+    private WLSInstallerType installerType;
+    private String installerVersion;
 
     @Option(
             names = {"--fromImage"},
@@ -215,18 +194,9 @@ public class UpdateImage extends ImageOperation {
     private String fromImage;
 
     @Option(
-            names = {"--opatchBugNumber"},
-            description = "use this opatch patch bug number",
-            defaultValue = "28186730"
-    )
-    private String opatchBugNumber;
-
-    @Option(
         names = {"--wdtOperation"},
         description = "Create a new domain, or update an existing domain.  Default: ${DEFAULT-VALUE}. "
             + "Supported values: ${COMPLETION-CANDIDATES}"
     )
     private WdtOperation wdtOperation = WdtOperation.CREATE;
-
-    private boolean opatchRequired = false;
 }

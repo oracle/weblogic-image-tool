@@ -8,6 +8,9 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.oracle.weblogic.imagetool.util.XPathUtil;
+import org.w3c.dom.Document;
+
 /** Centralized logging for the operator. */
 public class LoggingFacade {
 
@@ -180,6 +183,18 @@ public class LoggingFacade {
         if (isFinerEnabled()) {
             CallerDetails details = inferCaller();
             logger.logp(Level.FINER, details.clazz, details.method, msg, thrown);
+        }
+    }
+
+    /**
+     * Logs a message at the FINEST level.
+     *
+     * @param msg the message to log
+     */
+    public void finest(Document msg) {
+        if (isFinestEnabled()) {
+            CallerDetails details = inferCaller();
+            logger.logp(Level.FINEST, details.clazz, details.method, XPathUtil.prettyPrint(msg));
         }
     }
 
