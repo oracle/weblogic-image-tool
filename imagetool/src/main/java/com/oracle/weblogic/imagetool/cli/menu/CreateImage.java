@@ -10,11 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
@@ -22,10 +19,8 @@ import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
-import com.oracle.weblogic.imagetool.util.ValidationResult;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -105,8 +100,13 @@ public class CreateImage extends ImageOperation {
             // build wdt args if user passes --wdtModelPath
             cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir));
 
+            // If patching, patch OPatch first
+            if (applyingPatches()) {
+                addOPatch1394ToImage(tmpDir, opatchBugNumber);
+            }
+
             // resolve required patches
-            cmdBuilder.addAll(handlePatchFiles(tmpDir, createPatchesTempDirectory(tmpDir)));
+            cmdBuilder.addAll(handlePatchFiles(null));
 
             // Copy wls response file to tmpDir
             copyResponseFilesToDir(tmpDir);
@@ -133,43 +133,6 @@ public class CreateImage extends ImageOperation {
                 + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
-    @Override
-    List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
-        logger.finer("Entering CreateImage.handlePatchFiles: " + tmpDir);
-        if ((latestPSU || !patches.isEmpty()) && Utils.compareVersions(installerVersion,
-                Constants.DEFAULT_WLS_VERSION) == 0) {
-            addOPatch1394ToImage(tmpDir, opatchBugNumber);
-            Set<String> toValidateSet = new HashSet<>();
-            if (latestPSU) {
-                toValidateSet.add(ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                        userId, password));
-                if (installerType.toString().equals(Constants.INSTALLER_FMW)) {
-                    toValidateSet.add(ARUUtil.getLatestPSUNumber(Constants.INSTALLER_WLS, installerVersion,
-                        userId, password));
-                }
-
-            }
-            toValidateSet.addAll(patches);
-
-            ValidationResult validationResult = ARUUtil.validatePatches(null,
-                    new ArrayList<>(toValidateSet), installerType.toString(), installerVersion, userId,
-                    password);
-            if (validationResult.isSuccess()) {
-                logger.info("IMG-0006");
-            } else {
-                String error = validationResult.getErrorMessage();
-                logger.severe(error);
-                throw new IllegalArgumentException(error);
-            }
-
-
-        }
-        //we need a local installerVersion variable for the command line Option. so propagate to super.
-        super.installerVersion = installerVersion;
-        logger.finer("Exiting CreateImage.handlePatchFiles: ");
-        return super.handlePatchFiles(tmpDir, tmpPatchesDir);
-    }
-
     /**
      * Builds a list of {@link InstallerFile} objects based on user input which are processed.
      * to download the required install artifacts
@@ -180,9 +143,9 @@ public class CreateImage extends ImageOperation {
     protected List<InstallerFile> gatherRequiredInstallers() throws Exception {
         logger.entering();
         List<InstallerFile> retVal = super.gatherRequiredInstallers();
-        logger.finer("IMG-0001", installerType, installerVersion);
-        retVal.add(new InstallerFile(useCache, InstallerType.fromValue(installerType.toString()), installerVersion,
-                userId, password));
+        logger.finer("IMG-0001", getInstallerType(), getInstallerVersion());
+        retVal.add(new InstallerFile(useCache, InstallerType.fromValue(getInstallerType().toString()),
+            getInstallerVersion(), userId, password));
         if (dockerfileOptions.installJava()) {
             logger.finer("IMG-0001", InstallerType.JDK, jdkVersion);
             retVal.add(new InstallerFile(useCache, InstallerType.JDK, jdkVersion, userId, password));
@@ -212,13 +175,21 @@ public class CreateImage extends ImageOperation {
         Utils.copyResourceAsFile("/response-files/oraInst.loc", dirPath, false);
     }
 
+    @Override
+    public WLSInstallerType getInstallerType() {
+        return installerType;
+    }
+
+    @Override
+    public String getInstallerVersion() {
+        return installerVersion;
+    }
+
     @Option(
             names = {"--type"},
-            description = "Installer type. Default: ${DEFAULT-VALUE}. Supported values: ${COMPLETION-CANDIDATES}",
-            required = true,
-            defaultValue = "wls"
+            description = "Installer type. Default: ${DEFAULT-VALUE}. Supported values: ${COMPLETION-CANDIDATES}"
     )
-    private WLSInstallerType installerType;
+    private WLSInstallerType installerType = WLSInstallerType.WLS;
 
     @Option(
             names = {"--version"},
@@ -241,13 +212,6 @@ public class CreateImage extends ImageOperation {
             description = "Docker image to use as base image."
     )
     private String fromImage;
-
-    @Option(
-            names = {"--opatchBugNumber"},
-            description = "use this opatch patch bug number",
-            defaultValue = "28186730"
-    )
-    private String opatchBugNumber;
 
     @Option(
             names = {"--installerResponseFile"},
