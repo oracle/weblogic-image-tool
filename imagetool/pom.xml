@@ -112,6 +112,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <finalName>${installer-name}</finalName>
                             <descriptors>
                                 <descriptor>src/assembly/zip.xml</descriptor>
                             </descriptors>
