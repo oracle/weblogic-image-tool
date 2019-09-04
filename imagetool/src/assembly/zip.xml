@@ -16,6 +16,7 @@
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
+                <include>*.cmd</include>
                 <include>logging.properties</include>
             </includes>
             <fileMode>0750</fileMode>

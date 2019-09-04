@@ -27,19 +27,10 @@ public final class Constants {
     public static final String CACHE_DIR_KEY = "cache.dir";
     public static final String DEFAULT_WLS_VERSION = "12.2.1.3.0";
     public static final String DEFAULT_JDK_VERSION = "8u202";
-    public static final String WEBLOGIC_IMAGETOOL = "com/oracle/weblogicx/imagetool";
-    public static final String METADATA_PREF_KEY = "metadata.file";
     public static final String DEFAULT_META_FILE = ".metadata";
     public static final String DELETE_ALL_FOR_SURE = "deleteAll4Sure";
-    public static final String INSTALLER_WLS = "wls";
-    public static final String INSTALLER_FMW = "fmw";
-    public static final List<String> REQD_WDT_BUILD_ARGS = Stream.of(
-            "DOMAIN_NAME", "ADMIN_NAME", "ADMIN_HOST", "ADMIN_PORT", "MANAGED_SERVER_PORT"
-    ).collect(Collectors.toList());
     public static final String BUILD_ARG = "--build-arg";
     public static final String FILE_CACHE = "FILE";
-    public static final String PREF_CACHE = "PREF";
-    public static final String CACHE_STORE_TYPE = "cacheStoreType";
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
     public static final String PATCH_ID_REGEX =  "^(\\d{8})(?:[_][0-9][0-9]\\.[0-9]\\.[0-9]\\.[0-9]\\.(\\d+))?";

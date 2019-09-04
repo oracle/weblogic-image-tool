@@ -6,19 +6,20 @@ package com.oracle.weblogic.imagetool.impl;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 
 public class PatchFile extends AbstractFile {
 
+    private static final LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
     private String patchId;
     private String category;
     private String version;
-    private final Logger logger = Logger.getLogger(PatchFile.class.getName());
 
     /**
      * Create an abstract file to hold the metadata for a patch file.

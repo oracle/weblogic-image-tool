@@ -13,7 +13,7 @@
     <parent>
         <artifactId>imagetool-parent</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.3.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -112,6 +112,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <finalName>${installer-name}</finalName>
                             <descriptors>
                                 <descriptor>src/assembly/zip.xml</descriptor>
                             </descriptors>

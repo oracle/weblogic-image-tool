@@ -8,12 +8,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,33 +22,41 @@ import com.oracle.weblogic.imagetool.api.FileResolver;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.api.model.DomainType;
+import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.ValidationResult;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
 public abstract class ImageOperation implements Callable<CommandResponse> {
 
-    private final Logger logger = Logger.getLogger(ImageOperation.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(ImageOperation.class);
     // DockerfileOptions provides switches and values to the customize the Dockerfile template
-    protected DockerfileOptions dockerfileOptions;
+    DockerfileOptions dockerfileOptions;
     protected CacheStore cacheStore = new CacheStoreFactory().get();
     private String nonProxyHosts = null;
-    boolean isCLIMode;
+    private String tempDirectory = null;
+    boolean isCliMode;
     String password;
 
     ImageOperation() {
         dockerfileOptions = new DockerfileOptions();
     }
 
-    ImageOperation(boolean isCLIMode) {
+    ImageOperation(boolean isCliMode) {
         this();
-        this.isCLIMode = isCLIMode;
+        this.isCliMode = isCliMode;
     }
 
     @Override
@@ -82,42 +89,79 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     /**
+     * Return the WLS installer type for this operation.
+     * @return WLS, FMW, or RestrictedJRF
+     */
+    public abstract WLSInstallerType getInstallerType();
+
+    /**
+     * Return the WLS installer version string.
+     * @return something like 12.2.1.3.0
+     */
+    public abstract String getInstallerVersion();
+
+    /**
+     * Returns true if any patches should be applied.
+     * A PSU is considered a patch.
+     * @return true if applying patches
+     */
+    boolean applyingPatches() {
+        return latestPSU || !patches.isEmpty();
+    }
+
+    /**
      * Builds a list of build args to pass on to docker with the required patches.
      * Also, creates links to patches directory under build context instead of copying over.
      *
-     * @param tmpDir        build context dir
-     * @param tmpPatchesDir patches dir under build context
      * @return list of strings
      * @throws Exception in case of error
      */
-    List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
-        logger.finer("Entering ImageOperation.handlePatchFiles");
+    List<String> handlePatchFiles(String previousInventory) throws Exception {
+        logger.entering();
         List<String> retVal = new LinkedList<>();
+
+        if (!applyingPatches()) {
+            return retVal;
+        }
+
+        String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
+
         List<String> patchLocations = new LinkedList<>();
-        String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
+
+        List<String> patchList = new ArrayList<>(patches);
 
         if (latestPSU) {
             if (userId == null || password == null) {
-                throw new Exception("No credentials provided. Cannot determine "
-                        + "latestPSU");
-            } else {
-                String patchId = ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                        userId,
-                        password);
-                if (Utils.isEmptyString(patchId)) {
-                    throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
-                            installerType.toString(), installerVersion));
-                }
-                logger.finest("Found latest PSU " + patchId);
-                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion,
-                        patchId, userId, password);
-                patchLocations.add(psuResolver.resolve(cacheStore));
+                throw new Exception("No credentials provided. Cannot determine latestPSU");
             }
 
+            // PSUs for WLS and JRF installers are considered WLS patches
+            String patchId = ARUUtil.getLatestPSUNumber(WLSInstallerType.WLS, getInstallerVersion(), userId, password);
+            if (Utils.isEmptyString(patchId)) {
+                throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
+                    getInstallerType(), getInstallerVersion()));
+            }
+            logger.fine("Found latest PSU {0}", patchId);
+            FileResolver psuResolver = new PatchFile(useCache, getInstallerType().toString(), getInstallerVersion(),
+                patchId, userId, password);
+            patchLocations.add(psuResolver.resolve(cacheStore));
+            // Add PSU patch ID to the patchList for validation (conflict check)
+            patchList.add(patchId);
         }
+
+        logger.info("IMG-0012");
+        ValidationResult validationResult = ARUUtil.validatePatches(previousInventory, patchList, userId, password);
+        if (validationResult.isSuccess()) {
+            logger.info("IMG-0006");
+        } else {
+            String error = validationResult.getErrorMessage();
+            logger.severe(error);
+            throw new IllegalArgumentException(error);
+        }
+
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                patchLocations.add(new PatchFile(useCache, installerType.toString(), installerVersion,
+                patchLocations.add(new PatchFile(useCache, getInstallerType().toString(), getInstallerVersion(),
                         patchId, userId, password).resolve(cacheStore));
             }
         }
@@ -130,11 +174,9 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             }
         }
         if (!patchLocations.isEmpty()) {
-            retVal.add(Constants.BUILD_ARG);
-            retVal.add("PATCHDIR=" + Paths.get(tmpDir).relativize(tmpPatchesDir).toString());
             dockerfileOptions.setPatchingEnabled();
         }
-        logger.finer("Exiting ImageOperation.handlePatchFiles");
+        logger.exiting(retVal.size());
         return retVal;
     }
 
@@ -145,7 +187,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      */
     List<String> getInitialBuildCmd() {
 
-        logger.finer("Entering ImageOperation.getInitialBuildCmd");
+        logger.entering();
         List<String> cmdBuilder = Stream.of("docker", "build",
                 "--force-rm=true", "--no-cache").collect(Collectors.toList());
 
@@ -170,25 +212,26 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         if (dockerPath != null && Files.isExecutable(dockerPath)) {
             cmdBuilder.set(0, dockerPath.toAbsolutePath().toString());
         }
-        logger.finer("Exiting ImageOperation.getInitialBuildCmd");
+        logger.exiting();
         return cmdBuilder;
     }
 
     public String getTempDirectory() throws IOException {
-        Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp",
-                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-xr-x")));
-        String pathAsString = tmpDir.toAbsolutePath().toString();
-        logger.info("tmp directory used for docker build context: " + pathAsString);
-        return pathAsString;
+        if (tempDirectory == null) {
+            Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp");
+            tempDirectory = tmpDir.toAbsolutePath().toString();
+            logger.info("IMG-0003", tempDirectory);
+        }
+        return tempDirectory;
     }
 
-    public Path createPatchesTempDirectory(String tmpDir) throws IOException {
-        Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDir, "patches"));
+    public Path createPatchesTempDirectory() throws IOException {
+        Path tmpPatchesDir = Files.createDirectory(Paths.get(getTempDirectory(), "patches"));
         Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
         return tmpPatchesDir;
     }
 
-    void handleProxyUrls() throws IOException {
+    private void handleProxyUrls() throws IOException {
         httpProxyUrl = Utils.findProxyUrl(httpProxyUrl, Constants.HTTP);
         httpsProxyUrl = Utils.findProxyUrl(httpsProxyUrl, Constants.HTTPS);
         nonProxyHosts = Utils.findProxyUrl(nonProxyHosts, "none");
@@ -229,10 +272,143 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         dockerfileOptions.setGroupId(osUserAndGroup[1]);
     }
 
+    /**
+     * Builds a list of build args to pass on to docker with the required installer files.
+     * And, copies the installers over to build context dir.
+     *
+     * @param tmpDir build context directory
+     * @return list of build argument parameters for docker build
+     * @throws Exception in case of error
+     */
+    List<String> handleInstallerFiles(String tmpDir) throws Exception {
 
-    WLSInstallerType installerType = WLSInstallerType.WLS;
+        logger.entering(tmpDir);
+        List<String> retVal = new LinkedList<>();
+        List<InstallerFile> requiredInstallers = gatherRequiredInstallers();
+        for (InstallerFile installerFile : requiredInstallers) {
+            String targetFilePath = installerFile.resolve(cacheStore);
+            logger.finer("copying targetFilePath: {0}", targetFilePath);
+            String filename = new File(targetFilePath).getName();
+            try {
+                Files.copy(Paths.get(targetFilePath), Paths.get(tmpDir, filename));
+                retVal.addAll(installerFile.getBuildArg(filename));
+            } catch (Exception ee) {
+                ee.printStackTrace();
+            }
+        }
+        logger.exiting(retVal);
+        return retVal;
+    }
 
-    String installerVersion = Constants.DEFAULT_WLS_VERSION;
+    /**
+     * Builds a list of {@link InstallerFile} objects based on user input which are processed.
+     * to download the required install artifacts
+     *
+     * @return list of InstallerFile
+     * @throws Exception in case of error
+     */
+    protected List<InstallerFile> gatherRequiredInstallers() throws Exception {
+        logger.entering();
+        List<InstallerFile> result = new LinkedList<>();
+        if (wdtModelPath != null) {
+            logger.finer("IMG-0001", InstallerType.WDT, wdtVersion);
+            InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
+            result.add(wdtInstaller);
+            addWdtUrl(wdtInstaller.getKey());
+        }
+        logger.exiting(result.size());
+        return result;
+    }
+
+    /**
+     * Checks whether the user requested a domain to be created with WDT.
+     * If so, returns the required build args to pass to docker and creates required file links to pass
+     * the model, archive, variables file to build process
+     *
+     * @param tmpDir the tmp directory which is passed to docker as the build context directory
+     * @return list of build args
+     * @throws IOException in case of error
+     */
+    List<String> handleWdtArgsIfRequired(String tmpDir) throws IOException {
+        logger.entering(tmpDir);
+
+        List<String> retVal = new LinkedList<>();
+        if (wdtModelPath != null) {
+            dockerfileOptions.setWdtEnabled();
+            dockerfileOptions.setWdtModelOnly(wdtModelOnly);
+            String[] modelFiles = wdtModelPath.toString().split(",");
+            List<String> modelList = new ArrayList<>();
+
+            for (String modelFile : modelFiles) {
+                Path modelFilePath = Paths.get(modelFile);
+                if (Files.isRegularFile(modelFilePath)) {
+                    String modelFilename = modelFilePath.getFileName().toString();
+                    Files.copy(modelFilePath, Paths.get(tmpDir, modelFilename));
+                    modelList.add(modelFilename);
+                } else {
+                    throw new IOException("WDT model file " + modelFile + " not found");
+                }
+            }
+            dockerfileOptions.setWdtModels(modelList);
+
+            dockerfileOptions.setWdtDomainType(wdtDomainType);
+            if (wdtDomainType != DomainType.WLS) {
+                if (getInstallerType() != WLSInstallerType.FMW) {
+                    throw new IOException("FMW installer is required for JRF domain");
+                }
+                if (runRcu) {
+                    retVal.add(Constants.BUILD_ARG);
+                    retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
+                }
+            }
+
+            if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
+                String wdtArchiveFilename = wdtArchivePath.getFileName().toString();
+                Files.copy(wdtArchivePath, Paths.get(tmpDir, wdtArchiveFilename));
+                //Until WDT supports multiple archives, take single file argument from CLI and convert to list
+                dockerfileOptions.setWdtArchives(Collections.singletonList(wdtArchiveFilename));
+            }
+            dockerfileOptions.setDomainHome(wdtDomainHome);
+
+            dockerfileOptions.setJavaOptions(wdtJavaOptions);
+
+            if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
+                String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
+                Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
+                //Until WDT supports multiple variable files, take single file argument from CLI and convert to list
+                dockerfileOptions.setWdtVariables(Collections.singletonList(wdtVariableFilename));
+            }
+        }
+        logger.exiting();
+        return retVal;
+    }
+
+    /**
+     * Parses wdtVersion and constructs the url to download WDT and adds the url to cache.
+     *
+     * @param wdtKey key in the format wdt_0.17
+     * @throws Exception in case of error
+     */
+    private void addWdtUrl(String wdtKey) throws Exception {
+        logger.entering(wdtKey);
+        String wdtUrlKey = wdtKey + "_url";
+        if (cacheStore.getValueFromCache(wdtKey) == null) {
+            if (userId == null || password == null) {
+                throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
+            }
+            List<String> wdtTags = HttpUtil.getWDTTags();
+            String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) :
+                    "weblogic-deploy-tooling-" + wdtVersion;
+            if (wdtTags.contains(tagToMatch)) {
+                String downloadLink = String.format(Constants.WDT_URL_FORMAT, tagToMatch);
+                logger.info("IMG-0007", downloadLink);
+                cacheStore.addToCache(wdtUrlKey, downloadLink);
+            } else {
+                throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
+            }
+        }
+        logger.exiting();
+    }
 
     @Option(
             names = {"--useCache"},
@@ -335,6 +511,72 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             defaultValue = "oracle:oracle"
     )
     private String[] osUserAndGroup;
+
+
+    @Option(
+        names = {"--opatchBugNumber"},
+        description = "the patch number for OPatch (patching OPatch)"
+    )
+    String opatchBugNumber = "28186730";
+
+    @Option(
+            names = {"--wdtModel"},
+            description = "path to the WDT model file that defines the Domain to create"
+    )
+    private Path wdtModelPath;
+
+    @Option(
+            names = {"--wdtArchive"},
+            description = "path to the WDT archive file used by the WDT model"
+    )
+    private Path wdtArchivePath;
+
+    @Option(
+            names = {"--wdtVariables"},
+            description = "path to the WDT variables file for use with the WDT model"
+    )
+    private Path wdtVariablesPath;
+
+    @Option(
+            names = {"--wdtVersion"},
+            description = "WDT tool version to use",
+            defaultValue = "latest"
+    )
+    private String wdtVersion;
+
+    @Option(
+            names = {"--wdtDomainType"},
+            description = "WDT Domain Type. Default: ${DEFAULT-VALUE}. Supported values: ${COMPLETION-CANDIDATES}"
+    )
+    private DomainType wdtDomainType = DomainType.WLS;
+
+    @Option(
+            names = "--wdtRunRCU",
+            description = "instruct WDT to run RCU when creating the Domain"
+    )
+    private boolean runRcu = false;
+
+
+    @Option(
+            names = {"--wdtDomainHome"},
+            description = "pass to the -domain_home for wdt",
+            defaultValue = "/u01/domains/base_domain"
+    )
+    private String  wdtDomainHome;
+
+    @Option(
+            names = {"--wdtJavaOptions"},
+            description = "Java command line options for WDT"
+    )
+    private String wdtJavaOptions;
+
+
+    @Option(
+        names = {"--wdtModelOnly"},
+        description = "Install WDT and copy the models to the image, but do not create the domain. "
+            + "Default: ${DEFAULT-VALUE}."
+    )
+    private boolean wdtModelOnly = false;
 
     @Unmatched
     List<String> unmatchedOptions;

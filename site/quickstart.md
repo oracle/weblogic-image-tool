@@ -1,6 +1,6 @@
 # Quick Start
 
-The Image Tool supports creating WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains.  It
+The Image Tool supports creating Linux based WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains.  It
 can be used with or without Internet access.  
 
 Before you use the tool, you can customize the tool's cache store. The cache store is used to look up where the Java,
@@ -84,7 +84,7 @@ drwxr-xr-x 18 root   root   4096 May 29 01:31 ..
 
 In this use case, the Image Tool will:
 
-1. Start with a base-level operating system image (oracle-linux:7-slim).
+1. Start with a base-level operating system image (oraclelinux:7-slim).
 2. Automatically update the image with the necessary packages for installing WebLogic.
 3. Install Java and WebLogic based on the provided installers.
 4. Optionally, automatically download and apply the patches specified.
@@ -149,7 +149,7 @@ For each WebLogic patch, you will need to download it from Oracle Support and se
 27342434 for WebLogic version 12.2.1.3.0:
 
 ```bash
-imagetool cache addPatch --patchId 27342434 --version 12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip 
+imagetool cache addPatch --patchId 27342434_12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip 
 ```
 Note: Please refer to [Cache Command](cache.md) for the format of ```patchId``` 
 
@@ -164,7 +164,7 @@ downloading the latest OPatch patch and setting up the cache.  For example, the 
 .4.0.0.  You can use this command to set up the cache after downloading from Oracle Support.
 
 ```bash
-imagetool cache addPatch --patchId p28186730 --version 13.9.4.0.0 --path /home/acmeuser/cache/p28186730_139400_Generic.zip
+imagetool cache addPatch --patchId 28186730_13.9.4.0.0 --path /home/acmeuser/cache/p28186730_139400_Generic.zip
 ```
 
 ## Patching an existing image

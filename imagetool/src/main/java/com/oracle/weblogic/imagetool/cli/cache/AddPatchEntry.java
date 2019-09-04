@@ -3,25 +3,18 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.SearchResult;
 import com.oracle.weblogic.imagetool.util.Utils;
-import com.oracle.weblogic.imagetool.util.XPathUtil;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.w3c.dom.Document;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -32,7 +25,7 @@ import picocli.CommandLine.Option;
 )
 public class AddPatchEntry extends CacheOperation {
 
-    private final Logger logger = Logger.getLogger(AddPatchEntry.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(AddPatchEntry.class);
 
     public AddPatchEntry() {
     }

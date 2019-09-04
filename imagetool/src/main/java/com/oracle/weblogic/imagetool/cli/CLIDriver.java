@@ -4,12 +4,13 @@
 package com.oracle.weblogic.imagetool.cli;
 
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cli.cache.CacheCLI;
 import com.oracle.weblogic.imagetool.cli.menu.CreateImage;
 import com.oracle.weblogic.imagetool.cli.menu.UpdateImage;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -33,6 +34,8 @@ import picocli.CommandLine.HelpCommand;
 )
 public class CLIDriver implements Callable<CommandResponse> {
 
+    private static final LoggingFacade logger = LoggingFactory.getLogger(CLIDriver.class);
+
     @Override
     public CommandResponse call() {
         return null;
@@ -43,7 +46,6 @@ public class CLIDriver implements Callable<CommandResponse> {
       * @param args command line arguments.
      */
     public static void main(String[] args) {
-        Logger logger = Logger.getLogger(CLIDriver.class.getName());
         CLIDriver cliDriver = new CLIDriver();
         if (args.length == 0) {
             CommandLine.usage(cliDriver, System.out);

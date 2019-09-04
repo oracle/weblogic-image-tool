@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -29,7 +30,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,10 +41,12 @@ import java.util.zip.ZipFile;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 
 public class Utils {
 
-    private static final Logger logger = Logger.getLogger(Utils.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(Utils.class);
 
     /**
      * Utility method to copy a resource from the jar to local file system.
@@ -66,7 +69,9 @@ public class Utils {
         Files.copy(Utils.class.getResourceAsStream(resourcePath), Paths.get(destPath),
                 StandardCopyOption.REPLACE_EXISTING);
         if (markExec) {
-            Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
+            if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+                Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
+            }
         }
     }
 
@@ -163,20 +168,21 @@ public class Utils {
     /**
      * Executes the given docker command and writes the process stdout to log.
      *
-     * @param isCLIMode  whether the tool is being run in CLI mode
+     * @param useStandardOut  write output to stdout (when running in command-line mode)
      * @param cmdBuilder command to execute
      * @param dockerLog  log file to write to
      * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
-    public static void runDockerCommand(boolean isCLIMode, List<String> cmdBuilder, Path dockerLog)
+    public static void runDockerCommand(boolean useStandardOut, List<String> cmdBuilder, Path dockerLog)
             throws IOException, InterruptedException {
         // process builder
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
+        logger.entering(useStandardOut, cmdBuilder, dockerLog);
         Path dockerLogPath = createFile(dockerLog, "dockerbuild.log");
+        logger.finer("Docker log: {0}", dockerLogPath);
         List<OutputStream> outputStreams = new ArrayList<>();
 
-        if (isCLIMode) {
+        if (useStandardOut) {
             outputStreams.add(System.out);
         }
 
@@ -185,8 +191,12 @@ public class Utils {
             outputStreams.add(new FileOutputStream(dockerLogPath.toFile()));
         }
 
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
+        logger.finest("Starting docker process...");
         final Process process = processBuilder.start();
+        logger.finest("Docker process started");
         writeFromInputToOutputStreams(process.getInputStream(), outputStreams.toArray(new OutputStream[0]));
+        logger.finest("Waiting for Docker to finish");
         if (process.waitFor() != 0) {
             processError(process);
         }
@@ -449,6 +459,27 @@ public class Utils {
     }
 
     /**
+     * Reads the docker image environment variables into Java Properties.
+     * @param dockerImage the name of the Docker image to read from
+     * @param tmpDir the directory to use on the container to copy a script
+     * @return The key/value pairs representing the ENV of the Docker image
+     * @throws IOException when the Docker command fails
+     * @throws InterruptedException when the Docker command is interrupted
+     */
+    public static Properties getBaseImageProperties(String dockerImage, String tmpDir)
+        throws IOException, InterruptedException {
+
+        List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, dockerImage, "test-env.sh");
+        Properties result = Utils.runDockerCommand(imageEnvCmd);
+
+        if (logger.isLoggable(Level.FINE)) {
+            result.keySet().forEach(x -> logger.fine(
+                "ENV(" + dockerImage + "): " + x + "=" + result.getProperty(x.toString())));
+        }
+        return result;
+    }
+
+    /**
      * Constructs a docker command to run a script in the container with a volume mount.
      *
      * @param hostDirToMount host dir
@@ -530,7 +561,7 @@ public class Utils {
             throws IOException {
         if (!isEmptyString(passwordStr)) {
             return passwordStr;
-        } else if (passwordFile != null && Files.isRegularFile(passwordFile) && Files.size(passwordFile) > 0) {
+        } else if (validFile(passwordFile)) {
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(passwordFile.toFile()))) {
                 return bufferedReader.readLine();
             }
@@ -658,21 +689,11 @@ public class Utils {
                     String error;
                     if (rigid) {
                         errorFormat = "12345678_12.2.1.3.0";
-                        error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
-                                + " starting with 8 digits patch ID.  The release version as found by searching for "
-                                + "patches on Oracle Support Site must be specified after the underscore with 5 places "
-                                + "such as 12.2.1.3.0 or 12.2.1.3.190416", errorFormat, patchId);
                     } else {
                         errorFormat = "12345678[_12.2.1.3.0]";
-                        error = String.format("Invalid patch id %s. Patch id must be in the format of %s"
-                                + " starting with 8 digits patch ID.  For patches that has multiple target versions, "
-                                + "the "
-                                + "target must be specified after the underscore with 5 places such as 12.2.1.3.0 or "
-                                + "12.2.1."
-                                + "3.190416", errorFormat, patchId);
                     }
 
-                    logger.severe(error);
+                    logger.severe("IMG-0004", patchId, errorFormat);
                     result = false;
                     return result;
                 }
@@ -681,5 +702,46 @@ public class Utils {
         }
 
         return result;
+    }
+
+    /**
+     * Set the Oracle Home directory based on the installer response file.
+     * If no Oracle Home is provided in the response file, do nothing and accept the default value.
+     * @param installerResponse installer response file to parse.
+     * @param options Dockerfile options to use for the build (holds the Oracle Home argument)
+     */
+    public static void setOracleHome(String installerResponse, DockerfileOptions options) throws IOException {
+        if (installerResponse == null) {
+            return;
+        }
+        Path installerResponseFile = Paths.get(installerResponse);
+        Pattern pattern = Pattern.compile("^\\s*ORACLE_HOME=(.*)?");
+        Matcher matcher = pattern.matcher("");
+        logger.finest("Reading installer response file: {0}", installerResponseFile.getFileName());
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(installerResponseFile.toFile()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                logger.finest("Read response file line: {0}", line);
+
+                matcher.reset(line);
+                if (matcher.find()) {
+                    String oracleHome = matcher.group(1);
+                    if (oracleHome != null) {
+                        options.setOracleHome(oracleHome);
+                        logger.info("IMG-0010", oracleHome);
+                    }
+                    break;
+                }
+            }
+        } catch (FileNotFoundException notFound) {
+            logger.severe("Unable to find installer response file: {0}", installerResponseFile);
+            throw notFound;
+        }
+    }
+
+    private static boolean validFile(Path file) throws IOException {
+        return file != null && Files.isRegularFile(file) && Files.size(file) > 0;
     }
 }

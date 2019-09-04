@@ -13,6 +13,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -38,7 +40,7 @@ import org.xml.sax.SAXException;
 
 public class HttpUtil {
 
-    private static final Logger logger = Logger.getLogger(HttpUtil.class.getName());
+    private static final LoggingFacade logger = LoggingFactory.getLogger(HttpUtil.class);
 
     /**
      * Return the xml result of a GET from the url.
@@ -51,7 +53,7 @@ public class HttpUtil {
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
 
-        logger.finest("HTTPUtil.getXMLContent " + url);
+        logger.entering(url);
         String xmlString = Executor.newInstance(getOraClient(username, password))
                 .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .returnContent().asString();
@@ -60,7 +62,8 @@ public class HttpUtil {
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xmlString));
             Document doc = docBuilder.parse(is);
-            logger.finest("HTTPUtil.getXMLContent result " + XPathUtil.prettyPrint(doc));
+            logger.finest(doc);
+            logger.exiting();
             return doc;
         } catch (ParserConfigurationException ex) {
             throw new IllegalStateException(ex);
@@ -72,6 +75,7 @@ public class HttpUtil {
     }
 
     private static HttpClient getOraClient(String userId, String password) {
+        logger.entering(userId);
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
         config.setCookieSpec(CookieSpecs.STANDARD);
@@ -86,6 +90,7 @@ public class HttpUtil {
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
                     userId, password));
         }
+        logger.exiting();
         return HttpClientBuilder.create().setDefaultRequestConfig(config.build())
                 .setDefaultCookieStore(cookieStore).useSystemProperties()
                 .setDefaultCredentialsProvider(credentialsProvider).build();
@@ -103,9 +108,18 @@ public class HttpUtil {
 
     public static void downloadFile(String url, String fileName, String username, String password)
             throws IOException {
-        Executor.newInstance(getOraClient(username, password))
-                .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
-                .saveContent(new File(fileName));
+        logger.entering(url);
+        try {
+            Executor.newInstance(getOraClient(username, password))
+                    .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+                    .saveContent(new File(fileName));
+        } catch (Exception ex) {
+            String message = String.format("Failed to download and save file %s from %s: %s", fileName, url,
+                    ex.getLocalizedMessage());
+            logger.info(message);
+            throw new IOException(message, ex);
+        }
+        logger.exiting(fileName);
     }
 
     /**
@@ -122,7 +136,7 @@ public class HttpUtil {
     public static Document postCheckConflictRequest(String url, String payload, String username, String password)
             throws IOException {
 
-        logger.finest("HTTPUtil.postCheckConflictRequest: " + payload);
+        logger.entering(url, payload);
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
         config.setRedirectsEnabled(true);
@@ -150,13 +164,14 @@ public class HttpUtil {
         String xmlString =
                 httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
                         .returnContent().asString();
-        logger.finest("Returned Raw result " + xmlString);
+        logger.finest("Returned Raw result: {0}", xmlString);
         try {
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xmlString));
             Document doc = docBuilder.parse(is);
-            logger.finest("HTTPUtil.postCheckConflictRequest result " + XPathUtil.prettyPrint(doc));
+            logger.finest(doc);
+            logger.exiting();
             return doc;
         } catch (ParserConfigurationException ex) {
             throw new IllegalStateException(ex);
