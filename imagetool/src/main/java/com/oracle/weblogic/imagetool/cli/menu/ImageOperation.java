@@ -4,15 +4,14 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +35,7 @@ import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.ValidationResult;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
@@ -43,9 +43,10 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(ImageOperation.class);
     // DockerfileOptions provides switches and values to the customize the Dockerfile template
-    protected DockerfileOptions dockerfileOptions;
+    DockerfileOptions dockerfileOptions;
     protected CacheStore cacheStore = new CacheStoreFactory().get();
     private String nonProxyHosts = null;
+    private String tempDirectory = null;
     boolean isCliMode;
     String password;
 
@@ -88,42 +89,79 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     /**
+     * Return the WLS installer type for this operation.
+     * @return WLS, FMW, or RestrictedJRF
+     */
+    public abstract WLSInstallerType getInstallerType();
+
+    /**
+     * Return the WLS installer version string.
+     * @return something like 12.2.1.3.0
+     */
+    public abstract String getInstallerVersion();
+
+    /**
+     * Returns true if any patches should be applied.
+     * A PSU is considered a patch.
+     * @return true if applying patches
+     */
+    boolean applyingPatches() {
+        return latestPSU || !patches.isEmpty();
+    }
+
+    /**
      * Builds a list of build args to pass on to docker with the required patches.
      * Also, creates links to patches directory under build context instead of copying over.
      *
-     * @param tmpDir        build context dir
-     * @param tmpPatchesDir patches dir under build context
      * @return list of strings
      * @throws Exception in case of error
      */
-    List<String> handlePatchFiles(String tmpDir, Path tmpPatchesDir) throws Exception {
+    List<String> handlePatchFiles(String previousInventory) throws Exception {
         logger.entering();
         List<String> retVal = new LinkedList<>();
+
+        if (!applyingPatches()) {
+            return retVal;
+        }
+
+        String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
+
         List<String> patchLocations = new LinkedList<>();
-        String toPatchesPath = tmpPatchesDir.toAbsolutePath().toString();
+
+        List<String> patchList = new ArrayList<>(patches);
 
         if (latestPSU) {
             if (userId == null || password == null) {
-                throw new Exception("No credentials provided. Cannot determine "
-                        + "latestPSU");
-            } else {
-                String patchId = ARUUtil.getLatestPSUNumber(installerType.toString(), installerVersion,
-                        userId,
-                        password);
-                if (Utils.isEmptyString(patchId)) {
-                    throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
-                            installerType.toString(), installerVersion));
-                }
-                logger.finest("Found latest PSU " + patchId);
-                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion,
-                        patchId, userId, password);
-                patchLocations.add(psuResolver.resolve(cacheStore));
+                throw new Exception("No credentials provided. Cannot determine latestPSU");
             }
 
+            // PSUs for WLS and JRF installers are considered WLS patches
+            String patchId = ARUUtil.getLatestPSUNumber(WLSInstallerType.WLS, getInstallerVersion(), userId, password);
+            if (Utils.isEmptyString(patchId)) {
+                throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
+                    getInstallerType(), getInstallerVersion()));
+            }
+            logger.fine("Found latest PSU {0}", patchId);
+            FileResolver psuResolver = new PatchFile(useCache, getInstallerType().toString(), getInstallerVersion(),
+                patchId, userId, password);
+            patchLocations.add(psuResolver.resolve(cacheStore));
+            // Add PSU patch ID to the patchList for validation (conflict check)
+            patchList.add(patchId);
         }
+
+        logger.info("IMG-0012");
+        ValidationResult validationResult = ARUUtil.validatePatches(previousInventory, patchList, userId, password);
+        if (validationResult.isSuccess()) {
+            logger.info("IMG-0006");
+        } else {
+            String error = validationResult.getErrorMessage();
+            logger.severe(error);
+            throw new IllegalArgumentException(error);
+        }
+
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                patchLocations.add(new PatchFile(useCache, installerType.toString(), installerVersion,
+                patchLocations.add(new PatchFile(useCache, getInstallerType().toString(), getInstallerVersion(),
                         patchId, userId, password).resolve(cacheStore));
             }
         }
@@ -179,14 +217,16 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     }
 
     public String getTempDirectory() throws IOException {
-        Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp");
-        String pathAsString = tmpDir.toAbsolutePath().toString();
-        logger.info("IMG-0003", pathAsString);
-        return pathAsString;
+        if (tempDirectory == null) {
+            Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp");
+            tempDirectory = tmpDir.toAbsolutePath().toString();
+            logger.info("IMG-0003", tempDirectory);
+        }
+        return tempDirectory;
     }
 
-    public Path createPatchesTempDirectory(String tmpDir) throws IOException {
-        Path tmpPatchesDir = Files.createDirectory(Paths.get(tmpDir, "patches"));
+    public Path createPatchesTempDirectory() throws IOException {
+        Path tmpPatchesDir = Files.createDirectory(Paths.get(getTempDirectory(), "patches"));
         Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
         return tmpPatchesDir;
     }
@@ -240,7 +280,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * @return list of build argument parameters for docker build
      * @throws Exception in case of error
      */
-    protected List<String> handleInstallerFiles(String tmpDir) throws Exception {
+    List<String> handleInstallerFiles(String tmpDir) throws Exception {
 
         logger.entering(tmpDir);
         List<String> retVal = new LinkedList<>();
@@ -280,31 +320,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         return result;
     }
 
-
-    /**
-     * Certain environment variables need to be set in docker images for WDT domains to work.
-     *
-     * @param wdtVariablesPath wdt variables file path.
-     * @return list of build args
-     * @throws IOException in case of error
-     */
-    private List<String> getWdtRequiredBuildArgs(Path wdtVariablesPath) throws IOException {
-        logger.finer("Entering CreateImage.getWdtRequiredBuildArgs: " + wdtVariablesPath.toAbsolutePath().toString());
-        List<String> retVal = new LinkedList<>();
-        Properties variableProps = new Properties();
-        variableProps.load(new FileInputStream(wdtVariablesPath.toFile()));
-        List<Object> matchingKeys = variableProps.keySet().stream().filter(
-            x -> variableProps.getProperty(((String) x)) != null
-                && Constants.REQD_WDT_BUILD_ARGS.contains(((String) x).toUpperCase())
-        ).collect(Collectors.toList());
-        matchingKeys.forEach(x -> {
-            retVal.add(Constants.BUILD_ARG);
-            retVal.add(((String) x).toUpperCase() + "=" + variableProps.getProperty((String) x));
-        });
-        logger.finer("Exiting CreateImage.getWdtRequiredBuildArgs: ");
-        return retVal;
-    }
-
     /**
      * Checks whether the user requested a domain to be created with WDT.
      * If so, returns the required build args to pass to docker and creates required file links to pass
@@ -314,7 +329,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
      * @return list of build args
      * @throws IOException in case of error
      */
-    protected List<String> handleWdtArgsIfRequired(String tmpDir) throws IOException {
+    List<String> handleWdtArgsIfRequired(String tmpDir) throws IOException {
         logger.entering(tmpDir);
 
         List<String> retVal = new LinkedList<>();
@@ -338,7 +353,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
             dockerfileOptions.setWdtDomainType(wdtDomainType);
             if (wdtDomainType != DomainType.WLS) {
-                if (installerType != WLSInstallerType.FMW) {
+                if (getInstallerType() != WLSInstallerType.FMW) {
                     throw new IOException("FMW installer is required for JRF domain");
                 }
                 if (runRcu) {
@@ -351,9 +366,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 String wdtArchiveFilename = wdtArchivePath.getFileName().toString();
                 Files.copy(wdtArchivePath, Paths.get(tmpDir, wdtArchiveFilename));
                 //Until WDT supports multiple archives, take single file argument from CLI and convert to list
-                List<String> archives = new ArrayList<>();
-                archives.add(wdtArchiveFilename);
-                dockerfileOptions.setWdtArchives(archives);
+                dockerfileOptions.setWdtArchives(Collections.singletonList(wdtArchiveFilename));
             }
             dockerfileOptions.setDomainHome(wdtDomainHome);
 
@@ -362,9 +375,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
                 String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
                 Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
-                retVal.add(Constants.BUILD_ARG);
-                retVal.add("WDT_VARIABLE=" + wdtVariableFilename);
-                retVal.addAll(getWdtRequiredBuildArgs(wdtVariablesPath));
+                //Until WDT supports multiple variable files, take single file argument from CLI and convert to list
+                dockerfileOptions.setWdtVariables(Collections.singletonList(wdtVariableFilename));
             }
         }
         logger.exiting();
@@ -397,10 +409,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
         logger.exiting();
     }
-
-    WLSInstallerType installerType = WLSInstallerType.WLS;
-
-    String installerVersion = Constants.DEFAULT_WLS_VERSION;
 
     @Option(
             names = {"--useCache"},
@@ -504,6 +512,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     )
     private String[] osUserAndGroup;
 
+
+    @Option(
+        names = {"--opatchBugNumber"},
+        description = "the patch number for OPatch (patching OPatch)"
+    )
+    String opatchBugNumber = "28186730";
 
     @Option(
             names = {"--wdtModel"},

@@ -29,11 +29,10 @@ public class BaseTest {
     protected static String wlsImgBldDir = "";
     protected static String wlsImgCacheDir = "";
     protected static String imagetool = "";
-    private static String imagetoolZipfile = "";
     private static int maxIterations = 50;
     private static int waitTime = 5;
-    private static String IMAGETOOLZIPFILE_PREFIX = "imagetool-";
-    private static String IMAGETOOLZIPFILE_SUFFIX = ".zip";
+    private static String IMAGETOOLZIPFILE = "imagetool.zip";
+    private static String IMAGETOOLDIR = "imagetool";
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -51,8 +50,6 @@ public class BaseTest {
             wlsImgCacheDir = System.getenv("HOME") + FS + "cache";
         }
 
-        imagetoolZipfile = getImagetoolZipfile();
-
         imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file=" +
                 getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
@@ -67,8 +64,8 @@ public class BaseTest {
         String command = "/bin/rm -rf " + getImagetoolHome();
         executeNoVerify(command);
 
-        // unzip the weblogic-image-tool/imagetool/target/imagetool-${VERSION}-SNAPSHOT.zip
-        command = "/bin/unzip " + getTargetDir() + FS + imagetoolZipfile;
+        // unzip the weblogic-image-tool/imagetool/target/imagetool.zip
+        command = "/bin/unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE;
         executeNoVerify(command);
 
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
@@ -155,9 +152,8 @@ public class BaseTest {
     }
 
     protected static String getImagetoolHome() throws Exception {
-        int endIndex = getImagetoolZipfile().length() - IMAGETOOLZIPFILE_SUFFIX.length();
-        String imagetooldir = getImagetoolZipfile().substring(0, endIndex);
-        return getProjectRoot() + FS + imagetooldir;
+
+        return getProjectRoot() + FS + IMAGETOOLDIR;
     }
 
     protected static String getInstallerCacheDir() {
@@ -318,10 +314,5 @@ public class BaseTest {
                 break;
             }
         }
-    }
-
-    private static String getImagetoolZipfile() throws Exception {
-        String version = System.getProperty("imagetoolversion");
-        return IMAGETOOLZIPFILE_PREFIX + version + IMAGETOOLZIPFILE_SUFFIX;
     }
 }
