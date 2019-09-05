@@ -22,7 +22,7 @@ public class BaseTest {
     private static final String OCR_SERVER = "container-registry.oracle.com";
     protected static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
-    protected static final String ORACLE_DB_IMG = "container-registry.oracle.com/database/enterprise";
+    protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     private static final String DB_CONTAINER_NAME = "InfraDB";
     private static String projectRoot = "";
@@ -94,29 +94,28 @@ public class BaseTest {
 
     protected static void pullBaseOSDockerImage() throws Exception {
         logger.info("Pulling OS base images from OCIR ...");
-        String ocir_username = System.getenv("OCIR_USERNAME");
-        String ocir_password = System.getenv("OCIR_PASSWORD");
+        //String ocir_username = System.getenv("OCIR_USERNAME");
+        //String ocir_password = System.getenv("OCIR_PASSWORD");
 
-        if(ocir_username == null || ocir_password == null) {
-            throw new Exception("You need to set OCIR_USERNAME and OCIR_PASSWORD environment variable to pull base" +
-                    " OS image " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG);
-        }
+        //if(ocir_username == null || ocir_password == null) {
+        //    throw new Exception("You need to set OCIR_USERNAME and OCIR_PASSWORD environment variable to pull base" +
+        //            " OS image " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG);
+        //}
 
-        pullDockerImage(OCIR_SERVER, OCIR_TENENT + "/" + ocir_username , ocir_password, BASE_OS_IMG,
-                BASE_OS_IMG_TAG);
+        pullDockerImage(BASE_OS_IMG, BASE_OS_IMG_TAG);
     }
 
     protected static void pullOracleDBDockerImage() throws Exception {
-        logger.info("Pulling Oracle DB image from OCR ...");
-        String ocr_username = System.getenv("OCR_USERNAME");
-        String ocr_password = System.getenv("OCR_PASSWORD");
+        logger.info("Pulling Oracle DB image from OCIR ...");
+        //String ocr_username = System.getenv("OCR_USERNAME");
+        //String ocr_password = System.getenv("OCR_PASSWORD");
 
-        if(ocr_username == null || ocr_password == null) {
-            throw new Exception("You need to set OCR_USERNAME and OCR_PASSWORD environment variable to pull DB " +
-                    "image " + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG);
-        }
+        //if(ocr_username == null || ocr_password == null) {
+        //    throw new Exception("You need to set OCR_USERNAME and OCR_PASSWORD environment variable to pull DB " +
+        //            "image " + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG);
+        //}
 
-        pullDockerImage(OCR_SERVER, ocr_username, ocr_password, ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
+        pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
     }
 
     protected static void downloadInstallers(String... installers) throws Exception {
@@ -265,11 +264,10 @@ public class BaseTest {
         return result;
     }
 
-    private static void pullDockerImage(String repoServer, String username, String password,
-                                        String imagename, String imagetag) throws Exception {
+    private static void pullDockerImage(String imagename, String imagetag) throws Exception {
 
-        ExecCommand.exec("docker login " + repoServer + " -u " + username +
-                " -p " + password);
+        //ExecCommand.exec("docker login " + repoServer + " -u " + username +
+        //        " -p " + password);
         ExecCommand.exec("docker pull " + imagename + ":" + imagetag);
 
         // verify the docker image is pulled
