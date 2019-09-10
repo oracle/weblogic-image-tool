@@ -17,9 +17,6 @@ public class BaseTest {
     protected static final Logger logger = Logger.getLogger(ITImagetool.class.getName());
     protected static final String PS = File.pathSeparator;
     protected static final String FS = File.separator;
-    private static final String OCIR_SERVER = "phx.ocir.io";
-    private static final String OCIR_TENENT = "weblogick8s";
-    private static final String OCR_SERVER = "container-registry.oracle.com";
     protected static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
@@ -31,8 +28,9 @@ public class BaseTest {
     protected static String imagetool = "";
     private static int maxIterations = 50;
     private static int waitTime = 5;
-    private static String IMAGETOOLZIPFILE = "imagetool.zip";
-    private static String IMAGETOOLDIR = "imagetool";
+    private static final String IMAGETOOLZIPFILE = "imagetool.zip";
+    private static final String IMAGETOOLDIR = "imagetool";
+    private static final String INSTALLERCACHEDIR = "/scratch/artifacts/imagetool";
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -156,7 +154,7 @@ public class BaseTest {
     }
 
     protected static String getInstallerCacheDir() {
-        return getProjectRoot() + FS + "caches";
+        return INSTALLERCACHEDIR;
     }
 
     protected static String getWDTResourcePath() {
