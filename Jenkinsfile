@@ -32,8 +32,9 @@ pipeline {
         }
         stage ('SystemTest') {
             steps {
-                withCredentials([usernameColonPassword(credentialsId: 'otn-cred', variable: 'otnuser')]) {
-                    echo '$otnuser'
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'OTNPASS', usernameVariable: 'OTNUSER']]) {
+                    echo 'OTNUSER'
+                    echo 'OTNPASS'
                     echo 'hope you saw the userid'
                     sh 'mvn verify'
                 }
