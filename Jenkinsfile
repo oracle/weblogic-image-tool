@@ -31,8 +31,13 @@ pipeline {
             }
         }
         stage ('SystemTest') {
-            steps {
-                sh 'mvn verify'
+            withCredentials([usernamePassword(credentialsId: 'otn-cred', passwordVariable: 'otnpass', usernameVariable: 'otnuser')]) {
+                steps {
+                    echo $otnuser
+                    echo $otnpass
+                    echo 'hope you saw the userid'
+                    sh 'mvn verify'
+                }
             }
         }
      }
