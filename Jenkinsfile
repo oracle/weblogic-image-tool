@@ -31,8 +31,8 @@ pipeline {
             }
         }
         stage ('SystemTest') {
-            withCredentials([usernamePassword(credentialsId: 'otn-cred', passwordVariable: 'otnpass', usernameVariable: 'otnuser')]) {
-                steps {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'otn-cred', passwordVariable: 'otnpass', usernameVariable: 'otnuser')]) {
                     echo $otnuser
                     echo $otnpass
                     echo 'hope you saw the userid'
