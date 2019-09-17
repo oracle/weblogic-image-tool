@@ -32,7 +32,9 @@ pipeline {
         }
         stage ('SystemTest') {
             steps {
-                sh 'mvn verify'
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
+                    sh 'mvn verify'
+                }
             }
         }
      }
