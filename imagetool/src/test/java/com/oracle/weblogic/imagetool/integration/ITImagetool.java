@@ -46,8 +46,8 @@ public class ITImagetool extends BaseTest {
     private static final String WDT_MODEL2 = "simple-topology2.yaml";
     private static String oracleSupportUsername;
     private static String oracleSupportPassword;
-    private static String httpProxy;
-    private static String httpsProxy;
+    //private static String httpProxy;
+    //private static String httpsProxy;
 
     @BeforeClass
     public static void staticPrepare() throws Exception {
@@ -76,17 +76,17 @@ public class ITImagetool extends BaseTest {
         }
 
         // get http proxy
-        httpProxy = System.getenv("HTTP_PROXY");
-        httpsProxy = System.getenv("HTTPS_PROXY");
-        if(httpProxy == null || httpsProxy == null) {
-            throw new Exception("Please set environment variable HTTP_PROXY and HTTPS_PROXY");
-        }
+        //httpProxy = System.getenv("HTTP_PROXY");
+        //httpsProxy = System.getenv("HTTPS_PROXY");
+        //if(httpProxy == null || httpsProxy == null) {
+        //    throw new Exception("Please set environment variable HTTP_PROXY and HTTPS_PROXY");
+        //}
     }
 
     @AfterClass
     public static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
-        cleanup();
+        //cleanup();
     }
 
     /**
@@ -353,9 +353,12 @@ public class ITImagetool extends BaseTest {
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
-        String command = imagetool + " create --version=" + WLS_VERSION + " --tag imagetool:" + testMethodName +
+        /*String command = imagetool + " create --version=" + WLS_VERSION + " --tag imagetool:" + testMethodName +
                 " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --httpProxyUrl " +
                 httpProxy + " --httpsProxyUrl " + httpsProxy + " --type fmw";
+        */
+        String command = imagetool + " create --version=" + WLS_VERSION + " --tag imagetool:" + testMethodName +
+            " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --type fmw";
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
 

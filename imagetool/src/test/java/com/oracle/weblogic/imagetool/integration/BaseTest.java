@@ -59,11 +59,11 @@ public class BaseTest {
     protected static void setup() throws Exception {
 
         logger.info("Setting up the test environment ...");
-        String command = "/bin/rm -rf " + getImagetoolHome();
+        String command = "rm -rf " + getImagetoolHome();
         executeNoVerify(command);
 
         // unzip the weblogic-image-tool/imagetool/target/imagetool.zip
-        command = "/bin/unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE;
+        command = "unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE;
         executeNoVerify(command);
 
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
@@ -72,10 +72,10 @@ public class BaseTest {
 
     protected static void cleanup() throws Exception {
         logger.info("cleaning up the test environment ...");
-        String command = "/bin/rm -rf " + wlsImgCacheDir;
+        String command = "rm -rf " + wlsImgCacheDir;
         executeNoVerify(command);
 
-        command = "/bin/mkdir " + wlsImgCacheDir;
+        command = "mkdir " + wlsImgCacheDir;
         executeNoVerify(command);
 
         // clean up the docker images
@@ -86,7 +86,7 @@ public class BaseTest {
         executeNoVerify(command);
 
         // clean up the possible left over wlsimgbuilder_temp*
-        command = "/bin/rm -rf " + wlsImgBldDir + FS + "wlsimgbuilder_temp*";
+        command = "rm -rf " + wlsImgBldDir + FS + "wlsimgbuilder_temp*";
         executeNoVerify(command);
     }
 
