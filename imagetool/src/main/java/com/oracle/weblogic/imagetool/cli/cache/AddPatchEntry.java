@@ -61,18 +61,6 @@ public class AddPatchEntry extends CacheOperation {
     }
 
     /**
-     * Validate local patch file's digest against the digest stored in ARU.
-     *
-     * @param patchNumber the ARU patch number without the 'p'
-     * @param password    the password to be used for the ARU query (Oracle Support credential)
-     * @return true if the local file digest matches the digest stored in Oracle ARU
-     * @throws Exception if the ARU call to get patch details failed
-     */
-    private CommandResponse validateAndAddToCache(String patchNumber, String password) throws Exception {
-        return addToCache(patchNumber);
-    }
-
-    /**
      * Add patch to the cache.
      *
      * @param patchNumber the patchId (minus the 'p') of the patch to add
