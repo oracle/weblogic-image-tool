@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
+import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -429,10 +430,8 @@ public class ITImagetool extends BaseTest {
         Path source = Paths.get(wdtModel);
         Path dest = Paths.get(tmpWdtModel);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        String host = System.getenv("HOSTNAME");
-        if (host == null) {
-            host = "localhost";
-        }
+        String host = InetAddress.getLocalHost().getHostName();
+        logger.info("DEBUG: DB_HOST=" + host);
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
         String command = imagetool + " create --fromImage " +
