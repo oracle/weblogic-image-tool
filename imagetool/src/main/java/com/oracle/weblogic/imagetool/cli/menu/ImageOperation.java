@@ -375,6 +375,8 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 //Until WDT supports multiple variable files, take single file argument from CLI and convert to list
                 dockerfileOptions.setWdtVariables(Collections.singletonList(wdtVariableFilename));
             }
+
+            dockerfileOptions.setWdtStrictValidation(wdtStrictValidation);
         }
         logger.exiting();
         return retVal;
@@ -571,13 +573,19 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     )
     private String wdtJavaOptions;
 
-
     @Option(
         names = {"--wdtModelOnly"},
         description = "Install WDT and copy the models to the image, but do not create the domain. "
             + "Default: ${DEFAULT-VALUE}."
     )
     private boolean wdtModelOnly = false;
+
+    @Option(
+        names = {"--wdtStrictValidation"},
+        description = "Use strict validation for the WDT validation method. Only applies when using model only.  "
+            + "Default: ${DEFAULT-VALUE}."
+    )
+    private boolean wdtStrictValidation = false;
 
     @Unmatched
     List<String> unmatchedOptions;
