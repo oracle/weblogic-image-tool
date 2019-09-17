@@ -356,10 +356,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 if (getInstallerType() != WLSInstallerType.FMW) {
                     throw new IOException("FMW installer is required for JRF domain");
                 }
-                if (runRcu) {
-                    retVal.add(Constants.BUILD_ARG);
-                    retVal.add("RCU_RUN_FLAG=" + "-run_rcu");
-                }
+                dockerfileOptions.setRunRcu(runRcu);
             }
 
             if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
@@ -408,6 +405,10 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             }
         }
         logger.exiting();
+    }
+
+    public DomainType getWdtDomainType() {
+        return wdtDomainType;
     }
 
     @Option(

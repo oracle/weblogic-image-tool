@@ -7,14 +7,16 @@ package com.oracle.weblogic.imagetool.api.model;
  * Supported domain type. wls, jrf or restricted jrf.
  */
 public enum DomainType {
-    WLS("wls"),
-    JRF("jrf"),
-    RestrictedJRF("rjrf");
+    WLS("wls", WLSInstallerType.WLS),
+    JRF("jrf", WLSInstallerType.FMW),
+    RestrictedJRF("rjrf", WLSInstallerType.FMW);
 
     private String value;
+    private WLSInstallerType installer;
 
-    DomainType(String value) {
+    DomainType(String value, WLSInstallerType installer) {
         this.value = value;
+        this.installer = installer;
     }
 
     /**
@@ -29,6 +31,10 @@ public enum DomainType {
             }
         }
         throw new IllegalArgumentException("argument " + value + " does not match any DomainType");
+    }
+
+    public WLSInstallerType installerType() {
+        return installer;
     }
 }
 

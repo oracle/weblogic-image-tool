@@ -42,6 +42,7 @@ public class DockerfileOptions {
     private DomainType wdtDomainType;
     private String wdtJavaOptions;
     private boolean wdtModelOnly;
+    private boolean wdtRunRcu;
 
     /**
      * Options to be used with the Mustache template.
@@ -68,6 +69,7 @@ public class DockerfileOptions {
         wdtModelList = new ArrayList<>();
         wdtArchiveList = new ArrayList<>();
         wdtVariableList = new ArrayList<>();
+        wdtRunRcu = false;
     }
 
     /**
@@ -463,6 +465,15 @@ public class DockerfileOptions {
 
     public boolean modelOnly() {
         return wdtModelOnly;
+    }
+
+    public boolean runRcu() {
+        return wdtRunRcu;
+    }
+
+    public DockerfileOptions setRunRcu(boolean value) {
+        wdtRunRcu = value;
+        return this;
     }
 
     public String wlsdeploy_properties() {

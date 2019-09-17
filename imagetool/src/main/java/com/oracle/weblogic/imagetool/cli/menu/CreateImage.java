@@ -177,6 +177,9 @@ public class CreateImage extends ImageOperation {
 
     @Override
     public WLSInstallerType getInstallerType() {
+        if (installerType == null) {
+            return getWdtDomainType().installerType();
+        }
         return installerType;
     }
 
@@ -187,9 +190,9 @@ public class CreateImage extends ImageOperation {
 
     @Option(
             names = {"--type"},
-            description = "Installer type. Default: ${DEFAULT-VALUE}. Supported values: ${COMPLETION-CANDIDATES}"
+            description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
     )
-    private WLSInstallerType installerType = WLSInstallerType.WLS;
+    private WLSInstallerType installerType;
 
     @Option(
             names = {"--version"},
