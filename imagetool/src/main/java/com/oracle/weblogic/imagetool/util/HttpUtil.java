@@ -8,10 +8,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -42,6 +41,37 @@ public class HttpUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(HttpUtil.class);
 
+    private static Document parseXmlString(String xmlString) throws ClientProtocolException {
+        logger.entering(xmlString);
+
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            try {
+                factory.setXIncludeAware(false);
+                factory.setExpandEntityReferences(false);
+            } catch (Throwable ex) {
+                logger.warning("Failed to set XML factory feature: {0}", ex.getLocalizedMessage());
+            }
+
+            try {
+                factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            } catch (Throwable ex) {
+                logger.warning("Failed to set FEATURE_SECURE_PROCESSING: {0}", ex.getLocalizedMessage());
+            }
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputSource input = new InputSource(new StringReader(xmlString));
+            Document doc = builder.parse(input);
+            logger.finest(doc);
+            logger.exiting();
+            return doc;
+        } catch (SAXException ex) {
+            throw new ClientProtocolException("Malformed XML document", ex);
+        } catch (Exception g) {
+            throw new IllegalStateException(g);
+        }
+    }
+
     /**
      * Return the xml result of a GET from the url.
      *
@@ -57,21 +87,8 @@ public class HttpUtil {
         String xmlString = Executor.newInstance(getOraClient(username, password))
                 .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .returnContent().asString();
-        try {
-            DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
-            InputSource is = new InputSource(new StringReader(xmlString));
-            Document doc = docBuilder.parse(is);
-            logger.finest(doc);
-            logger.exiting();
-            return doc;
-        } catch (ParserConfigurationException ex) {
-            throw new IllegalStateException(ex);
-        } catch (SAXException ex) {
-            throw new ClientProtocolException("Malformed XML document", ex);
-        } catch (Exception g) {
-            throw new IllegalStateException(g);
-        }
+        logger.exiting();
+        return parseXmlString(xmlString);
     }
 
     private static HttpClient getOraClient(String userId, String password) {
@@ -164,22 +181,8 @@ public class HttpUtil {
         String xmlString =
                 httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
                         .returnContent().asString();
-        logger.finest("Returned Raw result: {0}", xmlString);
-        try {
-            DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
-            InputSource is = new InputSource(new StringReader(xmlString));
-            Document doc = docBuilder.parse(is);
-            logger.finest(doc);
-            logger.exiting();
-            return doc;
-        } catch (ParserConfigurationException ex) {
-            throw new IllegalStateException(ex);
-        } catch (SAXException ex) {
-            throw new ClientProtocolException("Malformed XML document", ex);
-        } catch (Exception g) {
-            throw new IllegalStateException(g);
-        }
+        logger.exiting();
+        return parseXmlString(xmlString);
 
     }
 
