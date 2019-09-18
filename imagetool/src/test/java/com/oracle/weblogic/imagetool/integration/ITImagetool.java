@@ -11,8 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
-
-import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,7 +76,7 @@ public class ITImagetool extends BaseTest {
     @AfterClass
     public static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
-        //cleanup();
+        cleanup();
     }
 
     /**
@@ -430,7 +428,6 @@ public class ITImagetool extends BaseTest {
         Path source = Paths.get(wdtModel);
         Path dest = Paths.get(tmpWdtModel);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        //String host = InetAddress.getLocalHost().getHostAddress();
         String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
             DB_CONTAINER_NAME;
         String host = ExecCommand.exec(getDBContainerIP).stdout().trim();

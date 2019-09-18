@@ -43,6 +43,7 @@ public class DockerfileOptions {
     private String wdtJavaOptions;
     private boolean wdtModelOnly;
     private boolean wdtRunRcu;
+    private boolean wdtStrictValidation;
 
     /**
      * Options to be used with the Mustache template.
@@ -70,6 +71,7 @@ public class DockerfileOptions {
         wdtArchiveList = new ArrayList<>();
         wdtVariableList = new ArrayList<>();
         wdtRunRcu = false;
+        wdtStrictValidation = false;
     }
 
     /**
@@ -473,6 +475,16 @@ public class DockerfileOptions {
 
     public DockerfileOptions setRunRcu(boolean value) {
         wdtRunRcu = value;
+        return this;
+    }
+
+
+    public boolean strictValidation() {
+        return wdtStrictValidation;
+    }
+
+    public DockerfileOptions setWdtStrictValidation(boolean value) {
+        wdtStrictValidation = value;
         return this;
     }
 

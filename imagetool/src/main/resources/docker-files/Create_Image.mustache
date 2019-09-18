@@ -154,7 +154,7 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
     {{/modelOnly}}
     {{#modelOnly}}
         && chmod u+x ./*.sh \
-        && ./validateModel.sh \
+        && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
         -oracle_home {{{oracle_home}}} \
         -domain_type {{domainType}} \
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}

@@ -640,8 +640,7 @@ public class Utils {
 
     public static String getOpatchVersionFromZip(String fileName) {
 
-        try {
-            ZipFile zipFile = new ZipFile(fileName);
+        try (ZipFile zipFile = new ZipFile(fileName)) {
 
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
