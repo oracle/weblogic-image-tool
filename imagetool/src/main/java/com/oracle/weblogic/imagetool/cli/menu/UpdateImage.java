@@ -82,25 +82,30 @@ public class UpdateImage extends ImageOperation {
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
 
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
-            String opatchBugNumberVersion;
 
-            if (userId == null && password == null && applyingPatches()) {
-                String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
-                if (opatchFile != null) {
-                    opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
-                    logger.info("IMG-0008", opatchBugNumber, opatchFile, opatchBugNumberVersion);
+            if (applyingPatches()) {
+
+                String opatchBugNumberVersion;
+
+                if (userId == null && password == null) {
+                    String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
+                    if (opatchFile != null) {
+                        opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
+                        logger.info("IMG-0008", opatchBugNumber, opatchFile, opatchBugNumberVersion);
+                    } else {
+                        String msg = String.format("OPatch patch number --opatchBugNumber %s cannot be found in cache. "
+                            + "Please download it manually and add it to the cache.", opatchBugNumber);
+                        logger.severe(msg);
+                        throw new IOException(msg);
+                    }
                 } else {
-                    String msg = String.format("OPatch patch number --opatchBugNumber %s cannot be found in cache",
-                            opatchBugNumber);
-                    logger.severe(msg);
-                    throw new IOException(msg);
+                    opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
                 }
-            } else {
-                opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
-            }
 
-            if (applyingPatches() && Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0) {
-                addOPatch1394ToImage(tmpDir, opatchBugNumber);
+                if (Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0) {
+                    addOPatch1394ToImage(tmpDir, opatchBugNumber);
+                }
+
             }
 
             String lsinventoryText = null;
