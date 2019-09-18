@@ -84,7 +84,7 @@ public class UpdateImage extends ImageOperation {
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
             String opatchBugNumberVersion;
 
-            if (userId == null && password == null) {
+            if (userId == null && password == null && applyingPatches()) {
                 String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
                 if (opatchFile != null) {
                     opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
