@@ -82,6 +82,7 @@ public class UpdateImage extends ImageOperation {
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
 
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
+            String lsinventoryText = null;
 
             if (applyingPatches()) {
 
@@ -106,10 +107,6 @@ public class UpdateImage extends ImageOperation {
                     addOPatch1394ToImage(tmpDir, opatchBugNumber);
                 }
 
-            }
-
-            String lsinventoryText = null;
-            if (latestPSU || !patches.isEmpty()) {
                 logger.finer("Verifying Patches to WLS ");
                 if (userId == null) {
                     logger.warning("IMG-0009");
