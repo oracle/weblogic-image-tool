@@ -21,7 +21,7 @@ public class BaseTest {
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
-    private static final String DB_CONTAINER_NAME = "InfraDB";
+    protected static final String DB_CONTAINER_NAME = "InfraDB";
     private static String projectRoot = "";
     protected static String wlsImgBldDir = "";
     protected static String wlsImgCacheDir = "";

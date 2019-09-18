@@ -78,7 +78,7 @@ public class ITImagetool extends BaseTest {
     @AfterClass
     public static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
-        cleanup();
+        //cleanup();
     }
 
     /**
@@ -430,7 +430,10 @@ public class ITImagetool extends BaseTest {
         Path source = Paths.get(wdtModel);
         Path dest = Paths.get(tmpWdtModel);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        String host = InetAddress.getLocalHost().getHostAddress();
+        //String host = InetAddress.getLocalHost().getHostAddress();
+        String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
+            DB_CONTAINER_NAME;
+        String host = ExecCommand.exec(getDBContainerIP).stdout().trim();
         logger.info("DEBUG: DB_HOST=" + host);
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
