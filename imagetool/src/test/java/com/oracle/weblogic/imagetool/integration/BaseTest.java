@@ -92,27 +92,11 @@ public class BaseTest {
 
     protected static void pullBaseOSDockerImage() throws Exception {
         logger.info("Pulling OS base images from OCIR ...");
-        //String ocir_username = System.getenv("OCIR_USERNAME");
-        //String ocir_password = System.getenv("OCIR_PASSWORD");
-
-        //if(ocir_username == null || ocir_password == null) {
-        //    throw new Exception("You need to set OCIR_USERNAME and OCIR_PASSWORD environment variable to pull base" +
-        //            " OS image " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG);
-        //}
-
         pullDockerImage(BASE_OS_IMG, BASE_OS_IMG_TAG);
     }
 
     protected static void pullOracleDBDockerImage() throws Exception {
         logger.info("Pulling Oracle DB image from OCIR ...");
-        //String ocr_username = System.getenv("OCR_USERNAME");
-        //String ocr_password = System.getenv("OCR_PASSWORD");
-
-        //if(ocr_username == null || ocr_password == null) {
-        //    throw new Exception("You need to set OCR_USERNAME and OCR_PASSWORD environment variable to pull DB " +
-        //            "image " + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG);
-        //}
-
         pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
     }
 
@@ -264,8 +248,6 @@ public class BaseTest {
 
     private static void pullDockerImage(String imagename, String imagetag) throws Exception {
 
-        //ExecCommand.exec("docker login " + repoServer + " -u " + username +
-        //        " -p " + password);
         ExecCommand.exec("docker pull " + imagename + ":" + imagetag);
 
         // verify the docker image is pulled
