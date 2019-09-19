@@ -8,6 +8,11 @@ pipeline {
         jdk 'jdk11'
     }
 
+    environment {
+        WLSIMG_BLDDIR = "${env.WORKSPACE}/imagetool/target/build"
+        WLSIMG_CACHEDIR = "${env.WORKSPACE}/imagetool/target/cache"
+    }
+
     stages {
         stage ('Environment') {
             steps {
