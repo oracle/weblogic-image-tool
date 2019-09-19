@@ -49,7 +49,7 @@ public class ITImagetool extends BaseTest {
     @BeforeClass
     public static void staticPrepare() throws Exception {
         logger.info("prepare for image tool test ...");
-
+        // initialize 
         initialize();
         // clean up the env first
         cleanup();
