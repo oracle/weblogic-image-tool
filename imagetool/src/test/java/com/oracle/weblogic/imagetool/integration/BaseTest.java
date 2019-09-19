@@ -31,6 +31,7 @@ public class BaseTest {
     private static final String IMAGETOOLZIPFILE = "imagetool.zip";
     private static final String IMAGETOOLDIR = "imagetool";
     private static final String INSTALLERCACHEDIR = "/scratch/artifacts/imagetool";
+    private static String build_number = "";
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -51,6 +52,8 @@ public class BaseTest {
         imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file=" +
                 getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
+        build_number = System.getenv("BUILD_NUMBER");
+        logger.info("DEBUG: build_number=" + build_number);
         logger.info("DEBUG: WLSIMG_BLDDIR=" + wlsImgBldDir);
         logger.info("DEBUG: WLSIMG_CACHEDIR=" + wlsImgCacheDir);
         logger.info("DEBUG: imagetool=" + imagetool);
