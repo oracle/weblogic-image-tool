@@ -11,7 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,8 +45,6 @@ public class ITImagetool extends BaseTest {
     private static final String WDT_MODEL2 = "simple-topology2.yaml";
     private static String oracleSupportUsername;
     private static String oracleSupportPassword;
-    private static String httpProxy;
-    private static String httpsProxy;
 
     @BeforeClass
     public static void staticPrepare() throws Exception {
@@ -73,13 +70,6 @@ public class ITImagetool extends BaseTest {
         if(oracleSupportUsername == null || oracleSupportPassword == null) {
             throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD" +
                     " for Oracle Support credentials to download the patches.");
-        }
-
-        // get http proxy
-        httpProxy = System.getenv("HTTP_PROXY");
-        httpsProxy = System.getenv("HTTPS_PROXY");
-        if(httpProxy == null || httpsProxy == null) {
-            throw new Exception("Please set environment variable HTTP_PROXY and HTTPS_PROXY");
         }
     }
 
@@ -354,8 +344,7 @@ public class ITImagetool extends BaseTest {
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
         String command = imagetool + " create --version=" + WLS_VERSION + " --tag imagetool:" + testMethodName +
-                " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --httpProxyUrl " +
-                httpProxy + " --httpsProxyUrl " + httpsProxy + " --type fmw";
+            " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --type fmw";
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
 
@@ -439,10 +428,10 @@ public class ITImagetool extends BaseTest {
         Path source = Paths.get(wdtModel);
         Path dest = Paths.get(tmpWdtModel);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        String host = System.getenv("HOST");
-        if (host == null) {
-            throw new Exception("There is no HOST environment variable defined");
-        }
+        String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
+            DB_CONTAINER_NAME;
+        String host = ExecCommand.exec(getDBContainerIP).stdout().trim();
+        logger.info("DEBUG: DB_HOST=" + host);
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
         String command = imagetool + " create --fromImage " +
