@@ -146,9 +146,15 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag imagetool:" + testMethodName;
+        // remove the docker image first
+        String command = "docker rmi imagetool:" +  testMethodName;
+        logger.info("executing command: " + command);
+        ExecCommand.exec(command);
+        command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag imagetool:" + testMethodName;
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command);
+        logger.info("DEBUG: result.stdout=" + result.stdout());
+        logger.info("DEBUG: result.stderr=" + result.stderr());
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
