@@ -63,7 +63,7 @@ public class BaseTest {
         executeNoVerify(command);
 
         // unzip the weblogic-image-tool/imagetool/target/imagetool.zip
-        command = "unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE;
+        command = "unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE + " -d " + getTargetDir();
         executeNoVerify(command);
 
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
@@ -134,7 +134,7 @@ public class BaseTest {
 
     protected static String getImagetoolHome() throws Exception {
 
-        return getProjectRoot() + FS + IMAGETOOLDIR;
+        return getTargetDir() + FS + IMAGETOOLDIR;
     }
 
     protected static String getInstallerCacheDir() {

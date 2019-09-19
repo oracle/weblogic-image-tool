@@ -76,7 +76,7 @@ public class ITImagetool extends BaseTest {
     @AfterClass
     public static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
-        cleanup();
+        //cleanup();
     }
 
     /**
@@ -107,6 +107,7 @@ public class ITImagetool extends BaseTest {
         logTestBegin(testMethodName);
 
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
+        deleteEntryFromCache("jdk_" + JDK_VERSION);
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
         ExecResult result = listItemsInCache();
@@ -126,6 +127,7 @@ public class ITImagetool extends BaseTest {
         logTestBegin(testMethodName);
 
         String wlsPath =  getInstallerCacheDir() + FS + WLS_INSTALLER;
+        deleteEntryFromCache("wls_" + WLS_VERSION);
         addInstallerToCache("wls", WLS_VERSION, wlsPath);
 
         ExecResult result = listItemsInCache();
@@ -365,14 +367,17 @@ public class ITImagetool extends BaseTest {
 
         // add fmw installer to the cache
         String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER_1221;
+        deleteEntryFromCache("fmw_" + WLS_VERSION_1221);
         addInstallerToCache("fmw", WLS_VERSION_1221, fmwPath);
 
         // add jdk installer to the cache
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER_8u212;
+        deleteEntryFromCache("jdk_" + JDK_VERSION_8u212);
         addInstallerToCache("jdk", JDK_VERSION_8u212, jdkPath);
 
         // add the patch to the cache
         String patchPath = getInstallerCacheDir() + FS + P22987840_INSTALLER;
+        deleteEntryFromCache("fmw_" + P22987840_ID);
         addPatchToCache("fmw", P22987840_ID, WLS_VERSION_1221, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221 +
