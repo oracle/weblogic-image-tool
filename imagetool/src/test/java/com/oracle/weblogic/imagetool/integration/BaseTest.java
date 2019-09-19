@@ -68,6 +68,11 @@ public class BaseTest {
 
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
         executeNoVerify(command);
+
+        if(!(new File(wlsImgBldDir)).exists()) {
+            logger.info(wlsImgBldDir + " does not exist, creating it");
+            (new File(wlsImgBldDir)).mkdir();
+        }
     }
 
     protected static void cleanup() throws Exception {
