@@ -76,7 +76,7 @@ public class ITImagetool extends BaseTest {
     @AfterClass
     public static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
-        //cleanup();
+        cleanup();
     }
 
     /**
@@ -229,6 +229,7 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
+        deleteEntryFromCache(P28186730_ID + "_opatch");
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION + " --fromImage " +
@@ -377,7 +378,7 @@ public class ITImagetool extends BaseTest {
 
         // add the patch to the cache
         String patchPath = getInstallerCacheDir() + FS + P22987840_INSTALLER;
-        deleteEntryFromCache("fmw_" + P22987840_ID);
+        deleteEntryFromCache(P22987840_ID + "_" + WLS_VERSION_1221);
         addPatchToCache("fmw", P22987840_ID, WLS_VERSION_1221, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221 +
