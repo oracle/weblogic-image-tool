@@ -17,22 +17,20 @@ public class BaseTest {
     protected static final Logger logger = Logger.getLogger(ITImagetool.class.getName());
     protected static final String PS = File.pathSeparator;
     protected static final String FS = File.separator;
-    private static final String OCIR_SERVER = "phx.ocir.io";
-    private static final String OCIR_TENENT = "weblogick8s";
-    private static final String OCR_SERVER = "container-registry.oracle.com";
     protected static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
-    protected static final String ORACLE_DB_IMG = "container-registry.oracle.com/database/enterprise";
+    protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
-    private static final String DB_CONTAINER_NAME = "InfraDB";
+    protected static final String DB_CONTAINER_NAME = "InfraDB";
     private static String projectRoot = "";
     protected static String wlsImgBldDir = "";
     protected static String wlsImgCacheDir = "";
     protected static String imagetool = "";
     private static int maxIterations = 50;
     private static int waitTime = 5;
-    private static String IMAGETOOLZIPFILE = "imagetool.zip";
-    private static String IMAGETOOLDIR = "imagetool";
+    private static final String IMAGETOOLZIPFILE = "imagetool.zip";
+    private static final String IMAGETOOLDIR = "imagetool";
+    private static final String INSTALLERCACHEDIR = "/scratch/artifacts/imagetool";
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -61,11 +59,11 @@ public class BaseTest {
     protected static void setup() throws Exception {
 
         logger.info("Setting up the test environment ...");
-        String command = "/bin/rm -rf " + getImagetoolHome();
+        String command = "rm -rf " + getImagetoolHome();
         executeNoVerify(command);
 
         // unzip the weblogic-image-tool/imagetool/target/imagetool.zip
-        command = "/bin/unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE;
+        command = "unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE;
         executeNoVerify(command);
 
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
@@ -74,10 +72,10 @@ public class BaseTest {
 
     protected static void cleanup() throws Exception {
         logger.info("cleaning up the test environment ...");
-        String command = "/bin/rm -rf " + wlsImgCacheDir;
+        String command = "rm -rf " + wlsImgCacheDir;
         executeNoVerify(command);
 
-        command = "/bin/mkdir " + wlsImgCacheDir;
+        command = "mkdir " + wlsImgCacheDir;
         executeNoVerify(command);
 
         // clean up the docker images
@@ -88,35 +86,18 @@ public class BaseTest {
         executeNoVerify(command);
 
         // clean up the possible left over wlsimgbuilder_temp*
-        command = "/bin/rm -rf " + wlsImgBldDir + FS + "wlsimgbuilder_temp*";
+        command = "rm -rf " + wlsImgBldDir + FS + "wlsimgbuilder_temp*";
         executeNoVerify(command);
     }
 
     protected static void pullBaseOSDockerImage() throws Exception {
         logger.info("Pulling OS base images from OCIR ...");
-        String ocir_username = System.getenv("OCIR_USERNAME");
-        String ocir_password = System.getenv("OCIR_PASSWORD");
-
-        if(ocir_username == null || ocir_password == null) {
-            throw new Exception("You need to set OCIR_USERNAME and OCIR_PASSWORD environment variable to pull base" +
-                    " OS image " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG);
-        }
-
-        pullDockerImage(OCIR_SERVER, OCIR_TENENT + "/" + ocir_username , ocir_password, BASE_OS_IMG,
-                BASE_OS_IMG_TAG);
+        pullDockerImage(BASE_OS_IMG, BASE_OS_IMG_TAG);
     }
 
     protected static void pullOracleDBDockerImage() throws Exception {
-        logger.info("Pulling Oracle DB image from OCR ...");
-        String ocr_username = System.getenv("OCR_USERNAME");
-        String ocr_password = System.getenv("OCR_PASSWORD");
-
-        if(ocr_username == null || ocr_password == null) {
-            throw new Exception("You need to set OCR_USERNAME and OCR_PASSWORD environment variable to pull DB " +
-                    "image " + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG);
-        }
-
-        pullDockerImage(OCR_SERVER, ocr_username, ocr_password, ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
+        logger.info("Pulling Oracle DB image from OCIR ...");
+        pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
     }
 
     protected static void downloadInstallers(String... installers) throws Exception {
@@ -157,7 +138,7 @@ public class BaseTest {
     }
 
     protected static String getInstallerCacheDir() {
-        return getProjectRoot() + FS + "caches";
+        return INSTALLERCACHEDIR;
     }
 
     protected static String getWDTResourcePath() {
@@ -265,11 +246,8 @@ public class BaseTest {
         return result;
     }
 
-    private static void pullDockerImage(String repoServer, String username, String password,
-                                        String imagename, String imagetag) throws Exception {
+    private static void pullDockerImage(String imagename, String imagetag) throws Exception {
 
-        ExecCommand.exec("docker login " + repoServer + " -u " + username +
-                " -p " + password);
         ExecCommand.exec("docker pull " + imagename + ":" + imagetag);
 
         // verify the docker image is pulled
