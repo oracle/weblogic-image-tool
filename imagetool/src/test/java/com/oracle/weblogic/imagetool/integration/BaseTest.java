@@ -236,7 +236,7 @@ public class BaseTest {
         logger.info("Creating an Oracle db docker container ...");
         String command = "docker rm -f " + dbContainerName;
         ExecCommand.exec(command);
-        command = "docker run -d --name " + dbContainerName + " -p 1521:1521 -p 5500:5500 --env=\"DB_PDB=InfraPDB1\"" +
+        command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\"" +
                 " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":" +
                 ORACLE_DB_IMG_TAG;
         ExecCommand.exec(command);
