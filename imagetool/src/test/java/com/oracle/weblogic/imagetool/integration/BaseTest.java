@@ -21,7 +21,7 @@ public class BaseTest {
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
-    protected static final String DB_CONTAINER_NAME = "InfraDB";
+    protected static String dbContainerName = "";
     private static String projectRoot = "";
     protected static String wlsImgBldDir = "";
     protected static String wlsImgCacheDir = "";
@@ -31,6 +31,7 @@ public class BaseTest {
     private static final String IMAGETOOLZIPFILE = "imagetool.zip";
     private static final String IMAGETOOLDIR = "imagetool";
     private static final String INSTALLERCACHEDIR = "/scratch/artifacts/imagetool";
+    protected static String build_tag = "";
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -51,6 +52,14 @@ public class BaseTest {
         imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file=" +
                 getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
+        build_tag = System.getenv("BUILD_TAG");
+        if(build_tag != null ) {
+            build_tag = build_tag.toLowerCase();
+        } else {
+            build_tag = "imagetool";
+        }
+        dbContainerName = "InfraDB4" + build_tag;
+        logger.info("DEBUG: build_tag=" + build_tag);
         logger.info("DEBUG: WLSIMG_BLDDIR=" + wlsImgBldDir);
         logger.info("DEBUG: WLSIMG_CACHEDIR=" + wlsImgCacheDir);
         logger.info("DEBUG: imagetool=" + imagetool);
@@ -63,11 +72,16 @@ public class BaseTest {
         executeNoVerify(command);
 
         // unzip the weblogic-image-tool/imagetool/target/imagetool.zip
-        command = "unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE;
+        command = "unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE + " -d " + getTargetDir();
         executeNoVerify(command);
 
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
         executeNoVerify(command);
+
+        if(!(new File(wlsImgBldDir)).exists()) {
+            logger.info(wlsImgBldDir + " does not exist, creating it");
+            (new File(wlsImgBldDir)).mkdir();
+        }
     }
 
     protected static void cleanup() throws Exception {
@@ -79,10 +93,13 @@ public class BaseTest {
         executeNoVerify(command);
 
         // clean up the docker images
-        command = "docker stop " + DB_CONTAINER_NAME;
+        command = "docker stop " + dbContainerName;
         executeNoVerify(command);
         command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":" +
                 ORACLE_DB_IMG_TAG;
+        executeNoVerify(command);
+
+        command = "docker rmi -f $(docker images | grep " + build_tag + " | tr -s ' ' | cut -d ' ' -f 3)";
         executeNoVerify(command);
 
         // clean up the possible left over wlsimgbuilder_temp*
@@ -134,7 +151,7 @@ public class BaseTest {
 
     protected static String getImagetoolHome() throws Exception {
 
-        return getProjectRoot() + FS + IMAGETOOLDIR;
+        return getTargetDir() + FS + IMAGETOOLDIR;
     }
 
     protected static String getInstallerCacheDir() {
@@ -165,7 +182,7 @@ public class BaseTest {
 
     protected void verifyDockerImages(String imageTag) throws Exception {
         // verify the docker image is created
-        ExecResult result = ExecCommand.exec("docker images | grep imagetool | grep " + imageTag +
+        ExecResult result = ExecCommand.exec("docker images | grep " + build_tag + " | grep " + imageTag +
                 "| wc -l");
         if(Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("wls docker image is not created as expected");
@@ -217,15 +234,15 @@ public class BaseTest {
 
     protected void createDBContainer() throws Exception {
         logger.info("Creating an Oracle db docker container ...");
-        String command = "docker rm -f " + DB_CONTAINER_NAME;
+        String command = "docker rm -f " + dbContainerName;
         ExecCommand.exec(command);
-        command = "docker run -d --name " + DB_CONTAINER_NAME + " -p 1521:1521 -p 5500:5500 --env=\"DB_PDB=InfraPDB1\"" +
+        command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\"" +
                 " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":" +
                 ORACLE_DB_IMG_TAG;
         ExecCommand.exec(command);
 
         // wait for the db is ready
-        command = "docker ps | grep " + DB_CONTAINER_NAME;
+        command = "docker ps | grep " + dbContainerName;
         checkCmdInLoop(command, "healthy");
     }
 

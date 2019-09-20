@@ -49,7 +49,7 @@ public class ITImagetool extends BaseTest {
     @BeforeClass
     public static void staticPrepare() throws Exception {
         logger.info("prepare for image tool test ...");
-
+        // initialize 
         initialize();
         // clean up the env first
         cleanup();
@@ -107,6 +107,7 @@ public class ITImagetool extends BaseTest {
         logTestBegin(testMethodName);
 
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
+        deleteEntryFromCache("jdk_" + JDK_VERSION);
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
         ExecResult result = listItemsInCache();
@@ -126,6 +127,7 @@ public class ITImagetool extends BaseTest {
         logTestBegin(testMethodName);
 
         String wlsPath =  getInstallerCacheDir() + FS + WLS_INSTALLER;
+        deleteEntryFromCache("wls_" + WLS_VERSION);
         addInstallerToCache("wls", WLS_VERSION, wlsPath);
 
         ExecResult result = listItemsInCache();
@@ -144,9 +146,12 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag imagetool:" + testMethodName;
+        String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag " +
+            build_tag + ":" + testMethodName;
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command);
+        logger.info("DEBUG: result.stdout=" + result.stdout());
+        logger.info("DEBUG: result.stderr=" + result.stderr());
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -227,10 +232,11 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
+        deleteEntryFromCache(P28186730_ID + "_opatch");
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION + " --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION;
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
@@ -250,8 +256,8 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String command = imagetool + " update --fromImage imagetool:test8CreateWLSImgUseCache --tag imagetool:" +
-                testMethodName + " --patches " + P27342434_ID;
+        String command = imagetool + " update --fromImage imagetool:test8CreateWLSImgUseCache --tag " +
+            build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
 
@@ -307,7 +313,7 @@ public class ITImagetool extends BaseTest {
         String wdtModel = getWDTResourcePath() + FS + WDT_MODEL;
         String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
         String command = imagetool + " create --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION + " --patches " + P27342434_ID + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
                 wdtModel + " --wdtVariables " + wdtVariables;
@@ -343,7 +349,7 @@ public class ITImagetool extends BaseTest {
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
-        String command = imagetool + " create --version=" + WLS_VERSION + " --tag imagetool:" + testMethodName +
+        String command = imagetool + " create --version=" + WLS_VERSION + " --tag " + build_tag + ":" + testMethodName +
             " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --type fmw";
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
@@ -365,18 +371,21 @@ public class ITImagetool extends BaseTest {
 
         // add fmw installer to the cache
         String fmwPath =  getInstallerCacheDir() + FS + FMW_INSTALLER_1221;
+        deleteEntryFromCache("fmw_" + WLS_VERSION_1221);
         addInstallerToCache("fmw", WLS_VERSION_1221, fmwPath);
 
         // add jdk installer to the cache
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER_8u212;
+        deleteEntryFromCache("jdk_" + JDK_VERSION_8u212);
         addInstallerToCache("jdk", JDK_VERSION_8u212, jdkPath);
 
         // add the patch to the cache
         String patchPath = getInstallerCacheDir() + FS + P22987840_INSTALLER;
+        deleteEntryFromCache(P22987840_ID + "_" + WLS_VERSION_1221);
         addPatchToCache("fmw", P22987840_ID, WLS_VERSION_1221, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221 +
-                " --tag imagetool:" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
+                " --tag " + build_tag + ":" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
 
@@ -429,13 +438,13 @@ public class ITImagetool extends BaseTest {
         Path dest = Paths.get(tmpWdtModel);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
         String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
-            DB_CONTAINER_NAME;
+            dbContainerName;
         String host = ExecCommand.exec(getDBContainerIP).stdout().trim();
         logger.info("DEBUG: DB_HOST=" + host);
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
         String command = imagetool + " create --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
                 tmpWdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
@@ -483,7 +492,7 @@ public class ITImagetool extends BaseTest {
         String wdtModel = getWDTResourcePath() + FS + WDT_MODEL;
         String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
         String command = imagetool + " create --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION + " --latestPSU --user " + oracleSupportUsername +
                 " --password " + oracleSupportPassword + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
@@ -535,7 +544,7 @@ public class ITImagetool extends BaseTest {
         String wdtModel2 = getWDTResourcePath() + FS + WDT_MODEL2;
         String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
         String command = imagetool + " create --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
                 wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables;
