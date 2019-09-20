@@ -146,11 +146,8 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        // remove the docker image first
-        String command = "docker rmi imagetool:" +  testMethodName;
-        logger.info("executing command: " + command);
-        ExecCommand.exec(command);
-        command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag imagetool:" + testMethodName;
+        String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag " +
+            build_tag + ":" + testMethodName;
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
         logger.info("DEBUG: result.stdout=" + result.stdout());
@@ -239,7 +236,7 @@ public class ITImagetool extends BaseTest {
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION + " --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION;
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
@@ -259,8 +256,8 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String command = imagetool + " update --fromImage imagetool:test8CreateWLSImgUseCache --tag imagetool:" +
-                testMethodName + " --patches " + P27342434_ID;
+        String command = imagetool + " update --fromImage imagetool:test8CreateWLSImgUseCache --tag " +
+            build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
 
@@ -316,7 +313,7 @@ public class ITImagetool extends BaseTest {
         String wdtModel = getWDTResourcePath() + FS + WDT_MODEL;
         String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
         String command = imagetool + " create --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION + " --patches " + P27342434_ID + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
                 wdtModel + " --wdtVariables " + wdtVariables;
@@ -352,7 +349,7 @@ public class ITImagetool extends BaseTest {
         String jdkPath = getInstallerCacheDir() + FS + JDK_INSTALLER;
         addInstallerToCache("jdk", JDK_VERSION, jdkPath);
 
-        String command = imagetool + " create --version=" + WLS_VERSION + " --tag imagetool:" + testMethodName +
+        String command = imagetool + " create --version=" + WLS_VERSION + " --tag " + build_tag + ":" + testMethodName +
             " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --type fmw";
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
@@ -388,7 +385,7 @@ public class ITImagetool extends BaseTest {
         addPatchToCache("fmw", P22987840_ID, WLS_VERSION_1221, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221 +
-                " --tag imagetool:" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
+                " --tag " + build_tag + ":" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
         logger.info("Executing command: " + command);
         ExecCommand.exec(command, true);
 
@@ -447,7 +444,7 @@ public class ITImagetool extends BaseTest {
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
         String command = imagetool + " create --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
                 tmpWdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
@@ -495,7 +492,7 @@ public class ITImagetool extends BaseTest {
         String wdtModel = getWDTResourcePath() + FS + WDT_MODEL;
         String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
         String command = imagetool + " create --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION + " --latestPSU --user " + oracleSupportUsername +
                 " --password " + oracleSupportPassword + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
@@ -547,7 +544,7 @@ public class ITImagetool extends BaseTest {
         String wdtModel2 = getWDTResourcePath() + FS + WDT_MODEL2;
         String wdtVariables = getWDTResourcePath() + FS + WDT_VARIABLES;
         String command = imagetool + " create --fromImage " +
-                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag imagetool:" + testMethodName +
+                BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName +
                 " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION +
                 " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel " +
                 wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables;

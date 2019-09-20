@@ -31,7 +31,7 @@ public class BaseTest {
     private static final String IMAGETOOLZIPFILE = "imagetool.zip";
     private static final String IMAGETOOLDIR = "imagetool";
     private static final String INSTALLERCACHEDIR = "/scratch/artifacts/imagetool";
-    private static String build_tag = "";
+    protected static String build_tag = "";
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -53,7 +53,7 @@ public class BaseTest {
                 getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
         build_tag = System.getenv("BUILD_TAG");
-        logger.info("DEBUG: build_number=" + build_tag);
+        logger.info("DEBUG: build_tag=" + build_tag);
         logger.info("DEBUG: WLSIMG_BLDDIR=" + wlsImgBldDir);
         logger.info("DEBUG: WLSIMG_CACHEDIR=" + wlsImgCacheDir);
         logger.info("DEBUG: imagetool=" + imagetool);
@@ -91,6 +91,9 @@ public class BaseTest {
         executeNoVerify(command);
         command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":" +
                 ORACLE_DB_IMG_TAG;
+        executeNoVerify(command);
+
+        command = "docker rmi -f $(docker images |grep " + build_tag + " | tr -s ' '|cut -d ' ' -f 3)";
         executeNoVerify(command);
 
         // clean up the possible left over wlsimgbuilder_temp*
