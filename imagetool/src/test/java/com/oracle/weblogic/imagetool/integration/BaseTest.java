@@ -99,10 +99,7 @@ public class BaseTest {
                 ORACLE_DB_IMG_TAG;
         executeNoVerify(command);
 
-        command = "docker rmi -f $(docker images |grep " + build_tag + " | tr -s ' '|cut -d ' ' -f 3)";
-        executeNoVerify(command);
-
-        command = "docker rmi -f $(docker images |grep none | tr -s ' '|cut -d ' ' -f 3)";
+        command = "docker rmi -f $(docker images | grep " + build_tag + " | tr -s ' ' | cut -d ' ' -f 3)";
         executeNoVerify(command);
 
         // clean up the possible left over wlsimgbuilder_temp*
