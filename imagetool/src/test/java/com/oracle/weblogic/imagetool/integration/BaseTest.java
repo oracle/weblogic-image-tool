@@ -52,7 +52,7 @@ public class BaseTest {
         imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file=" +
                 getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
-        build_tag = System.getenv("BUILD_TAG");
+        build_tag = System.getenv("BUILD_TAG").toLowerCase();
         logger.info("DEBUG: build_tag=" + build_tag);
         logger.info("DEBUG: WLSIMG_BLDDIR=" + wlsImgBldDir);
         logger.info("DEBUG: WLSIMG_CACHEDIR=" + wlsImgCacheDir);
@@ -176,7 +176,7 @@ public class BaseTest {
 
     protected void verifyDockerImages(String imageTag) throws Exception {
         // verify the docker image is created
-        ExecResult result = ExecCommand.exec("docker images | grep imagetool | grep " + imageTag +
+        ExecResult result = ExecCommand.exec("docker images | grep " + build_tag + " | grep " + imageTag +
                 "| wc -l");
         if(Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("wls docker image is not created as expected");
