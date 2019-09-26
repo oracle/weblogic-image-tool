@@ -18,6 +18,8 @@ The required options for the `update` command are marked with an asterisk (*), b
 ```
 Usage: imagetool update [OPTIONS]
 Update WebLogic docker image with selected patches
+      --additionalBuildCommands=<additionalBuildCommandsPath>
+                       path to a file with additional build commands
       --chown=<osUserAndGroup>[:<osUserAndGroup>...]
                        userid:groupid for JDK/Middleware installs and patches.
                          Default: oracle:oracle.
@@ -33,7 +35,7 @@ Update WebLogic docker image with selected patches
                          //user:passwd@myproxy:8080
       --latestPSU      Whether to apply patches from latest PSU.
       --opatchBugNumber=<opatchBugNumber>
-                       use this opatch patch bug number
+                       the patch number for OPatch (patching OPatch)
       --password=<password for support user id>
                        Password for support userId
       --passwordEnv=<environment variable>
@@ -63,6 +65,9 @@ Update WebLogic docker image with selected patches
                        Create a new domain, or update an existing domain.  Default:
                          CREATE. Supported values: CREATE, UPDATE, DEPLOY
       --wdtRunRCU      instruct WDT to run RCU when creating the Domain
+      --wdtStrictValidation
+                       Use strict validation for the WDT validation method. Only
+                         applies when using model only.  Default: false.
       --wdtVariables=<wdtVariablesPath>
                        path to the WDT variables file for use with the WDT model
       --wdtVersion=<wdtVersion>

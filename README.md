@@ -18,6 +18,7 @@ The Image Tool provides three functions within the main script:
   an existing domain, or deploy an application.
   - [Cache](site/cache.md) - The Image Tool maintains metadata on the local file system for patches and installers.  
   The `cache` command can be used to manipulate the local metadata.
+  - [Argument Appendix](site/arguments.md) - Additional details for the more complex command-line arguments.
 
 ## Prerequisites
 

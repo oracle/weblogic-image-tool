@@ -6,6 +6,8 @@ are marked with an asterisk (*). There are a number of optional parameters for t
 ```
 Usage: imagetool create [OPTIONS]
 Build WebLogic docker image
+      --additionalBuildCommands=<additionalBuildCommandsPath>
+                       path to a file with additional build commands
       --chown=<osUserAndGroup>[:<osUserAndGroup>...]
                        userid:groupid for JDK/Middleware installs and patches.
                          Default: oracle:oracle.
@@ -26,7 +28,7 @@ Build WebLogic docker image
                        Version of server jdk to install. Default: 8u202
       --latestPSU      Whether to apply patches from latest PSU.
       --opatchBugNumber=<opatchBugNumber>
-                       use this opatch patch bug number
+                       the patch number for OPatch (patching OPatch)
       --password=<password for support user id>
                        Password for support userId
       --passwordEnv=<environment variable>
@@ -38,7 +40,7 @@ Build WebLogic docker image
 *     --tag=TAG        Tag for the final build image. Ex: store/oracle/weblogic:
                          12.2.1.3.0
       --type=<installerType>
-                       Installer type. Default: wls. Supported values: wls, fmw
+                       Installer type. Default: WLS. Supported values: wls, fmw
       --user=<support email>
                        Oracle Support email id
       --version=<installerVersion>
@@ -57,6 +59,9 @@ Build WebLogic docker image
       --wdtModelOnly   Install WDT and copy the models to the image, but do not
                          create the domain. Default: false.
       --wdtRunRCU      instruct WDT to run RCU when creating the Domain
+      --wdtStrictValidation
+                       Use strict validation for the WDT validation method. Only
+                         applies when using model only.  Default: false.
       --wdtVariables=<wdtVariablesPath>
                        path to the WDT variables file for use with the WDT model
       --wdtVersion=<wdtVersion>
