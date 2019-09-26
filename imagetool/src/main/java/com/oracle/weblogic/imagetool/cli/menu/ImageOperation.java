@@ -428,6 +428,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         return wdtDomainType;
     }
 
+    void runDockerCommand(String dockerfile, List<String> command) throws IOException, InterruptedException {
+        logger.info("docker cmd = " + String.join(" ", command));
+
+        if (dryRun) {
+            System.out.println("########## BEGIN DOCKERFILE ##########");
+            System.out.println(dockerfile);
+            System.out.println("########## END DOCKERFILE ##########");
+        } else {
+            Utils.runDockerCommand(isCliMode, command, dockerLog);
+        }
+    }
+
     @Option(
             names = {"--useCache"},
             paramLabel = "<Cache Policy>",
@@ -574,7 +586,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     )
     private boolean runRcu = false;
 
-
     @Option(
             names = {"--wdtDomainHome"},
             description = "pass to the -domain_home for wdt",
@@ -607,6 +618,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         description = "path to a file with additional build commands"
     )
     private Path additionalBuildCommandsPath;
+
+    @Option(
+        names = {"--dryRun"},
+        description = "Skip Docker build execution and print Dockerfile to stdout"
+    )
+    boolean dryRun = false;
 
     @Unmatched
     List<String> unmatchedOptions;

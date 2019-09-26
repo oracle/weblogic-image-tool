@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -161,12 +162,21 @@ public class Utils {
      * @param destPath the file folder that the Dockerfile should be written to.
      * @param template the Dockerfile template that should be used to create the Dockerfile.
      * @param options  the options to be applied to the Dockerfile template.
+     * @param dryRun when true, will return a String version of the Dockerfile.
+     * @return null if dryRun is false, and a String version of the Dockerfile if dryRun is true.
      * @throws IOException if an error occurs in the low level Java file operations.
      */
-    public static void writeDockerfile(String destPath, String template, DockerfileOptions options) throws IOException {
+    public static String writeDockerfile(String destPath, String template, DockerfileOptions options, boolean dryRun)
+        throws IOException {
         MustacheFactory mf = new DefaultMustacheFactory("docker-files");
         Mustache mustache = mf.compile(template);
         mustache.execute(new FileWriter(destPath), options).flush();
+
+        if (dryRun) {
+            return mustache.execute(new StringWriter(), options).toString();
+        } else {
+            return null;
+        }
     }
 
     /**
