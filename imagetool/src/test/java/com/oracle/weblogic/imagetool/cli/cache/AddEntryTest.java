@@ -1,4 +1,10 @@
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.cli.cache;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cli.WLSCommandLine;
@@ -6,10 +12,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import picocli.CommandLine;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AddEntryTest {
 
@@ -44,9 +49,10 @@ public class AddEntryTest {
 
     @Test
     public void testMissingValue() {
-        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true, true,
-                "--key", "some_key");
-        assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required option '--value=<location>'"));
+        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
+            true,"--key", "some_key");
+        assertTrue(new String(byteArrayOutputStream.toByteArray())
+            .contains("Missing required option '--value=<location>'"));
     }
 
     @Test
