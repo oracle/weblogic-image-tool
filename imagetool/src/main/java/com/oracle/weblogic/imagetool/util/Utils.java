@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -30,6 +31,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +49,8 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 public class Utils {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(Utils.class);
+
+    private static ResourceBundle bundle = ResourceBundle.getBundle("ImageTool");
 
     /**
      * Utility method to copy a resource from the jar to local file system.
@@ -742,5 +746,15 @@ public class Utils {
 
     private static boolean validFile(Path file) throws IOException {
         return file != null && Files.isRegularFile(file) && Files.size(file) > 0;
+    }
+
+    /**
+     * Get a message from the resource bundle and format the message with parameters.
+     * @param key message key into the bundle
+     * @param params parameters to be applied to the message
+     * @return formatted message string including parameters
+     */
+    public static String getMessage(String key, Object... params) {
+        return MessageFormat.format(bundle.getString(key), params);
     }
 }

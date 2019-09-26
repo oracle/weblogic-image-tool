@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +32,7 @@ import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
+import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
@@ -73,6 +75,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
 
         handleChown();
+        handleAdditionalBuildCommands();
 
         logger.finer("Exiting ImageOperation call ");
         return new CommandResponse(0, null);
@@ -270,6 +273,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
         dockerfileOptions.setUserId(osUserAndGroup[0]);
         dockerfileOptions.setGroupId(osUserAndGroup[1]);
+    }
+
+    private void handleAdditionalBuildCommands() throws IOException {
+        if (additionalBuildCommandsPath != null) {
+            if (!Files.isRegularFile(additionalBuildCommandsPath)) {
+                throw new FileNotFoundException("Additional build command file does not exist: "
+                    + additionalBuildCommandsPath);
+            }
+
+            AdditionalBuildCommands additionalBuildCommands = AdditionalBuildCommands.load(additionalBuildCommandsPath);
+            dockerfileOptions.setAdditionalBuildCommands(additionalBuildCommands.getContents());
+        }
     }
 
     /**
@@ -586,6 +601,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             + "Default: ${DEFAULT-VALUE}."
     )
     private boolean wdtStrictValidation = false;
+
+    @Option(
+        names = {"--additionalBuildCommands"},
+        description = "path to a file with additional build commands"
+    )
+    private Path additionalBuildCommandsPath;
 
     @Unmatched
     List<String> unmatchedOptions;
