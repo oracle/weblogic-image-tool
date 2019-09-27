@@ -37,9 +37,8 @@ Usage: imagetool create [OPTIONS]
 | `--wdtVersion` | WDT tool version to use.  |   |
 
 ## Additional information
-This section provides additional information for command-line parameters requiring more details or clarification.
 
-#### `additionalBuildCommands`
+#### `--additionalBuildCommands`
 
 This is an advanced option that let's you provide additional commands to the Docker build step.  
 The input for this parameter is a simple text file that contains one or more of the valid sections: `before-jdk-install`, `after-jdk-install`, `before-fmw-install`, `after-fmw-install`, `before-wdt-command`, `after-wdt-command`, `final-build-commands`.
