@@ -97,4 +97,4 @@ The commands below assume that all the required JDK, WLS, or FMW (WebLogic infra
     imagetool cache addInstaller --type jdk --version 8u202 --path /local/path/to/jdk.gz
     ```
 ## Copyright
-Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.

@@ -259,4 +259,4 @@ In rare circumstances, it may be helpful to turn on debugging to reveal more inf
 
 
 ## Copyright
-Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.
