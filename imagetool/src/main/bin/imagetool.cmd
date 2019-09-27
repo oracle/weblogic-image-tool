@@ -3,7 +3,7 @@
 @rem imagetool.cmd
 @rem
 @rem Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
-@rem Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+@rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 IF "%JAVA_HOME%" == "" (
   ECHO JAVA_HOME not set. Please set JAVA_HOME to jdk home. OpenJDK is not supported.
