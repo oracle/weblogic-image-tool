@@ -1,15 +1,16 @@
 # Update Image
 
-After you have created a Docker image with the Image Tool, you may want to change it from time to time.  The `update` 
-command should be used to update these existing Docker images created with the Image Tool.  For example, you may want to:
+After you have created a Docker image with the Image Tool, you may want to change it from time to time.  Use the `update`
+command to update the existing Docker images created with the Image Tool.  For example, you may want to:
 * Apply a WebLogic patch
-* Apply the latest PSU from Oracle 
-* Create a new WebLogic domain (if one did not already exist) 
+* Apply the latest PSU from Oracle
+* Create a new WebLogic domain (if one did not already exist)
 * Deploy a new application to an existing domain
-* Modify the domain configuration (add a data source, change a port number, ...)
- 
-The required options for the `update` command are marked with an asterisk (*), below. 
-**NOTE:** The password can be provided in one of the three ways:
+* Modify the domain configuration (add a data source, change a port number, and such)
+
+The required options for the `update` command are marked.
+
+**NOTE**: You can provide the password in one of the three ways:
 
 * Plain text
 * Environment variable
@@ -17,61 +18,55 @@ The required options for the `update` command are marked with an asterisk (*), b
 
 ```
 Usage: imagetool update [OPTIONS]
-Update WebLogic docker image with selected patches
-      --additionalBuildCommands=<additionalBuildCommandsPath>
-                       path to a file with additional build commands
-      --chown=<osUserAndGroup>[:<osUserAndGroup>...]
-                       userid:groupid for JDK/Middleware installs and patches.
-                         Default: oracle:oracle.
-      --docker=<dockerPath>
-                       path to docker executable. Default: docker
-*     --fromImage=<fromImage>
-                       Docker image to use as base image.
-      --httpProxyUrl=<httpProxyUrl>
-                       proxy for http protocol. Ex: http://myproxy:80 or http://user:
-                         passwd@myproxy:8080
-      --httpsProxyUrl=<httpsProxyUrl>
-                       proxy for https protocol. Ex: http://myproxy:80 or http:
-                         //user:passwd@myproxy:8080
-      --latestPSU      Whether to apply patches from latest PSU.
-      --opatchBugNumber=<opatchBugNumber>
-                       the patch number for OPatch (patching OPatch)
-      --password=<password for support user id>
-                       Password for support userId
-      --passwordEnv=<environment variable>
-                       environment variable containing the support password
-      --passwordFile=<password file>
-                       path to file containing just the password
-      --patches=patchId[,patchId...]
-                       Comma separated patch Ids. Ex: 12345678,87654321
-*     --tag=TAG        Tag for the final build image. Ex: store/oracle/weblogic:
-                         12.2.1.3.0
-      --user=<support email>
-                       Oracle Support email id
-      --wdtArchive=<wdtArchivePath>
-                       path to the WDT archive file used by the WDT model
-      --wdtDomainHome=<wdtDomainHome>
-                       pass to the -domain_home for wdt
-      --wdtDomainType=<wdtDomainType>
-                       WDT Domain Type. Default: WLS. Supported values: WLS, JRF,
-                         RestrictedJRF
-      --wdtJavaOptions=<wdtJavaOptions>
-                       Java command line options for WDT
-      --wdtModel=<wdtModelPath>
-                       path to the WDT model file that defines the Domain to create
-      --wdtModelOnly   Install WDT and copy the models to the image, but do not
-                         create the domain. Default: false.
-      --wdtOperation=<wdtOperation>
-                       Create a new domain, or update an existing domain.  Default:
-                         CREATE. Supported values: CREATE, UPDATE, DEPLOY
-      --wdtRunRCU      instruct WDT to run RCU when creating the Domain
-      --wdtStrictValidation
-                       Use strict validation for the WDT validation method. Only
-                         applies when using model only.  Default: false.
-      --wdtVariables=<wdtVariablesPath>
-                       path to the WDT variables file for use with the WDT model
-      --wdtVersion=<wdtVersion>
-                       WDT tool version to use
+Update WebLogic Docker image with selected patches
+
+```
+| Parameter | Definition | Default |
+| --- | --- | --- |
+|`--additionalBuildCommands`| Path to a file with additional build commands. For more details, see [Additional information](#additional_information). |
+|`--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
+| `--docker` | Path to the Docker executable.  |  `docker` |
+| `--fromImage` | (Required) Docker image to use as a base image. |   |
+| `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
+| `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
+| `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
+| `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
+| `--latestPSU` | Whether to apply patches from the latest PSU.  |   |
+| `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
+| `--password` | Password for the support `userId`.  |   |
+| `--passwordEnv` | Environment variable containing the support password.  |   |
+| `--passwordFile` | Path to a file containing just the password.  |   |
+| `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
+| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
+| `--user` | Oracle support email ID.  |   |
+| `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
+| `--wdtDomainHome` | Path to the `-domain_home` for WDT.  |   |
+| `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
+| `--wdtJavaOptions` | Java command-line options for WDT.  |   |
+| `--wdtModel` | Path to the WDT model file that defines the domain to create.  |   |
+| `--wdtModelOnly` | Install WDT and copy the models to the image, but do not create the domain.  | `false`  |
+| `--wdtOperation` | Create a new domain, or update an existing domain. Supported values: `CREATE`, `UPDATE`, `DEPLOY`  | `CREATE`  |
+| `--wdtRunRCU` | Instruct WDT to run RCU when creating the domain.  |   |
+| `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
+| `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
+| `--wdtVersion` | WDT tool version to use.  |   |
+
+## Additional information
+This section provides additional information for command-line parameters requiring more details or clarification.
+
+#### `additionalBuildCommands`
+
+This is an advanced option that let's you provide additional commands to the Docker build step.  
+The input for this parameter is a simple text file that contains one or more of the valid sections: `before-jdk-install`, `after-jdk-install`, `before-fmw-install`, `after-fmw-install`, `before-wdt-command`, `after-wdt-command`, `final-build-commands`.
+
+Each section can contain one or more valid Dockerfile commands and would look like the following:
+
+```dockerfile
+[after-fmw-install]
+RUN rm /some/dir/unnecessary-file
+
+[final-build-commands]
+LABEL owner="middleware team"
 ```
 
 ## Usage scenarios
@@ -88,17 +83,17 @@ Update WebLogic docker image with selected patches
     imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,87654321
     ```
 
-- Update an image named `wls:12.2.1.3.0` by creating a new WebLogic domain using WDT and tag it as `mydomain:1`.  The WDT 
-installer is accessed from the cache with key wdt_1.1.1.  The model and archive to use are located in a subfolder named `wdt`. 
+- Update an image named `wls:12.2.1.3.0` by creating a new WebLogic domain using WDT and tag it as `mydomain:1`.  The WDT
+installer is accessed from the cache with key wdt_1.1.1.  The model and archive to use are located in a subfolder named `wdt`.
     ```
     imagetool update --fromImage wls:12.2.1.3.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
     ```
-    
-- Use `deployApps` from WDT to deploy a new application, the WLS Metrics Exporter.  The model and archive to use are 
+
+- Use `deployApps` from WDT to deploy a new application, the WLS Metrics Exporter.  The model and archive to use are
 located in a subfolder named `wdt`.
     ```
     imagetool update --tag mydomain:2 --fromImage mydomain:1 --wdtOperation deploy --wdtArchive ./wdt/exporter_archive.zip --wdtModel ./wdt/exporter_model.yaml --wdtVersion 1.1.1   
-    ``` 
-     
+    ```
+
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
