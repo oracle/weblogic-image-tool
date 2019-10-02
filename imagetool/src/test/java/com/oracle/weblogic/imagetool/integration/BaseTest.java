@@ -1,16 +1,16 @@
 // Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
-// Licensed under the Universal Permissive License v 1.0 as shown at
-// http://oss.oracle.com/licenses/upl.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.integration;
 
-import com.oracle.weblogic.imagetool.integration.utils.ExecCommand;
-import com.oracle.weblogic.imagetool.integration.utils.ExecResult;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
+
+import com.oracle.weblogic.imagetool.integration.utils.ExecCommand;
+import com.oracle.weblogic.imagetool.integration.utils.ExecResult;
 
 public class BaseTest {
 
@@ -38,22 +38,22 @@ public class BaseTest {
 
         projectRoot = System.getProperty("user.dir");
 
-        if(System.getenv("WLSIMG_BLDDIR") != null) {
+        if (System.getenv("WLSIMG_BLDDIR") != null) {
             wlsImgBldDir = System.getenv("WLSIMG_BLDDIR");
         } else {
             wlsImgBldDir = System.getenv("HOME");
         }
-        if(System.getenv("WLSIMG_CACHEDIR") != null) {
+        if (System.getenv("WLSIMG_CACHEDIR") != null) {
             wlsImgCacheDir = System.getenv("WLSIMG_CACHEDIR");
         } else {
             wlsImgCacheDir = System.getenv("HOME") + FS + "cache";
         }
 
-        imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file=" +
-                getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
+        imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file="
+            + getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
         build_tag = System.getenv("BUILD_TAG");
-        if(build_tag != null ) {
+        if (build_tag != null) {
             build_tag = build_tag.toLowerCase();
         } else {
             build_tag = "imagetool";
@@ -78,7 +78,7 @@ public class BaseTest {
         command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
         executeNoVerify(command);
 
-        if(!(new File(wlsImgBldDir)).exists()) {
+        if (!(new File(wlsImgBldDir)).exists()) {
             logger.info(wlsImgBldDir + " does not exist, creating it");
             (new File(wlsImgBldDir)).mkdir();
         }
@@ -95,8 +95,8 @@ public class BaseTest {
         // clean up the docker images
         command = "docker stop " + dbContainerName;
         executeNoVerify(command);
-        command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":" +
-                ORACLE_DB_IMG_TAG;
+        command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":"
+            + ORACLE_DB_IMG_TAG;
         executeNoVerify(command);
 
         command = "docker rmi -f $(docker images | grep " + build_tag + " | tr -s ' ' | cut -d ' ' -f 3)";
@@ -120,7 +120,7 @@ public class BaseTest {
     protected static void downloadInstallers(String... installers) throws Exception {
         // create the cache dir for downloading installers if not exists
         File cacheDir = new File(getInstallerCacheDir());
-        if( !cacheDir.exists()) {
+        if (!cacheDir.exists()) {
             cacheDir.mkdir();
         }
 
@@ -128,15 +128,15 @@ public class BaseTest {
         StringBuffer errorMsg = new StringBuffer();
         errorMsg.append("The test installers are missing. Please download: \n");
         // check the required installer is downloaded
-        for(String installer : installers) {
+        for (String installer : installers) {
             File installFile = new File(getInstallerCacheDir() + FS + installer);
-            if(!installFile.exists()) {
+            if (!installFile.exists()) {
                 missingInstaller = true;
-                errorMsg.append( "    " + installer + "\n");
+                errorMsg.append("    " + installer + "\n");
             }
         }
         errorMsg.append("and put them in " + getInstallerCacheDir());
-        if(missingInstaller) {
+        if (missingInstaller) {
             throw new Exception(errorMsg.toString());
         }
     }
@@ -168,13 +168,13 @@ public class BaseTest {
     }
 
     protected void verifyResult(ExecResult result, String matchString) throws Exception {
-        if(result.exitValue() != 0 || !result.stdout().contains(matchString)) {
+        if (result.exitValue() != 0 || !result.stdout().contains(matchString)) {
             throw new Exception("verifying test result failed.");
         }
     }
 
     protected void verifyExitValue(ExecResult result, String command) throws Exception {
-        if(result.exitValue() != 0) {
+        if (result.exitValue() != 0) {
             logger.info(result.stderr());
             throw new Exception("executing the following command failed: " + command);
         }
@@ -182,9 +182,9 @@ public class BaseTest {
 
     protected void verifyDockerImages(String imageTag) throws Exception {
         // verify the docker image is created
-        ExecResult result = ExecCommand.exec("docker images | grep " + build_tag + " | grep " + imageTag +
-                "| wc -l");
-        if(Integer.parseInt(result.stdout().trim()) != 1) {
+        ExecResult result = ExecCommand.exec("docker images | grep " + build_tag + " | grep " + imageTag
+            + "| wc -l");
+        if (Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("wls docker image is not created as expected");
         }
     }
@@ -205,14 +205,14 @@ public class BaseTest {
     }
 
     protected ExecResult addInstallerToCache(String type, String version, String path) throws Exception {
-        String command = imagetool + " cache addInstaller --type " + type + " --version " + version +
-                " --path " + path;
+        String command = imagetool + " cache addInstaller --type " + type + " --version " + version
+            + " --path " + path;
         return executeAndVerify(command, false);
     }
 
     protected ExecResult addPatchToCache(String type, String patchId, String version, String path) throws Exception {
-        String command = imagetool + " cache addPatch --type " + type + " --patchId " + patchId + "_" +
-                version + " --path " + path;
+        String command = imagetool + " cache addPatch --type " + type + " --patchId " + patchId + "_"
+            + version + " --path " + path;
         return executeAndVerify(command, false);
     }
 
@@ -236,9 +236,9 @@ public class BaseTest {
         logger.info("Creating an Oracle db docker container ...");
         String command = "docker rm -f " + dbContainerName;
         ExecCommand.exec(command);
-        command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\"" +
-                " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":" +
-                ORACLE_DB_IMG_TAG;
+        command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\""
+            + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":"
+            + ORACLE_DB_IMG_TAG;
         ExecCommand.exec(command);
 
         // wait for the db is ready
@@ -268,10 +268,10 @@ public class BaseTest {
         ExecCommand.exec("docker pull " + imagename + ":" + imagetag);
 
         // verify the docker image is pulled
-        ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +
-                imagetag + "| wc -l");
+        ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep "
+            + imagetag + "| wc -l");
         String resultString = result.stdout();
-        if(Integer.parseInt(resultString.trim()) != 1) {
+        if (Integer.parseInt(resultString.trim()) != 1) {
             throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected."
                     + " Expected 1 image, found " + resultString);
         }

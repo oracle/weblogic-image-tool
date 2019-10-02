@@ -1,3 +1,6 @@
+// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
 package com.oracle.weblogic.imagetool.api.model;
 
 import org.junit.Test;
@@ -7,7 +10,7 @@ import static org.junit.Assert.assertNotEquals;
 
 public class DomainTypeTest {
 
-    @org.junit.Test
+    @Test
     public void fromValue() {
         assertEquals("validate domain type lowercase wls", DomainType.WLS, DomainType.fromValue("wls"));
         assertEquals("validate domain type uppercase WLS", DomainType.WLS, DomainType.fromValue("WLS"));
