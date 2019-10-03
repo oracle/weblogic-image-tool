@@ -45,13 +45,21 @@ ARG JAVA_PKG
 ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
     JAVA_HOME={{{java_home}}}
 
-COPY --chown={{userid}}:{{groupid}} $JAVA_PKG {{{tmpDir}}}/
+COPY --chown={{userid}}:{{groupid}} $JAVA_PKG {{{tempDir}}}/
 
 USER {{userid}}
+
+{{#beforeJdkInstall}}
+    {{{.}}}
+{{/beforeJdkInstall}}
 
 RUN tar xzf {{{tempDir}}}/$JAVA_PKG -C /u01 \
  && mv /u01/jdk* {{{java_home}}} \
  && rm -rf {{{tempDir}}}
+
+{{#afterJdkInstall}}
+    {{{.}}}
+{{/afterJdkInstall}}
 {{/installJava}}
 
 FROM OS_UPDATE as WLS_BUILD
@@ -79,28 +87,36 @@ COPY --chown={{userid}}:{{groupid}} $WLS_PKG wls.rsp {{{tempDir}}}/
 COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
 
 {{#isOpatchPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
+    COPY --chown={{userid}}:{{groupid}} p28186730_139400_Generic.zip {{{tempDir}}}/opatch/
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} patches/* {{{tmpDir}}}/patches/
+    COPY --chown={{userid}}:{{groupid}} patches/* {{{tempDir}}}/patches/
 {{/isPatchingEnabled}}
 
 USER {{userid}}
 
-RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
- && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tmpDir}}}/fmw_*.jar -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tmpDir}}}/wls.rsp -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
+{{#beforeFmwInstall}}
+    {{{.}}}
+{{/beforeFmwInstall}}
+
+RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
+ && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/fmw_*.jar -silent ORACLE_HOME={{{oracle_home}}} \
+    -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
 {{#isOpatchPatchingEnabled}}
- && cd {{{tmpDir}}}/opatch \
- && {{{java_home}}}/bin/jar -xf {{{tmpDir}}}/opatch/p28186730_139400_Generic.zip \
- && {{{java_home}}}/bin/java -jar {{{tmpDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}} \
+ && cd {{{tempDir}}}/opatch \
+ && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/p28186730_139400_Generic.zip \
+ && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}} \
 {{/isOpatchPatchingEnabled}}
 {{#isPatchingEnabled}}
- && {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tmpDir}}}/patches \
+ && {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
  && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
 {{/isPatchingEnabled}}
  && rm -rf {{{tempDir}}}
+
+{{#afterFmwInstall}}
+    {{{.}}}
+{{/afterFmwInstall}}
 
 {{#isWdtEnabled}}
     FROM WLS_BUILD as WDT_BUILD
@@ -114,7 +130,7 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
         PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
         DOMAIN_HOME={{{domain_home}}}
 
-    COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{{tmpDir}}}/
+    COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{{tempDir}}}/
 
     RUN mkdir -p {{{wdt_home}}} \
     && chown {{userid}}:{{groupid}} {{{wdt_home}}}
@@ -127,20 +143,22 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
     && mkdir -p ${PROPERTIES_FILE_DIR}
 
     {{#wdtModels}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
     {{/wdtModels}}
 
     {{#wdtArchives}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
     {{/wdtArchives}}
 
     {{#wdtVariables}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
     {{/wdtVariables}}
 
-    USER {{userid}}
+    {{#beforeWdtCommand}}
+        {{{.}}}
+    {{/beforeWdtCommand}}
 
-    RUN unzip -q {{{tmpDir}}}/$WDT_PKG -d {{{wdt_home}}} \
+    RUN unzip -q {{{tempDir}}}/$WDT_PKG -d {{{wdt_home}}} \
         && cd {{{wdt_home}}}/weblogic-deploy/bin \
     {{^modelOnly}}
         && ./createDomain.sh \
@@ -159,6 +177,10 @@ RUN unzip -q {{{tmpDir}}}/$WLS_PKG -d {{{tmpDir}}} \
         -domain_type {{domainType}} \
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
     {{/modelOnly}}
+
+    {{#afterWdtCommand}}
+        {{{.}}}
+    {{/afterWdtCommand}}
 
 {{/isWdtEnabled}}
 
@@ -210,3 +232,6 @@ WORKDIR {{{work_dir}}}
 
 #ENTRYPOINT /bin/bash
 
+{{#finalBuildCommands}}
+    {{{.}}}
+{{/finalBuildCommands}}

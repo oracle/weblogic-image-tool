@@ -113,13 +113,12 @@ public class CreateImage extends ImageOperation {
             Utils.setOracleHome(installerResponseFile, dockerfileOptions);
 
             // Create Dockerfile
-            Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile", "Create_Image.mustache",
-                    dockerfileOptions);
+            String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
+                "Create_Image.mustache", dockerfileOptions, dryRun);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDir);
-            logger.info("docker cmd = " + String.join(" ", cmdBuilder));
-            Utils.runDockerCommand(isCliMode, cmdBuilder, dockerLog);
+            runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
