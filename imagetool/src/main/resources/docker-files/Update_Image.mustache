@@ -19,7 +19,7 @@
 
     USER root
 
-    COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{{tmpDir}}}/
+    COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{{tempDir}}}/
 
     RUN mkdir -p {{{wdt_home}}} \
     && chown {{userid}}:{{groupid}} {{{wdt_home}}}
@@ -43,8 +43,12 @@
         COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
     {{/wdtVariables}}
 
+    {{#beforeWdtCommand}}
+        {{{.}}}
+    {{/beforeWdtCommand}}
+
     RUN cd {{{wdt_home}}} \
-    && jar xf {{{tmpDir}}}/$WDT_PKG
+    && jar xf {{{tempDir}}}/$WDT_PKG
 
     {{^modelOnly}}
         RUN cd {{{wdt_home}}} \
@@ -69,6 +73,9 @@
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
     {{/modelOnly}}
 
+    {{#afterWdtCommand}}
+        {{{.}}}
+    {{/afterWdtCommand}}
 {{/isWdtEnabled}}
 
 FROM {{baseImage}} as FINAL_BUILD
@@ -89,19 +96,19 @@ ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
 USER {{userid}}
 
 {{#isOpatchPatchingEnabled}}
-    COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tmpDir}}}/opatch/
-    RUN cd {{{tmpDir}}}/opatch \
-    && $JAVA_HOME/bin/jar -xf {{{tmpDir}}}/opatch/p28186730_139400_Generic.zip \
-    && $JAVA_HOME/bin/java -jar {{{tmpDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
-    && rm -rf {{{tmpDir}}}
+    COPY --chown=oracle:oracle p28186730_139400_Generic.zip {{{tempDir}}}/opatch/
+    RUN cd {{{tempDir}}}/opatch \
+    && $JAVA_HOME/bin/jar -xf {{{tempDir}}}/opatch/p28186730_139400_Generic.zip \
+    && $JAVA_HOME/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home=$ORACLE_HOME \
+    && rm -rf {{{tempDir}}}
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
     COPY --chown={{userid}}:{{groupid}} patches/* {{{tempDir}}}/patches/
 
-    RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tmpDir}}}/patches \
+    RUN $ORACLE_HOME/OPatch/opatch napply -silent -oh $ORACLE_HOME -phBaseDir {{{tempDir}}}/patches \
     && $ORACLE_HOME/OPatch/opatch util cleanup -silent -oh $ORACLE_HOME \
-    && rm -rf {{{tmpDir}}}
+    && rm -rf {{{tempDir}}}
 {{/isPatchingEnabled}}
 
 {{#isWdtEnabled}}
@@ -112,3 +119,8 @@ USER {{userid}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
     {{/modelOnly}}
 {{/isWdtEnabled}}
+
+{{#finalBuildCommands}}
+    {{{.}}}
+{{/finalBuildCommands}}
+

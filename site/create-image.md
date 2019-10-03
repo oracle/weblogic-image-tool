@@ -1,67 +1,58 @@
 # Create Image
 
-The `create` command helps build a WebLogic Docker image from a given base OS image. The required options for the command
-are marked with an asterisk (*). There are a number of optional parameters for the create feature.
+The `create` command helps build a WebLogic Docker image from a given base OS image. The required option for the command is marked. There are a number of optional parameters for the create feature.
 
 ```
 Usage: imagetool create [OPTIONS]
-Build WebLogic docker image
-      --chown=<osUserAndGroup>[:<osUserAndGroup>...]
-                       userid:groupid for JDK/Middleware installs and patches.
-                         Default: oracle:oracle.
-      --docker=<dockerPath>
-                       path to docker executable. Default: docker
-      --fromImage=<fromImage>
-                       Docker image to use as base image.
-      --httpProxyUrl=<httpProxyUrl>
-                       proxy for http protocol. Ex: http://myproxy:80 or http://user:
-                         passwd@myproxy:8080
-      --httpsProxyUrl=<httpsProxyUrl>
-                       proxy for https protocol. Ex: http://myproxy:80 or http:
-                         //user:passwd@myproxy:8080
-      --installerResponseFile=<installerResponseFile>
-                       path to a response file. Override the default responses for
-                         the Oracle installer
-      --jdkVersion=<jdkVersion>
-                       Version of server jdk to install. Default: 8u202
-      --latestPSU      Whether to apply patches from latest PSU.
-      --opatchBugNumber=<opatchBugNumber>
-                       use this opatch patch bug number
-      --password=<password for support user id>
-                       Password for support userId
-      --passwordEnv=<environment variable>
-                       environment variable containing the support password
-      --passwordFile=<password file>
-                       path to file containing just the password
-      --patches=patchId[,patchId...]
-                       Comma separated patch Ids. Ex: 12345678,87654321
-*     --tag=TAG        Tag for the final build image. Ex: store/oracle/weblogic:
-                         12.2.1.3.0
-      --type=<installerType>
-                       Installer type. Default: wls. Supported values: wls, fmw
-      --user=<support email>
-                       Oracle Support email id
-      --version=<installerVersion>
-                       Installer version. Default: 12.2.1.3.0
-      --wdtArchive=<wdtArchivePath>
-                       path to the WDT archive file used by the WDT model
-      --wdtDomainHome=<wdtDomainHome>
-                       pass to the -domain_home for wdt
-      --wdtDomainType=<wdtDomainType>
-                       WDT Domain Type. Default: WLS. Supported values: WLS, JRF,
-                         RestrictedJRF
-      --wdtJavaOptions=<wdtJavaOptions>
-                       Java command line options for WDT
-      --wdtModel=<wdtModelPath>
-                       path to the WDT model file that defines the Domain to create
-      --wdtModelOnly   Install WDT and copy the models to the image, but do not
-                         create the domain. Default: false.
-      --wdtRunRCU      instruct WDT to run RCU when creating the Domain
-      --wdtVariables=<wdtVariablesPath>
-                       path to the WDT variables file for use with the WDT model
-      --wdtVersion=<wdtVersion>
-                       WDT tool version to use
 ```
+
+| Parameter | Definition | Default |
+| --- | --- | --- |
+|`--additionalBuildCommands`| Path to a file with additional build commands. For more details, see [Additional information](#additional_information). |
+|`--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
+| `--docker` | Path to the Docker executable.  |  `docker` |
+| `--fromImage` | Docker image to use as a base image. |   |
+| `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
+| `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
+| `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
+| `--latestPSU` | Whether to apply patches from the latest PSU.  |   |
+| `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
+| `--password` | Password for the support `userId`.  |   |
+| `--passwordEnv` | Environment variable containing the support password.  |   |
+| `--passwordFile` | Path to a file containing just the password.  |   |
+| `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
+| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
+| `--type` | Installer type. Supported values: `WLS`, `FMW`  | `WLS`  |
+| `--user` | Oracle support email ID.  |   |
+| `--version` | Installer version. | `12.2.1.3.0`  |
+| `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
+| `--wdtDomainHome` | Path to the `-domain_home` for WDT.  |   |
+| `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
+| `--wdtJavaOptions` | Java command-line options for WDT.  |   |
+| `--wdtModel` | Path to the WDT model file that defines the domain to create.  |   |
+| `--wdtModelOnly` | Install WDT and copy the models to the image, but do not create the domain.  | `false`  |
+| `--wdtRunRCU` | Instruct WDT to run RCU when creating the domain.  |   |
+| `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
+| `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
+| `--wdtVersion` | WDT tool version to use.  |   |
+
+## Additional information
+
+#### `--additionalBuildCommands`
+
+This is an advanced option that let's you provide additional commands to the Docker build step.  
+The input for this parameter is a simple text file that contains one or more of the valid sections: `before-jdk-install`, `after-jdk-install`, `before-fmw-install`, `after-fmw-install`, `before-wdt-command`, `after-wdt-command`, `final-build-commands`.
+
+Each section can contain one or more valid Dockerfile commands and would look like the following:
+
+```dockerfile
+[after-fmw-install]
+RUN rm /some/dir/unnecessary-file
+
+[final-build-commands]
+LABEL owner="middleware team"
+```
+
 
 ## Usage scenarios
 
@@ -96,5 +87,6 @@ The commands below assume that all the required JDK, WLS, or FMW (WebLogic infra
     ```
     imagetool cache addInstaller --type jdk --version 8u202 --path /local/path/to/jdk.gz
     ```
+
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
