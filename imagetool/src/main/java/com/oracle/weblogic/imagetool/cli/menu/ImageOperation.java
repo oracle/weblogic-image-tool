@@ -1,9 +1,10 @@
-// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
-// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +32,7 @@ import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
+import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
@@ -73,6 +75,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
 
         handleChown();
+        handleAdditionalBuildCommands();
 
         logger.finer("Exiting ImageOperation call ");
         return new CommandResponse(0, null);
@@ -272,6 +275,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         dockerfileOptions.setGroupId(osUserAndGroup[1]);
     }
 
+    private void handleAdditionalBuildCommands() throws IOException {
+        if (additionalBuildCommandsPath != null) {
+            if (!Files.isRegularFile(additionalBuildCommandsPath)) {
+                throw new FileNotFoundException("Additional build command file does not exist: "
+                    + additionalBuildCommandsPath);
+            }
+
+            AdditionalBuildCommands additionalBuildCommands = AdditionalBuildCommands.load(additionalBuildCommandsPath);
+            dockerfileOptions.setAdditionalBuildCommands(additionalBuildCommands.getContents());
+        }
+    }
+
     /**
      * Builds a list of build args to pass on to docker with the required installer files.
      * And, copies the installers over to build context dir.
@@ -411,6 +426,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
 
     public DomainType getWdtDomainType() {
         return wdtDomainType;
+    }
+
+    void runDockerCommand(String dockerfile, List<String> command) throws IOException, InterruptedException {
+        logger.info("docker cmd = " + String.join(" ", command));
+
+        if (dryRun) {
+            System.out.println("########## BEGIN DOCKERFILE ##########");
+            System.out.println(dockerfile);
+            System.out.println("########## END DOCKERFILE ##########");
+        } else {
+            Utils.runDockerCommand(isCliMode, command, dockerLog);
+        }
     }
 
     @Option(
@@ -559,7 +586,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     )
     private boolean runRcu = false;
 
-
     @Option(
             names = {"--wdtDomainHome"},
             description = "pass to the -domain_home for wdt",
@@ -586,6 +612,18 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             + "Default: ${DEFAULT-VALUE}."
     )
     private boolean wdtStrictValidation = false;
+
+    @Option(
+        names = {"--additionalBuildCommands"},
+        description = "path to a file with additional build commands"
+    )
+    private Path additionalBuildCommandsPath;
+
+    @Option(
+        names = {"--dryRun"},
+        description = "Skip Docker build execution and print Dockerfile to stdout"
+    )
+    boolean dryRun = false;
 
     @Unmatched
     List<String> unmatchedOptions;

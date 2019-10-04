@@ -1,10 +1,11 @@
-// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
-// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import com.oracle.weblogic.imagetool.api.model.DomainType;
@@ -44,6 +45,9 @@ public class DockerfileOptions {
     private boolean wdtModelOnly;
     private boolean wdtRunRcu;
     private boolean wdtStrictValidation;
+
+    // Additional Build Commands
+    private Map<String,List<String>> additionalBuildCommands;
 
     /**
      * Options to be used with the Mustache template.
@@ -151,22 +155,27 @@ public class DockerfileOptions {
         return this;
     }
 
+    @SuppressWarnings("unused")
     public String java_home() {
         return javaHome;
     }
 
+    @SuppressWarnings("unused")
     public String oracle_home() {
         return oracleHome;
     }
 
+    @SuppressWarnings("unused")
     public String domain_home() {
         return domainHome;
     }
 
+    @SuppressWarnings("unused")
     public String wdt_home() {
         return wdtHome;
     }
 
+    @SuppressWarnings("unused")
     public String work_dir() {
         if (isWdtEnabled() && !modelOnly()) {
             return domain_home();
@@ -238,6 +247,7 @@ public class DockerfileOptions {
      *
      * @return true if patching should be performed.
      */
+    @SuppressWarnings("unused")
     public boolean isPatchingEnabled() {
         return applyPatches;
     }
@@ -257,6 +267,7 @@ public class DockerfileOptions {
      *
      * @return true if OPatch patching should be performed.
      */
+    @SuppressWarnings("unused")
     public boolean isOpatchPatchingEnabled() {
         return updateOpatch;
     }
@@ -297,6 +308,7 @@ public class DockerfileOptions {
      *
      * @return a list of Strings with the model filenames.
      */
+    @SuppressWarnings("unused")
     public List<String> wdtModels() {
         return wdtModelList;
     }
@@ -306,6 +318,7 @@ public class DockerfileOptions {
      *
      * @return model_file argument for WDT command.
      */
+    @SuppressWarnings("unused")
     public String wdtModelFileArgument() {
         return wdtGetFileArgument("-model_file ", wdtModelList);
     }
@@ -327,6 +340,7 @@ public class DockerfileOptions {
      *
      * @return a list of Strings with the archive filenames.
      */
+    @SuppressWarnings("unused")
     public List<String> wdtArchives() {
         return wdtArchiveList;
     }
@@ -336,6 +350,7 @@ public class DockerfileOptions {
      *
      * @return archive_file argument for WDT command.
      */
+    @SuppressWarnings("unused")
     public String wdtArchiveFileArgument() {
         return wdtGetFileArgument("-archive_file ", wdtArchiveList);
     }
@@ -354,6 +369,7 @@ public class DockerfileOptions {
      *
      * @return variable_file argument for WDT command.
      */
+    @SuppressWarnings("unused")
     public String wdtVariableFileArgument() {
         return wdtGetFileArgument("-variable_file ", wdtVariableList);
     }
@@ -380,15 +396,6 @@ public class DockerfileOptions {
     }
 
     /**
-     * Referenced by Dockerfile template, provides temporary location to write/copy files in the Docker image.
-     *
-     * @return the path to the temporary directory.
-     */
-    public String tmpDir() {
-        return tempDirectory;
-    }
-
-    /**
      * Toggle WDT domain creation ON.
      *
      * @return this DockerfileOptions object
@@ -403,6 +410,7 @@ public class DockerfileOptions {
      *
      * @return the full path to the temporary directory that should be used.
      */
+    @SuppressWarnings("unused")
     public String tempDir() {
         return tempDirectory;
     }
@@ -422,6 +430,7 @@ public class DockerfileOptions {
      *
      * @return the name of the WDT script file.
      */
+    @SuppressWarnings("unused")
     public String wdtCommand() {
         return wdtOperation.getScript();
     }
@@ -441,6 +450,7 @@ public class DockerfileOptions {
      *
      * @return the name of the WDT domain type.
      */
+    @SuppressWarnings("unused")
     public String domainType() {
         return wdtDomainType.name();
     }
@@ -469,6 +479,7 @@ public class DockerfileOptions {
         return wdtModelOnly;
     }
 
+    @SuppressWarnings("unused")
     public boolean runRcu() {
         return wdtRunRcu;
     }
@@ -479,6 +490,7 @@ public class DockerfileOptions {
     }
 
 
+    @SuppressWarnings("unused")
     public boolean strictValidation() {
         return wdtStrictValidation;
     }
@@ -488,7 +500,96 @@ public class DockerfileOptions {
         return this;
     }
 
+    @SuppressWarnings("unused")
     public String wlsdeploy_properties() {
         return wdtJavaOptions;
     }
+
+    /**
+     * Set the additional commands to be used during the Docker build.
+     *
+     * @param commands Additional build commands grouped by section.
+     */
+    public DockerfileOptions setAdditionalBuildCommands(Map<String,List<String>> commands) {
+        additionalBuildCommands = commands;
+        return this;
+    }
+
+    private List<String> getAdditionalCommandsForSection(String sectionName) {
+        if (additionalBuildCommands == null) {
+            return null;
+        }
+        return additionalBuildCommands.get(sectionName);
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides additional build commands supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
+    public List<String> beforeJdkInstall() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.BEFORE_JDK);
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides additional build commands supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
+    public List<String> afterJdkInstall() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.AFTER_JDK);
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides additional build commands supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
+    public List<String> beforeFmwInstall() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.BEFORE_FMW);
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides additional build commands supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
+    public List<String> afterFmwInstall() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.AFTER_FMW);
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides additional build commands supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
+    public List<String> beforeWdtCommand() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.BEFORE_WDT);
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides additional build commands supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
+    public List<String> afterWdtCommand() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.AFTER_WDT);
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides additional build commands supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
+    public List<String> finalBuildCommands() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.FINAL_BLD);
+    }
+
 }

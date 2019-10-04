@@ -1,5 +1,5 @@
-// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
-// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
@@ -113,13 +113,12 @@ public class CreateImage extends ImageOperation {
             Utils.setOracleHome(installerResponseFile, dockerfileOptions);
 
             // Create Dockerfile
-            Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile", "Create_Image.mustache",
-                    dockerfileOptions);
+            String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
+                "Create_Image.mustache", dockerfileOptions, dryRun);
 
             // add directory to pass the context
             cmdBuilder.add(tmpDir);
-            logger.info("docker cmd = " + String.join(" ", cmdBuilder));
-            Utils.runDockerCommand(isCliMode, cmdBuilder, dockerLog);
+            runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {

@@ -1,5 +1,5 @@
-// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
-// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
 
@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -30,6 +32,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +50,8 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 public class Utils {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(Utils.class);
+
+    private static ResourceBundle bundle = ResourceBundle.getBundle("ImageTool");
 
     /**
      * Utility method to copy a resource from the jar to local file system.
@@ -157,12 +162,21 @@ public class Utils {
      * @param destPath the file folder that the Dockerfile should be written to.
      * @param template the Dockerfile template that should be used to create the Dockerfile.
      * @param options  the options to be applied to the Dockerfile template.
+     * @param dryRun when true, will return a String version of the Dockerfile.
+     * @return null if dryRun is false, and a String version of the Dockerfile if dryRun is true.
      * @throws IOException if an error occurs in the low level Java file operations.
      */
-    public static void writeDockerfile(String destPath, String template, DockerfileOptions options) throws IOException {
+    public static String writeDockerfile(String destPath, String template, DockerfileOptions options, boolean dryRun)
+        throws IOException {
         MustacheFactory mf = new DefaultMustacheFactory("docker-files");
         Mustache mustache = mf.compile(template);
         mustache.execute(new FileWriter(destPath), options).flush();
+
+        if (dryRun) {
+            return mustache.execute(new StringWriter(), options).toString();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -742,5 +756,15 @@ public class Utils {
 
     private static boolean validFile(Path file) throws IOException {
         return file != null && Files.isRegularFile(file) && Files.size(file) > 0;
+    }
+
+    /**
+     * Get a message from the resource bundle and format the message with parameters.
+     * @param key message key into the bundle
+     * @param params parameters to be applied to the message
+     * @return formatted message string including parameters
+     */
+    public static String getMessage(String key, Object... params) {
+        return MessageFormat.format(bundle.getString(key), params);
     }
 }

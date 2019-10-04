@@ -1,6 +1,6 @@
-<!-- Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+<!-- Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
      Licensed under the Universal Permissive License v 1.0 as shown at
-     http://oss.oracle.com/licenses/upl. -->
+     https://oss.oracle.com/licenses/upl. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>imagetool-parent</artifactId>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
     <packaging>pom</packaging>
 
     <name>WebLogic Image Tool (parent)</name>
