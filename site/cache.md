@@ -71,4 +71,4 @@ If you have downloaded the release version ```12.2.1.3.190416``` of the patch, t
     ```
 
 ## Copyright
-Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.

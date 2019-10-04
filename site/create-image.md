@@ -89,4 +89,4 @@ The commands below assume that all the required JDK, WLS, or FMW (WebLogic infra
     ```
 
 ## Copyright
-Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.
