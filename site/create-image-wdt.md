@@ -4,13 +4,15 @@ The Image Tool lets you create a customized WebLogic domain in the image using t
 
 ## Steps
 
-1. Download the [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling/releases), and then add it to the cache store:
+1. Create the image, as directed in the [Quick Start](quickstart.md) guide.
+
+2. Download the [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling/releases), and then add it to the cache store:
 
 ```bash
 imagetool cache addInstaller --type wdt --version 0.22 --path /home/acmeuser/cache/weblogic-deploy.zip
 ```
 
-2. Provide the command-line options for the WebLogic Deploy Tool:
+3. Provide the command-line options for the WebLogic Deploy Tool:
 
 ```bash
 imagetool create --fromImage myosimg:latest --tag wls:12.2.1.3.0  --version 12.2.1.3.0  --wdtVersion 1.4.0 --wdtArchive /home/acmeuser/wdt/domain1.zip --wdtDomainHome /u01/domains/simple_domain
