@@ -39,4 +39,4 @@ The Image Tool provides three functions within the main script:
 [Image Tool Quick Start Guide](site/quickstart.md)
 
 ## Copyright
-Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.
