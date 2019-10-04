@@ -143,7 +143,7 @@ public class ITImagetool extends BaseTest {
     /**
      * create a WLS image with default WLS version.
      *
-     * @throws Exception
+     * @throws Exception - if any error occurs
      */
     @Test
     public void test4CreateWLSImg() throws Exception {
@@ -521,6 +521,11 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * create wls image using multiple WDT model files
+     *
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void testFCreateWLSImgUsingMultiModels() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -572,6 +577,11 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * create WLS image with additional build commands
+     *
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void testGCreateWLSImgWithAdditionalBuildCommands() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -582,7 +592,7 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag "
             + imagename + " --additionalBuildCommands " + abcPath;
         logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command, true);
+        ExecCommand.exec(command, true);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
