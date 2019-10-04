@@ -52,6 +52,7 @@ public class BaseTest {
         imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file="
             + getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver";
 
+        // get the build tag from Jenkins build environment variable BUILD_TAG
         build_tag = System.getenv("BUILD_TAG");
         if (build_tag != null) {
             build_tag = build_tag.toLowerCase();
@@ -162,6 +163,10 @@ public class BaseTest {
         return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "wdt";
     }
 
+    protected static String getABCResourcePath() {
+        return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "additionalBuildCommands";
+    }
+
     protected static void executeNoVerify(String command) throws Exception {
         logger.info("executing command: " + command);
         ExecCommand.exec(command);
@@ -186,6 +191,27 @@ public class BaseTest {
             + "| wc -l");
         if (Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("wls docker image is not created as expected");
+        }
+    }
+
+    protected void verifyFileInImage(String imagename, String filename, String expectedContent) throws Exception {
+        logger.info("verifying the file content in image");
+        String command = "docker run --rm " + imagename + " bash -c 'cat " + filename + "'";
+        logger.info("executing command: " + command);
+        ExecResult result = ExecCommand.exec(command);
+        if (!result.stdout().contains(expectedContent)) {
+            logger.info("DEBUG: result.stdout=" + result.stdout());
+            logger.info("DEBUG: result.stderr=" + result.stderr());
+            throw new Exception("The image " + imagename + " does not have the expected file content: "
+                + expectedContent);
+        }
+    }
+
+    protected void verifyLabelInImage(String imagename, String label) throws Exception {
+        ExecResult result = ExecCommand.exec("docker inspect --format '{{ index .Config.Labels}}' "
+            + imagename);
+        if (!result.stdout().contains(label)) {
+            throw new Exception("The image " + imagename + " does not contain the expected label " + label);
         }
     }
 

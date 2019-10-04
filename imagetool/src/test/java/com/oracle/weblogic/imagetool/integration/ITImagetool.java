@@ -76,7 +76,7 @@ public class ITImagetool extends BaseTest {
     @AfterClass
     public static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
-        cleanup();
+        // cleanup();
     }
 
     /**
@@ -568,6 +568,35 @@ public class ITImagetool extends BaseTest {
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
+
+        logTestEnd(testMethodName);
+    }
+
+    @Test
+    public void testGCreateWLSImgWithAdditionalBuildCommands() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String imagename = build_tag + ":" + testMethodName;
+        String abcPath = getABCResourcePath() + FS + "multi-sections.txt";
+        String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag "
+            + imagename + " --additionalBuildCommands " + abcPath;
+        logger.info("Executing command: " + command);
+        ExecResult result = ExecCommand.exec(command, true);
+
+        // verify the docker image is created
+        verifyDockerImages(testMethodName);
+
+        // verify the file created in [before-jdk-install] section
+        verifyFileInImage(imagename, "/u01/jdk/beforeJDKInstall.txt", "before-jdk-install");
+        // verify the file created in [after-jdk-install] section
+        verifyFileInImage(imagename, "/u01/jdk/afterJDKInstall.txt", "after-jdk-install");
+        // verify the file created in [before-fmw-install] section
+        verifyFileInImage(imagename, "/u01/oracle/beforeFMWInstall.txt", "before-fmw-install");
+        // verify the file created in [after-fmw-install] section
+        verifyFileInImage(imagename, "/u01/oracle/afterFMWInstall.txt", "after-fmw-install");
+        // verify the label is created as in [final-build-commands] section
+        verifyLabelInImage(imagename, "final-build-commands:finalBuildCommands");
 
         logTestEnd(testMethodName);
     }
