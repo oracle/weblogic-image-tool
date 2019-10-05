@@ -153,7 +153,7 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag "
             + build_tag + ":" + testMethodName;
         logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
+        ExecResult result = ExecCommand.exec(command, true);
         logger.info("DEBUG: result.stdout=" + result.stdout());
         logger.info("DEBUG: result.stderr=" + result.stderr());
 
@@ -363,7 +363,11 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --version=" + WLS_VERSION + " --tag " + build_tag + ":" + testMethodName
             + " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --type fmw";
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        if (result.exitValue() != 0) {
+            logger.info("DEBUG: result.exitValue=" + result.exitValue());
+            logger.info("DEBUG: result.stderr=" + result.stderr());
+        }
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -463,7 +467,11 @@ public class ITImagetool extends BaseTest {
             + tmpWdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
 
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        if (result.exitValue() != 0) {
+            logger.info("DEBUG: result.exitValue=" + result.exitValue());
+            logger.info("DEBUG: result.stderr=" + result.stderr());
+        }
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
