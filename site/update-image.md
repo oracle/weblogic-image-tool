@@ -23,7 +23,7 @@ Update WebLogic Docker image with selected patches
 ```
 | Parameter | Definition | Default |
 | --- | --- | --- |
-|`--additionalBuildCommands`| Path to a file with additional build commands. For more details, see [Additional information](#additional_information). |
+|`--additionalBuildCommands`| Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
 |`--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | Path to the Docker executable.  |  `docker` |
 | `--fromImage` | (Required) Docker image to use as a base image. |   |
@@ -54,7 +54,7 @@ Update WebLogic Docker image with selected patches
 ## Additional information
 This section provides additional information for command-line parameters requiring more details or clarification.
 
-#### `additionalBuildCommands`
+#### `--additionalBuildCommands`
 
 This is an advanced option that let's you provide additional commands to the Docker build step.  
 The input for this parameter is a simple text file that contains one or more of the valid sections: `before-jdk-install`, `after-jdk-install`, `before-fmw-install`, `after-fmw-install`, `before-wdt-command`, `after-wdt-command`, `final-build-commands`.
@@ -68,6 +68,31 @@ RUN rm /some/dir/unnecessary-file
 [final-build-commands]
 LABEL owner="middleware team"
 ```
+
+#### Use an argument file
+
+You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.
+
+For example, create a file called `build_args`:
+
+```bash
+create
+--type wls
+--version 12.2.1.3.0
+--tag wls:122130
+--user acmeuser@mycompany.com
+--httpProxyUrl http://mycompany-proxy:80
+--httpsProxyUrl http://mycompany-proxy:80
+--passwordEnv MYPWD
+
+```
+
+Use it on the command line, as follows:
+
+```bash
+imagetool @/path/to/build_args
+```
+
 
 ## Usage scenarios
 
