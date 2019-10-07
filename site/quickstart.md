@@ -1,6 +1,6 @@
 # Quick Start
 
-Use this Quick Start guide to create a Linux-based WebLogic Docker image.
+Use this Quick Start guide to create a Linux based WebLogic Docker image.
 
 ## Before you begin
 
@@ -34,9 +34,10 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
     ```
 
     You can verify the cache entries by:
-```bash
-imagetool cache listItems
-```
+
+    ```bash
+    imagetool cache listItems
+    ```
 
     ```bash
     Cache contents
