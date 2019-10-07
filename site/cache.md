@@ -1,28 +1,30 @@
 # Cache
 
-The Image Tool maintains a local file cache store, this store is used to look up where the Java,
-WebLogic installers, and WebLogic patches reside in the local file system.
-                                                                         
-By default, it is stored in the user's ```$HOME/cache``` directory.  Under this directory, the lookup information is
-stored in the file ```.metadata```.  All automatically downloaded patches also reside in this directory.  
-                                                                         
-This default cache store location can be changed by setting the environment variable WLSIMG_CACHEDIR
+The Image Tool maintains a local file cache store. This store is used to look up where the Java, WebLogic Server installers, and WebLogic Server patches reside in the local file system.
 
-The `cache` command can be used to manipulate the local file cache. There are several subcommands of the cache feature:
+By default, the cache store is located in the user's ```$HOME/cache``` directory.  Under this directory, the lookup information is stored in the ```.metadata``` file.  All automatically downloaded patches also reside in this directory.  
+
+You can change the default cache store location by setting the environment variable `WLSIMG_CACHEDIR`:
+
+```bash
+export WLSIMG_CACHEDIR="/path/to/cachedir"
+```
+
+You use the `cache` command to manipulate the local file cache. There are several subcommands for the cache feature.
 
 ```
-Usage: imagetool cache [COMMAND]
+Usage: imagetool cache [OPTIONS]
 List and set cache options
-
-Commands:
-
-  listItems     List cache contents
-  addInstaller  Add cache entry for wls, fmw, jdk or wdt installer
-  addPatch      Add cache entry for wls|fmw patch or psu
-  addEntry      Command to add a cache entry. Use caution
-  deleteEntry   Command to delete a cache entry
-  help          Displays help information about the specified command
 ```
+
+| Option | Description |
+| --- | --- |
+|`listItems`| List cache contents. |
+|`addInstaller` | Add cache entry for `wls`, `fmw`, `jdk`, or `wdt` installer. |
+| `addPatch` | Add cache entry for `wls` or `fmw` patch, or `psu`.  |
+| `addEntry` | Add a cache entry. Use with caution. |  
+| `help` | Display help information for the specified command.|
+
 
 ## Usage scenarios
 
@@ -44,21 +46,21 @@ Commands:
     imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
     ```
 
-- `addPatch`: Add a patch to the cache. This command verifies if the path points to a valid patch by querying the Oracle support portal.
+- `addPatch`: Add a patch to the cache. This command verifies if the path points to a valid patch by querying the Oracle Support portal.
     ```
     imagetool cache addPatch --type wls --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
     ```
-Note:  When adding a patch to the cache store. The patchId should be in the following format:  99999999_9.9.9.9.99999  The first 8 digits is the patch id, followed by an underscore and then release number.  This is needed if you want to distinguish a patch that has different versions of the patch.  
+    **Note**:  When adding a patch to the cache store, the `patchId` should be in the following format:  `99999999_9.9.9.9.99999`  The first 8 digits is the patch ID, followed by an underscore, and then the release number.  This is needed if you want to distinguish a patch that has different patch versions.  
 
-For example, patch 29135930 has several different versions from Oracle support, one for each release where the bug is fixed.
+    For example, patch `29135930` has several different versions in Oracle Support, one for each release in which the bug is fixed.
 
 | Patch Name | Release |
 | ---------|---------|
-| 29135930 | 12.2.1.3.190416|
-| 29135930 | 12.2.1.3.0 |
-| 29135930 | 12.2.1.3.18106 |
+| `29135930` | `12.2.1.3.190416`|
+| `29135930` | `12.2.1.3.0` |
+| `29135930` | `12.2.1.3.18106` |
 
-If you have downloaded the release version ```12.2.1.3.190416``` of the patch, then you should use the argument as ```--patchId 29135930_12.2.1.3.190416```
+If you downloaded the release version ```12.2.1.3.190416``` of the patch, then you should use the argument ```--patchId 29135930_12.2.1.3.190416```.
 
 - `addEntry`: Consider this an expert mode where you can add key value pairs to the cache without any validation.
     ```
