@@ -1,6 +1,6 @@
 # Create an image with full Internet access
 
-The Image Tool supports creating Linux-based WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains.  It can be used with or without Internet access.
+The Image Tool supports creating Linux based WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains.  It can be used with or without Internet access.
 
 In this use case, the Image Tool will:
 
@@ -37,7 +37,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 
    Where ```--user --passwordEnv``` provides the credentials for a user who is entitled to download patches from Oracle Support.
 
- **NOTE**: You can provide the password in one of the three ways:
+ **NOTE**: You can provide the password in one of three ways:
 
  * Plain text
  * Environment variable
