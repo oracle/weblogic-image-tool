@@ -32,6 +32,7 @@ public class BaseTest {
     private static final String IMAGETOOLDIR = "imagetool";
     private static final String INSTALLERCACHEDIR = "/scratch/artifacts/imagetool";
     protected static String build_tag = "";
+    protected static final String WDT_MODEL1 = "simple-topology1.yaml";
 
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
@@ -96,15 +97,17 @@ public class BaseTest {
         // clean up the docker images
         command = "docker stop " + dbContainerName;
         executeNoVerify(command);
-        command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":"
-            + ORACLE_DB_IMG_TAG;
-        executeNoVerify(command);
+        // command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":"
+        //     + ORACLE_DB_IMG_TAG;
+        // executeNoVerify(command);
 
         command = "docker rmi -f $(docker images | grep " + build_tag + " | tr -s ' ' | cut -d ' ' -f 3)";
         executeNoVerify(command);
 
         // clean up the possible left over wlsimgbuilder_temp*
         command = "rm -rf " + wlsImgBldDir + FS + "wlsimgbuilder_temp*";
+        executeNoVerify(command);
+        command = "rm -rf " + wlsImgBldDir + FS + WDT_MODEL1;
         executeNoVerify(command);
     }
 
@@ -180,7 +183,8 @@ public class BaseTest {
 
     protected void verifyExitValue(ExecResult result, String command) throws Exception {
         if (result.exitValue() != 0) {
-            logger.info(result.stderr());
+            logger.info("DEBUG: result.exitValue=" + result.exitValue());
+            logger.info("DEBUG: result.stderr=" + result.stderr());
             throw new Exception("executing the following command failed: " + command);
         }
     }

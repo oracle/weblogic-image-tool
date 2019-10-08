@@ -41,7 +41,6 @@ public class ITImagetool extends BaseTest {
     private static final String WDT_ARCHIVE = "archive.zip";
     private static final String WDT_VARIABLES = "domain.properties";
     private static final String WDT_MODEL = "simple-topology.yaml";
-    private static final String WDT_MODEL1 = "simple-topology1.yaml";
     private static final String WDT_MODEL2 = "simple-topology2.yaml";
     private static String oracleSupportUsername;
     private static String oracleSupportPassword;
@@ -154,8 +153,7 @@ public class ITImagetool extends BaseTest {
             + build_tag + ":" + testMethodName;
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command, true);
-        logger.info("DEBUG: result.stdout=" + result.stdout());
-        logger.info("DEBUG: result.stderr=" + result.stderr());
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -247,7 +245,8 @@ public class ITImagetool extends BaseTest {
             + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
             + " --version " + WLS_VERSION;
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -268,7 +267,8 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " update --fromImage imagetool:test8CreateWLSImgUseCache --tag "
             + build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -329,7 +329,8 @@ public class ITImagetool extends BaseTest {
             + wdtModel + " --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -364,10 +365,7 @@ public class ITImagetool extends BaseTest {
             + " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --type fmw";
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command, true);
-        if (result.exitValue() != 0) {
-            logger.info("DEBUG: result.exitValue=" + result.exitValue());
-            logger.info("DEBUG: result.stderr=" + result.stderr());
-        }
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -403,7 +401,8 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221
             + " --tag " + build_tag + ":" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -448,7 +447,7 @@ public class ITImagetool extends BaseTest {
 
         String wdtArchive = getWDTResourcePath() + FS + WDT_ARCHIVE;
         String wdtModel = getWDTResourcePath() + FS + WDT_MODEL1;
-        String tmpWdtModel = System.getProperty("java.io.tmpdir") + FS + WDT_MODEL1;
+        String tmpWdtModel = wlsImgBldDir + FS + WDT_MODEL1;
 
         // update wdt model file
         Path source = Paths.get(wdtModel);
@@ -468,10 +467,7 @@ public class ITImagetool extends BaseTest {
 
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command, true);
-        if (result.exitValue() != 0) {
-            logger.info("DEBUG: result.exitValue=" + result.exitValue());
-            logger.info("DEBUG: result.stderr=" + result.stderr());
-        }
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -521,7 +517,8 @@ public class ITImagetool extends BaseTest {
             + wdtModel + " --wdtDomainType RestrictedJRF --type fmw --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -577,7 +574,8 @@ public class ITImagetool extends BaseTest {
             + wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -600,7 +598,8 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag "
             + imagename + " --additionalBuildCommands " + abcPath;
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
