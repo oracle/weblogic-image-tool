@@ -264,7 +264,7 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String command = imagetool + " update --fromImage imagetool:test8CreateWLSImgUseCache --tag "
+        String command = imagetool + " update --fromImage " + build_tag + ":test8CreateWLSImgUseCache --tag "
             + build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command, true);
