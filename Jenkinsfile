@@ -33,7 +33,7 @@ pipeline {
         }
         stage ('Test') {
             when {
-                expression { return (${GIT_BRANCH} == "master" || ${GIT_BRANCH}.startsWith("PR-")) }
+                expression { return (${env.GIT_BRANCH} == "master" || ${env.GIT_BRANCH}.startsWith("PR-")) }
             }
             steps {
                 sh 'mvn test'
