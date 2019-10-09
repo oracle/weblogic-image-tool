@@ -33,11 +33,6 @@ public class UpdateImage extends ImageOperation {
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
 
     public UpdateImage() {
-        super();
-    }
-
-    public UpdateImage(boolean isCLIMode) {
-        super(isCLIMode);
     }
 
     @Override
@@ -48,7 +43,6 @@ public class UpdateImage extends ImageOperation {
         String tmpDir = null;
 
         try {
-
             CommandResponse result = super.call();
             if (result.getStatus() != 0) {
                 return result;
@@ -163,6 +157,7 @@ public class UpdateImage extends ImageOperation {
         } finally {
             if (cleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
+                Utils.removeIntermediateDockerImages(buildId);
             }
         }
         Instant endTime = Instant.now();

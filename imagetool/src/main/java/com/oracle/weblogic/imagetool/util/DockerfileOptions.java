@@ -16,6 +16,7 @@ public class DockerfileOptions {
     private static final String DEFAULT_ORACLE_HOME = "/u01/oracle";
     private static final String DEFAULT_DOMAIN_HOME = "/u01/domains/base_domain";
 
+    final String buildId;
     boolean useYum = false;
     boolean useAptGet = false;
     boolean useApk = false;
@@ -52,7 +53,8 @@ public class DockerfileOptions {
     /**
      * Options to be used with the Mustache template.
      */
-    public DockerfileOptions() {
+    public DockerfileOptions(String buildId) {
+        this.buildId = buildId;
         applyPatches = false;
         updateOpatch = false;
         skipJavaInstall = false;

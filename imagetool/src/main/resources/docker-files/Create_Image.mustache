@@ -5,7 +5,7 @@
 #
 #
 FROM {{baseImage}} as OS_UPDATE
-LABEL WlsImageToolLayer="intermediate"
+LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER root
 
 {{#useYum}}
@@ -39,7 +39,7 @@ RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && 
 
 {{#installJava}}
 FROM OS_UPDATE as JDK_BUILD
-LABEL WlsImageToolLayer="intermediate"
+LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 ARG JAVA_PKG
 
 ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
@@ -63,7 +63,7 @@ RUN tar xzf {{{tempDir}}}/$JAVA_PKG -C /u01 \
 {{/installJava}}
 
 FROM OS_UPDATE as WLS_BUILD
-LABEL WlsImageToolLayer="intermediate"
+LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 ARG WLS_PKG
 ARG INV_LOC
 ARG ORAINST
@@ -120,7 +120,7 @@ RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
 
 {{#isWdtEnabled}}
     FROM WLS_BUILD as WDT_BUILD
-    LABEL WlsImageToolLayer="intermediate"
+    LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     ARG WDT_PKG
 
@@ -206,6 +206,8 @@ ENV ORACLE_HOME={{{oracle_home}}} \
     LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
     PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}{{#isWdtEnabled}}:${{{domain_home}}}/bin{{/isWdtEnabled}}
+
+LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 {{#installJava}}
     COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/

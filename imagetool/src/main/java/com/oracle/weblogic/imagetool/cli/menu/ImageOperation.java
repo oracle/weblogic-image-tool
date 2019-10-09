@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,21 +50,20 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     protected CacheStore cacheStore = new CacheStoreFactory().get();
     private String nonProxyHosts = null;
     private String tempDirectory = null;
-    boolean isCliMode;
     String password;
+    String buildId;
 
-    ImageOperation() {
-        dockerfileOptions = new DockerfileOptions();
-    }
-
-    ImageOperation(boolean isCliMode) {
-        this();
-        this.isCliMode = isCliMode;
-    }
+    //ImageOperation() {
+    //}
 
     @Override
     public CommandResponse call() throws Exception {
         logger.finer("Entering ImageOperation call ");
+
+        buildId = UUID.randomUUID().toString();
+        dockerfileOptions = new DockerfileOptions(buildId);
+        logger.info("IMG-0016", buildId);
+
         handleProxyUrls();
         password = handlePasswordOptions();
         // check user support credentials if useCache not set to always and we are applying any patches
@@ -436,7 +436,7 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             System.out.println(dockerfile);
             System.out.println("########## END DOCKERFILE ##########");
         } else {
-            Utils.runDockerCommand(isCliMode, command, dockerLog);
+            Utils.runDockerCommand(command, dockerLog);
         }
     }
 
