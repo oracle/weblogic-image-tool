@@ -34,19 +34,11 @@ public class CacheCLI implements Callable<CommandResponse> {
     public CacheCLI() {
     }
 
-    public CacheCLI(boolean isCLIMode) {
-        this.isCLIMode = isCLIMode;
-    }
-
     @Override
     public CommandResponse call() {
-        if (isCLIMode) {
-            spec.commandLine().usage(System.out);
-        }
+        spec.commandLine().usage(System.out);
         return new CommandResponse(-1, "Invalid arguments");
     }
-
-    private boolean isCLIMode;
 
     @Spec
     CommandSpec spec;

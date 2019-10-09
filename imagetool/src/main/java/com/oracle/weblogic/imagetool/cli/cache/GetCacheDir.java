@@ -15,16 +15,10 @@ public class GetCacheDir extends CacheOperation {
     public GetCacheDir() {
     }
 
-    public GetCacheDir(boolean isCLIMode) {
-        super(isCLIMode);
-    }
-
     @Override
     public CommandResponse call() {
         String path = cacheStore.getCacheDir();
-        if (isCLIMode) {
-            System.out.println("Cache Dir: " + path);
-        }
+        System.out.println("Cache Dir: " + path);
         return new CommandResponse(0, "Cache Dir location: ", path);
     }
 

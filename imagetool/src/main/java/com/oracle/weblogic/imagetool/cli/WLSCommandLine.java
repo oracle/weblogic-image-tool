@@ -11,13 +11,8 @@ import picocli.CommandLine;
 
 public class WLSCommandLine {
 
-    public static <C extends Callable<T>, T> T call(C callable, boolean isCLIMode, String... args) {
-        return call(callable, System.out, System.err, CommandLine.Help.Ansi.AUTO, true, isCLIMode, args);
-    }
-
-    // Turn CLIMode off if not provided
     public static <C extends Callable<T>, T> T call(C callable, String... args) {
-        return call(callable, false, args);
+        return call(callable, System.out, System.err, CommandLine.Help.Ansi.AUTO, true, args);
     }
 
     /**
@@ -27,7 +22,6 @@ public class WLSCommandLine {
      * @param err error stream
      * @param ansi ANSI mode
      * @param ignoreCaseForEnums ignore case for Enums
-     * @param isCLIMode true to use WLSCommandFactory
      * @param args command line arguments
      * @param <C> Callable class
      * @param <T> Callable Type
@@ -35,13 +29,9 @@ public class WLSCommandLine {
      */
     public static <C extends Callable<T>, T> T call(C callable, PrintStream out, PrintStream err,
                                                     CommandLine.Help.Ansi ansi, boolean ignoreCaseForEnums,
-                                                    boolean isCLIMode, String... args) {
+                                                    String... args) {
         CommandLine cmd;
-        if (isCLIMode) {
-            cmd = new CommandLine(callable, new WLSCommandFactory());
-        } else {
-            cmd = new CommandLine(callable);
-        }
+        cmd = new CommandLine(callable);
         cmd.setCaseInsensitiveEnumValuesAllowed(ignoreCaseForEnums);
         cmd.setToggleBooleanFlags(false);
         cmd.setUnmatchedArgumentsAllowed(false);

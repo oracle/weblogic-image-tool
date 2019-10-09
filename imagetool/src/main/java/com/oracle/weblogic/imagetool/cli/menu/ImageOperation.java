@@ -53,9 +53,6 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
     String password;
     String buildId;
 
-    //ImageOperation() {
-    //}
-
     @Override
     public CommandResponse call() throws Exception {
         logger.finer("Entering ImageOperation call ");

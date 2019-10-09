@@ -37,13 +37,13 @@ public class AddInstallerEntryTest {
 
     @Test
     public void testMissingParameters() {
-        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true, true);
+        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true);
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required options"));
     }
 
     @Test
     public void testWrongType() {
-        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true, true,
+        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
                 "--type", "a2z", "--version", "some_value", "--path", "/path/to/a/file");
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains(
                 "Invalid value for option '--type'"));
@@ -51,7 +51,7 @@ public class AddInstallerEntryTest {
 
     @Test
     public void testMissingVersion() {
-        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true, true,
+        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
                 "--type", InstallerType.WLS.toString(), "--path", "/path/to/a/file");
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains(
                 "Missing required option '--version=<version>'"));
@@ -59,7 +59,7 @@ public class AddInstallerEntryTest {
 
     @Test
     public void testInvalidParameters() {
-        CommandResponse response = WLSCommandLine.call(new AddInstallerEntry(), true, "--type",
+        CommandResponse response = WLSCommandLine.call(new AddInstallerEntry(), "--type",
                 InstallerType.WLS.toString(), "--version", "", "--path", "/path/to/non/existent/file");
         assertEquals(-1, response.getStatus());
     }

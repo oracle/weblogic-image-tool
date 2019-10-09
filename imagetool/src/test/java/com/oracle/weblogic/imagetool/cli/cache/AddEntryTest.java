@@ -36,13 +36,13 @@ public class AddEntryTest {
 
     @Test
     public void testMissingParameters() {
-        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true, true);
+        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true);
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required options"));
     }
 
     @Test
     public void testMissingKey() {
-        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true, true,
+        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
                 "--value", "some_value");
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required option '--key=<key>'"));
     }
@@ -50,14 +50,14 @@ public class AddEntryTest {
     @Test
     public void testMissingValue() {
         WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
-            true,"--key", "some_key");
+            "--key", "some_key");
         assertTrue(new String(byteArrayOutputStream.toByteArray())
             .contains("Missing required option '--value=<location>'"));
     }
 
     @Test
     public void testInvalidParameters() {
-        CommandResponse response = WLSCommandLine.call(new AddEntry(), true, "--key", "", "--value", "");
+        CommandResponse response = WLSCommandLine.call(new AddEntry(), "--key", "", "--value", "");
         assertEquals(-1, response.getStatus());
     }
 }

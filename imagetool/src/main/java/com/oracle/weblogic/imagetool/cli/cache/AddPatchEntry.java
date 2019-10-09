@@ -30,10 +30,6 @@ public class AddPatchEntry extends CacheOperation {
     public AddPatchEntry() {
     }
 
-    public AddPatchEntry(boolean isCLIMode) {
-        super(isCLIMode);
-    }
-
     @Override
     public CommandResponse call() throws Exception {
 

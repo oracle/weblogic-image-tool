@@ -16,15 +16,6 @@ import picocli.CommandLine.Unmatched;
 
 public abstract class CacheOperation implements Callable<CommandResponse> {
 
-    boolean isCLIMode;
-
-    CacheOperation() {
-    }
-
-    CacheOperation(boolean isCLIMode) {
-        this.isCLIMode = isCLIMode;
-    }
-
     protected CacheStore cacheStore = new CacheStoreFactory().get();
 
     @Unmatched
