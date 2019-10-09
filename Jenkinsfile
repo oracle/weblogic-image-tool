@@ -20,6 +20,9 @@ pipeline {
                     echo "PATH = ${PATH}"
                     echo "M2_HOME = ${M2_HOME}"
                     mvn --version
+                    echo "GIT Branch = ${GIT_BRANCH}"
+                    echo "JOB = ${JOB_NAME}"
+                    echo "build tag = ${BUILD_TAG}"
                 '''
             }
         }
@@ -38,12 +41,6 @@ pipeline {
                 }
             }
         }
-        stage ('SystemTest') {
-            steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
-                    sh 'mvn verify'
-                }
-            }
-        }
+
      }
 }
