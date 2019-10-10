@@ -47,6 +47,11 @@ pipeline {
                     sh 'mvn verify'
                 }
             }
+            post {
+                always {
+                    junit 'imagetool/target/failsafe-reports/*.xml'
+                }
+            }
         }
      }
 }
