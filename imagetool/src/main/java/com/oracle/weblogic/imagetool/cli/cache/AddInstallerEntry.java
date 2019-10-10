@@ -23,10 +23,6 @@ public class AddInstallerEntry extends CacheOperation {
     public AddInstallerEntry() {
     }
 
-    public AddInstallerEntry(boolean isCLIMode) {
-        super(isCLIMode);
-    }
-
     @Override
     public CommandResponse call() {
         if (location != null && Files.isRegularFile(location) && !Utils.isEmptyString(version)) {

@@ -22,10 +22,6 @@ public class DeleteEntry extends CacheOperation {
     public DeleteEntry() {
     }
 
-    public DeleteEntry(boolean isCLIMode) {
-        super(isCLIMode);
-    }
-
     @Override
     public CommandResponse call() {
         if (!Utils.isEmptyString(key)) {
@@ -47,9 +43,7 @@ public class DeleteEntry extends CacheOperation {
                 }
             }
         }
-        if (isCLIMode) {
-            spec.commandLine().usage(System.out);
-        }
+        spec.commandLine().usage(System.out);
         return new CommandResponse(-1, "Invalid arguments. --key should correspond to a valid entry in cache");
     }
 

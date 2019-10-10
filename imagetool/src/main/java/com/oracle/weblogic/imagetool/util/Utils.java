@@ -72,7 +72,7 @@ public class Utils {
             }
         }
         Files.copy(Utils.class.getResourceAsStream(resourcePath), Paths.get(destPath),
-                StandardCopyOption.REPLACE_EXISTING);
+            StandardCopyOption.REPLACE_EXISTING);
         if (markExec) {
             if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
                 Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
@@ -124,7 +124,7 @@ public class Utils {
      * @throws IOException when HTTP/HTTPS call has a low level error.
      */
     public static void setProxyIfRequired(String httpProxyUrl, String httpsProxyUrl, String nonProxyHosts)
-            throws IOException {
+        throws IOException {
         if (!isEmptyString(httpProxyUrl)) {
             setSystemProxy(httpProxyUrl, Constants.HTTP);
         }
@@ -162,7 +162,7 @@ public class Utils {
      * @param destPath the file folder that the Dockerfile should be written to.
      * @param template the Dockerfile template that should be used to create the Dockerfile.
      * @param options  the options to be applied to the Dockerfile template.
-     * @param dryRun when true, will return a String version of the Dockerfile.
+     * @param dryRun   when true, will return a String version of the Dockerfile.
      * @return null if dryRun is false, and a String version of the Dockerfile if dryRun is true.
      * @throws IOException if an error occurs in the low level Java file operations.
      */
@@ -182,23 +182,20 @@ public class Utils {
     /**
      * Executes the given docker command and writes the process stdout to log.
      *
-     * @param useStandardOut  write output to stdout (when running in command-line mode)
-     * @param cmdBuilder command to execute
-     * @param dockerLog  log file to write to
+     * @param cmdBuilder     command to execute
+     * @param dockerLog      log file to write to
      * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
-    public static void runDockerCommand(boolean useStandardOut, List<String> cmdBuilder, Path dockerLog)
-            throws IOException, InterruptedException {
+    public static void runDockerCommand(List<String> cmdBuilder, Path dockerLog)
+        throws IOException, InterruptedException {
         // process builder
-        logger.entering(useStandardOut, cmdBuilder, dockerLog);
+        logger.entering(cmdBuilder, dockerLog);
         Path dockerLogPath = createFile(dockerLog, "dockerbuild.log");
         logger.finer("Docker log: {0}", dockerLogPath);
         List<OutputStream> outputStreams = new ArrayList<>();
 
-        if (useStandardOut) {
-            outputStreams.add(System.out);
-        }
+        outputStreams.add(System.out);
 
         if (dockerLogPath != null) {
             logger.info("dockerLog: " + dockerLog);
@@ -225,13 +222,13 @@ public class Utils {
      * @throws InterruptedException when the process wait is interrupted.
      */
     public static Properties runDockerCommand(List<String> cmdBuilder) throws IOException, InterruptedException {
+        logger.entering(cmdBuilder);
         // process builder
         ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
         final Process process = processBuilder.start();
         Properties properties = new Properties();
         try (
-                BufferedReader processReader = new BufferedReader(new InputStreamReader(
-                        process.getInputStream()))
+            BufferedReader processReader = new BufferedReader(new InputStreamReader(process.getInputStream()))
         ) {
             properties.load(processReader);
         }
@@ -239,6 +236,7 @@ public class Utils {
         if (process.waitFor() != 0) {
             processError(process);
         }
+        logger.exiting(properties);
         return properties;
     }
 
@@ -249,50 +247,24 @@ public class Utils {
      * @throws IOException if an error occurs while reading standard error (stderr) from the Docker build.
      */
     private static void processError(Process process) throws IOException {
-        try (BufferedReader stderr =
-                     new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+        try (
+            BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()))
+        ) {
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = stderr.readLine()) != null) {
                 stringBuilder.append(line);
                 stringBuilder.append(System.lineSeparator());
             }
-            throw new IOException(
-                    "docker command failed with error: " + stringBuilder.toString());
+            throw new IOException("docker command failed with error: " + stringBuilder.toString());
         }
     }
-    //
-    //    public static boolean isJavaInstalled(String dockerImage) throws IOException, InterruptedException {
-    //        boolean result = false;
-    //        List<String> dockerInspectCommand = new ArrayList<>();
-    //        dockerInspectCommand.add("docker");
-    //        dockerInspectCommand.add("inspect");
-    //        dockerInspectCommand.add("--format='{{range .Config.Env}}{{println .}}{{end}}'");
-    //        dockerInspectCommand.add(dockerImage);
-    //        ProcessBuilder processBuilder = new ProcessBuilder(dockerInspectCommand);
-    //        Process process = processBuilder.start();
-    //        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-    //        String line;
-    //        while ((line = reader.readLine()) != null) {
-    //            System.out.println(line);
-    //            if (line.trim().startsWith("JAVA_HOME")) {
-    //                result = true;
-    //            }
-    //        }
-    //
-    //        int exitVal = process.waitFor();
-    //        if (exitVal != 0) {
-    //            throw new IOException("ERROR:  Unable to inspect image " + dockerImage + ",
-    //            docker returned " + exitVal);
-    //        }
-    //        return result;
-    //    }
 
     private static void writeFromInputToOutputStreams(InputStream inputStream, OutputStream... outputStreams) {
         Thread readerThread = new Thread(() -> {
             try (
-                    BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
-                    CloseableList<PrintWriter> printWriters = createPrintWriters(outputStreams)
+                BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
+                CloseableList<PrintWriter> printWriters = createPrintWriters(outputStreams)
             ) {
                 if (!printWriters.isEmpty()) {
                     String line;
@@ -329,14 +301,14 @@ public class Utils {
         if (pathDir != null) {
             Path tmpDir = Paths.get(pathDir);
             Files.walk(tmpDir)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    //.peek(System.out::println)
-                    .forEach(File::delete);
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                //.peek(System.out::println)
+                .forEach(File::delete);
 
             if (Files.exists(tmpDir)) {
                 logger.warning("Unable to cleanup temp directory, it is safe to remove this directory manually "
-                        + tmpDir.toString());
+                    + tmpDir.toString());
             }
         }
     }
@@ -349,7 +321,7 @@ public class Utils {
      * @param thisVersion  - first version
      * @param otherVersion - second version
      * @return returns 0 if the versions are equal, greater than zero if thisVersion is newer,
-     *         and less than zero if thisVersion is older.
+     *     and less than zero if thisVersion is older.
      */
     public static int compareVersions(String thisVersion, String otherVersion) {
         int result = 0;
@@ -474,10 +446,11 @@ public class Utils {
 
     /**
      * Reads the docker image environment variables into Java Properties.
+     *
      * @param dockerImage the name of the Docker image to read from
-     * @param tmpDir the directory to use on the container to copy a script
+     * @param tmpDir      the directory to use on the container to copy a script
      * @return The key/value pairs representing the ENV of the Docker image
-     * @throws IOException when the Docker command fails
+     * @throws IOException          when the Docker command fails
      * @throws InterruptedException when the Docker command is interrupted
      */
     public static Properties getBaseImageProperties(String dockerImage, String tmpDir)
@@ -517,8 +490,8 @@ public class Utils {
         String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
         logger.finest("ONE COMMAND [" + oneCommand + "]");
         final List<String> retVal = Stream.of(
-                "docker", "run",
-                dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
+            "docker", "run",
+            dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
         }
@@ -572,11 +545,13 @@ public class Utils {
      * @throws IOException in case of error
      */
     public static String getPasswordFromInputs(String passwordStr, Path passwordFile, String passwordEnv)
-            throws IOException {
+        throws IOException {
         if (!isEmptyString(passwordStr)) {
             return passwordStr;
         } else if (validFile(passwordFile)) {
-            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(passwordFile.toFile()))) {
+            try (
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(passwordFile.toFile()))
+            ) {
                 return bufferedReader.readLine();
             }
         } else if (!isEmptyString(passwordEnv) && !isEmptyString(System.getenv(passwordEnv))) {
@@ -597,9 +572,7 @@ public class Utils {
         }
         Path path = Paths.get(workingDir);
 
-        boolean pathExists =
-                Files.exists(path,
-                        new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
+        boolean pathExists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
 
         if (!pathExists) {
             throw new IOException("Working Directory does not exists " + workingDir);
@@ -627,9 +600,7 @@ public class Utils {
         }
         Path path = Paths.get(cacheDir);
 
-        boolean pathExists =
-                Files.exists(path,
-                        new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
+        boolean pathExists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
 
         if (!pathExists) {
             Files.createDirectory(path);
@@ -720,8 +691,9 @@ public class Utils {
     /**
      * Set the Oracle Home directory based on the installer response file.
      * If no Oracle Home is provided in the response file, do nothing and accept the default value.
+     *
      * @param installerResponse installer response file to parse.
-     * @param options Dockerfile options to use for the build (holds the Oracle Home argument)
+     * @param options           Dockerfile options to use for the build (holds the Oracle Home argument)
      */
     public static void setOracleHome(String installerResponse, DockerfileOptions options) throws IOException {
         if (installerResponse == null) {
@@ -760,11 +732,22 @@ public class Utils {
 
     /**
      * Get a message from the resource bundle and format the message with parameters.
-     * @param key message key into the bundle
+     *
+     * @param key    message key into the bundle
      * @param params parameters to be applied to the message
      * @return formatted message string including parameters
      */
     public static String getMessage(String key, Object... params) {
         return MessageFormat.format(bundle.getString(key), params);
+    }
+
+    public static void removeIntermediateDockerImages(String buildId) throws IOException, InterruptedException {
+        logger.entering();
+        final List<String> command = Stream.of(
+            "docker", "image", "prune", "-f", "--filter", "label=com.oracle.weblogic.imagetool.buildid=" + buildId)
+            .collect(Collectors.toList());
+        Properties result = runDockerCommand(command);
+        logger.fine("Intermediate images removed: {0}", result.get("Total"));
+        logger.exiting();
     }
 }
