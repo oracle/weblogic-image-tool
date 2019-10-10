@@ -41,7 +41,6 @@ public class ITImagetool extends BaseTest {
     private static final String WDT_ARCHIVE = "archive.zip";
     private static final String WDT_VARIABLES = "domain.properties";
     private static final String WDT_MODEL = "simple-topology.yaml";
-    private static final String WDT_MODEL1 = "simple-topology1.yaml";
     private static final String WDT_MODEL2 = "simple-topology2.yaml";
     private static String oracleSupportUsername;
     private static String oracleSupportPassword;
@@ -143,7 +142,7 @@ public class ITImagetool extends BaseTest {
     /**
      * create a WLS image with default WLS version.
      *
-     * @throws Exception
+     * @throws Exception - if any error occurs
      */
     @Test
     public void test4CreateWLSImg() throws Exception {
@@ -153,9 +152,8 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag "
             + build_tag + ":" + testMethodName;
         logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        logger.info("DEBUG: result.stdout=" + result.stdout());
-        logger.info("DEBUG: result.stderr=" + result.stderr());
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -247,7 +245,8 @@ public class ITImagetool extends BaseTest {
             + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
             + " --version " + WLS_VERSION;
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -265,10 +264,11 @@ public class ITImagetool extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String command = imagetool + " update --fromImage imagetool:test8CreateWLSImgUseCache --tag "
+        String command = imagetool + " update --fromImage " + build_tag + ":test8CreateWLSImgUseCache --tag "
             + build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -329,7 +329,8 @@ public class ITImagetool extends BaseTest {
             + wdtModel + " --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -363,7 +364,8 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --version=" + WLS_VERSION + " --tag " + build_tag + ":" + testMethodName
             + " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --type fmw";
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -399,7 +401,8 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221
             + " --tag " + build_tag + ":" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -444,7 +447,7 @@ public class ITImagetool extends BaseTest {
 
         String wdtArchive = getWDTResourcePath() + FS + WDT_ARCHIVE;
         String wdtModel = getWDTResourcePath() + FS + WDT_MODEL1;
-        String tmpWdtModel = System.getProperty("java.io.tmpdir") + FS + WDT_MODEL1;
+        String tmpWdtModel = wlsImgBldDir + FS + WDT_MODEL1;
 
         // update wdt model file
         Path source = Paths.get(wdtModel);
@@ -463,7 +466,8 @@ public class ITImagetool extends BaseTest {
             + tmpWdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
 
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -513,7 +517,8 @@ public class ITImagetool extends BaseTest {
             + wdtModel + " --wdtDomainType RestrictedJRF --type fmw --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
@@ -521,6 +526,11 @@ public class ITImagetool extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    /**
+     * create wls image using multiple WDT model files
+     *
+     * @throws Exception - if any error occurs
+     */
     @Test
     public void testFCreateWLSImgUsingMultiModels() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -564,10 +574,46 @@ public class ITImagetool extends BaseTest {
             + wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
 
         // verify the docker image is created
         verifyDockerImages(testMethodName);
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * create WLS image with additional build commands
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testGCreateWLSImgWithAdditionalBuildCommands() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String imagename = build_tag + ":" + testMethodName;
+        String abcPath = getABCResourcePath() + FS + "multi-sections.txt";
+        String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag "
+            + imagename + " --additionalBuildCommands " + abcPath;
+        logger.info("Executing command: " + command);
+        ExecResult result = ExecCommand.exec(command, true);
+        verifyExitValue(result, command);
+
+        // verify the docker image is created
+        verifyDockerImages(testMethodName);
+
+        // verify the file created in [before-jdk-install] section
+        verifyFileInImage(imagename, "/u01/jdk/beforeJDKInstall.txt", "before-jdk-install");
+        // verify the file created in [after-jdk-install] section
+        verifyFileInImage(imagename, "/u01/jdk/afterJDKInstall.txt", "after-jdk-install");
+        // verify the file created in [before-fmw-install] section
+        verifyFileInImage(imagename, "/u01/oracle/beforeFMWInstall.txt", "before-fmw-install");
+        // verify the file created in [after-fmw-install] section
+        verifyFileInImage(imagename, "/u01/oracle/afterFMWInstall.txt", "after-fmw-install");
+        // verify the label is created as in [final-build-commands] section
+        verifyLabelInImage(imagename, "final-build-commands:finalBuildCommands");
 
         logTestEnd(testMethodName);
     }
