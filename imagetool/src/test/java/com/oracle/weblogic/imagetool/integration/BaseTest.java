@@ -95,7 +95,7 @@ public class BaseTest {
         executeNoVerify(command);
 
         // clean up the db container
-        command = "docker rm -f " + dbContainerName;
+        command = "docker rm -f -v" + dbContainerName;
         executeNoVerify(command);
 
         // clean up the images created in the tests
@@ -267,6 +267,7 @@ public class BaseTest {
         command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\""
             + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":"
             + ORACLE_DB_IMG_TAG;
+        logger.info("executing command: " + command);
         ExecCommand.exec(command);
 
         // wait for the db is ready
