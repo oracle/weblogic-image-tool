@@ -95,7 +95,7 @@ public class BaseTest {
         executeNoVerify(command);
 
         // clean up the db container
-        command = "docker rm -f -v" + dbContainerName;
+        command = "docker rm -f -v " + dbContainerName;
         executeNoVerify(command);
 
         // clean up the images created in the tests
