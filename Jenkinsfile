@@ -39,9 +39,17 @@ pipeline {
             }
         }
         stage ('SystemTest') {
+            when {
+                changeRequest()
+            }
             steps {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
                     sh 'mvn verify'
+                }
+            }
+            post {
+                always {
+                    junit 'imagetool/target/failsafe-reports/*.xml'
                 }
             }
         }
