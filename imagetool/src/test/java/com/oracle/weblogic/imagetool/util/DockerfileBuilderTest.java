@@ -24,7 +24,7 @@ public class DockerfileBuilderTest {
      */
     @Test
     public void validateMustacheAliases() throws IOException {
-        DockerfileOptions dockerfileOptions = new DockerfileOptions()
+        DockerfileOptions dockerfileOptions = new DockerfileOptions("123")
             .setPatchingEnabled()
             .setOPatchPatchingEnabled()
             .setWdtEnabled()
@@ -41,13 +41,13 @@ public class DockerfileBuilderTest {
 
     @Test
     public void setPackageInstaller() {
-        DockerfileOptions options = new DockerfileOptions().setPackageInstaller(Constants.YUM);
+        DockerfileOptions options = new DockerfileOptions("123").setPackageInstaller(Constants.YUM);
         assertTrue("Failed to set YUM installer", options.useYum);
 
-        options = new DockerfileOptions().setPackageInstaller(Constants.APTGET);
+        options = new DockerfileOptions("123").setPackageInstaller(Constants.APTGET);
         assertTrue("Failed to set 'APTGET' installer", options.useAptGet);
 
-        options = new DockerfileOptions().setPackageInstaller(Constants.ZYPPER);
+        options = new DockerfileOptions("123").setPackageInstaller(Constants.ZYPPER);
         assertTrue("Failed to set 'ZYPPER' installer", options.useZypper);
     }
 }
