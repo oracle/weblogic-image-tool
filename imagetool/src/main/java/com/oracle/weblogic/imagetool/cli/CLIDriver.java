@@ -51,7 +51,7 @@ public class CLIDriver implements Callable<CommandResponse> {
             CommandLine.usage(cliDriver, System.out);
             System.exit(-1);
         } else {
-            CommandResponse response = WLSCommandLine.call(cliDriver, true, args);
+            CommandResponse response = WLSCommandLine.call(cliDriver, args);
             if (response != null) {
                 if (response.getStatus() != 0) {
                     String message = String.format("Response code: %d, message: %s", response.getStatus(),

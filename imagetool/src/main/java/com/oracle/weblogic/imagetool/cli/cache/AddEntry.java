@@ -17,10 +17,6 @@ public class AddEntry extends CacheOperation {
     public AddEntry() {
     }
 
-    public AddEntry(boolean isCLIMode) {
-        super(isCLIMode);
-    }
-
     @Override
     public CommandResponse call() {
         if (!Utils.isEmptyString(key) && !Utils.isEmptyString(location)) {
@@ -37,9 +33,7 @@ public class AddEntry extends CacheOperation {
                 return new CommandResponse(-1, "Command Failed");
             }
         }
-        if (isCLIMode) {
-            spec.commandLine().usage(System.out);
-        }
+        spec.commandLine().usage(System.out);
         return new CommandResponse(-1, "Invalid arguments. --key & --path required.");
     }
 

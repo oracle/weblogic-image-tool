@@ -6,7 +6,7 @@
 #
 {{#isWdtEnabled}}
     FROM {{baseImage}} as WDT_BUILD
-    LABEL WlsImageToolLayer="intermediate"
+    LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     ARG WDT_PKG
 
@@ -92,6 +92,8 @@ ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
     DOMAIN_HOME={{{domain_home}}} \
     PATH=${PATH}:{{{domain_home}}}/bin
 {{/isWdtEnabled}}
+
+LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 USER {{userid}}
 

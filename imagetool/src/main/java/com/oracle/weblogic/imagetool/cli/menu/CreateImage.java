@@ -35,11 +35,6 @@ public class CreateImage extends ImageOperation {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CreateImage.class);
 
     public CreateImage() {
-        super();
-    }
-
-    public CreateImage(boolean isCLIMode) {
-        super(isCLIMode);
     }
 
     @Override
@@ -124,6 +119,7 @@ public class CreateImage extends ImageOperation {
         } finally {
             if (cleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
+                Utils.removeIntermediateDockerImages(buildId);
             }
         }
         Instant endTime = Instant.now();
