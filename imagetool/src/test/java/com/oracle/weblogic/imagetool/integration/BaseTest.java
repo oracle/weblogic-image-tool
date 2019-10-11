@@ -94,13 +94,11 @@ public class BaseTest {
         command = "mkdir " + wlsImgCacheDir;
         executeNoVerify(command);
 
-        // clean up the docker images
-        command = "docker stop " + dbContainerName;
+        // clean up the db container
+        command = "docker rm -f -v " + dbContainerName;
         executeNoVerify(command);
-        // command = "docker rmi -f " + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " " + ORACLE_DB_IMG + ":"
-        //     + ORACLE_DB_IMG_TAG;
-        // executeNoVerify(command);
 
+        // clean up the images created in the tests
         command = "docker rmi -f $(docker images | grep " + build_tag + " | tr -s ' ' | cut -d ' ' -f 3)";
         executeNoVerify(command);
 
@@ -269,6 +267,7 @@ public class BaseTest {
         command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\""
             + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":"
             + ORACLE_DB_IMG_TAG;
+        logger.info("executing command: " + command);
         ExecCommand.exec(command);
 
         // wait for the db is ready
