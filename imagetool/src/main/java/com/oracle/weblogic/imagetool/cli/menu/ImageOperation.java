@@ -348,19 +348,9 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         if (wdtModelPath != null) {
             dockerfileOptions.setWdtEnabled();
             dockerfileOptions.setWdtModelOnly(wdtModelOnly);
-            String[] modelFiles = wdtModelPath.toString().split(",");
-            List<String> modelList = new ArrayList<>();
 
-            for (String modelFile : modelFiles) {
-                Path modelFilePath = Paths.get(modelFile);
-                if (Files.isRegularFile(modelFilePath)) {
-                    String modelFilename = modelFilePath.getFileName().toString();
-                    Files.copy(modelFilePath, Paths.get(tmpDir, modelFilename));
-                    modelList.add(modelFilename);
-                } else {
-                    throw new IOException("WDT model file " + modelFile + " not found");
-                }
-            }
+            List<String> modelList = addWDTFilesAsList(wdtModelPath, "model", tmpDir);
+
             dockerfileOptions.setWdtModels(modelList);
 
             dockerfileOptions.setWdtDomainType(wdtDomainType);
@@ -371,11 +361,11 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
                 dockerfileOptions.setRunRcu(runRcu);
             }
 
-            if (wdtArchivePath != null && Files.isRegularFile(wdtArchivePath)) {
-                String wdtArchiveFilename = wdtArchivePath.getFileName().toString();
-                Files.copy(wdtArchivePath, Paths.get(tmpDir, wdtArchiveFilename));
-                //Until WDT supports multiple archives, take single file argument from CLI and convert to list
-                dockerfileOptions.setWdtArchives(Collections.singletonList(wdtArchiveFilename));
+            if (wdtArchivePath != null) {
+
+                List<String> archiveList = addWDTFilesAsList(wdtArchivePath, "archive", tmpDir);
+
+                dockerfileOptions.setWdtArchives(archiveList);
             }
             dockerfileOptions.setDomainHome(wdtDomainHome);
 
@@ -392,6 +382,24 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         }
         logger.exiting();
         return retVal;
+    }
+
+    private List<String> addWDTFilesAsList(Path fileArg, String type, String tmpDir) throws IOException {
+        String[] listOfFiles = fileArg.toString().split(",");
+        List<String> fileList = new ArrayList<>();
+
+        for (String individualFile : listOfFiles) {
+            Path individualPath = Paths.get(individualFile);
+            if (Files.isRegularFile(individualPath)) {
+                String modelFilename = individualPath.getFileName().toString();
+                Files.copy(individualPath, Paths.get(tmpDir, modelFilename));
+                fileList.add(modelFilename);
+            } else {
+                String errMsg = String.format("WDT %s file %s not found ", type, individualFile);
+                throw new IOException(errMsg);
+            }
+        }
+        return fileList;
     }
 
     /**
