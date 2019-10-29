@@ -34,6 +34,7 @@ public class DockerfileOptions {
     private String domainHome;
     private String tempDirectory;
     private String baseImageName;
+    private String opatchFileName;
 
     // WDT values
     private String wdtHome;
@@ -282,6 +283,26 @@ public class DockerfileOptions {
     public DockerfileOptions setOPatchPatchingEnabled() {
         updateOpatch = true;
         return this;
+    }
+
+    /**
+     * Set filename for OPatch patch.
+     *
+     * @return this DockerfileOptions object
+     */
+    public DockerfileOptions setOPatchFileName(String value) {
+        opatchFileName = value;
+        return this;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides OPatch filename.
+     *
+     * @return simple filename for OPatch Patch.
+     */
+    @SuppressWarnings("unused")
+    public String opatchFileName() {
+        return opatchFileName;
     }
 
     /**
