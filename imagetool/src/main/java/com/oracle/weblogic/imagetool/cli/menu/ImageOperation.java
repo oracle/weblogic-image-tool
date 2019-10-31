@@ -247,8 +247,10 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
         String filePath =
                 new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
                         userId, password).resolve(cacheStore);
-        Files.copy(Paths.get(filePath), Paths.get(tmpDir, new File(filePath).getName()));
+        String filename = new File(filePath).getName();
+        Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();
+        dockerfileOptions.setOPatchFileName(filename);
     }
 
     private void handleChown() {
