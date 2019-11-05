@@ -55,11 +55,11 @@ public class PatchFile extends AbstractFile {
 
             if (userId == null || password == null)
                 throw new Exception(String.format(
-                        "Patch %s is not in the cache store and you have not provide Oracle Support "
-                                + "credentials in the command line.  Please provide --user with one of the password "
-                                + "option or "
-                                + "populate the cache store manually",
-                        patchId));
+                    "Patch %s is not in the cache store and you have not provide Oracle Support "
+                        + "credentials in the command line.  Please provide --user with one of the password "
+                        + "option or "
+                        + "populate the cache store manually",
+                    patchId));
             logger.info("IMG-0018", patchId);
             filePath = downloadPatch(cacheStore);
         }

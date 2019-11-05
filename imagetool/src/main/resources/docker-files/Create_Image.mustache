@@ -87,7 +87,7 @@ COPY --chown={{userid}}:{{groupid}} $WLS_PKG wls.rsp {{{tempDir}}}/
 COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
 
 {{#isOpatchPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} p28186730_139400_Generic.zip {{{tempDir}}}/opatch/
+    COPY --chown={{userid}}:{{groupid}} {{{opatchFileName}}} {{{tempDir}}}/opatch/
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
@@ -105,7 +105,7 @@ RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
     -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
 {{#isOpatchPatchingEnabled}}
  && cd {{{tempDir}}}/opatch \
- && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/p28186730_139400_Generic.zip \
+ && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \
  && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}} \
 {{/isOpatchPatchingEnabled}}
 {{#isPatchingEnabled}}
