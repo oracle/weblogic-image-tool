@@ -136,13 +136,12 @@ public abstract class ImageOperation implements Callable<CommandResponse> {
             }
 
             // PSUs for WLS and JRF installers are considered WLS patches
-            logger.info("IMG-0019");
             String patchId = ARUUtil.getLatestPSUNumber(WLSInstallerType.WLS, getInstallerVersion(), userId, password);
             if (Utils.isEmptyString(patchId)) {
                 throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
                     getInstallerType(), getInstallerVersion()));
             }
-            logger.info("IMG-0020", patchId);
+            logger.fine("Found latest PSU {0}", patchId);
             FileResolver psuResolver = new PatchFile(useCache, getInstallerType().toString(), getInstallerVersion(),
                 patchId, userId, password);
             patchLocations.add(psuResolver.resolve(cacheStore));
