@@ -43,7 +43,7 @@ public class ARUUtil {
         logger.entering(category, version, userId);
         try {
             String releaseNumber = getReleaseNumber(category, version, userId, password);
-            SearchResult searchResult = getAllPSU(category, releaseNumber, userId, password);
+            SearchResult searchResult = getRecommendedPsuMetadata(category, releaseNumber, userId, password);
             if (searchResult.isSuccess()) {
                 Document results = searchResult.getResults();
                 String result = XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
@@ -143,14 +143,14 @@ public class ARUUtil {
             for (String patch : patches) {
 
                 if (patch == null) {
-                    logger.finest("Skipping null patch");
+                    logger.finer("Skipping null patch");
                     continue;
                 }
                 checkForMultiplePatches(patch, userId, password);
-                logger.info("Passed patch multiple versions test");
+                logger.fine("IMG-0021");
 
                 String bugReleaseNumber = ARUUtil.getPatchInfo(patch, userId, password);
-                logger.info(String.format("Patch %s release %s found ", patch, bugReleaseNumber));
+                logger.info("IMG-0022", patch, bugReleaseNumber);
                 int ind = patch.indexOf('_');
                 String baseBugNumber = patch;
                 if (ind > 0) {
@@ -265,18 +265,18 @@ public class ARUUtil {
         }
     }
 
-    private static SearchResult getAllPSU(WLSInstallerType category, String release, String userId, String password)
-        throws IOException {
+    private static SearchResult getRecommendedPsuMetadata(WLSInstallerType category, String release, String userId,
+                                                          String password) throws IOException {
 
-        String url;
+        logger.entering();
+        String productId = WLSInstallerType.WLS == category ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
+        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, release)
+            + Constants.ONLY_GET_RECOMMENDED_PSU;
+        logger.finer("getting PSU info from {0}", url);
 
-        if (WLSInstallerType.WLS == category)
-            url = String.format(Constants.LATEST_PSU_URL, Constants.WLS_PROD_ID, release);
-        else
-            url = String.format(Constants.LATEST_PSU_URL, Constants.FMW_PROD_ID, release);
-
-        return getSearchResult(HttpUtil.getXMLContent(url, userId, password));
-
+        SearchResult result = getSearchResult(HttpUtil.getXMLContent(url, userId, password));
+        logger.exiting();
+        return result;
     }
 
     private static String getPatch(String bugNumber, String userId, String password, String destDir)
@@ -404,7 +404,7 @@ public class ARUUtil {
     private static String getPatchInfo(String bugNumber, String userId, String password)
             throws
             IOException {
-        logger.finest("Entering getPatchInfo " + bugNumber);
+        logger.entering(bugNumber);
 
         try {
             int ind = bugNumber.indexOf('_');
@@ -425,7 +425,7 @@ public class ARUUtil {
 
             logger.finest("applying xpath: " + xpath);
             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
-            logger.finest(String.format("Exiting getPatchInfo %s = %s ", bugNumber, releaseNumber));
+            logger.exiting(releaseNumber);
             if (releaseNumber == null || "".equals(releaseNumber)) {
                 String error = String.format("Patch id %s not found", bugNumber);
                 logger.severe(error);
@@ -457,7 +457,7 @@ public class ARUUtil {
         String key = category + CacheStore.CACHE_KEY_SEPARATOR + version;
         String retVal = releaseNumbersMap.getOrDefault(key, null);
         if (Utils.isEmptyString(retVal)) {
-            logger.info("IMG-0011");
+            logger.fine("Retrieving product release numbers from Oracle...");
             Document allReleases = getAllReleases(category, userId, password);
 
             String expression = String.format("string(/results/release[@name = '%s']/@id)", version);

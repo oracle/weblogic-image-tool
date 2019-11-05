@@ -118,7 +118,7 @@ public class UpdateImage extends ImageOperation {
                         byte[] lsinventoryContent = Base64.getDecoder().decode(b64lsout);
                         lsinventoryText = new String(lsinventoryContent);
 
-                        logger.finest("ls inventory = " + lsinventoryText);
+                        logger.finer("ls inventory = " + lsinventoryText);
 
                         // Any better way to do this ?
 
