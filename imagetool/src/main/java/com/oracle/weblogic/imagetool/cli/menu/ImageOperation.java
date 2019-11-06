@@ -3,7 +3,6 @@
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -15,14 +14,12 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
-import com.oracle.weblogic.imagetool.util.Utils;
 
 
 public abstract class ImageOperation extends ImageBuildWDTOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(ImageOperation.class);
     protected CacheStore cacheStore = new CacheStoreFactory().get();
-    //DockerfileOptions dockerfileOptions;
     String password;
     String buildId;
 
@@ -49,16 +46,6 @@ public abstract class ImageOperation extends ImageBuildWDTOptions implements Cal
 
         logger.finer("Exiting ImageOperation call ");
         return new CommandResponse(0, null);
-    }
-
-    /**
-     * Determines the support password by parsing the possible three input options.
-     *
-     * @return String form of password
-     * @throws IOException in case of error
-     */
-    private String handlePasswordOptions() throws IOException {
-        return Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
     }
 
     /**

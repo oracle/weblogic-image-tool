@@ -130,6 +130,16 @@ public class CommonOptions {
         return tempDirectory;
     }
 
+    /**
+     * Determines the support password by parsing the possible three input options.
+     *
+     * @return String form of password
+     * @throws IOException in case of error
+     */
+    public String handlePasswordOptions() throws IOException {
+        return Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
+    }
+
     @CommandLine.Option(
         names = {"--tag"},
         paramLabel = "TAG",
