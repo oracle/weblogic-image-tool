@@ -32,12 +32,13 @@ public class InstallerFile extends AbstractFile {
     @Override
     public String resolve(CacheStore cacheStore) throws Exception {
         // check entry exists in cache
-        logger.finest("InstallerFile resolve " + getKey());
-        String filePath = cacheStore.getValueFromCache(getKey());
+        String key = getKey();
+        logger.entering(key);
+        String filePath = cacheStore.getValueFromCache(key);
         if (!isFileOnDisk(filePath)) {
-            throw new Exception("Please download the installer manually and put it in the cache  " + getKey());
+            throw new Exception("Please download the installer manually and put it in the cache  " + key);
         }
-        logger.finest("InstallerFile resolve " + filePath);
+        logger.exiting(filePath);
 
         return filePath;
     }

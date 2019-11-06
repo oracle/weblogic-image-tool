@@ -42,7 +42,7 @@ public class HttpUtil {
     private static final LoggingFacade logger = LoggingFactory.getLogger(HttpUtil.class);
 
     private static Document parseXmlString(String xmlString) throws ClientProtocolException {
-        logger.entering(xmlString);
+        logger.entering();
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -107,10 +107,11 @@ public class HttpUtil {
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
                     userId, password));
         }
+        HttpClient result = HttpClientBuilder.create().setDefaultRequestConfig(config.build())
+            .setDefaultCookieStore(cookieStore).useSystemProperties()
+            .setDefaultCredentialsProvider(credentialsProvider).build();
         logger.exiting();
-        return HttpClientBuilder.create().setDefaultRequestConfig(config.build())
-                .setDefaultCookieStore(cookieStore).useSystemProperties()
-                .setDefaultCredentialsProvider(credentialsProvider).build();
+        return result;
     }
 
     /**
@@ -133,7 +134,7 @@ public class HttpUtil {
         } catch (Exception ex) {
             String message = String.format("Failed to download and save file %s from %s: %s", fileName, url,
                     ex.getLocalizedMessage());
-            logger.info(message);
+            logger.severe(message);
             throw new IOException(message, ex);
         }
         logger.exiting(fileName);

@@ -42,6 +42,7 @@ public abstract class AbstractFile implements FileResolver {
 
     public String generateKey(String id, String version) {
 
+        logger.entering(id, version);
         // Note:  this will be invoked by InstallerFile or PatchFile
         //  for patches there are specific format, currently installers are
         //  wls, fmw, jdk.
@@ -56,7 +57,7 @@ public abstract class AbstractFile implements FileResolver {
             }
         }
 
-        logger.finest("AbstractFile generating key returns " + mykey);
+        logger.exiting(mykey);
         return mykey;
     }
 

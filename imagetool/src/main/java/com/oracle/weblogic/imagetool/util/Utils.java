@@ -203,11 +203,11 @@ public class Utils {
         }
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
-        logger.finest("Starting docker process...");
+        logger.finer("Starting docker process...");
         final Process process = processBuilder.start();
-        logger.finest("Docker process started");
+        logger.finer("Docker process started");
         writeFromInputToOutputStreams(process.getInputStream(), outputStreams.toArray(new OutputStream[0]));
-        logger.finest("Waiting for Docker to finish");
+        logger.finer("Waiting for Docker to finish");
         if (process.waitFor() != 0) {
             processError(process);
         }
@@ -488,7 +488,7 @@ public class Utils {
         byte[] fileBytes = Files.readAllBytes(Paths.get(hostDirToMount + File.separator + scriptToRun));
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
         String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
-        logger.finest("ONE COMMAND [" + oneCommand + "]");
+        logger.finer("ONE COMMAND [" + oneCommand + "]");
         final List<String> retVal = Stream.of(
             "docker", "run",
             dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
@@ -644,7 +644,7 @@ public class Utils {
             }
         } catch (IOException ioe) {
             logger.warning("Cannot read opatch file " + fileName);
-            logger.finest(ioe.getLocalizedMessage());
+            logger.finer(ioe.getLocalizedMessage());
         }
         return null;
     }
@@ -666,11 +666,10 @@ public class Utils {
         }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                logger.finest("pattern match id " + patchId);
+                logger.finer("pattern match id " + patchId);
                 Matcher matcher = patchIdPattern.matcher(patchId);
                 if (!matcher.matches()) {
                     String errorFormat;
-                    String error;
                     if (rigid) {
                         errorFormat = "12345678_12.2.1.3.0";
                     } else {
@@ -702,7 +701,7 @@ public class Utils {
         Path installerResponseFile = Paths.get(installerResponse);
         Pattern pattern = Pattern.compile("^\\s*ORACLE_HOME=(.*)?");
         Matcher matcher = pattern.matcher("");
-        logger.finest("Reading installer response file: {0}", installerResponseFile.getFileName());
+        logger.finer("Reading installer response file: {0}", installerResponseFile.getFileName());
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(installerResponseFile.toFile()));
