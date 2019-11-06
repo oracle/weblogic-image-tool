@@ -32,7 +32,6 @@ import picocli.CommandLine.Option;
 public class RebaseImage extends ImageBuildOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(RebaseImage.class);
-    String tempDirectory;
     String password = null;
 
     @Override
@@ -166,16 +165,6 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
 
         return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
             getInstallerVersion(), jdkVersion, dockerfileOptions, userId, password, useCache);
-        //
-        //logger.finer("IMG-0001", getInstallerType(), getInstallerVersion());
-        //retVal.add(new InstallerFile(useCache, InstallerType.fromValue(getInstallerType().toString()),
-        //    getInstallerVersion(), userId, password));
-        //if (dockerfileOptions.installJava()) {
-        //    logger.finer("IMG-0001", InstallerType.JDK, jdkVersion);
-        //    retVal.add(new InstallerFile(useCache, InstallerType.JDK, jdkVersion, userId, password));
-        //}
-        //logger.exiting(retVal.size());
-        //return retVal;
     }
 
 
