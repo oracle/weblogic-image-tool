@@ -43,7 +43,7 @@ public class PatchFile extends AbstractFile {
     public String resolve(CacheStore cacheStore) throws Exception {
         //patchId is null in case of latestPSU
 
-        logger.entering();
+        logger.entering(patchId);
         String filePath = cacheStore.getValueFromCache(getKey());
         boolean fileExists = isFileOnDisk(filePath);
 
@@ -53,13 +53,15 @@ public class PatchFile extends AbstractFile {
             logger.fine("Could not find patch in cache category={0} version={1} patchId={2}",
                 category, version, patchId);
 
-            if (userId == null || password == null)
+            if (userId == null || password == null) {
                 throw new Exception(String.format(
-                        "Patch %s is not in the cache store and you have not provide Oracle Support "
-                                + "credentials in the command line.  Please provide --user with one of the password "
-                                + "option or "
-                                + "populate the cache store manually",
-                        patchId));
+                    "Patch %s is not in the cache store and you have not provide Oracle Support "
+                        + "credentials in the command line.  Please provide --user with one of the password "
+                        + "option or "
+                        + "populate the cache store manually",
+                    patchId));
+            }
+            logger.info("IMG-0018", patchId);
             filePath = downloadPatch(cacheStore);
         }
 
