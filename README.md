@@ -13,6 +13,9 @@ image.
 The Image Tool provides three functions within the main script:
   - [Create Image](site/create-image.md) - The `create` command creates a new Docker image and installs the requested
   Java and WebLogic software.  Additionally, you can create a WebLogic domain in the image at the same time.
+  - [Rebase Image](site/rebase-image.md) - The `rebase` command creates a new Docker image and copy a WebLogic Domain to 
+  the image.  The new Docker image can be based on an existing image in the repository or created from scratch similar
+  to the `create` command.
   - [Update Image](site/update-image.md) - The `update` command creates a new Docker image by applying WebLogic patches
   to an existing image.  Additionally, you can create a WebLogic domain if one did not exist previously, update an
   an existing domain, or deploy an application.
