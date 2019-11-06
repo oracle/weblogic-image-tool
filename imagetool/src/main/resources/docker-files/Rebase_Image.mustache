@@ -1,0 +1,169 @@
+#
+# Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.
+#
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+#
+#
+
+{{#isRebaseToTarget}}
+FROM {{sourceImage}} as SOURCE_IMAGE
+FROM {{targetImage}} as FINAL_BUILD
+LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
+USER {{userid}}
+RUN mkdir -p {{domain_home}}
+COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
+{{/isRebaseToTarget}}
+
+
+{{#isRebaseToNew}}
+    FROM {{sourceImage}} as SOURCE_IMAGE
+    FROM {{baseImage}} as OS_UPDATE
+    LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
+    USER root
+
+    {{#useYum}}
+        RUN yum -y --downloaddir={{{tmpDir}}} install gzip tar unzip \
+        && yum -y --downloaddir={{{tmpDir}}} clean all \
+        && rm -rf /var/cache/yum/* \
+        && rm -rf {{{tmpDir}}}
+    {{/useYum}}
+    {{#useAptGet}}
+        RUN apt-get -y update \
+        && apt-get -y upgrade \
+        && apt-get -y install gzip tar unzip \
+        && apt-get -y clean all
+    {{/useAptGet}}
+    {{#useApk}}
+        RUN apk update \
+        && apk upgrade \
+        && rm -rf /var/cache/apk/*
+    {{/useApk}}
+    {{#useZypper}}
+        RUN zypper -nq update \
+        && zypper -nq clean \
+        && rm -rf /var/cache/zypp/*
+    {{/useZypper}}
+
+    ## Create user and group
+    RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd {{groupid}} || exit -1 ; fi \
+    && if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -g {{groupid}} {{userid}} || exit -1; fi \
+    && mkdir /u01 \
+    && chown {{userid}}:{{groupid}} /u01
+
+    {{#installJava}}
+        FROM OS_UPDATE as JDK_BUILD
+        LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
+        ARG JAVA_PKG
+
+        ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
+        JAVA_HOME={{{java_home}}}
+
+        COPY --chown={{userid}}:{{groupid}} $JAVA_PKG {{{tempDir}}}/
+
+        USER {{userid}}
+
+        {{#beforeJdkInstall}}
+            {{{.}}}
+        {{/beforeJdkInstall}}
+
+        RUN tar xzf {{{tempDir}}}/$JAVA_PKG -C /u01 \
+        && mv /u01/jdk* {{{java_home}}} \
+        && rm -rf {{{tempDir}}}
+
+        {{#afterJdkInstall}}
+            {{{.}}}
+        {{/afterJdkInstall}}
+    {{/installJava}}
+
+    FROM OS_UPDATE as WLS_BUILD
+    LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
+    ARG WLS_PKG
+    ARG INV_LOC
+    ARG ORAINST
+
+    ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
+    JAVA_HOME={{{java_home}}} \
+    ORACLE_HOME={{{oracle_home}}} \
+    INV_LOC=${INV_LOC:-/u01/oracle/oraInventory} \
+    ORAINST=${ORAINST:-oraInst.loc} \
+    OPATCH_NO_FUSER=true
+
+    RUN mkdir -p {{{oracle_home}}} \
+    && chown {{userid}}:{{groupid}} {{{oracle_home}}}
+
+    # Install base WLS
+    {{#installJava}}
+        COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+    {{/installJava}}
+
+    COPY --chown={{userid}}:{{groupid}} $WLS_PKG wls.rsp {{{tempDir}}}/
+    COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
+
+    {{#isOpatchPatchingEnabled}}
+        COPY --chown={{userid}}:{{groupid}} {{{opatchFileName}}} {{{tempDir}}}/opatch/
+    {{/isOpatchPatchingEnabled}}
+
+    {{#isPatchingEnabled}}
+        COPY --chown={{userid}}:{{groupid}} patches/* {{{tempDir}}}/patches/
+    {{/isPatchingEnabled}}
+
+    USER {{userid}}
+
+    {{#beforeFmwInstall}}
+        {{{.}}}
+    {{/beforeFmwInstall}}
+
+    RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
+    && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/fmw_*.jar -silent ORACLE_HOME={{{oracle_home}}} \
+    -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
+    {{#isOpatchPatchingEnabled}}
+        && cd {{{tempDir}}}/opatch \
+        && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \
+        && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}} \
+    {{/isOpatchPatchingEnabled}}
+    {{#isPatchingEnabled}}
+        && {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
+        && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
+    {{/isPatchingEnabled}}
+    && rm -rf {{{tempDir}}}
+
+    {{#afterFmwInstall}}
+        {{{.}}}
+    {{/afterFmwInstall}}
+
+
+    FROM OS_UPDATE as FINAL_BUILD
+
+    ARG ADMIN_NAME
+    ARG ADMIN_HOST
+    ARG ADMIN_PORT
+    ARG MANAGED_SERVER_PORT
+
+    ENV ORACLE_HOME={{{oracle_home}}} \
+    {{#installJava}}
+        JAVA_HOME={{{java_home}}} \
+    {{/installJava}}
+    LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
+    PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
+    PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}
+
+    LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
+
+    {{#installJava}}
+        COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+    {{/installJava}}
+
+    COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
+
+    USER {{userid}}
+    WORKDIR {{{work_dir}}}
+    RUN mkdir -p {{domain_home}}
+    COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
+
+{{/isRebaseToNew}}
+
+
+{{#finalBuildCommands}}
+    {{{.}}}
+{{/finalBuildCommands}}
+

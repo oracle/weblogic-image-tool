@@ -20,6 +20,7 @@ import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -33,9 +34,6 @@ import picocli.CommandLine.Option;
 public class CreateImage extends ImageOperation {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(CreateImage.class);
-
-    public CreateImage() {
-    }
 
     @Override
     public CommandResponse call() throws Exception {
@@ -52,6 +50,8 @@ public class CreateImage extends ImageOperation {
             }
 
             tmpDir = getTempDirectory();
+            OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
+                cacheStore, dockerfileOptions, getInstallerType(), getInstallerVersion(), tmpDir);
 
             if (!Utils.validatePatchIds(patches, false)) {
                 return new CommandResponse(-1, "Patch ID validation failed");
@@ -90,18 +90,18 @@ public class CreateImage extends ImageOperation {
             List<String> cmdBuilder = getInitialBuildCmd();
 
             // this handles wls, jdk and wdt install files.
-            cmdBuilder.addAll(handleInstallerFiles(tmpDir));
+            cmdBuilder.addAll(optionsHelper.handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
 
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir));
+            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir, getInstallerType()));
 
             // If patching, patch OPatch first
-            if (applyingPatches()) {
-                addOPatch1394ToImage(tmpDir, opatchBugNumber);
+            if (optionsHelper.applyingPatches()) {
+                optionsHelper.addOPatch1394ToImage(tmpDir, opatchBugNumber);
             }
 
             // resolve required patches
-            cmdBuilder.addAll(handlePatchFiles(null));
+            cmdBuilder.addAll(optionsHelper.handlePatchFiles(null));
 
             // Copy wls response file to tmpDir
             copyResponseFilesToDir(tmpDir);
@@ -137,7 +137,7 @@ public class CreateImage extends ImageOperation {
      */
     protected List<InstallerFile> gatherRequiredInstallers() throws Exception {
         logger.entering();
-        List<InstallerFile> retVal = super.gatherRequiredInstallers();
+        List<InstallerFile> retVal = gatherWDTRequiredInstallers();
         logger.finer("IMG-0001", getInstallerType(), getInstallerVersion());
         retVal.add(new InstallerFile(useCache, InstallerType.fromValue(getInstallerType().toString()),
             getInstallerVersion(), userId, password));

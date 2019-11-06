@@ -55,6 +55,9 @@ public class UpdateImage extends ImageOperation {
             dockerfileOptions.setBaseImage(fromImage);
 
             tmpDir = getTempDirectory();
+            OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
+                cacheStore, dockerfileOptions, getInstallerType(), getInstallerVersion(), tmpDir);
+
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
 
@@ -78,7 +81,7 @@ public class UpdateImage extends ImageOperation {
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
             String lsinventoryText = null;
 
-            if (applyingPatches()) {
+            if (optionsHelper.applyingPatches()) {
 
                 String opatchBugNumberVersion;
 
@@ -98,7 +101,7 @@ public class UpdateImage extends ImageOperation {
                 }
 
                 if (Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0) {
-                    addOPatch1394ToImage(tmpDir, opatchBugNumber);
+                    optionsHelper.addOPatch1394ToImage(tmpDir, opatchBugNumber);
                 }
 
                 logger.finer("Verifying Patches to WLS ");
@@ -136,14 +139,14 @@ public class UpdateImage extends ImageOperation {
             List<String> cmdBuilder = getInitialBuildCmd();
 
             // this handles wls, jdk and wdt install files.
-            cmdBuilder.addAll(handleInstallerFiles(tmpDir));
+            cmdBuilder.addAll(optionsHelper.handleInstallerFiles(tmpDir, gatherWDTRequiredInstallers()));
 
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir));
+            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir, installerType));
             dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
-            cmdBuilder.addAll(handlePatchFiles(lsinventoryText));
+            cmdBuilder.addAll(optionsHelper.handlePatchFiles(lsinventoryText));
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",

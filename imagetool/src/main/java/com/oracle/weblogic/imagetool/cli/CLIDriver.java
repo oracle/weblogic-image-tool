@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cli.cache.CacheCLI;
 import com.oracle.weblogic.imagetool.cli.menu.CreateImage;
+import com.oracle.weblogic.imagetool.cli.menu.RebaseImage;
 import com.oracle.weblogic.imagetool.cli.menu.UpdateImage;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -25,6 +26,7 @@ import picocli.CommandLine.HelpCommand;
                 CacheCLI.class,
                 CreateImage.class,
                 UpdateImage.class,
+                RebaseImage.class,
                 HelpCommand.class
         },
         requiredOptionMarker = '*',
