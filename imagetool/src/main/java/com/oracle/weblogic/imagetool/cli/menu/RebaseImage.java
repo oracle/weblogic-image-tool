@@ -99,19 +99,49 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
                 return new CommandResponse(-1, "Java Home changed in new image");
             }
 
-            if (!newOracleHome.equals(oldOracleHome)) {
+            if (newOracleHome != null && !newOracleHome.equals(oldOracleHome)) {
                 return new CommandResponse(-1, "Oracle Home changed in new image");
             }
 
             if (domainHome != null && !domainHome.isEmpty()) {
                 dockerfileOptions.setDomainHome(domainHome);
             } else {
-                return new CommandResponse(-1, "No Domain Home in source imange");
+                return new CommandResponse(-1, "No Domain Home in source image");
             }
 
             List<String> cmdBuilder = getInitialBuildCmd();
 
             if (dockerfileOptions.isRebaseToNew()) {
+
+                if (fromImage != null && !fromImage.isEmpty()) {
+                    logger.finer("IMG-0002", fromImage);
+                    dockerfileOptions.setBaseImage(fromImage);
+
+                    Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
+                        tmpDir + File.separator + "test-env.sh", true);
+
+                    Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
+
+                    boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
+
+                    String existingJavaHome = baseImageProperties.getProperty("JAVA_HOME", null);
+                    if (existingJavaHome != null) {
+                        dockerfileOptions.disableJavaInstall(existingJavaHome);
+                        logger.info("IMG-0000", existingJavaHome);
+                    }
+
+                    if (ohAlreadyExists) {
+                        return new CommandResponse(-1,
+                            "Oracle Home exists at location:" + baseImageProperties.getProperty("ORACLE_HOME"));
+                    }
+
+                    String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
+                    if (!Utils.isEmptyString(pkgMgr)) {
+                        dockerfileOptions.setPackageInstaller(pkgMgr);
+                    }
+                } else {
+                    dockerfileOptions.setPackageInstaller(Constants.YUM);
+                }
 
                 handleProxyUrls();
                 password = handlePasswordOptions();
@@ -271,6 +301,14 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
         names = {"--installerResponseFile"},
         description = "path to a response file. Override the default responses for the Oracle installer"
     )
+
     private String installerResponseFile;
+
+    @Option(
+        names = {"--fromImage"},
+        description = "Docker image to use as base image."
+    )
+    private String fromImage;
+
 
 }
