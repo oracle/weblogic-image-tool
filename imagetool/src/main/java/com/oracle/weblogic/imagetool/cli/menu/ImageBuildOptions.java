@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Unmatched;
 
 public class ImageBuildOptions extends CommonOptions {
     @Option(
@@ -31,8 +30,5 @@ public class ImageBuildOptions extends CommonOptions {
     )
     String opatchBugNumber = "28186730";
 
-
-    @Unmatched
-    List<String> unmatchedOptions;
 
 }

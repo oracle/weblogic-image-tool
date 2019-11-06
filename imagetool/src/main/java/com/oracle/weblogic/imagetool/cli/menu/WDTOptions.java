@@ -23,14 +23,11 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Unmatched;
 
 public class WDTOptions extends CommonOptions {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(WDTOptions.class);
     protected CacheStore cacheStore = new CacheStoreFactory().get();
-    String password;
-
 
     /**
      * Checks whether the user requested a domain to be created with WDT.
@@ -98,20 +95,19 @@ public class WDTOptions extends CommonOptions {
             logger.finer("IMG-0001", InstallerType.WDT, wdtVersion);
             InstallerFile wdtInstaller = new InstallerFile(useCache, InstallerType.WDT, wdtVersion, null, null);
             result.add(wdtInstaller);
-            addWdtUrl(wdtInstaller.getKey(), cacheStore, userId, password, wdtVersion);
+            addWdtUrl(wdtInstaller.getKey(), cacheStore, wdtVersion);
         }
         logger.exiting(result.size());
         return result;
     }
 
-    private void addWdtUrl(String wdtKey, CacheStore cacheStore, String userId, String password,
-                           String wdtVersion) throws Exception {
+    private void addWdtUrl(String wdtKey, CacheStore cacheStore, String wdtVersion) throws Exception {
         logger.entering(wdtKey);
         String wdtUrlKey = wdtKey + "_url";
         if (cacheStore.getValueFromCache(wdtKey) == null) {
-            if (userId == null || password == null) {
-                throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
-            }
+            //if (userId == null || password == null) {
+            //    throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
+            //}
             List<String> wdtTags = HttpUtil.getWDTTags();
             String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) :
                 "weblogic-deploy-tooling-" + wdtVersion;
@@ -214,7 +210,4 @@ public class WDTOptions extends CommonOptions {
     )
     private boolean wdtStrictValidation = false;
 
-
-    @Unmatched
-    List<String> unmatchedOptions;
 }

@@ -78,7 +78,6 @@ public class CommonOptions {
     }
 
 
-
     /**
      * Builds the options for docker build command.
      *
@@ -231,4 +230,7 @@ public class CommonOptions {
     )
     boolean dryRun = false;
 
+
+    @CommandLine.Unmatched
+    List<String> unmatchedOptions;
 }
