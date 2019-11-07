@@ -94,16 +94,18 @@ public class OptionsHelper {
 
             // PSUs for WLS and JRF installers are considered WLS patches
             String patchId = ARUUtil.getLatestPSUNumber(WLSInstallerType.WLS, installerVersion, userId, password);
+
             if (Utils.isEmptyString(patchId)) {
-                throw new Exception(String.format("Failed to find latest psu for product category %s, version %s",
-                   installerType, installerVersion));
+                latestPSU = false;
+                logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
+            } else {
+                logger.fine("Found latest PSU {0}", patchId);
+                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion,
+                    patchId, userId, password);
+                patchLocations.add(psuResolver.resolve(cacheStore));
+                // Add PSU patch ID to the patchList for validation (conflict check)
+                patchList.add(patchId);
             }
-            logger.fine("Found latest PSU {0}", patchId);
-            FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion,
-                patchId, userId, password);
-            patchLocations.add(psuResolver.resolve(cacheStore));
-            // Add PSU patch ID to the patchList for validation (conflict check)
-            patchList.add(patchId);
         }
 
         logger.info("IMG-0012");

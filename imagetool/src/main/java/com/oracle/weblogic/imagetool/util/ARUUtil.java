@@ -39,7 +39,9 @@ public class ARUUtil {
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static String getLatestPSUNumber(WLSInstallerType category, String version, String userId, String password) {
+    public static String getLatestPSUNumber(WLSInstallerType category, String version, String userId, String password)
+        throws Exception {
+
         logger.entering(category, version, userId);
         try {
             String releaseNumber = getReleaseNumber(category, version, userId, password);
@@ -49,9 +51,14 @@ public class ARUUtil {
                 String result = XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
                 logger.exiting(result);
                 return result;
+            } else if (!Utils.isEmptyString(searchResult.getErrorMessage())) {
+                logger.warning("IMG-0023", category, version);
+                logger.fine(searchResult.getErrorMessage());
+            } else {
+                throw new Exception(String.format("Failed to find latest PSU for %s, version %s", category, version));
             }
         } catch (IOException | XPathExpressionException e) {
-            //suppress exception
+            throw new Exception(String.format("Failed to find latest PSU for %s, version %s", category, version), e);
         }
         logger.exiting();
         return null;

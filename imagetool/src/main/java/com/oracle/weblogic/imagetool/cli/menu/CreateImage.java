@@ -66,13 +66,13 @@ public class CreateImage extends ImageOperation {
             // build wdt args if user passes --wdtModelPath
             cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir, getInstallerType()));
 
+            // resolve required patches
+            cmdBuilder.addAll(optionsHelper.handlePatchFiles(null));
+
             // If patching, patch OPatch first
             if (optionsHelper.applyingPatches()) {
                 optionsHelper.addOPatch1394ToImage(tmpDir, opatchBugNumber);
             }
-
-            // resolve required patches
-            cmdBuilder.addAll(optionsHelper.handlePatchFiles(null));
 
             // Copy wls response file to tmpDir
             WLSInstallHelper.copyResponseFilesToDir(tmpDir, installerResponseFile);
