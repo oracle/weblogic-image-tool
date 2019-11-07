@@ -48,16 +48,4 @@ public abstract class ImageOperation extends ImageBuildWDTOptions implements Cal
         return new CommandResponse(0, null);
     }
 
-    /**
-     * Return the WLS installer type for this operation.
-     * @return WLS, FMW, or RestrictedJRF
-     */
-    public abstract WLSInstallerType getInstallerType();
-
-    /**
-     * Return the WLS installer version string.
-     * @return something like 12.2.1.3.0
-     */
-    public abstract String getInstallerVersion();
-
 }

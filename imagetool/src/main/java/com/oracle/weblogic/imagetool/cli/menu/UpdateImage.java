@@ -56,7 +56,7 @@ public class UpdateImage extends ImageOperation {
 
             tmpDir = getTempDirectory();
             OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
-                cacheStore, dockerfileOptions, getInstallerType(), getInstallerVersion(), tmpDir);
+                cacheStore, dockerfileOptions, null, null, tmpDir);
 
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
@@ -72,9 +72,10 @@ public class UpdateImage extends ImageOperation {
             if (oracleHome == null) {
                 return new CommandResponse(-1, "ORACLE_HOME env variable undefined in base image: " + fromImage);
             }
-            installerType = WLSInstallerType.fromValue(baseImageProperties.getProperty("WLS_TYPE",
-                    WLSInstallerType.WLS.toString()));
-            installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
+            optionsHelper.installerType = WLSInstallerType.fromValue(baseImageProperties.getProperty("WLS_TYPE",
+                WLSInstallerType.WLS.toString()));
+            optionsHelper.installerVersion =
+                baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
 
@@ -142,7 +143,7 @@ public class UpdateImage extends ImageOperation {
             cmdBuilder.addAll(optionsHelper.handleInstallerFiles(tmpDir, gatherWDTRequiredInstallers()));
 
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir, installerType));
+            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir, optionsHelper.installerType));
             dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
@@ -169,20 +170,6 @@ public class UpdateImage extends ImageOperation {
         return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()
                 + "s" + ". image tag: " + imageTag);
     }
-
-    @Override
-    public WLSInstallerType getInstallerType() {
-        return installerType;
-    }
-
-    @Override
-    public String getInstallerVersion() {
-        return installerVersion;
-    }
-
-    // Installer type and version are not parameters for update.  These are derived from the fromImage.
-    private WLSInstallerType installerType;
-    private String installerVersion;
 
     @Option(
             names = {"--fromImage"},

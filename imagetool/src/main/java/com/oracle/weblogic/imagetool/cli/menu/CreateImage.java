@@ -44,7 +44,7 @@ public class CreateImage extends ImageOperation {
 
             tmpDir = getTempDirectory();
             OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
-                cacheStore, dockerfileOptions, getInstallerType(), getInstallerVersion(), tmpDir);
+                cacheStore, dockerfileOptions, getInstallerType(), installerVersion, tmpDir);
 
             if (!Utils.validatePatchIds(patches, false)) {
                 return new CommandResponse(-1, "Patch ID validation failed");
@@ -103,21 +103,15 @@ public class CreateImage extends ImageOperation {
         logger.entering();
         List<InstallerFile> retVal = gatherWDTRequiredInstallers();
         return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
-            getInstallerVersion(), jdkVersion, dockerfileOptions, userId, password, useCache);
+            installerVersion, jdkVersion, dockerfileOptions, userId, password, useCache);
     }
 
 
-    @Override
     public WLSInstallerType getInstallerType() {
         if (installerType == null) {
             return getWdtDomainType().installerType();
         }
         return installerType;
-    }
-
-    @Override
-    public String getInstallerVersion() {
-        return installerVersion;
     }
 
     @Option(
