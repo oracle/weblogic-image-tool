@@ -201,6 +201,7 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
 
     @Option(
         names = {"--sourceImage"},
+        required = true,
         description = "Docker image containing source domain."
     )
     private String sourceImage;
