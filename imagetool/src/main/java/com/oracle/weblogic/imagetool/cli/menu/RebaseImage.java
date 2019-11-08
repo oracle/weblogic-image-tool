@@ -47,6 +47,8 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
         String newOracleHome = null;
         String newJavaHome = null;
         String domainHome;
+        String adminPort = null;
+        String managedServerPort = null;
 
         try {
 
@@ -65,6 +67,9 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
                 oldOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 oldJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
                 domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
+                adminPort = baseImageProperties.getProperty("ADMIN_PORT", null);
+                managedServerPort = baseImageProperties.getProperty("MANAGED_SERVER_PORT", null);
+
 
             } else {
                 return new CommandResponse(-1, "Source Image not set");
@@ -104,6 +109,16 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
             }
 
             List<String> cmdBuilder = getInitialBuildCmd();
+
+            if (adminPort != null) {
+                cmdBuilder.add(Constants.BUILD_ARG);
+                cmdBuilder.add("ADMIN_PORT=" + adminPort);
+            }
+
+            if (managedServerPort != null) {
+                cmdBuilder.add(Constants.BUILD_ARG);
+                cmdBuilder.add("MANAGED_SERVER_PORT=" + managedServerPort);
+            }
 
             if (dockerfileOptions.isRebaseToNew()) {
 

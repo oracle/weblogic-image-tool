@@ -8,16 +8,28 @@
 {{#isRebaseToTarget}}
 FROM {{sourceImage}} as SOURCE_IMAGE
 FROM {{targetImage}} as FINAL_BUILD
+ARG ADMIN_PORT
+ARG MANAGED_SERVER_PORT
+
+ENV ADMIN_PORT=${ADMIN_PORT} \
+MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER {{userid}}
 RUN mkdir -p {{domain_home}}
 COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
+
+
 {{/isRebaseToTarget}}
 
 
 {{#isRebaseToNew}}
     FROM {{sourceImage}} as SOURCE_IMAGE
     FROM {{baseImage}} as OS_UPDATE
+    ARG ADMIN_PORT
+    ARG MANAGED_SERVER_PORT
+
+    ENV ADMIN_PORT=${ADMIN_PORT} \
+    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT}
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     USER root
 
