@@ -129,7 +129,7 @@ public class OptionsHelper {
                 File patchFile = new File(patchLocation);
                 Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
             } else {
-                logger.severe("null entry in patchLocation");
+                logger.severe("IMG-0024");
             }
         }
         if (!patchLocations.isEmpty()) {
