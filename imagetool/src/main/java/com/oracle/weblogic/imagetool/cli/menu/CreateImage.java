@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -116,6 +115,7 @@ public class CreateImage extends ImageOperation {
                 invLocValue.add(Constants.BUILD_ARG);
                 invLocValue.add("INV_LOC=" + inventoryPointerInstallLoc);
                 cmdBuilder.addAll(invLocValue);
+                dockerfileOptions.setInventoryPointerFileSet(true);
             }
 
             // Set the inventory location, so that it will be copied

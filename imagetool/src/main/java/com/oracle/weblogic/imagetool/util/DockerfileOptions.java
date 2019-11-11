@@ -27,6 +27,7 @@ public class DockerfileOptions {
     private boolean applyPatches;
     private boolean updateOpatch;
     private boolean skipJavaInstall;
+    private boolean inventoryPointerFileSet = false;
 
     private String username;
     private String groupname;
@@ -349,6 +350,19 @@ public class DockerfileOptions {
             wdtModelList.addAll(value);
         }
         return this;
+    }
+
+    /**
+     * If inventoryPointerFileSet is set.
+     *
+     * @return true if inventoryPointerFileSet is set
+     */
+    public boolean isInventoryPointerFileSet() {
+        return inventoryPointerFileSet;
+    }
+
+    public void setInventoryPointerFileSet(boolean value) {
+        this.inventoryPointerFileSet = value;
     }
 
     /**

@@ -76,9 +76,10 @@ ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
     OPATCH_NO_FUSER=true
 
 RUN mkdir -p {{{oracle_home}}} \
- && mkdir -p $INV_LOC \
- && chown {{userid}}:{{groupid}} {{{oracle_home}}} \
- && echo $INV_LOC $ORAINST
+{{#isInventoryPointerFileSet}}
+    && mkdir -p $INV_LOC \
+{{/isInventoryPointerFileSet}}
+ && chown {{userid}}:{{groupid}} {{{oracle_home}}}
 
 # Install base WLS
 {{#installJava}}
