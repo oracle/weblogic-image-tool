@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -107,6 +109,20 @@ public class CreateImage extends ImageOperation {
             copyResponseFilesToDir(tmpDir);
             Utils.setOracleHome(installerResponseFile, dockerfileOptions);
 
+            // Set where the user want to install the inventor oraInst.loc file
+
+            if (inventoryPointerInstallLoc != null) {
+                List<String> invLocValue = new ArrayList<>(2);
+                invLocValue.add(Constants.BUILD_ARG);
+                invLocValue.add("INV_LOC=" + inventoryPointerInstallLoc);
+                cmdBuilder.addAll(invLocValue);
+            }
+
+            // Set the inventory location, so that it will be copied
+            if (inventoryPointerFile != null) {
+                Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
+            }
+
             // Create Dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
                 "Create_Image.mustache", dockerfileOptions, dryRun);
@@ -167,7 +183,12 @@ public class CreateImage extends ImageOperation {
             Utils.copyResourceAsFile(responseFile, dirPath, false);
         }
 
-        Utils.copyResourceAsFile("/response-files/oraInst.loc", dirPath, false);
+        if (inventoryPointerFile != null && Files.isRegularFile(Paths.get(inventoryPointerFile))) {
+            Path target = Paths.get(dirPath, "oraInst.loc");
+            Files.copy(Paths.get(inventoryPointerFile), target);
+        } else {
+            Utils.copyResourceAsFile("/response-files/oraInst.loc", dirPath, false);
+        }
     }
 
     @Override
@@ -216,4 +237,18 @@ public class CreateImage extends ImageOperation {
             description = "path to a response file. Override the default responses for the Oracle installer"
     )
     private String installerResponseFile;
+
+    @Option(
+        names = {"--inventoryPointerFile"},
+        description = "path to a inventory location file. Override the default inventory location file"
+    )
+    private String inventoryPointerFile;
+
+    @Option(
+        names = {"--inventoryPointerInstallLoc"},
+        description = "path to a inventory location  file. Override the default inventory location file"
+    )
+    private String inventoryPointerInstallLoc;
+
+
 }

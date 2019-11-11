@@ -15,6 +15,7 @@ public class DockerfileOptions {
     private static final String DEFAULT_JAVA_HOME = "/u01/jdk";
     private static final String DEFAULT_ORACLE_HOME = "/u01/oracle";
     private static final String DEFAULT_DOMAIN_HOME = "/u01/domains/base_domain";
+    private static final String DEFAULT_INV_LOC = "/u01/oracle/oraInventory";
 
     final String buildId;
     boolean useYum = false;
@@ -31,6 +32,7 @@ public class DockerfileOptions {
     private String groupname;
     private String javaHome;
     private String oracleHome;
+    private String invLoc;
     private String domainHome;
     private String tempDirectory;
     private String baseImageName;
@@ -66,6 +68,8 @@ public class DockerfileOptions {
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
         domainHome = DEFAULT_DOMAIN_HOME;
+        invLoc = DEFAULT_INV_LOC;
+
         tempDirectory = "/tmp/imagetool";
 
         baseImageName = "oraclelinux:7-slim";
@@ -168,6 +172,12 @@ public class DockerfileOptions {
         return oracleHome;
     }
 
+
+    public String inv_loc() {
+        return invLoc;
+    }
+
+
     @SuppressWarnings("unused")
     public String domain_home() {
         return domainHome;
@@ -199,6 +209,21 @@ public class DockerfileOptions {
             oracleHome = DEFAULT_ORACLE_HOME;
         }
     }
+
+
+    /**
+     * Set the INV_LOC environment variable for the Dockerfile to be written.
+     *
+     * @param value the folder where Oracle Middleware is or should be installed, aka INV_LOC.
+     */
+    public void setInvLoc(String value) {
+        if (value != null) {
+            invLoc = value;
+        } else {
+            invLoc = DEFAULT_INV_LOC;
+        }
+    }
+
 
     /**
      * Set the Domain directory to be used by WDT domain creation.

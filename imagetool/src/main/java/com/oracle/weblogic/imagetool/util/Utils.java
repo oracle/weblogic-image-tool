@@ -725,6 +725,47 @@ public class Utils {
         }
     }
 
+
+    /**
+     * Set the Inventory Location directory based on the inventory pointer  file.
+     *
+     * @param inventoryLocFile installer response file to parse.
+     * @param options           Dockerfile options to use for the build (holds the Oracle Home argument)
+     */
+    public static void setInventoryLocation(String inventoryLocFile, DockerfileOptions options) throws IOException {
+        if (inventoryLocFile == null) {
+            return;
+        }
+        Path inventoryLoc = Paths.get(inventoryLocFile);
+        Pattern pattern = Pattern.compile("^\\s*inventory_loc=(.*)?");
+        Matcher matcher = pattern.matcher("");
+        logger.finer("Reading inventory location file: {0}", inventoryLoc.getFileName());
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(inventoryLoc.toFile()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                logger.finest("Read inventory loc file line: {0}", line);
+
+                matcher.reset(line);
+                if (matcher.find()) {
+                    String invLoc = matcher.group(1);
+                    if (invLoc != null) {
+                        options.setInvLoc(invLoc);
+                        logger.info("IMG-0010", invLoc);
+                    }
+                    break;
+                }
+            }
+        } catch (FileNotFoundException notFound) {
+            logger.severe("Unable to find installer response file: {0}", inventoryLoc);
+            throw notFound;
+        }
+    }
+
+
+
+
     private static boolean validFile(Path file) throws IOException {
         return file != null && Files.isRegularFile(file) && Files.size(file) > 0;
     }
