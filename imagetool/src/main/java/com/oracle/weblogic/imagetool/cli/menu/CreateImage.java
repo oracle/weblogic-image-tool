@@ -8,6 +8,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
@@ -25,26 +27,28 @@ import picocli.CommandLine.Option;
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
-public class CreateImage extends ImageOperation {
+public class CreateImage extends ImageBuildWithWDTOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(CreateImage.class);
+    String password;
 
     @Override
     public CommandResponse call() throws Exception {
         logger.entering();
         Instant startTime = Instant.now();
         String tmpDir = null;
+        String buildId =  UUID.randomUUID().toString();
 
         try {
-
-            CommandResponse result = super.call();
-            if (result.getStatus() != 0) {
-                return result;
-            }
+            password = init(buildId);
 
             tmpDir = getTempDirectory();
-            OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
-                cacheStore, dockerfileOptions, getInstallerType(), installerVersion, tmpDir);
+
+            OptionsHelper optionsHelper = new OptionsHelper(this,
+                dockerfileOptions, getInstallerType(), installerVersion, password, tmpDir);
+
+            //OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
+            //    cacheStore, dockerfileOptions, getInstallerType(), installerVersion, tmpDir);
 
             if (!Utils.validatePatchIds(patches, false)) {
                 return new CommandResponse(-1, "Patch ID validation failed");
@@ -56,7 +60,6 @@ public class CreateImage extends ImageOperation {
                 return new CommandResponse(-1,
                     "Oracle Home exists at location:" + baseImageProperties.getProperty("ORACLE_HOME"));
             }
-
 
             List<String> cmdBuilder = getInitialBuildCmd();
 

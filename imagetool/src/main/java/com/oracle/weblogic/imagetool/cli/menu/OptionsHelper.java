@@ -28,7 +28,7 @@ import com.oracle.weblogic.imagetool.util.ValidationResult;
 
 public class OptionsHelper {
 
-    private static final LoggingFacade logger = LoggingFactory.getLogger(ImageOperation.class);
+    private static final LoggingFacade logger = LoggingFactory.getLogger(OptionsHelper.class);
 
     boolean latestPSU;
     List<String> patches;
@@ -41,21 +41,52 @@ public class OptionsHelper {
     WLSInstallerType installerType;
     String tempDirectory;
 
-    OptionsHelper(boolean latestPSU, List<String> patches, String userId, String password, CachePolicy useCache,
-                         CacheStore cacheStore, DockerfileOptions dockerfileOptions, WLSInstallerType installerType,
-                  String installerVersion, String tempDirectory) {
-        this.latestPSU = latestPSU;
-        this.patches = patches;
-        this.userId = userId;
-        this.password = password;
-        this.useCache = useCache;
-        this.cacheStore = cacheStore;
-        this.dockerfileOptions = dockerfileOptions;
-        this.installerType = installerType;
-        this.installerVersion = installerVersion;
-        this.tempDirectory = tempDirectory;
+    OptionsHelper(ImageBuildWithWDTOptions imageBuildWithWDTOptions, DockerfileOptions dockerfileOptions,
+        WLSInstallerType installerType, String installerVersion, String password, String tempDirectory) {
 
+        this.latestPSU = imageBuildWithWDTOptions.latestPSU;
+        this.patches = imageBuildWithWDTOptions.patches;
+        this.userId = imageBuildWithWDTOptions.userId;
+        this.password = password;
+        this.cacheStore = imageBuildWithWDTOptions.cacheStore;
+        this.useCache = imageBuildWithWDTOptions.useCache;
+        this.dockerfileOptions = dockerfileOptions;
+        this.installerVersion = installerVersion;
+        this.installerType = installerType;
+        this.tempDirectory = tempDirectory;
     }
+
+    OptionsHelper(ImageBuildOptions imageBuildOptions, DockerfileOptions dockerfileOptions,
+                  WLSInstallerType installerType, String installerVersion,
+                  String password, String tempDirectory) {
+
+        this.latestPSU = imageBuildOptions.latestPSU;
+        this.patches = imageBuildOptions.patches;
+        this.userId = imageBuildOptions.userId;
+        this.password = password;
+        this.useCache = imageBuildOptions.useCache;
+        this.cacheStore = imageBuildOptions.cacheStore;
+        this.dockerfileOptions = dockerfileOptions;
+        this.installerVersion = installerVersion;
+        this.installerType = installerType;
+        this.tempDirectory = tempDirectory;
+    }
+
+    //OptionsHelper(boolean latestPSU, List<String> patches, String userId, String password, CachePolicy useCache,
+    //                     CacheStore cacheStore, DockerfileOptions dockerfileOptions, WLSInstallerType installerType,
+    //              String installerVersion, String tempDirectory) {
+    //    this.latestPSU = latestPSU;
+    //    this.patches = patches;
+    //    this.userId = userId;
+    //    this.password = password;
+    //    this.useCache = useCache;
+    //    this.cacheStore = cacheStore;
+    //    this.dockerfileOptions = dockerfileOptions;
+    //    this.installerType = installerType;
+    //    this.installerVersion = installerVersion;
+    //    this.tempDirectory = tempDirectory;
+    //
+    //}
 
     /**
      * Returns true if any patches should be applied.
@@ -172,7 +203,6 @@ public class OptionsHelper {
      * @throws Exception in case of error
      */
     List<String> handleInstallerFiles(String tmpDir, List<InstallerFile> requiredInstallers) throws Exception {
-
         logger.entering(tmpDir);
         List<String> retVal = new LinkedList<>();
         for (InstallerFile installerFile : requiredInstallers) {

@@ -33,6 +33,7 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(RebaseImage.class);
     String password = null;
+    String buildId = UUID.randomUUID().toString();
 
     @Override
     public CommandResponse call() throws Exception {
@@ -40,17 +41,18 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
         Instant startTime = Instant.now();
 
         String tmpDir = null;
-        String buildId = UUID.randomUUID().toString();
         dockerfileOptions = new DockerfileOptions(buildId);
         String oldOracleHome;
         String oldJavaHome;
         String newOracleHome = null;
         String newJavaHome = null;
         String domainHome;
-        String adminPort = null;
-        String managedServerPort = null;
+        String adminPort;
+        String managedServerPort;
 
         try {
+
+            password = init(buildId);
 
             tmpDir = getTempDirectory();
 
@@ -129,11 +131,11 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
                         "Oracle Home exists at location:" + baseImageProperties.getProperty("ORACLE_HOME"));
                 }
 
-                handleProxyUrls();
-                password = handlePasswordOptions();
+                OptionsHelper optionsHelper = new OptionsHelper(this,
+                    dockerfileOptions, getInstallerType(), installerVersion, password, tmpDir);
 
-                OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
-                    cacheStore, dockerfileOptions, getInstallerType(), getInstallerVersion(), tmpDir);
+                //OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
+                //    cacheStore, dockerfileOptions, getInstallerType(), getInstallerVersion(), tmpDir);
 
                 // this handles wls, jdk and wdt install files.
                 cmdBuilder.addAll(optionsHelper.handleInstallerFiles(tmpDir, gatherRequiredInstallers()));

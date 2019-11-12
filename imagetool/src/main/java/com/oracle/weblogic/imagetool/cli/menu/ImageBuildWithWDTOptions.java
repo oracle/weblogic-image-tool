@@ -9,7 +9,7 @@ import java.util.List;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
-public class ImageBuildWDTOptions extends WDTOptions {
+public class ImageBuildWithWDTOptions extends WDTOptions {
     @Option(
         names = {"--latestPSU"},
         description = "Whether to apply patches from latest PSU."

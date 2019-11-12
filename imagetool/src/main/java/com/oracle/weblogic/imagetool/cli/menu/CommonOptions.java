@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
@@ -128,6 +130,28 @@ public class CommonOptions {
             logger.info("IMG-0003", tempDirectory);
         }
         return tempDirectory;
+    }
+
+    public String init(String buildId) throws Exception {
+        logger.finer("Entering ImageOperation call ");
+        dockerfileOptions = new DockerfileOptions(buildId);
+        logger.info("IMG-0016", buildId);
+
+        handleProxyUrls();
+        String password = handlePasswordOptions();
+        // check user support credentials if useCache not set to always and we are applying any patches
+
+        if (userId != null || password != null) {
+            if (!ARUUtil.checkCredentials(userId, password)) {
+                throw new Exception("user Oracle support credentials do not match");
+            }
+        }
+
+        handleChown();
+        handleAdditionalBuildCommands();
+
+        logger.finer("Exiting ImageOperation call ");
+        return password;
     }
 
     /**

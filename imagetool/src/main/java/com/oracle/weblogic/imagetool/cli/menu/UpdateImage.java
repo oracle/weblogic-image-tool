@@ -10,6 +10,8 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
@@ -28,9 +30,10 @@ import picocli.CommandLine.Option;
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
-public class UpdateImage extends ImageOperation {
+public class UpdateImage extends ImageBuildWithWDTOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
+    private String password;
 
     public UpdateImage() {
     }
@@ -39,14 +42,12 @@ public class UpdateImage extends ImageOperation {
     public CommandResponse call() throws Exception {
         logger.finer("Entering UpdateImage.call ");
         Instant startTime = Instant.now();
-
+        String buildId =  UUID.randomUUID().toString();
         String tmpDir = null;
 
         try {
-            CommandResponse result = super.call();
-            if (result.getStatus() != 0) {
-                return result;
-            }
+
+            password = init(buildId);
 
             if (fromImage == null || fromImage.isEmpty()) {
                 return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
@@ -55,8 +56,12 @@ public class UpdateImage extends ImageOperation {
             dockerfileOptions.setBaseImage(fromImage);
 
             tmpDir = getTempDirectory();
-            OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
-                cacheStore, dockerfileOptions, null, null, tmpDir);
+
+            OptionsHelper optionsHelper = new OptionsHelper(this,
+                dockerfileOptions, null, null, password, tmpDir);
+
+            //OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
+            //    cacheStore, dockerfileOptions, null, null, tmpDir);
 
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
