@@ -47,8 +47,6 @@ public class CreateImage extends ImageBuildWithWDTOptions implements Callable<Co
             OptionsHelper optionsHelper = new OptionsHelper(this,
                 dockerfileOptions, getInstallerType(), installerVersion, password, tmpDir);
 
-            //OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
-            //    cacheStore, dockerfileOptions, getInstallerType(), installerVersion, tmpDir);
 
             if (!Utils.validatePatchIds(patches, false)) {
                 return new CommandResponse(-1, "Patch ID validation failed");

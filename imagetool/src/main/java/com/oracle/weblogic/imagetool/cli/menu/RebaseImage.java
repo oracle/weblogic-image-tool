@@ -133,10 +133,6 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
 
                 OptionsHelper optionsHelper = new OptionsHelper(this,
                     dockerfileOptions, getInstallerType(), installerVersion, password, tmpDir);
-
-                //OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
-                //    cacheStore, dockerfileOptions, getInstallerType(), getInstallerVersion(), tmpDir);
-
                 // this handles wls, jdk and wdt install files.
                 cmdBuilder.addAll(optionsHelper.handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
 
@@ -179,7 +175,6 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
     private  List<InstallerFile> gatherRequiredInstallers() throws Exception {
         logger.entering();
         List<InstallerFile> retVal = new ArrayList<>();
-
         return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
             getInstallerVersion(), jdkVersion, dockerfileOptions, userId, password, useCache);
     }
@@ -196,7 +191,8 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
 
     @Option(
         names = {"--type"},
-        description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
+        description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}",
+        defaultValue = "wls"
     )
     private WLSInstallerType installerType;
 
