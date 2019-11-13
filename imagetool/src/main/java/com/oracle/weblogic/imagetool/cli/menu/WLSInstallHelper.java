@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -97,21 +96,19 @@ public class WLSInstallHelper {
      * @param dockerfileOptions  non null docker options
      * @param userId user id for accessing oracle support
      * @param password password for accessing oracle support
-     * @param useCache cache policy
      * @return list of installers
      */
     public static  List<InstallerFile> getBasicInstallers(List<InstallerFile> initialList,
                                                            String installerType, String installerVersion,
                                                            String jdkVersion, DockerfileOptions dockerfileOptions,
                                                            String userId,
-                                                           String password,
-                                                           CachePolicy useCache) {
+                                                           String password) {
         logger.finer("IMG-0001", installerType, installerVersion);
-        initialList.add(new InstallerFile(useCache, InstallerType.fromValue(installerType),
+        initialList.add(new InstallerFile(InstallerType.fromValue(installerType),
             installerVersion, userId, password));
         if (dockerfileOptions.installJava()) {
             logger.finer("IMG-0001", InstallerType.JDK, jdkVersion);
-            initialList.add(new InstallerFile(useCache, InstallerType.JDK, jdkVersion, userId, password));
+            initialList.add(new InstallerFile(InstallerType.JDK, jdkVersion, userId, password));
         }
         logger.exiting(initialList.size());
         return initialList;

@@ -104,7 +104,7 @@ public class CreateImage extends ImageBuildWithWDTOptions implements Callable<Co
         logger.entering();
         List<InstallerFile> retVal = gatherWDTRequiredInstallers();
         return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
-            installerVersion, jdkVersion, dockerfileOptions, userId, password, useCache);
+            installerVersion, jdkVersion, dockerfileOptions, userId, password);
     }
 
 

@@ -19,7 +19,6 @@ public abstract class AbstractFile implements FileResolver {
     private static final LoggingFacade logger = LoggingFactory.getLogger(AbstractFile.class);
 
     private String key;
-    protected CachePolicy cachePolicy;
     protected String userId;
     protected String password;
 
@@ -29,13 +28,11 @@ public abstract class AbstractFile implements FileResolver {
      *
      * @param id          cache ID
      * @param version     applicable product version.
-     * @param cachePolicy applicable cache policy.
      * @param userId      userid to use for ARU.
      * @param password    password to use for ARU.
      */
-    public AbstractFile(String id, String version, CachePolicy cachePolicy, String userId, String password) {
+    public AbstractFile(String id, String version,  String userId, String password) {
         this.key = generateKey(id, version);
-        this.cachePolicy = cachePolicy;
         this.userId = userId;
         this.password = password;
     }

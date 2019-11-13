@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.AbstractFile;
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -21,8 +20,8 @@ public class InstallerFile extends AbstractFile {
     private InstallerType type;
     private static final LoggingFacade logger = LoggingFactory.getLogger(InstallerFile.class);
 
-    public InstallerFile(CachePolicy cachePolicy, InstallerType type, String version, String userId, String password) {
-        super(type.toString(), version, cachePolicy, userId, password);
+    public InstallerFile(InstallerType type, String version, String userId, String password) {
+        super(type.toString(), version, userId, password);
         this.type = type;
     }
 

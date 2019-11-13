@@ -14,7 +14,6 @@ import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.FileResolver;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.impl.PatchFile;
@@ -34,7 +33,6 @@ public class OptionsHelper {
     List<String> patches;
     String userId;
     String password;
-    CachePolicy useCache;
     CacheStore cacheStore;
     DockerfileOptions dockerfileOptions;
     String installerVersion;
@@ -49,7 +47,6 @@ public class OptionsHelper {
         this.userId = imageBuildWithWDTOptions.userId;
         this.password = password;
         this.cacheStore = imageBuildWithWDTOptions.cacheStore;
-        this.useCache = imageBuildWithWDTOptions.useCache;
         this.dockerfileOptions = dockerfileOptions;
         this.installerVersion = installerVersion;
         this.installerType = installerType;
@@ -64,29 +61,12 @@ public class OptionsHelper {
         this.patches = imageBuildOptions.patches;
         this.userId = imageBuildOptions.userId;
         this.password = password;
-        this.useCache = imageBuildOptions.useCache;
         this.cacheStore = imageBuildOptions.cacheStore;
         this.dockerfileOptions = dockerfileOptions;
         this.installerVersion = installerVersion;
         this.installerType = installerType;
         this.tempDirectory = tempDirectory;
     }
-
-    //OptionsHelper(boolean latestPSU, List<String> patches, String userId, String password, CachePolicy useCache,
-    //                     CacheStore cacheStore, DockerfileOptions dockerfileOptions, WLSInstallerType installerType,
-    //              String installerVersion, String tempDirectory) {
-    //    this.latestPSU = latestPSU;
-    //    this.patches = patches;
-    //    this.userId = userId;
-    //    this.password = password;
-    //    this.useCache = useCache;
-    //    this.cacheStore = cacheStore;
-    //    this.dockerfileOptions = dockerfileOptions;
-    //    this.installerType = installerType;
-    //    this.installerVersion = installerVersion;
-    //    this.tempDirectory = tempDirectory;
-    //
-    //}
 
     /**
      * Returns true if any patches should be applied.
@@ -131,7 +111,7 @@ public class OptionsHelper {
                 logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
             } else {
                 logger.fine("Found latest PSU {0}", patchId);
-                FileResolver psuResolver = new PatchFile(useCache, installerType.toString(), installerVersion,
+                FileResolver psuResolver = new PatchFile(installerType.toString(), installerVersion,
                     patchId, userId, password);
                 patchLocations.add(psuResolver.resolve(cacheStore));
                 // Add PSU patch ID to the patchList for validation (conflict check)
@@ -151,7 +131,7 @@ public class OptionsHelper {
 
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                patchLocations.add(new PatchFile(useCache, installerType.toString(), installerVersion,
+                patchLocations.add(new PatchFile(installerType.toString(), installerVersion,
                     patchId, userId, password).resolve(cacheStore));
             }
         }
@@ -184,7 +164,7 @@ public class OptionsHelper {
         // and the version is embedded in the zip file version.txt
 
         String filePath =
-            new PatchFile(useCache, Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
+            new PatchFile(Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
                 userId, password).resolve(cacheStore);
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));

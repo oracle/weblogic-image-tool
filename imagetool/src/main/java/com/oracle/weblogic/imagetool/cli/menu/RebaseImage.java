@@ -176,7 +176,7 @@ public class RebaseImage extends ImageBuildOptions implements Callable<CommandRe
         logger.entering();
         List<InstallerFile> retVal = new ArrayList<>();
         return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
-            getInstallerVersion(), jdkVersion, dockerfileOptions, userId, password, useCache);
+            getInstallerVersion(), jdkVersion, dockerfileOptions, userId, password);
     }
 
 

@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -225,15 +224,6 @@ public class CommonOptions {
     )
     Path dockerLog;
 
-
-    @CommandLine.Option(
-        names = {"--useCache"},
-        paramLabel = "<Cache Policy>",
-        defaultValue = "always",
-        hidden = true,
-        description = "this should not be used"
-    )
-    CachePolicy useCache;
 
     @CommandLine.Option(
         names = {"--cleanup"},
