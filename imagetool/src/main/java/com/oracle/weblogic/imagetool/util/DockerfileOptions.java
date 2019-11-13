@@ -15,7 +15,10 @@ public class DockerfileOptions {
     private static final String DEFAULT_JAVA_HOME = "/u01/jdk";
     private static final String DEFAULT_ORACLE_HOME = "/u01/oracle";
     private static final String DEFAULT_DOMAIN_HOME = "/u01/domains/base_domain";
-    private static final String DEFAULT_INV_LOC = "/u01/oracle/oraInventory";
+    // Default location for the oraInst.loc
+    private static final String DEFAULT_INV_LOC = "/u01/oracle";
+
+    private static final String DEFAULT_ORAINV_DIR = "/u01/oracle/oraInventory";
 
     final String buildId;
     boolean useYum = false;
@@ -34,6 +37,7 @@ public class DockerfileOptions {
     private String javaHome;
     private String oracleHome;
     private String invLoc;
+    private String oraInvDir;
     private String domainHome;
     private String tempDirectory;
     private String baseImageName;
@@ -70,6 +74,7 @@ public class DockerfileOptions {
         oracleHome = DEFAULT_ORACLE_HOME;
         domainHome = DEFAULT_DOMAIN_HOME;
         invLoc = DEFAULT_INV_LOC;
+        oraInvDir = DEFAULT_ORAINV_DIR;
 
         tempDirectory = "/tmp/imagetool";
 
@@ -178,6 +183,10 @@ public class DockerfileOptions {
         return invLoc;
     }
 
+    public String orainv_dir() {
+        return oraInvDir;
+    }
+
 
     @SuppressWarnings("unused")
     public String domain_home() {
@@ -225,6 +234,14 @@ public class DockerfileOptions {
         }
     }
 
+
+    public void setOraInvDir(String value) {
+        if (value != null) {
+            oraInvDir = value;
+        } else {
+            oraInvDir = DEFAULT_ORAINV_DIR;
+        }
+    }
 
     /**
      * Set the Domain directory to be used by WDT domain creation.

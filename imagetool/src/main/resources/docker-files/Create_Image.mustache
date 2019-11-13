@@ -65,13 +65,12 @@ RUN tar xzf {{{tempDir}}}/$JAVA_PKG -C /u01 \
 FROM OS_UPDATE as WLS_BUILD
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 ARG WLS_PKG
-ARG INV_LOC
 ARG ORAINST
 
 ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
     JAVA_HOME={{{java_home}}} \
     ORACLE_HOME={{{oracle_home}}} \
-    INV_LOC=${INV_LOC:-/u01/oracle/oraInventory} \
+    INV_LOC={{inv_loc}} \
     ORAINST=${ORAINST:-oraInst.loc} \
     OPATCH_NO_FUSER=true
 
@@ -104,6 +103,7 @@ USER {{userid}}
 {{/beforeFmwInstall}}
 
 RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
+ && mkdir -p {{orainv_dir}} \
  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/fmw_*.jar -silent ORACLE_HOME={{{oracle_home}}} \
     -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
 {{#isOpatchPatchingEnabled}}
@@ -193,11 +193,10 @@ ARG ADMIN_NAME
 ARG ADMIN_HOST
 ARG ADMIN_PORT
 ARG MANAGED_SERVER_PORT
-ARG INV_LOC
 ARG ORAINST
 
 ENV ORACLE_HOME={{{oracle_home}}} \
-INV_LOC=${INV_LOC:-/u01/oracle/oraInventory} \
+INV_LOC={{inv_loc}} \
 ORAINST=${ORAINST:-oraInst.loc} \
 {{#installJava}}
     JAVA_HOME={{{java_home}}} \
@@ -222,7 +221,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} $INV_LOC/$ORAINST  $INV_LOC/$ORAINST
-COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{inv_loc}} {{inv_loc}}/
+COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
 
 {{#isWdtEnabled}}
     {{#modelOnly}}

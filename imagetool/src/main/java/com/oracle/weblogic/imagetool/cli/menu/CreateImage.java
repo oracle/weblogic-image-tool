@@ -111,11 +111,8 @@ public class CreateImage extends ImageOperation {
             // Set where the user want to install the inventor oraInst.loc file
 
             if (inventoryPointerInstallLoc != null) {
-                List<String> invLocValue = new ArrayList<>(2);
-                invLocValue.add(Constants.BUILD_ARG);
-                invLocValue.add("INV_LOC=" + inventoryPointerInstallLoc);
-                cmdBuilder.addAll(invLocValue);
                 dockerfileOptions.setInventoryPointerFileSet(true);
+                dockerfileOptions.setInvLoc(inventoryPointerInstallLoc);
             }
 
             // Set the inventory location, so that it will be copied
@@ -240,13 +237,13 @@ public class CreateImage extends ImageOperation {
 
     @Option(
         names = {"--inventoryPointerFile"},
-        description = "path to a inventory location file. Override the default inventory location file"
+        description = "path to a user provided inventory pointer file as input"
     )
     private String inventoryPointerFile;
 
     @Option(
         names = {"--inventoryPointerInstallLoc"},
-        description = "path to a inventory location  file. Override the default inventory location file"
+        description = "path to where the inventory pointer file (oraInst.loc) should be store in the image"
     )
     private String inventoryPointerInstallLoc;
 

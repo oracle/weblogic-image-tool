@@ -751,7 +751,7 @@ public class Utils {
                 if (matcher.find()) {
                     String invLoc = matcher.group(1);
                     if (invLoc != null) {
-                        options.setInvLoc(invLoc);
+                        options.setOraInvDir(invLoc);
                         logger.info("IMG-0010", invLoc);
                     }
                     break;
