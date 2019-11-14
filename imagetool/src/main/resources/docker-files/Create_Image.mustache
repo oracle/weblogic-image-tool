@@ -77,7 +77,10 @@ ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
 RUN mkdir -p {{{oracle_home}}} \
 {{#isInventoryPointerFileSet}}
     && mkdir -p $INV_LOC \
+    && chown {{userid}}:{{groupid}} $INV_LOC \
 {{/isInventoryPointerFileSet}}
+ && mkdir -p {{orainv_dir}} \
+ && chown {{userid}}:{{groupid}} {{orainv_dir}} \
  && chown {{userid}}:{{groupid}} {{{oracle_home}}}
 
 # Install base WLS
@@ -96,6 +99,7 @@ COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
     COPY --chown={{userid}}:{{groupid}} patches/* {{{tempDir}}}/patches/
 {{/isPatchingEnabled}}
 
+
 USER {{userid}}
 
 {{#beforeFmwInstall}}
@@ -103,7 +107,6 @@ USER {{userid}}
 {{/beforeFmwInstall}}
 
 RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
- && mkdir -p {{orainv_dir}} \
  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/fmw_*.jar -silent ORACLE_HOME={{{oracle_home}}} \
     -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
 {{#isOpatchPatchingEnabled}}
