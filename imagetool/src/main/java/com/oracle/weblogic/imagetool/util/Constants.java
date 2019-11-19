@@ -14,7 +14,7 @@ public final class Constants {
     static final String REL_URL = "https://updates.oracle.com/Orion/Services/metadata?table=aru_releases";
     static final String LATEST_PSU_URL =
             "https://updates.oracle.com/Orion/Services/search?product=%s&release=%s";
-    static final String RECOMMENDED_PATCHES_URL = "https://updates.oracle.com//Orion/Services/search?patch_type=all&life_cycle=Recommended&product=%s&release=%s";
+    static final String RECOMMENDED_PATCHES_URL = "https://updates.oracle.com/Orion/Services/search?patch_type=all&life_cycle=Recommended&product=%s&release=%s";
     static final String ONLY_GET_RECOMMENDED_PSU = "&description=WLS%20PATCH%20SET%20UPDATE";
     static final String ARU_LANG_URL = "https://updates.oracle.com/Orion/Services/metadata?table=aru_languages";
     static final String PATCH_SEARCH_URL = "https://updates.oracle"
