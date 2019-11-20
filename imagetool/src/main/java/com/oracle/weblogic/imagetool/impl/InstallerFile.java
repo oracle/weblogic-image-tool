@@ -11,6 +11,7 @@ import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Utils;
 
 /**
  * This represents a WLS, JDK or WDT installer.
@@ -35,7 +36,7 @@ public class InstallerFile extends AbstractFile {
         logger.entering(key);
         String filePath = cacheStore.getValueFromCache(key);
         if (!isFileOnDisk(filePath)) {
-            throw new Exception("Please download the installer manually and put it in the cache  " + key);
+            throw new Exception(Utils.getMessage("IMG-0011", key));
         }
         logger.exiting(filePath);
 

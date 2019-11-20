@@ -11,8 +11,10 @@ Usage: imagetool create [OPTIONS]
 |`--additionalBuildCommands`| Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
 |`--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | Path to the Docker executable.  |  `docker` |
-| `--fromImage` | Docker image to use as a base image. |   |
+| `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
+| `--fromImage` | Docker image to use as a base image when creating a new image. | `oraclelinux:7-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
+| `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | Whether to apply patches from the latest PSU.  |   |
@@ -101,16 +103,6 @@ The commands below assume that all the required JDK, WLS, or FMW (WebLogic infra
     imagetool create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
     ```
     The patch numbers may or may not start with '`p`'.
-
-## Errors
-
-- `CachePolicy prohibits download. Please add cache entry for key: jdk_8u202`
-
-   - This implies that the tool could not find the JDK installer in its cache.
-   - Use the [cache](cache.md) command to fix it:
-    ```
-    imagetool cache addInstaller --type jdk --version 8u202 --path /local/path/to/jdk.gz
-    ```
 
 ## Copyright
 Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.
