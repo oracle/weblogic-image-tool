@@ -97,17 +97,17 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
             }
 
             if (newJavaHome != null && !newJavaHome.equals(oldJavaHome)) {
-                return new CommandResponse(-1, "Java Home changed in new image");
+                return new CommandResponse(-1, Utils.getMessage("IMG-0026"));
             }
 
             if (newOracleHome != null && !newOracleHome.equals(oldOracleHome)) {
-                return new CommandResponse(-1, "Oracle Home changed in new image");
+                return new CommandResponse(-1, Utils.getMessage("IMG-0021"));
             }
 
             if (domainHome != null && !domainHome.isEmpty()) {
                 dockerfileOptions.setDomainHome(domainHome);
             } else {
-                return new CommandResponse(-1, "No Domain Home in source image");
+                return new CommandResponse(-1, Utils.getMessage("IMG-0025"));
             }
 
             List<String> cmdBuilder = getInitialBuildCmd();

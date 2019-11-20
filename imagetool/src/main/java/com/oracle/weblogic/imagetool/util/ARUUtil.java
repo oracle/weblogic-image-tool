@@ -44,12 +44,14 @@ public class ARUUtil {
 
         logger.entering(category, version, userId);
         try {
+            logger.info("IMG-0019");
             String releaseNumber = getReleaseNumber(category, version, userId, password);
             SearchResult searchResult = getRecommendedPsuMetadata(category, releaseNumber, userId, password);
             if (searchResult.isSuccess()) {
                 Document results = searchResult.getResults();
                 String result = XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
                 logger.exiting(result);
+                logger.info("IMG-0020", result);
                 return result;
             } else if (!Utils.isEmptyString(searchResult.getErrorMessage())) {
                 logger.warning("IMG-0023", category, version);
@@ -154,7 +156,6 @@ public class ARUUtil {
                     continue;
                 }
                 checkForMultiplePatches(patch, userId, password);
-                logger.fine("IMG-0021");
 
                 String bugReleaseNumber = ARUUtil.getPatchInfo(patch, userId, password);
                 logger.info("IMG-0022", patch, bugReleaseNumber);
@@ -302,6 +303,7 @@ public class ARUUtil {
     }
 
     private static void checkForMultiplePatches(String bugNumber, String userId, String password) throws IOException {
+        logger.entering(bugNumber, userId);
         if (bugNumber != null) {
             if (userId != null) {
                 try {
@@ -334,7 +336,7 @@ public class ARUUtil {
                 }
             }
         }
-
+        logger.exiting();
     }
 
     private static String savePatch(Document allPatches, String userId, String password, String destDir,
@@ -438,6 +440,7 @@ public class ARUUtil {
                 logger.severe(error);
                 throw new IOException(error);
             }
+            logger.exiting(releaseNumber);
             return releaseNumber;
 
         } catch (XPathExpressionException xpe) {
