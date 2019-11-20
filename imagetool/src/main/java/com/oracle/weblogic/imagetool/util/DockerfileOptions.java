@@ -257,7 +257,7 @@ public class DockerfileOptions {
 
     @SuppressWarnings("unused")
     public String work_dir() {
-        if (isWdtEnabled() && !modelOnly()) {
+        if ((isWdtEnabled() && !modelOnly()) || sourceImage != null) {
             return domain_home();
         } else {
             return oracle_home();
