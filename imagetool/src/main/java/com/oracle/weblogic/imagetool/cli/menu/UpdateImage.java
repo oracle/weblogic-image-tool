@@ -188,5 +188,5 @@ public class UpdateImage extends ImageBuildWithWDTOptions implements Callable<Co
         description = "Create a new domain, or update an existing domain.  Default: ${DEFAULT-VALUE}. "
             + "Supported values: ${COMPLETION-CANDIDATES}"
     )
-    private WdtOperation wdtOperation = WdtOperation.CREATE;
+    private WdtOperation wdtOperation = WdtOperation.UPDATE;
 }
