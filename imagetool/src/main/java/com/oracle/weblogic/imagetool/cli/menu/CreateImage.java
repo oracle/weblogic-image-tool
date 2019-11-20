@@ -27,7 +27,7 @@ import picocli.CommandLine.Option;
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
-public class CreateImage extends ImageBuildWithWDTOptions implements Callable<CommandResponse> {
+public class CreateImage extends WDTOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(CreateImage.class);
     String password;

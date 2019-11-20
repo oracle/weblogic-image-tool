@@ -29,7 +29,7 @@ import picocli.CommandLine.Option;
     requiredOptionMarker = '*',
     abbreviateSynopsis = true
 )
-public class RebaseImage extends ImageBuildOptions implements Callable<CommandResponse> {
+public class RebaseImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(RebaseImage.class);
     String password = null;

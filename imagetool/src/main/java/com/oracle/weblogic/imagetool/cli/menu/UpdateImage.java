@@ -30,7 +30,7 @@ import picocli.CommandLine.Option;
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
-public class UpdateImage extends ImageBuildWithWDTOptions implements Callable<CommandResponse> {
+public class UpdateImage extends WDTOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
     private String password;

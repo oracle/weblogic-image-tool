@@ -25,10 +25,10 @@ import com.oracle.weblogic.imagetool.util.HttpUtil;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
-public class ImageBuildWithWDTOptions extends CommonOptions {
+public class WDTOptions extends CommonOptions {
 
 
-    private static final LoggingFacade logger = LoggingFactory.getLogger(ImageBuildWithWDTOptions.class);
+    private static final LoggingFacade logger = LoggingFactory.getLogger(WDTOptions.class);
     protected CacheStore cacheStore = new CacheStoreFactory().get();
 
     /**
@@ -211,28 +211,6 @@ public class ImageBuildWithWDTOptions extends CommonOptions {
             + "Default: ${DEFAULT-VALUE}."
     )
     private boolean wdtStrictValidation = false;
-
-
-    @Option(
-        names = {"--latestPSU"},
-        description = "Whether to apply patches from latest PSU."
-    )
-    boolean latestPSU = false;
-
-    @Option(
-        names = {"--patches"},
-        paramLabel = "patchId",
-        split = ",",
-        description = "Comma separated patch Ids. Ex: 12345678,87654321"
-    )
-    List<String> patches = new ArrayList<>();
-
-
-    @Option(
-        names = {"--opatchBugNumber"},
-        description = "the patch number for OPatch (patching OPatch)"
-    )
-    String opatchBugNumber = "28186730";
 
 
     @Unmatched

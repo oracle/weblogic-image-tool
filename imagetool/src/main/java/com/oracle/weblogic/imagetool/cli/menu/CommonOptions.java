@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +24,9 @@ import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Unmatched;
+
 
 public class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
@@ -162,7 +165,7 @@ public class CommonOptions {
         return Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
     }
 
-    @CommandLine.Option(
+    @Option(
         names = {"--tag"},
         paramLabel = "TAG",
         required = true,
@@ -170,54 +173,54 @@ public class CommonOptions {
     )
     String imageTag;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--user"},
         paramLabel = "<support email>",
         description = "Oracle Support email id"
     )
     String userId;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--password"},
         paramLabel = "<password for support user id>",
         description = "Password for support userId"
     )
     String passwordStr;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--passwordEnv"},
         paramLabel = "<environment variable>",
         description = "environment variable containing the support password"
     )
     String passwordEnv;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--passwordFile"},
         paramLabel = "<password file>",
         description = "path to file containing just the password"
     )
     Path passwordFile;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--httpProxyUrl"},
         description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     String httpProxyUrl;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--httpsProxyUrl"},
         description = "proxy for https protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     String httpsProxyUrl;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--docker"},
         description = "path to docker executable. Default: ${DEFAULT-VALUE}",
         defaultValue = "docker"
     )
     private Path dockerPath;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--dockerLog"},
         description = "file to log output from the docker build",
         hidden = true
@@ -225,7 +228,7 @@ public class CommonOptions {
     Path dockerLog;
 
 
-    @CommandLine.Option(
+    @Option(
         names = {"--cleanup"},
         description = "Cleanup temporary files. Default: ${DEFAULT-VALUE}.",
         defaultValue = "true",
@@ -233,7 +236,7 @@ public class CommonOptions {
     )
     boolean cleanup;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--chown"},
         split = ":",
         description = "userid:groupid for JDK/Middleware installs and patches. Default: ${DEFAULT-VALUE}.",
@@ -241,19 +244,39 @@ public class CommonOptions {
     )
     private String[] osUserAndGroup;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--additionalBuildCommands"},
         description = "path to a file with additional build commands"
     )
     private Path additionalBuildCommandsPath;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--dryRun"},
         description = "Skip Docker build execution and print Dockerfile to stdout"
     )
     boolean dryRun = false;
 
+    @Option(
+        names = {"--latestPSU"},
+        description = "Whether to apply patches from latest PSU."
+    )
+    boolean latestPSU = false;
 
-    @CommandLine.Unmatched
+    @Option(
+        names = {"--patches"},
+        paramLabel = "patchId",
+        split = ",",
+        description = "Comma separated patch Ids. Ex: 12345678,87654321"
+    )
+    List<String> patches = new ArrayList<>();
+
+
+    @Option(
+        names = {"--opatchBugNumber"},
+        description = "the patch number for OPatch (patching OPatch)"
+    )
+    String opatchBugNumber = "28186730";
+
+    @Unmatched
     List<String> unmatchedOptions;
 }

@@ -39,29 +39,14 @@ public class OptionsHelper {
     WLSInstallerType installerType;
     String tempDirectory;
 
-    OptionsHelper(ImageBuildWithWDTOptions imageBuildWithWDTOptions, DockerfileOptions dockerfileOptions,
+    OptionsHelper(CommonOptions cliOptions, DockerfileOptions dockerfileOptions,
         WLSInstallerType installerType, String installerVersion, String password, String tempDirectory) {
 
-        this.latestPSU = imageBuildWithWDTOptions.latestPSU;
-        this.patches = imageBuildWithWDTOptions.patches;
-        this.userId = imageBuildWithWDTOptions.userId;
+        this.latestPSU = cliOptions.latestPSU;
+        this.patches = cliOptions.patches;
+        this.userId = cliOptions.userId;
         this.password = password;
-        this.cacheStore = imageBuildWithWDTOptions.cacheStore;
-        this.dockerfileOptions = dockerfileOptions;
-        this.installerVersion = installerVersion;
-        this.installerType = installerType;
-        this.tempDirectory = tempDirectory;
-    }
-
-    OptionsHelper(ImageBuildOptions imageBuildOptions, DockerfileOptions dockerfileOptions,
-                  WLSInstallerType installerType, String installerVersion,
-                  String password, String tempDirectory) {
-
-        this.latestPSU = imageBuildOptions.latestPSU;
-        this.patches = imageBuildOptions.patches;
-        this.userId = imageBuildOptions.userId;
-        this.password = password;
-        this.cacheStore = imageBuildOptions.cacheStore;
+        this.cacheStore = cliOptions.cacheStore;
         this.dockerfileOptions = dockerfileOptions;
         this.installerVersion = installerVersion;
         this.installerType = installerType;
