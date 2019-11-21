@@ -18,6 +18,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -27,10 +28,9 @@ import picocli.CommandLine.Option;
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
-public class CreateImage extends WDTOptions implements Callable<CommandResponse> {
+public class CreateImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(CreateImage.class);
-    String password;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -39,14 +39,13 @@ public class CreateImage extends WDTOptions implements Callable<CommandResponse>
         String tmpDir = null;
         String buildId =  UUID.randomUUID().toString();
 
+        if (wdtOptions == null)
+            System.out.println("WDT opts is null");
+
         try {
-            password = init(buildId);
+            init(buildId);
 
             tmpDir = getTempDirectory();
-
-            OptionsHelper optionsHelper = new OptionsHelper(this,
-                dockerfileOptions, getInstallerType(), installerVersion, password, tmpDir);
-
 
             if (!Utils.validatePatchIds(patches, false)) {
                 return new CommandResponse(-1, "Patch ID validation failed");
@@ -62,17 +61,17 @@ public class CreateImage extends WDTOptions implements Callable<CommandResponse>
             List<String> cmdBuilder = getInitialBuildCmd();
 
             // this handles wls, jdk and wdt install files.
-            cmdBuilder.addAll(optionsHelper.handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
+            cmdBuilder.addAll(handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
 
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir, getInstallerType()));
+            cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, getInstallerType()));
 
             // resolve required patches
-            cmdBuilder.addAll(optionsHelper.handlePatchFiles(null));
+            cmdBuilder.addAll(handlePatchFiles(null));
 
             // If patching, patch OPatch first
-            if (optionsHelper.applyingPatches()) {
-                optionsHelper.addOPatch1394ToImage(tmpDir, opatchBugNumber);
+            if (applyingPatches()) {
+                installOpatchInstaller(tmpDir, opatchBugNumber);
             }
 
             // Copy wls response file to tmpDir
@@ -89,7 +88,7 @@ public class CreateImage extends WDTOptions implements Callable<CommandResponse>
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
-            if (cleanup) {
+            if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
                 Utils.removeIntermediateDockerImages(buildId);
             }
@@ -102,17 +101,23 @@ public class CreateImage extends WDTOptions implements Callable<CommandResponse>
 
     private List<InstallerFile> gatherRequiredInstallers() throws Exception {
         logger.entering();
-        List<InstallerFile> retVal = gatherWDTRequiredInstallers();
+        List<InstallerFile> retVal = wdtOptions.gatherWdtRequiredInstallers();
         return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
-            installerVersion, jdkVersion, dockerfileOptions, userId, password);
+            getInstallerVersion(), jdkVersion, dockerfileOptions);
     }
 
 
-    public WLSInstallerType getInstallerType() {
+    @Override
+    WLSInstallerType getInstallerType() {
         if (installerType == null) {
-            return getWdtDomainType().installerType();
+            return wdtOptions.getWdtDomainType().installerType();
         }
         return installerType;
+    }
+
+    @Override
+    String getInstallerVersion() {
+        return installerVersion;
     }
 
     @Option(
@@ -148,4 +153,7 @@ public class CreateImage extends WDTOptions implements Callable<CommandResponse>
             description = "path to a response file. Override the default responses for the Oracle installer"
     )
     private String installerResponseFile;
+
+    @ArgGroup(exclusive = false, heading = "WDT Options%n")
+    private WdtOptions wdtOptions = new WdtOptions();
 }

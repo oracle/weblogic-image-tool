@@ -3,19 +3,25 @@
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.oracle.weblogic.imagetool.api.FileResolver;
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.impl.InstallerFile;
+import com.oracle.weblogic.imagetool.impl.PatchFile;
 import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -24,18 +30,23 @@ import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.ValidationResult;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
 
-public class CommonOptions {
+public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
     protected CacheStore cacheStore = new CacheStoreFactory().get();
     DockerfileOptions dockerfileOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
 
-    public void handleChown() {
+    abstract String getInstallerVersion();
+
+    abstract WLSInstallerType getInstallerType();
+
+    private void handleChown() {
         if (osUserAndGroup.length != 2) {
             throw new IllegalArgumentException("--chown value must be a colon separated user and group.  user:group");
         }
@@ -56,7 +67,7 @@ public class CommonOptions {
         dockerfileOptions.setGroupId(osUserAndGroup[1]);
     }
 
-    public void handleAdditionalBuildCommands() throws IOException {
+    private void handleAdditionalBuildCommands() throws IOException {
         if (additionalBuildCommandsPath != null) {
             if (!Files.isRegularFile(additionalBuildCommandsPath)) {
                 throw new FileNotFoundException("Additional build command file does not exist: "
@@ -117,14 +128,14 @@ public class CommonOptions {
         return cmdBuilder;
     }
 
-    public void handleProxyUrls() throws IOException {
+    private void handleProxyUrls() throws IOException {
         httpProxyUrl = Utils.findProxyUrl(httpProxyUrl, Constants.HTTP);
         httpsProxyUrl = Utils.findProxyUrl(httpsProxyUrl, Constants.HTTPS);
         nonProxyHosts = Utils.findProxyUrl(nonProxyHosts, "none");
         Utils.setProxyIfRequired(httpProxyUrl, httpsProxyUrl, nonProxyHosts);
     }
 
-    public String getTempDirectory() throws IOException {
+    String getTempDirectory() throws IOException {
         if (tempDirectory == null) {
             Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp");
             tempDirectory = tmpDir.toAbsolutePath().toString();
@@ -133,13 +144,13 @@ public class CommonOptions {
         return tempDirectory;
     }
 
-    public String init(String buildId) throws Exception {
+    void init(String buildId) throws Exception {
         logger.finer("Entering ImageOperation call ");
         dockerfileOptions = new DockerfileOptions(buildId);
         logger.info("IMG-0016", buildId);
 
         handleProxyUrls();
-        String password = handlePasswordOptions();
+        password = Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
         // check user support credentials if useCache not set to always and we are applying any patches
 
         if (userId != null || password != null) {
@@ -151,18 +162,147 @@ public class CommonOptions {
         handleChown();
         handleAdditionalBuildCommands();
 
-        logger.finer("Exiting ImageOperation call ");
-        return password;
+        logger.exiting();
     }
 
     /**
-     * Determines the support password by parsing the possible three input options.
-     *
-     * @return String form of password
-     * @throws IOException in case of error
+     * Returns true if any patches should be applied.
+     * A PSU is considered a patch.
+     * @return true if applying patches
      */
-    public String handlePasswordOptions() throws IOException {
-        return Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
+    boolean applyingPatches() {
+        return latestPSU || !patches.isEmpty();
+    }
+
+    /**
+     * Builds a list of build args to pass on to docker with the required patches.
+     * Also, creates links to patches directory under build context instead of copying over.
+     *
+     * @return list of strings
+     * @throws Exception in case of error
+     */
+    List<String> handlePatchFiles(String previousInventory) throws Exception {
+        logger.entering();
+        List<String> retVal = new LinkedList<>();
+
+        if (!applyingPatches()) {
+            return retVal;
+        }
+
+        String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
+
+        List<String> patchLocations = new LinkedList<>();
+
+        List<String> patchList = new ArrayList<>(patches);
+
+        if (latestPSU) {
+            if (userId == null || password == null) {
+                throw new Exception("No credentials provided. Cannot determine latestPSU");
+            }
+
+            // PSUs for WLS and JRF installers are considered WLS patches
+            String patchId = ARUUtil.getLatestPSUNumber(WLSInstallerType.WLS, getInstallerVersion(), userId, password);
+
+            if (Utils.isEmptyString(patchId)) {
+                latestPSU = false;
+                logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
+            } else {
+                logger.fine("Found latest PSU {0}", patchId);
+                FileResolver psuResolver = new PatchFile(getInstallerType().toString(), getInstallerVersion(),
+                    patchId, userId, password);
+                patchLocations.add(psuResolver.resolve(cacheStore));
+                // Add PSU patch ID to the patchList for validation (conflict check)
+                patchList.add(patchId);
+            }
+        }
+
+        logger.info("IMG-0012");
+        ValidationResult validationResult = ARUUtil.validatePatches(previousInventory, patchList, userId, password);
+        if (validationResult.isSuccess()) {
+            logger.info("IMG-0006");
+        } else {
+            String error = validationResult.getErrorMessage();
+            logger.severe(error);
+            throw new IllegalArgumentException(error);
+        }
+
+        if (patches != null && !patches.isEmpty()) {
+            for (String patchId : patches) {
+                patchLocations.add(new PatchFile(getInstallerType().toString(), getInstallerVersion(),
+                    patchId, userId, password).resolve(cacheStore));
+            }
+        }
+        for (String patchLocation : patchLocations) {
+            if (patchLocation != null) {
+                File patchFile = new File(patchLocation);
+                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+            } else {
+                logger.severe("IMG-0024");
+            }
+        }
+        if (!patchLocations.isEmpty()) {
+            dockerfileOptions.setPatchingEnabled();
+        }
+        logger.exiting(retVal.size());
+        return retVal;
+    }
+
+    private Path createPatchesTempDirectory() throws IOException {
+        Path tmpPatchesDir = Files.createDirectory(Paths.get(tempDirectory, "patches"));
+        Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
+        return tmpPatchesDir;
+    }
+
+
+    void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
+        // opatch patch now is in the format #####_opatch in the cache store
+        // So the version passing to the constructor of PatchFile is also "opatch".
+        // since opatch releases is on it's own and there is not really a patch to opatch
+        // and the version is embedded in the zip file version.txt
+
+        String filePath =
+            new PatchFile(Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
+                userId, password).resolve(cacheStore);
+        String filename = new File(filePath).getName();
+        Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
+        dockerfileOptions.setOPatchPatchingEnabled();
+        dockerfileOptions.setOPatchFileName(filename);
+    }
+
+
+
+    /**
+     * Builds a list of build args to pass on to docker with the required installer files.
+     * And, copies the installers over to build context dir.
+     *
+     * @param tmpDir build context directory
+     * @return list of build argument parameters for docker build
+     * @throws Exception in case of error
+     */
+    List<String> handleInstallerFiles(String tmpDir, List<InstallerFile> requiredInstallers) throws Exception {
+        logger.entering(tmpDir);
+        List<String> retVal = new LinkedList<>();
+        for (InstallerFile installerFile : requiredInstallers) {
+            String targetFilePath = installerFile.resolve(cacheStore);
+            logger.finer("copying targetFilePath: {0}", targetFilePath);
+            String filename = new File(targetFilePath).getName();
+            try {
+                Files.copy(Paths.get(targetFilePath), Paths.get(tmpDir, filename));
+                retVal.addAll(installerFile.getBuildArg(filename));
+            } catch (Exception ee) {
+                ee.printStackTrace();
+            }
+        }
+        logger.exiting(retVal);
+        return retVal;
+    }
+
+    String getUserId() {
+        return userId;
+    }
+
+    String getPassword() {
+        return password;
     }
 
     @Option(
@@ -178,40 +318,42 @@ public class CommonOptions {
         paramLabel = "<support email>",
         description = "Oracle Support email id"
     )
-    String userId;
+    private String userId;
+
+    private String password;
 
     @Option(
         names = {"--password"},
         paramLabel = "<password for support user id>",
         description = "Password for support userId"
     )
-    String passwordStr;
+    private String passwordStr;
 
     @Option(
         names = {"--passwordEnv"},
         paramLabel = "<environment variable>",
         description = "environment variable containing the support password"
     )
-    String passwordEnv;
+    private String passwordEnv;
 
     @Option(
         names = {"--passwordFile"},
         paramLabel = "<password file>",
         description = "path to file containing just the password"
     )
-    Path passwordFile;
+    private Path passwordFile;
 
     @Option(
         names = {"--httpProxyUrl"},
         description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
-    String httpProxyUrl;
+    private String httpProxyUrl;
 
     @Option(
         names = {"--httpsProxyUrl"},
         description = "proxy for https protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
-    String httpsProxyUrl;
+    private String httpsProxyUrl;
 
     @Option(
         names = {"--docker"},
@@ -225,16 +367,14 @@ public class CommonOptions {
         description = "file to log output from the docker build",
         hidden = true
     )
-    Path dockerLog;
-
+    private Path dockerLog;
 
     @Option(
-        names = {"--cleanup"},
-        description = "Cleanup temporary files. Default: ${DEFAULT-VALUE}.",
-        defaultValue = "true",
+        names = {"--skipcleanup"},
+        description = "Do no delete Docker context folder or intermediate images.",
         hidden = true
     )
-    boolean cleanup;
+    boolean skipcleanup = false;
 
     @Option(
         names = {"--chown"},

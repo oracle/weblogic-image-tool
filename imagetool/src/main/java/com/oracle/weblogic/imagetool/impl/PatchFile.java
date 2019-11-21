@@ -19,6 +19,8 @@ public class PatchFile extends AbstractFile {
     private String patchId;
     private String category;
     private String version;
+    private String userId;
+    private String password;
 
     /**
      * Create an abstract file to hold the metadata for a patch file.
@@ -31,10 +33,12 @@ public class PatchFile extends AbstractFile {
      */
     public PatchFile(String category, String version, String patchId, String userId,
                      String password) {
-        super(patchId, version, userId, password);
+        super(patchId, version);
         this.category = category;
         this.version = version;
         this.patchId = patchId;
+        this.userId = userId;
+        this.password = password;
     }
 
     @Override

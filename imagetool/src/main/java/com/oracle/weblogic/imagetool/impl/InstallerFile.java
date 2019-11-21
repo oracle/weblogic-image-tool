@@ -21,8 +21,8 @@ public class InstallerFile extends AbstractFile {
     private InstallerType type;
     private static final LoggingFacade logger = LoggingFactory.getLogger(InstallerFile.class);
 
-    public InstallerFile(InstallerType type, String version, String userId, String password) {
-        super(type.toString(), version, userId, password);
+    public InstallerFile(InstallerType type, String version) {
+        super(type.toString(), version);
         this.type = type;
     }
 

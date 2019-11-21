@@ -21,6 +21,7 @@ import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.WdtOperation;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -30,13 +31,9 @@ import picocli.CommandLine.Option;
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
-public class UpdateImage extends WDTOptions implements Callable<CommandResponse> {
+public class UpdateImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
-    private String password;
-
-    public UpdateImage() {
-    }
 
     @Override
     public CommandResponse call() throws Exception {
@@ -46,8 +43,7 @@ public class UpdateImage extends WDTOptions implements Callable<CommandResponse>
         String tmpDir = null;
 
         try {
-
-            password = init(buildId);
+            init(buildId);
 
             if (fromImage == null || fromImage.isEmpty()) {
                 return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
@@ -56,12 +52,6 @@ public class UpdateImage extends WDTOptions implements Callable<CommandResponse>
             dockerfileOptions.setBaseImage(fromImage);
 
             tmpDir = getTempDirectory();
-
-            OptionsHelper optionsHelper = new OptionsHelper(this,
-                dockerfileOptions, null, null, password, tmpDir);
-
-            //OptionsHelper optionsHelper = new OptionsHelper(latestPSU, patches, userId, password, useCache,
-            //    cacheStore, dockerfileOptions, null, null, tmpDir);
 
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
@@ -77,18 +67,19 @@ public class UpdateImage extends WDTOptions implements Callable<CommandResponse>
             if (oracleHome == null) {
                 return new CommandResponse(-1, "ORACLE_HOME env variable undefined in base image: " + fromImage);
             }
-            optionsHelper.installerType = WLSInstallerType.fromValue(baseImageProperties.getProperty("WLS_TYPE",
+            installerType = WLSInstallerType.fromValue(baseImageProperties.getProperty("WLS_TYPE",
                 WLSInstallerType.WLS.toString()));
-            optionsHelper.installerVersion =
-                baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
+            installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
 
             // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
             String lsinventoryText = null;
 
-            if (optionsHelper.applyingPatches()) {
+            if (applyingPatches()) {
 
+                String userId = getUserId();
+                String password = getPassword();
                 String opatchBugNumberVersion;
 
                 if (userId == null && password == null) {
@@ -103,11 +94,12 @@ public class UpdateImage extends WDTOptions implements Callable<CommandResponse>
                         throw new IOException(msg);
                     }
                 } else {
-                    opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
+                    opatchBugNumberVersion =
+                        ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
                 }
 
                 if (Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0) {
-                    optionsHelper.addOPatch1394ToImage(tmpDir, opatchBugNumber);
+                    installOpatchInstaller(tmpDir, opatchBugNumber);
                 }
 
                 logger.finer("Verifying Patches to WLS ");
@@ -145,14 +137,14 @@ public class UpdateImage extends WDTOptions implements Callable<CommandResponse>
             List<String> cmdBuilder = getInitialBuildCmd();
 
             // this handles wls, jdk and wdt install files.
-            cmdBuilder.addAll(optionsHelper.handleInstallerFiles(tmpDir, gatherWDTRequiredInstallers()));
+            cmdBuilder.addAll(handleInstallerFiles(tmpDir, wdtOptions.gatherWdtRequiredInstallers()));
 
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir, optionsHelper.installerType));
+            cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, getInstallerType()));
             dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
-            cmdBuilder.addAll(optionsHelper.handlePatchFiles(lsinventoryText));
+            cmdBuilder.addAll(handlePatchFiles(lsinventoryText));
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
@@ -164,7 +156,7 @@ public class UpdateImage extends WDTOptions implements Callable<CommandResponse>
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
-            if (cleanup) {
+            if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
                 Utils.removeIntermediateDockerImages(buildId);
             }
@@ -175,6 +167,20 @@ public class UpdateImage extends WDTOptions implements Callable<CommandResponse>
         return new CommandResponse(0, "build successful in " + Duration.between(startTime, endTime).getSeconds()
                 + "s" + ". image tag: " + imageTag);
     }
+
+    @Override
+    String getInstallerVersion() {
+        return installerVersion;
+    }
+
+    @Override
+    WLSInstallerType getInstallerType() {
+        return installerType;
+    }
+
+    private String installerVersion;
+
+    private WLSInstallerType installerType;
 
     @Option(
             names = {"--fromImage"},
@@ -189,4 +195,7 @@ public class UpdateImage extends WDTOptions implements Callable<CommandResponse>
             + "Supported values: ${COMPLETION-CANDIDATES}"
     )
     private WdtOperation wdtOperation = WdtOperation.UPDATE;
+
+    @ArgGroup(exclusive = false, heading = "WDT Options%n")
+    private WdtOptions wdtOptions = new WdtOptions();
 }

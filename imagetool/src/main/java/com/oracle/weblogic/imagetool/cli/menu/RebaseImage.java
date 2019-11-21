@@ -32,14 +32,13 @@ import picocli.CommandLine.Option;
 public class RebaseImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(RebaseImage.class);
-    String password = null;
-    String buildId = UUID.randomUUID().toString();
 
     @Override
     public CommandResponse call() throws Exception {
         logger.entering();
         Instant startTime = Instant.now();
 
+        String buildId = UUID.randomUUID().toString();
         String tmpDir = null;
         dockerfileOptions = new DockerfileOptions(buildId);
         String oldOracleHome;
@@ -52,7 +51,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
         try {
 
-            password = init(buildId);
+            init(buildId);
 
             tmpDir = getTempDirectory();
 
@@ -131,18 +130,16 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                         "Oracle Home exists at location:" + baseImageProperties.getProperty("ORACLE_HOME"));
                 }
 
-                OptionsHelper optionsHelper = new OptionsHelper(this,
-                    dockerfileOptions, getInstallerType(), installerVersion, password, tmpDir);
                 // this handles wls, jdk and wdt install files.
-                cmdBuilder.addAll(optionsHelper.handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
+                cmdBuilder.addAll(handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
 
 
                 // resolve required patches
-                cmdBuilder.addAll(optionsHelper.handlePatchFiles(null));
+                cmdBuilder.addAll(handlePatchFiles(null));
 
                 // If patching, patch OPatch first
-                if (optionsHelper.applyingPatches()) {
-                    optionsHelper.addOPatch1394ToImage(tmpDir, opatchBugNumber);
+                if (applyingPatches()) {
+                    installOpatchInstaller(tmpDir, opatchBugNumber);
                 }
 
                 // Copy wls response file to tmpDir
@@ -161,7 +158,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
-            if (cleanup) {
+            if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
                 Utils.removeIntermediateDockerImages(buildId);
             }
@@ -172,20 +169,20 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
             + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
-    private  List<InstallerFile> gatherRequiredInstallers() throws Exception {
+    private  List<InstallerFile> gatherRequiredInstallers() {
         logger.entering();
         List<InstallerFile> retVal = new ArrayList<>();
         return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
-            getInstallerVersion(), jdkVersion, dockerfileOptions, userId, password);
+            getInstallerVersion(), jdkVersion, dockerfileOptions);
     }
 
-
-
-    public WLSInstallerType getInstallerType() {
+    @Override
+    WLSInstallerType getInstallerType() {
         return installerType;
     }
 
-    public String getInstallerVersion() {
+    @Override
+    String getInstallerVersion() {
         return installerVersion;
     }
 

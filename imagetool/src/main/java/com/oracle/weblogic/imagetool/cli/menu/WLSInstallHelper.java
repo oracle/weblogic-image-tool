@@ -94,21 +94,17 @@ public class WLSInstallHelper {
      * @param installerVersion installer version
      * @param jdkVersion jdkVersion of the installer
      * @param dockerfileOptions  non null docker options
-     * @param userId user id for accessing oracle support
-     * @param password password for accessing oracle support
      * @return list of installers
      */
     public static  List<InstallerFile> getBasicInstallers(List<InstallerFile> initialList,
                                                            String installerType, String installerVersion,
-                                                           String jdkVersion, DockerfileOptions dockerfileOptions,
-                                                           String userId,
-                                                           String password) {
+                                                           String jdkVersion, DockerfileOptions dockerfileOptions) {
         logger.finer("IMG-0001", installerType, installerVersion);
         initialList.add(new InstallerFile(InstallerType.fromValue(installerType),
-            installerVersion, userId, password));
+            installerVersion));
         if (dockerfileOptions.installJava()) {
             logger.finer("IMG-0001", InstallerType.JDK, jdkVersion);
-            initialList.add(new InstallerFile(InstallerType.JDK, jdkVersion, userId, password));
+            initialList.add(new InstallerFile(InstallerType.JDK, jdkVersion));
         }
         logger.exiting(initialList.size());
         return initialList;

@@ -21,14 +21,13 @@ import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Unmatched;
 
-public class WDTOptions extends CommonOptions {
+public class WdtOptions {
 
-
-    private static final LoggingFacade logger = LoggingFactory.getLogger(WDTOptions.class);
+    private static final LoggingFacade logger = LoggingFactory.getLogger(WdtOptions.class);
     protected CacheStore cacheStore = new CacheStoreFactory().get();
 
     /**
@@ -40,7 +39,8 @@ public class WDTOptions extends CommonOptions {
      * @return list of build args
      * @throws IOException in case of error
      */
-    List<String> handleWdtArgsIfRequired(String tmpDir, WLSInstallerType installerType) throws IOException {
+    List<String> handleWdtArgsIfRequired(DockerfileOptions dockerfileOptions, String tmpDir,
+                                         WLSInstallerType installerType) throws IOException {
         logger.entering(tmpDir);
 
         List<String> retVal = new LinkedList<>();
@@ -48,7 +48,7 @@ public class WDTOptions extends CommonOptions {
             dockerfileOptions.setWdtEnabled();
             dockerfileOptions.setWdtModelOnly(wdtModelOnly);
 
-            List<String> modelList = addWDTFilesAsList(wdtModelPath, "model", tmpDir);
+            List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
 
             dockerfileOptions.setWdtModels(modelList);
 
@@ -62,7 +62,7 @@ public class WDTOptions extends CommonOptions {
 
             if (wdtArchivePath != null) {
 
-                List<String> archiveList = addWDTFilesAsList(wdtArchivePath, "archive", tmpDir);
+                List<String> archiveList = addWdtFilesAsList(wdtArchivePath, "archive", tmpDir);
 
                 dockerfileOptions.setWdtArchives(archiveList);
             }
@@ -90,12 +90,12 @@ public class WDTOptions extends CommonOptions {
      * @return list of InstallerFile
      * @throws Exception in case of error
      */
-    protected List<InstallerFile> gatherWDTRequiredInstallers() throws Exception {
+    public List<InstallerFile> gatherWdtRequiredInstallers() throws Exception {
         logger.entering();
         List<InstallerFile> result = new LinkedList<>();
         if (wdtModelPath != null) {
             logger.finer("IMG-0001", InstallerType.WDT, wdtVersion);
-            InstallerFile wdtInstaller = new InstallerFile(InstallerType.WDT, wdtVersion, null, null);
+            InstallerFile wdtInstaller = new InstallerFile(InstallerType.WDT, wdtVersion);
             result.add(wdtInstaller);
             addWdtUrl(wdtInstaller.getKey(), cacheStore, wdtVersion);
         }
@@ -125,7 +125,7 @@ public class WDTOptions extends CommonOptions {
     }
 
 
-    public List<String> addWDTFilesAsList(Path fileArg, String type, String tmpDir) throws IOException {
+    private List<String> addWdtFilesAsList(Path fileArg, String type, String tmpDir) throws IOException {
         String[] listOfFiles = fileArg.toString().split(",");
         List<String> fileList = new ArrayList<>();
 
@@ -152,38 +152,39 @@ public class WDTOptions extends CommonOptions {
         names = {"--wdtModel"},
         description = "path to the WDT model file that defines the Domain to create"
     )
-    Path wdtModelPath;
+    private Path wdtModelPath;
 
     @Option(
         names = {"--wdtArchive"},
         description = "path to the WDT archive file used by the WDT model"
     )
-    Path wdtArchivePath;
+    private Path wdtArchivePath;
 
     @Option(
         names = {"--wdtVariables"},
         description = "path to the WDT variables file for use with the WDT model"
     )
-    Path wdtVariablesPath;
+    private Path wdtVariablesPath;
 
     @Option(
         names = {"--wdtVersion"},
         description = "WDT tool version to use",
         defaultValue = "latest"
     )
-    String wdtVersion;
+    private String wdtVersion;
 
     @Option(
         names = {"--wdtDomainType"},
-        description = "WDT Domain Type. Default: ${DEFAULT-VALUE}. Supported values: ${COMPLETION-CANDIDATES}"
+        description = "WDT Domain Type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
     )
-    DomainType wdtDomainType = DomainType.WLS;
+    private DomainType wdtDomainType = DomainType.WLS;
 
     @Option(
         names = "--wdtRunRCU",
         description = "instruct WDT to run RCU when creating the Domain"
     )
-    boolean runRcu = false;
+    @SuppressWarnings("FieldCanBeLocal")
+    private boolean runRcu = false;
 
     @Option(
         names = {"--wdtDomainHome"},
@@ -203,6 +204,7 @@ public class WDTOptions extends CommonOptions {
         description = "Install WDT and copy the models to the image, but do not create the domain. "
             + "Default: ${DEFAULT-VALUE}."
     )
+    @SuppressWarnings("FieldCanBeLocal")
     private boolean wdtModelOnly = false;
 
     @Option(
@@ -210,10 +212,7 @@ public class WDTOptions extends CommonOptions {
         description = "Use strict validation for the WDT validation method. Only applies when using model only.  "
             + "Default: ${DEFAULT-VALUE}."
     )
+    @SuppressWarnings("FieldCanBeLocal")
     private boolean wdtStrictValidation = false;
-
-
-    @Unmatched
-    List<String> unmatchedOptions;
 
 }
