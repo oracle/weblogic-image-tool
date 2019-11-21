@@ -324,8 +324,10 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--password"},
-        paramLabel = "<password for support user id>",
-        description = "Password for support userId"
+        interactive = true,
+        arity = "0..1",
+        paramLabel = "<support password>",
+        description = "Enter password for Oracle Support userId on STDIN"
     )
     private String passwordStr;
 

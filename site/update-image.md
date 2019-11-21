@@ -34,9 +34,9 @@ Update WebLogic Docker image with selected patches
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | Whether to apply patches from the latest PSU.  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
-| `--password` | Password for the support `userId`.  |   |
-| `--passwordEnv` | Environment variable containing the support password.  |   |
-| `--passwordFile` | Path to a file containing just the password.  |   |
+| `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
+| `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
+| `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--user` | Oracle support email ID.  |   |
