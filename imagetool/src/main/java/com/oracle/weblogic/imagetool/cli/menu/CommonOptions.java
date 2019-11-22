@@ -31,7 +31,6 @@ import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.ValidationResult;
-import org.jetbrains.annotations.NonNls;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
