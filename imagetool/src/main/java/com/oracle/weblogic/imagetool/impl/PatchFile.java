@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.AbstractFile;
-import com.oracle.weblogic.imagetool.api.model.CachePolicy;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
@@ -20,23 +19,26 @@ public class PatchFile extends AbstractFile {
     private String patchId;
     private String category;
     private String version;
+    private String userId;
+    private String password;
 
     /**
      * Create an abstract file to hold the metadata for a patch file.
      *
-     * @param cachePolicy the policy to apply.=
      * @param category    the patch category
      * @param version     the version of installer this patch is applicable to
      * @param patchId     the ID of the patch
      * @param userId      the username to use for retrieving the patch
      * @param password    the password to use with the userId to retrieve the patch
      */
-    public PatchFile(CachePolicy cachePolicy, String category, String version, String patchId, String userId,
+    public PatchFile(String category, String version, String patchId, String userId,
                      String password) {
-        super(patchId, version, cachePolicy, userId, password);
+        super(patchId, version);
         this.category = category;
         this.version = version;
         this.patchId = patchId;
+        this.userId = userId;
+        this.password = password;
     }
 
     @Override

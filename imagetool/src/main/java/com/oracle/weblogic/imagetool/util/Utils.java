@@ -46,11 +46,14 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.PropertyKey;
 
 public class Utils {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(Utils.class);
 
+    @NonNls
     private static ResourceBundle bundle = ResourceBundle.getBundle("ImageTool");
 
     /**
@@ -736,7 +739,7 @@ public class Utils {
      * @param params parameters to be applied to the message
      * @return formatted message string including parameters
      */
-    public static String getMessage(String key, Object... params) {
+    public static String getMessage(@PropertyKey(resourceBundle = "ImageTool") String key, Object... params) {
         return MessageFormat.format(bundle.getString(key), params);
     }
 

@@ -26,6 +26,8 @@ public class DockerfileOptions {
     private boolean applyPatches;
     private boolean updateOpatch;
     private boolean skipJavaInstall;
+    private boolean isRebaseToTarget;
+    private boolean isRebaseToNew;
 
     private String username;
     private String groupname;
@@ -35,6 +37,8 @@ public class DockerfileOptions {
     private String tempDirectory;
     private String baseImageName;
     private String opatchFileName;
+    private String sourceImage;
+    private String targetImage;
 
     // WDT values
     private String wdtHome;
@@ -132,6 +136,79 @@ public class DockerfileOptions {
         return this;
     }
 
+
+    /**
+     * The source Docker image that contain the domain to copy from.
+     *
+     * @return the image name
+     */
+    public String sourceImage() {
+        return sourceImage;
+    }
+
+    /**
+     * The source Docker image that contain the domain to copy from.
+     *
+     * @return this DockerfileOptions object
+     */
+    public DockerfileOptions setSourceImage(String value) {
+        sourceImage = value;
+        return this;
+    }
+
+
+    /**
+     * The target Docker image that contain the domain to copy to.
+     *
+     * @return the image name
+     */
+    public String targetImage() {
+        return targetImage;
+    }
+
+    /**
+     * The target Docker image that contain the domain to copy to.
+     *
+     * @return this DockerfileOptions object
+     */
+    public DockerfileOptions setTargetImage(String value) {
+        targetImage = value;
+        return this;
+    }
+
+    /**
+     * Return if the rebase to existing target image.
+     * @return true or false
+     */
+    public boolean isRebaseToTarget() {
+        return isRebaseToTarget;
+    }
+
+    /**
+     * set the value of rebase to existing target.
+     * @param rebaseToTarget true or false
+     */
+    public void setRebaseToTarget(boolean rebaseToTarget) {
+        isRebaseToTarget = rebaseToTarget;
+    }
+
+    /**
+     * Return if the rebase to existing new image.
+     *
+     * @return true of false
+     */
+    public boolean isRebaseToNew() {
+        return isRebaseToNew;
+    }
+
+    /**
+     * set the value of rebase to new target.
+     * @param rebaseToNew true or false
+     */
+    public void setRebaseToNew(boolean rebaseToNew) {
+        isRebaseToNew = rebaseToNew;
+    }
+
     /**
      * Only one package installer should be allowed.
      *
@@ -180,7 +257,7 @@ public class DockerfileOptions {
 
     @SuppressWarnings("unused")
     public String work_dir() {
-        if (isWdtEnabled() && !modelOnly()) {
+        if ((isWdtEnabled() && !modelOnly()) || sourceImage != null) {
             return domain_home();
         } else {
             return oracle_home();

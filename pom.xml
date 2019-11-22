@@ -61,7 +61,7 @@
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
-                <version>3.8.0</version>
+                <version>4.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>
@@ -82,6 +82,11 @@
                 <groupId>com.github.spullara.mustache.java</groupId>
                 <artifactId>compiler</artifactId>
                 <version>0.9.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>17.0.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
