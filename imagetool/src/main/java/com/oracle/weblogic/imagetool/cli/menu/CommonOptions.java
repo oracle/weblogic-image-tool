@@ -31,6 +31,7 @@ import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.ValidationResult;
+import org.jetbrains.annotations.NonNls;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
@@ -48,19 +49,17 @@ public abstract class CommonOptions {
 
     private void handleChown() {
         if (osUserAndGroup.length != 2) {
-            throw new IllegalArgumentException("--chown value must be a colon separated user and group.  user:group");
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0027"));
         }
 
         Pattern p = Pattern.compile("^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$");
         Matcher usr = p.matcher(osUserAndGroup[0]);
         if (!usr.matches()) {
-            throw new IllegalArgumentException("--chown must contain a valid Unix username.  No more than 32 characters"
-                + " and starts with a lowercase character.  Invalid value = " + osUserAndGroup[0]);
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0028", osUserAndGroup[0]));
         }
         Matcher grp = p.matcher(osUserAndGroup[1]);
         if (!grp.matches()) {
-            throw new IllegalArgumentException("--chown must contain a valid Unix groupid.  No more than 32 characters"
-                + " and starts with a lowercase character.  Invalid value = " + osUserAndGroup[1]);
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0029", osUserAndGroup[1]));
         }
 
         dockerfileOptions.setUserId(osUserAndGroup[0]);
@@ -70,8 +69,7 @@ public abstract class CommonOptions {
     private void handleAdditionalBuildCommands() throws IOException {
         if (additionalBuildCommandsPath != null) {
             if (!Files.isRegularFile(additionalBuildCommandsPath)) {
-                throw new FileNotFoundException("Additional build command file does not exist: "
-                    + additionalBuildCommandsPath);
+                throw new FileNotFoundException(Utils.getMessage("IMG-0030", additionalBuildCommandsPath));
             }
 
             AdditionalBuildCommands additionalBuildCommands = AdditionalBuildCommands.load(additionalBuildCommandsPath);
@@ -197,7 +195,7 @@ public abstract class CommonOptions {
 
         if (latestPSU) {
             if (userId == null || password == null) {
-                throw new Exception("No credentials provided. Cannot determine latestPSU");
+                throw new Exception(Utils.getMessage("IMG-0031"));
             }
 
             // PSUs for WLS and JRF installers are considered WLS patches
