@@ -13,7 +13,7 @@ export WLSIMG_BLDDIR="/path/to/dir"
 
 
 The Image Tool will try to prune intermediate images from the Docker multi-stage build after the build step. 
-If you see dangling images after the build (images labeled as `<none>`, use the following command to remove them:
+If you see dangling images after the build (images labeled as `<none>`), use the following command to remove them:
 
 ```bash
 docker rmi $(docker images --filter "dangling=true" -q --no-trunc)

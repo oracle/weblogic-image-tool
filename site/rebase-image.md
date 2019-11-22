@@ -1,6 +1,6 @@
 # Rebase Image
 
-The `rebase` command creates a new Docker image and copies an existing WebLogic Domain to that new image.  
+The `rebase` command creates a new Docker image and copies an existing WebLogic domain to that new image.  
 The new Docker image can be based on an existing image in the repository or created as part of the rebase operation 
 similar to the `create` command.
 
