@@ -12,6 +12,9 @@ fi
 
 if [[ ! -z "$JAVA_HOME" ]]; then
   echo JAVA_HOME="$JAVA_HOME"
+  echo JAVA_PATH="$(readlink -f $JAVA_HOME)"
+  echo ADMIN_PORT="${ADMIN_PORT}"
+  echo MANAGED_SERVER_PORT="${MANAGED_SERVER_PORT}"
 fi
 
 if [[ ! -z "$ORACLE_HOME" ]]; then
@@ -32,4 +35,8 @@ if [[ ! -z "$ORACLE_HOME" ]]; then
     #echo $LSINV_TEXT | base64 > /tmp/b64
     echo LSINV_TEXT=$(base64 /tmp/lsout)
   fi
+fi
+
+if [[ ! -z "$DOMAIN_HOME" ]]; then
+  echo DOMAIN_HOME="$DOMAIN_HOME"
 fi

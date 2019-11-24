@@ -10,6 +10,8 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
@@ -19,6 +21,7 @@ import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.WdtOperation;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -28,25 +31,19 @@ import picocli.CommandLine.Option;
         requiredOptionMarker = '*',
         abbreviateSynopsis = true
 )
-public class UpdateImage extends ImageOperation {
+public class UpdateImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
-
-    public UpdateImage() {
-    }
 
     @Override
     public CommandResponse call() throws Exception {
         logger.finer("Entering UpdateImage.call ");
         Instant startTime = Instant.now();
-
+        String buildId =  UUID.randomUUID().toString();
         String tmpDir = null;
 
         try {
-            CommandResponse result = super.call();
-            if (result.getStatus() != 0) {
-                return result;
-            }
+            init(buildId);
 
             if (fromImage == null || fromImage.isEmpty()) {
                 return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
@@ -55,6 +52,7 @@ public class UpdateImage extends ImageOperation {
             dockerfileOptions.setBaseImage(fromImage);
 
             tmpDir = getTempDirectory();
+
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
 
@@ -70,7 +68,7 @@ public class UpdateImage extends ImageOperation {
                 return new CommandResponse(-1, "ORACLE_HOME env variable undefined in base image: " + fromImage);
             }
             installerType = WLSInstallerType.fromValue(baseImageProperties.getProperty("WLS_TYPE",
-                    WLSInstallerType.WLS.toString()));
+                WLSInstallerType.WLS.toString()));
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
@@ -80,6 +78,8 @@ public class UpdateImage extends ImageOperation {
 
             if (applyingPatches()) {
 
+                String userId = getUserId();
+                String password = getPassword();
                 String opatchBugNumberVersion;
 
                 if (userId == null && password == null) {
@@ -94,11 +94,12 @@ public class UpdateImage extends ImageOperation {
                         throw new IOException(msg);
                     }
                 } else {
-                    opatchBugNumberVersion = ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
+                    opatchBugNumberVersion =
+                        ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
                 }
 
                 if (Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0) {
-                    addOPatch1394ToImage(tmpDir, opatchBugNumber);
+                    installOpatchInstaller(tmpDir, opatchBugNumber);
                 }
 
                 logger.finer("Verifying Patches to WLS ");
@@ -136,10 +137,10 @@ public class UpdateImage extends ImageOperation {
             List<String> cmdBuilder = getInitialBuildCmd();
 
             // this handles wls, jdk and wdt install files.
-            cmdBuilder.addAll(handleInstallerFiles(tmpDir));
+            cmdBuilder.addAll(handleInstallerFiles(tmpDir, wdtOptions.gatherWdtRequiredInstallers()));
 
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(handleWdtArgsIfRequired(tmpDir));
+            cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, getInstallerType()));
             dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
@@ -155,7 +156,7 @@ public class UpdateImage extends ImageOperation {
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
-            if (cleanup) {
+            if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
                 Utils.removeIntermediateDockerImages(buildId);
             }
@@ -168,18 +169,18 @@ public class UpdateImage extends ImageOperation {
     }
 
     @Override
-    public WLSInstallerType getInstallerType() {
-        return installerType;
-    }
-
-    @Override
-    public String getInstallerVersion() {
+    String getInstallerVersion() {
         return installerVersion;
     }
 
-    // Installer type and version are not parameters for update.  These are derived from the fromImage.
-    private WLSInstallerType installerType;
+    @Override
+    WLSInstallerType getInstallerType() {
+        return installerType;
+    }
+
     private String installerVersion;
+
+    private WLSInstallerType installerType;
 
     @Option(
             names = {"--fromImage"},
@@ -193,5 +194,8 @@ public class UpdateImage extends ImageOperation {
         description = "Create a new domain, or update an existing domain.  Default: ${DEFAULT-VALUE}. "
             + "Supported values: ${COMPLETION-CANDIDATES}"
     )
-    private WdtOperation wdtOperation = WdtOperation.CREATE;
+    private WdtOperation wdtOperation = WdtOperation.UPDATE;
+
+    @ArgGroup(exclusive = false, heading = "WDT Options%n")
+    private WdtOptions wdtOptions = new WdtOptions();
 }

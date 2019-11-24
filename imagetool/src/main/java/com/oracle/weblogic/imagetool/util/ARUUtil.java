@@ -39,19 +39,28 @@ public class ARUUtil {
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static String getLatestPSUNumber(WLSInstallerType category, String version, String userId, String password) {
+    public static String getLatestPSUNumber(WLSInstallerType category, String version, String userId, String password)
+        throws Exception {
+
         logger.entering(category, version, userId);
         try {
+            logger.info("IMG-0019");
             String releaseNumber = getReleaseNumber(category, version, userId, password);
             SearchResult searchResult = getRecommendedPsuMetadata(category, releaseNumber, userId, password);
             if (searchResult.isSuccess()) {
                 Document results = searchResult.getResults();
                 String result = XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
                 logger.exiting(result);
+                logger.info("IMG-0020", result);
                 return result;
+            } else if (!Utils.isEmptyString(searchResult.getErrorMessage())) {
+                logger.warning("IMG-0023", category, version);
+                logger.fine(searchResult.getErrorMessage());
+            } else {
+                throw new Exception(Utils.getMessage("IMG-0032", category, version));
             }
         } catch (IOException | XPathExpressionException e) {
-            //suppress exception
+            throw new Exception(Utils.getMessage("IMG-0032", category, version), e);
         }
         logger.exiting();
         return null;
@@ -98,7 +107,7 @@ public class ARUUtil {
         validationResult.setSuccess(true);
         validationResult.setResults(null);
         if (userId == null || password == null) {
-            logger.warning("No credentials provided, skipping validation of patches");
+            logger.warning(Utils.getMessage("IMG-0033"));
             return validationResult;
         }
 
@@ -147,7 +156,6 @@ public class ARUUtil {
                     continue;
                 }
                 checkForMultiplePatches(patch, userId, password);
-                logger.fine("IMG-0021");
 
                 String bugReleaseNumber = ARUUtil.getPatchInfo(patch, userId, password);
                 logger.info("IMG-0022", patch, bugReleaseNumber);
@@ -295,6 +303,7 @@ public class ARUUtil {
     }
 
     private static void checkForMultiplePatches(String bugNumber, String userId, String password) throws IOException {
+        logger.entering(bugNumber, userId);
         if (bugNumber != null) {
             if (userId != null) {
                 try {
@@ -311,15 +320,13 @@ public class ARUUtil {
                     if (nodeList.getLength() > 1 && ind < 0) {
                         // only base number is specified and there are multiple patches
                         // ERROR
-                        String message = String.format("There are multiple patches found with id %s, please specify "
-                                + "the format as one of the following for the release you want", baseBugNumber);
-                        logger.warning(message);
+                        logger.warning(Utils.getMessage("IMG-0034", baseBugNumber));
                         for (int i = 1; i <= nodeList.getLength(); i++) {
                             String xpath = String.format("string(/results/patch[%d]/release/@name)", i);
                             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
                             logger.warning(bugNumber + "_" + releaseNumber);
                         }
-                        throw new IOException("Multiple patches with same patch number detected");
+                        throw new IOException(Utils.getMessage("IMG-0035"));
                     }
 
                 } catch (XPathExpressionException xpe) {
@@ -327,7 +334,7 @@ public class ARUUtil {
                 }
             }
         }
-
+        logger.exiting();
     }
 
     private static String savePatch(Document allPatches, String userId, String password, String destDir,
@@ -431,6 +438,7 @@ public class ARUUtil {
                 logger.severe(error);
                 throw new IOException(error);
             }
+            logger.exiting(releaseNumber);
             return releaseNumber;
 
         } catch (XPathExpressionException xpe) {
