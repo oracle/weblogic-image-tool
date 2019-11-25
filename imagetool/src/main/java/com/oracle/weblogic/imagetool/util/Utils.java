@@ -84,6 +84,27 @@ public class Utils {
     }
 
     /**
+     * Utility method to copy a local file to another local file system location.
+     *
+     * @param sourcePath   resource path in the local directory
+     * @param destPath     local file to copy to.
+     * @param markExec     sets the executable flag if true
+     * @throws IOException in case of error
+     */
+    public static void copyLocalFile(String sourcePath, String destPath, boolean markExec) throws IOException {
+        Objects.requireNonNull(sourcePath);
+        Objects.requireNonNull(destPath);
+        Files.copy(Paths.get(sourcePath), Paths.get(destPath),
+            StandardCopyOption.REPLACE_EXISTING);
+        if (markExec) {
+            if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+                Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
+            }
+        }
+    }
+
+
+    /**
      * Create a file with the given path.
      *
      * @param filePath        the path of the file to create
@@ -755,7 +776,6 @@ public class Utils {
                     String invLoc = matcher.group(1);
                     if (invLoc != null) {
                         options.setOraInvDir(invLoc);
-                        logger.info("IMG-0010", invLoc);
                     }
                     break;
                 }

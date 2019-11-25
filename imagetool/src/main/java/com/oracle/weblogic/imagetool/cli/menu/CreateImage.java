@@ -77,6 +77,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
 
             // Copy wls response file to tmpDir
             WLSInstallHelper.copyResponseFilesToDir(tmpDir, installerResponseFile);
+
             Utils.setOracleHome(installerResponseFile, dockerfileOptions);
 
             // Set where the user want to install the inventor oraInst.loc file
@@ -89,6 +90,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             // Set the inventory location, so that it will be copied
             if (inventoryPointerFile != null) {
                 Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
+                Utils.copyLocalFile(inventoryPointerFile, tmpDir + "/oraInst.loc", false);
             }
 
             // Create Dockerfile
