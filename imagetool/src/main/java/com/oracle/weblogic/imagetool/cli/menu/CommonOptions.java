@@ -134,7 +134,15 @@ public abstract class CommonOptions {
 
     String getTempDirectory() throws IOException {
         if (tempDirectory == null) {
-            Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp");
+            Path tmpDir = null;
+            if (System.getenv("WLSIMG_BLDTMPDIRNAME") != null) {
+                tmpDir = Paths.get(Utils.getBuildWorkingDir(), System.getenv("WLSIMG_BLDTMPDIRNAME"));
+                if (Files.notExists(tmpDir)) {
+                    Files.createDirectory(tmpDir);
+                }
+            } else {
+                tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp");
+            }
             tempDirectory = tmpDir.toAbsolutePath().toString();
             logger.info("IMG-0003", tempDirectory);
         }
