@@ -70,14 +70,13 @@ ARG ORAINST
 ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
     JAVA_HOME={{{java_home}}} \
     ORACLE_HOME={{{oracle_home}}} \
-    INV_LOC={{inv_loc}} \
     ORAINST=${ORAINST:-oraInst.loc} \
     OPATCH_NO_FUSER=true
 
 RUN mkdir -p {{{oracle_home}}} \
 {{#isInventoryPointerFileSet}}
-    && mkdir -p $INV_LOC \
-    && chown {{userid}}:{{groupid}} $INV_LOC \
+    && mkdir -p {{inv_loc}} \
+    && chown {{userid}}:{{groupid}} {{inv_loc}} \
 {{/isInventoryPointerFileSet}}
  && mkdir -p {{orainv_dir}} \
  && chown {{userid}}:{{groupid}} {{orainv_dir}} \
@@ -89,7 +88,7 @@ RUN mkdir -p {{{oracle_home}}} \
 {{/installJava}}
 
 COPY --chown={{userid}}:{{groupid}} $WLS_PKG wls.rsp {{{tempDir}}}/
-COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
+COPY --chown={{userid}}:{{groupid}} $ORAINST {{inv_loc}}/
 
 {{#isOpatchPatchingEnabled}}
     COPY --chown={{userid}}:{{groupid}} {{{opatchFileName}}} {{{tempDir}}}/opatch/
@@ -108,7 +107,7 @@ USER {{userid}}
 
 RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/fmw_*.jar -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
+    -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc {{inv_loc}}/$ORAINST -ignoreSysPrereqs -force -novalidation \
 {{#isOpatchPatchingEnabled}}
  && cd {{{tempDir}}}/opatch \
  && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \
@@ -199,7 +198,6 @@ ARG MANAGED_SERVER_PORT
 ARG ORAINST
 
 ENV ORACLE_HOME={{{oracle_home}}} \
-INV_LOC={{inv_loc}} \
 ORAINST=${ORAINST:-oraInst.loc} \
 {{#installJava}}
     JAVA_HOME={{{java_home}}} \
@@ -223,7 +221,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 {{/installJava}}
 
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
-COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} $INV_LOC/$ORAINST  $INV_LOC/$ORAINST
+COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{inv_loc}}/$ORAINST  {{inv_loc}}/$ORAINST
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
 
 {{#isWdtEnabled}}

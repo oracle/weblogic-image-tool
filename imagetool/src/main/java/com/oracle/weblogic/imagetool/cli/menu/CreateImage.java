@@ -177,7 +177,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
 
     @Option(
         names = {"--inventoryPointerInstallLoc"},
-        description = "path to where the inventory pointer file (oraInst.loc) should be store in the image"
+        description = "path to where the inventory pointer file (oraInst.loc) should be stored in the image"
     )
     private String inventoryPointerInstallLoc;
 
