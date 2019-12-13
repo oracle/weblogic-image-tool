@@ -781,7 +781,7 @@ public class Utils {
                 }
             }
         } catch (FileNotFoundException notFound) {
-            logger.severe("Unable to find installer response file: {0}", inventoryLoc);
+            logger.severe("IMG-0036", inventoryLoc);
             throw notFound;
         }
     }
