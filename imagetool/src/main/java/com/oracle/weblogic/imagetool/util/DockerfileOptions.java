@@ -436,12 +436,39 @@ public class DockerfileOptions {
     }
 
 
+    /**
+     * copyOraInst check if it needs to copy the oraInst.loc file.
+     * @return true if it needs to copy
+     */
+
     public boolean copyOraInst() {
-        return !invLoc.startsWith(oracleHome + File.separator);
+        return !isSubDirectoryOrSame(invLoc, oracleHome);
     }
 
+    /**
+     * copyOraInventoryDir check if it needs to copy the oraInventory Directory.
+     * @return true if it needs to copy
+     */
+
     public boolean copyOraInventoryDir() {
-        return !oraInvDir.startsWith(oracleHome + File.separator);
+        return !isSubDirectoryOrSame(oraInvDir, oracleHome);
+    }
+
+    /**
+     * isSubDirectoryOrSame compare if the child is a subdirectory of parent (non java.io implementation).
+     * @param child  child directory name
+     * @param parent parent directory name
+     * @return true if child is a subdirectory of parent otherwise false
+     */
+
+    private static boolean isSubDirectoryOrSame(String child, String parent) {
+        boolean result = true;
+        child = child.endsWith(File.separator) ? child.substring(0, child.length() - 1) : child;
+        parent = parent.endsWith(File.separator) ? parent.substring(0, parent.length() - 1) : parent;
+        if (!child.equals(parent)) {
+            result = child.startsWith(parent);
+        }
+        return result;
     }
 
     /**
