@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -436,11 +437,11 @@ public class DockerfileOptions {
 
 
     public boolean copyOraInst() {
-        return !invLoc.contains(oracleHome);
+        return !invLoc.startsWith(oracleHome + File.separator);
     }
 
     public boolean copyOraInventoryDir() {
-        return !oraInvDir.contains(oracleHome);
+        return !oraInvDir.startsWith(oracleHome + File.separator);
     }
 
     /**
