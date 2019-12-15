@@ -216,8 +216,12 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 {{/installJava}}
 
 COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
-COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{inv_loc}}  {{inv_loc}}/
-COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
+{{#copyOraInst}}
+    COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{inv_loc}}/oraInst.loc  {{inv_loc}}/oraInst.loc
+{{/copyOraInst}}
+{{#copyOraInventoryDir}}
+    COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
+{{/copyOraInventoryDir}}
 
 {{#isWdtEnabled}}
     {{#modelOnly}}

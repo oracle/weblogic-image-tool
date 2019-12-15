@@ -434,6 +434,15 @@ public class DockerfileOptions {
         return useWdt;
     }
 
+
+    public boolean copyOraInst() {
+        return !invLoc.contains(oracleHome);
+    }
+
+    public boolean copyOraInventoryDir() {
+        return !oraInvDir.contains(oracleHome);
+    }
+
     /**
      * If WDT is enabled, and the model is not in the archive, the model file argument must be set.
      * @param value a model filename, or comma-separated model filenames.
