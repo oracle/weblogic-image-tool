@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import com.oracle.weblogic.imagetool.api.model.DomainType;
+import com.oracle.weblogic.imagetool.wdt.DomainType;
+import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
 public class DockerfileOptions {
 

@@ -11,7 +11,7 @@ import java.util.Arrays;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import com.oracle.weblogic.imagetool.api.model.DomainType;
+import com.oracle.weblogic.imagetool.wdt.DomainType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

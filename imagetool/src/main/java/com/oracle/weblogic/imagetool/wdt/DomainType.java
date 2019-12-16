@@ -1,7 +1,9 @@
 // Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.api.model;
+package com.oracle.weblogic.imagetool.wdt;
+
+import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 
 /**
  * Supported domain type. wls, jrf or restricted jrf.

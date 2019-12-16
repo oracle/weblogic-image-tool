@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.api.model;
 
+import com.oracle.weblogic.imagetool.wdt.DomainType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
