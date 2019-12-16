@@ -6,7 +6,6 @@ package com.oracle.weblogic.imagetool.cachestore;
 import java.util.Collections;
 import java.util.List;
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.AbstractFile;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;

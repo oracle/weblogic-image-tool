@@ -3,7 +3,7 @@
 
 package com.oracle.weblogic.imagetool.api;
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 
 public interface FileResolver {
 
