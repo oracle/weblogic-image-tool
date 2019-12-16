@@ -84,6 +84,27 @@ public class Utils {
     }
 
     /**
+     * Utility method to copy a local file to another local file system location.
+     *
+     * @param sourcePath   resource path in the local directory
+     * @param destPath     local file to copy to.
+     * @param markExec     sets the executable flag if true
+     * @throws IOException in case of error
+     */
+    public static void copyLocalFile(String sourcePath, String destPath, boolean markExec) throws IOException {
+        Objects.requireNonNull(sourcePath);
+        Objects.requireNonNull(destPath);
+        Files.copy(Paths.get(sourcePath), Paths.get(destPath),
+            StandardCopyOption.REPLACE_EXISTING);
+        if (markExec) {
+            if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+                Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
+            }
+        }
+    }
+
+
+    /**
      * Create a file with the given path.
      *
      * @param filePath        the path of the file to create
@@ -727,6 +748,46 @@ public class Utils {
             throw notFound;
         }
     }
+
+
+    /**
+     * Set the Inventory Location directory based on the inventory pointer  file.
+     *
+     * @param inventoryLocFile installer response file to parse.
+     * @param options           Dockerfile options to use for the build (holds the Oracle Home argument)
+     */
+    public static void setInventoryLocation(String inventoryLocFile, DockerfileOptions options) throws IOException {
+        if (inventoryLocFile == null) {
+            return;
+        }
+        Path inventoryLoc = Paths.get(inventoryLocFile);
+        Pattern pattern = Pattern.compile("^\\s*inventory_loc=(.*)?");
+        Matcher matcher = pattern.matcher("");
+        logger.finer("Reading inventory location file: {0}", inventoryLoc.getFileName());
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(inventoryLoc.toFile()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                logger.finest("Read inventory loc file line: {0}", line);
+
+                matcher.reset(line);
+                if (matcher.find()) {
+                    String invLoc = matcher.group(1);
+                    if (invLoc != null) {
+                        options.setOraInvDir(invLoc);
+                    }
+                    break;
+                }
+            }
+        } catch (FileNotFoundException notFound) {
+            logger.severe("IMG-0036", inventoryLoc);
+            throw notFound;
+        }
+    }
+
+
+
 
     private static boolean validFile(Path file) throws IOException {
         return file != null && Files.isRegularFile(file) && Files.size(file) > 0;

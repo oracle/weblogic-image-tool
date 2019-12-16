@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,10 @@ public class DockerfileOptions {
     private static final String DEFAULT_JAVA_HOME = "/u01/jdk";
     private static final String DEFAULT_ORACLE_HOME = "/u01/oracle";
     private static final String DEFAULT_DOMAIN_HOME = "/u01/domains/base_domain";
+    // Default location for the oraInst.loc
+    private static final String DEFAULT_INV_LOC = "/u01/oracle";
+
+    private static final String DEFAULT_ORAINV_DIR = "/u01/oracle/oraInventory";
 
     final String buildId;
     boolean useYum = false;
@@ -26,6 +31,7 @@ public class DockerfileOptions {
     private boolean applyPatches;
     private boolean updateOpatch;
     private boolean skipJavaInstall;
+    private boolean inventoryPointerFileSet = false;
     private boolean isRebaseToTarget;
     private boolean isRebaseToNew;
 
@@ -33,6 +39,8 @@ public class DockerfileOptions {
     private String groupname;
     private String javaHome;
     private String oracleHome;
+    private String invLoc;
+    private String oraInvDir;
     private String domainHome;
     private String tempDirectory;
     private String baseImageName;
@@ -70,6 +78,9 @@ public class DockerfileOptions {
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
         domainHome = DEFAULT_DOMAIN_HOME;
+        invLoc = DEFAULT_INV_LOC;
+        oraInvDir = DEFAULT_ORAINV_DIR;
+
         tempDirectory = "/tmp/imagetool";
 
         baseImageName = "oraclelinux:7-slim";
@@ -245,6 +256,16 @@ public class DockerfileOptions {
         return oracleHome;
     }
 
+
+    public String inv_loc() {
+        return invLoc;
+    }
+
+    public String orainv_dir() {
+        return oraInvDir;
+    }
+
+
     @SuppressWarnings("unused")
     public String domain_home() {
         return domainHome;
@@ -274,6 +295,29 @@ public class DockerfileOptions {
             oracleHome = value;
         } else {
             oracleHome = DEFAULT_ORACLE_HOME;
+        }
+    }
+
+
+    /**
+     * Set the INV_LOC environment variable for the Dockerfile to be written.
+     *
+     * @param value the folder where Oracle Middleware is or should be installed, aka INV_LOC.
+     */
+    public void setInvLoc(String value) {
+        if (value != null) {
+            invLoc = value;
+        } else {
+            invLoc = DEFAULT_INV_LOC;
+        }
+    }
+
+
+    public void setOraInvDir(String value) {
+        if (value != null) {
+            oraInvDir = value;
+        } else {
+            oraInvDir = DEFAULT_ORAINV_DIR;
         }
     }
 
@@ -391,6 +435,42 @@ public class DockerfileOptions {
         return useWdt;
     }
 
+
+    /**
+     * copyOraInst check if it needs to copy the oraInst.loc file.
+     * @return true if it needs to copy
+     */
+
+    public boolean copyOraInst() {
+        return !isSubDirectoryOrSame(invLoc, oracleHome);
+    }
+
+    /**
+     * copyOraInventoryDir check if it needs to copy the oraInventory Directory.
+     * @return true if it needs to copy
+     */
+
+    public boolean copyOraInventoryDir() {
+        return !isSubDirectoryOrSame(oraInvDir, oracleHome);
+    }
+
+    /**
+     * isSubDirectoryOrSame compare if the child is a subdirectory of parent (non java.io implementation).
+     * @param child  child directory name
+     * @param parent parent directory name
+     * @return true if child is a subdirectory of parent otherwise false
+     */
+
+    private static boolean isSubDirectoryOrSame(String child, String parent) {
+        boolean result = true;
+        child = child.endsWith(File.separator) ? child.substring(0, child.length() - 1) : child;
+        parent = parent.endsWith(File.separator) ? parent.substring(0, parent.length() - 1) : parent;
+        if (!child.equals(parent)) {
+            result = child.startsWith(parent);
+        }
+        return result;
+    }
+
     /**
      * If WDT is enabled, and the model is not in the archive, the model file argument must be set.
      * @param value a model filename, or comma-separated model filenames.
@@ -401,6 +481,19 @@ public class DockerfileOptions {
             wdtModelList.addAll(value);
         }
         return this;
+    }
+
+    /**
+     * If inventoryPointerFileSet is set.
+     *
+     * @return true if inventoryPointerFileSet is set
+     */
+    public boolean isInventoryPointerFileSet() {
+        return inventoryPointerFileSet;
+    }
+
+    public void setInventoryPointerFileSet(boolean value) {
+        this.inventoryPointerFileSet = value;
     }
 
     /**

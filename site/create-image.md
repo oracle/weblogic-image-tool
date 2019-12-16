@@ -37,6 +37,8 @@ Usage: imagetool create [OPTIONS]
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
 | `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
 | `--wdtVersion` | WDT tool version to use.  |   |
+| `--inventoryPointerFile` | Path to inventory pointer file.  |   |
+| `--inventoryPointerInstallLoc` | Path to where to store the inventory pointer file.  |   |
 
 ## Additional information
 
