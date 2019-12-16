@@ -91,13 +91,11 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     ARG WLS_PKG
     ARG INV_LOC
-    ARG ORAINST
 
     ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
     JAVA_HOME={{{java_home}}} \
     ORACLE_HOME={{{oracle_home}}} \
     INV_LOC=${INV_LOC:-/u01/oracle/oraInventory} \
-    ORAINST=${ORAINST:-oraInst.loc} \
     OPATCH_NO_FUSER=true
 
     RUN mkdir -p {{{oracle_home}}} \
@@ -109,7 +107,7 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
     {{/installJava}}
 
     COPY --chown={{userid}}:{{groupid}} $WLS_PKG wls.rsp {{{tempDir}}}/
-    COPY --chown={{userid}}:{{groupid}} $ORAINST $INV_LOC/
+    COPY --chown={{userid}}:{{groupid}} oraInst.loc $INV_LOC/
 
     {{#isOpatchPatchingEnabled}}
         COPY --chown={{userid}}:{{groupid}} {{{opatchFileName}}} {{{tempDir}}}/opatch/
@@ -127,7 +125,7 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
 
     RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
     && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/fmw_*.jar -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc $INV_LOC/$ORAINST -ignoreSysPrereqs -force -novalidation \
+    -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc $INV_LOC/oraInst.loc -ignoreSysPrereqs -force -novalidation \
     {{#isOpatchPatchingEnabled}}
         && cd {{{tempDir}}}/opatch \
         && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \

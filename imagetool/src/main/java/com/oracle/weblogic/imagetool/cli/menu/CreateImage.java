@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.cli.menu;
 import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -76,7 +77,21 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
 
             // Copy wls response file to tmpDir
             WLSInstallHelper.copyResponseFilesToDir(tmpDir, installerResponseFile);
+
             Utils.setOracleHome(installerResponseFile, dockerfileOptions);
+
+            // Set where the user want to install the inventor oraInst.loc file
+
+            if (inventoryPointerInstallLoc != null) {
+                dockerfileOptions.setInventoryPointerFileSet(true);
+                dockerfileOptions.setInvLoc(inventoryPointerInstallLoc);
+            }
+
+            // Set the inventory location, so that it will be copied
+            if (inventoryPointerFile != null) {
+                Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
+                Utils.copyLocalFile(inventoryPointerFile, tmpDir + "/oraInst.loc", false);
+            }
 
             // Create Dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
@@ -153,6 +168,18 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             description = "path to a response file. Override the default responses for the Oracle installer"
     )
     private String installerResponseFile;
+
+    @Option(
+        names = {"--inventoryPointerFile"},
+        description = "path to a user provided inventory pointer file as input"
+    )
+    private String inventoryPointerFile;
+
+    @Option(
+        names = {"--inventoryPointerInstallLoc"},
+        description = "path to where the inventory pointer file (oraInst.loc) should be stored in the image"
+    )
+    private String inventoryPointerInstallLoc;
 
     @ArgGroup(exclusive = false, heading = "WDT Options%n")
     private WdtOptions wdtOptions = new WdtOptions();
