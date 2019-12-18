@@ -1,0 +1,116 @@
+// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+package com.oracle.weblogic.imagetool.api.model;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Utils;
+
+/**
+ * Base class to represent either an installer or a patch file.
+ */
+public class CachedFile {
+
+    private static final LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
+
+    private String key;
+    private String filename = null;
+
+    /**
+     * Represents a locally cached file.
+     *
+     * @param id          cache ID (like installer type or patchId)
+     * @param version     version number for the patch or installer.
+     */
+    public CachedFile(String id, String version) {
+        key = generateKey(id, version);
+    }
+
+    /**
+     * Represents a locally cached file.
+     *
+     * @param id          cache ID (like installer type)
+     * @param version     version number for the patch or installer.
+     */
+    public CachedFile(InstallerType id, String version) {
+        this(id.toString(), version);
+    }
+
+    public static boolean isFileOnDisk(String filePath) {
+        return filePath != null && Files.isRegularFile(Paths.get(filePath));
+    }
+
+    private String generateKey(String id, String version) {
+
+        logger.entering(id, version);
+        String mykey = id;
+        if (id == null) {  // should never happens
+            mykey = id + CacheStore.CACHE_KEY_SEPARATOR + version;
+        } else if (id.indexOf('_') < 0) {
+            if (version != null) {
+                mykey = mykey + CacheStore.CACHE_KEY_SEPARATOR + version;
+            }
+        }
+
+        logger.exiting(mykey);
+        return mykey;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    /**
+     * Get the path of the file stored locally in the cache.
+     * @param cacheStore the cache store to search
+     * @return the Path of the file, if found
+     * @throws IOException throws FileNotFoundException, if this cached file (key) could not be located in the cache
+     */
+    public String resolve(CacheStore cacheStore) throws IOException {
+        // check entry exists in cache
+        String key = getKey();
+        logger.entering(key);
+        String filePath = cacheStore.getValueFromCache(key);
+        if (!isFileOnDisk(filePath)) {
+            throw new FileNotFoundException(Utils.getMessage("IMG-0011", key));
+        }
+
+        logger.exiting(filePath);
+        return filePath;
+    }
+
+    /**
+     * Copy file from cacheStore to Docker build context directory.
+     * @param cacheStore cache to copy file from
+     * @param buildContextDir directory to copy file to
+     */
+    public void copyFile(CacheStore cacheStore, String buildContextDir) throws IOException {
+        logger.entering();
+        String sourceFile = resolve(cacheStore);
+        logger.info("copying {0} to build context folder.", sourceFile);
+        filename = new File(sourceFile).getName();
+        try {
+            Files.copy(Paths.get(sourceFile), Paths.get(buildContextDir, filename));
+        } catch (Exception ee) {
+            ee.printStackTrace();
+        }
+        logger.exiting();
+    }
+
+    /**
+     * After copyFile, this method will return the relative filename of the copied file in the
+     * Docker build context folder.
+     * @return name of the file
+     */
+    public String name() {
+        return filename;
+    }
+}

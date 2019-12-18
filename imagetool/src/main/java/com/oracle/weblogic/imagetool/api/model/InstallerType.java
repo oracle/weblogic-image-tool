@@ -9,14 +9,18 @@ import java.util.List;
 import com.oracle.weblogic.imagetool.util.Constants;
 
 /**
- * An enum to represent installer type.
+ * Supported installer types in the local cache.
+ * Provides list of types to the CLI for the addInstaller type flag.
  */
 public enum InstallerType {
 
-    FMW(WLSInstallerType.FMW.toString()),
+    //This ENUM MUST contain all types from FmwInstallerType in addition to JDK and WDT types
+    WLS(FmwInstallerType.WLS.toString().toLowerCase()),
+    FMW(FmwInstallerType.FMW.toString().toLowerCase()),
+    SOA(FmwInstallerType.SOA.toString().toLowerCase()),
+    OSB(FmwInstallerType.OSB.toString().toLowerCase()),
     JDK("jdk"),
-    WDT("wdt"),
-    WLS(WLSInstallerType.WLS.toString());
+    WDT("wdt");
 
     private String value;
 
@@ -27,24 +31,6 @@ public enum InstallerType {
     @Override
     public String toString() {
         return value;
-    }
-
-    /**
-     * Get the Dockerfile build argument for this installer type.
-     * @param location the location of the installer.
-     * @return --build-arg and this installer type argument and location.
-     */
-    public List<String> getBuildArg(String location) {
-        List<String> retVal = new ArrayList<>(2);
-        retVal.add(Constants.BUILD_ARG);
-        if (this == WLS || this == FMW) {
-            retVal.add("WLS_PKG=" + location);
-        } else if (this == JDK) {
-            retVal.add("JAVA_PKG=" + location);
-        } else {
-            retVal.add("WDT_PKG=" + location);
-        }
-        return retVal;
     }
 
     /**

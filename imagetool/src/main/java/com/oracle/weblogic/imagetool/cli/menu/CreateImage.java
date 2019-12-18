@@ -7,13 +7,14 @@ import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.cachestore.InstallerFile;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.api.model.InstallerType;
+import com.oracle.weblogic.imagetool.installers.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -39,9 +40,6 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
         String tmpDir = null;
         String buildId =  UUID.randomUUID().toString();
 
-        if (wdtOptions == null)
-            System.out.println("WDT opts is null");
-
         try {
             init(buildId);
 
@@ -51,17 +49,19 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, "Patch ID validation failed");
             }
 
-            boolean rc = WLSInstallHelper.setFromImage(fromImage, dockerfileOptions, tmpDir);
-            if (!rc) {
-                Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
-                return new CommandResponse(-1,
-                    "Oracle Home exists at location:" + baseImageProperties.getProperty("ORACLE_HOME"));
-            }
+            WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
 
             List<String> cmdBuilder = getInitialBuildCmd();
 
-            // this handles wls, jdk and wdt install files.
-            cmdBuilder.addAll(handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
+            if (dockerfileOptions.installJava()) {
+                CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
+                jdk.copyFile(cacheStore, tmpDir);
+                dockerfileOptions.setJavaInstaller(jdk.name());
+            }
+
+            MiddlewareInstall install = MiddlewareInstall.getInstall(this.installerType, installerVersion);
+            install.copyFiles(cacheStore, tmpDir);
+            dockerfileOptions.setMiddlewareInstall(install);
 
             // build wdt args if user passes --wdtModelPath
             cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, getInstallerType()));
@@ -73,9 +73,6 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             if (applyingPatches()) {
                 installOpatchInstaller(tmpDir, opatchBugNumber);
             }
-
-            // Copy wls response file to tmpDir
-            WLSInstallHelper.copyResponseFilesToDir(tmpDir, installerResponseFile);
 
             Utils.setOracleHome(installerResponseFile, dockerfileOptions);
 
@@ -90,6 +87,8 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             if (inventoryPointerFile != null) {
                 Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
                 Utils.copyLocalFile(inventoryPointerFile, tmpDir + "/oraInst.loc", false);
+            } else {
+                Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
             }
 
             // Create Dockerfile
@@ -113,16 +112,16 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
                 + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
-    private List<InstallerFile> gatherRequiredInstallers() throws Exception {
+    private List<CachedFile> gatherRequiredInstallers() throws Exception {
         logger.entering();
-        List<InstallerFile> retVal = wdtOptions.gatherWdtRequiredInstallers();
+        List<CachedFile> retVal = wdtOptions.gatherWdtRequiredInstallers();
         return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
             getInstallerVersion(), jdkVersion, dockerfileOptions);
     }
 
 
     @Override
-    WLSInstallerType getInstallerType() {
+    FmwInstallerType getInstallerType() {
         if (installerType == null) {
             return wdtOptions.getWdtDomainType().installerType();
         }
@@ -138,7 +137,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             names = {"--type"},
             description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
     )
-    private WLSInstallerType installerType;
+    private FmwInstallerType installerType = FmwInstallerType.WLS;
 
     @Option(
             names = {"--version"},

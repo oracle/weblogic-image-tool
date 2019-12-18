@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
@@ -67,8 +67,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             if (oracleHome == null) {
                 return new CommandResponse(-1, "ORACLE_HOME env variable undefined in base image: " + fromImage);
             }
-            installerType = WLSInstallerType.fromValue(baseImageProperties.getProperty("WLS_TYPE",
-                WLSInstallerType.WLS.toString()));
+            installerType = FmwInstallerType.valueOf(baseImageProperties.getProperty("WLS_TYPE",
+                FmwInstallerType.WLS.toString()).toUpperCase());
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
@@ -136,9 +136,6 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             List<String> cmdBuilder = getInitialBuildCmd();
 
-            // this handles wls, jdk and wdt install files.
-            cmdBuilder.addAll(handleInstallerFiles(tmpDir, wdtOptions.gatherWdtRequiredInstallers()));
-
             // build wdt args if user passes --wdtModelPath
             cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, getInstallerType()));
             dockerfileOptions.setWdtCommand(wdtOperation);
@@ -174,13 +171,13 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
     }
 
     @Override
-    WLSInstallerType getInstallerType() {
+    FmwInstallerType getInstallerType() {
         return installerType;
     }
 
     private String installerVersion;
 
-    private WLSInstallerType installerType;
+    private FmwInstallerType installerType;
 
     @Option(
             names = {"--fromImage"},

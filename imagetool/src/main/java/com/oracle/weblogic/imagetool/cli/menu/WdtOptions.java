@@ -12,11 +12,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
-import com.oracle.weblogic.imagetool.cachestore.InstallerFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -40,7 +40,7 @@ public class WdtOptions {
      * @throws IOException in case of error
      */
     List<String> handleWdtArgsIfRequired(DockerfileOptions dockerfileOptions, String tmpDir,
-                                         WLSInstallerType installerType) throws IOException {
+                                         FmwInstallerType installerType) throws IOException {
         logger.entering(tmpDir);
 
         List<String> retVal = new LinkedList<>();
@@ -54,7 +54,7 @@ public class WdtOptions {
 
             dockerfileOptions.setWdtDomainType(wdtDomainType);
             if (wdtDomainType != DomainType.WLS) {
-                if (installerType != WLSInstallerType.FMW) {
+                if (installerType != FmwInstallerType.FMW) {
                     throw new IOException("FMW installer is required for JRF domain");
                 }
                 dockerfileOptions.setRunRcu(runRcu);
@@ -78,29 +78,36 @@ public class WdtOptions {
             }
 
             dockerfileOptions.setWdtStrictValidation(wdtStrictValidation);
+
+            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
+            wdtInstaller.copyFile(cacheStore, tmpDir);
         }
         logger.exiting();
         return retVal;
     }
 
     /**
-     * Builds a list of {@link InstallerFile} objects based on user input which are processed.
+     * Builds a list of {@link CachedFile} objects based on user input which are processed.
      * to download the required install artifacts
      *
-     * @return list of InstallerFile
+     * @return list of CachedFile
      * @throws Exception in case of error
      */
-    public List<InstallerFile> gatherWdtRequiredInstallers() throws Exception {
+    public List<CachedFile> gatherWdtRequiredInstallers() throws Exception {
         logger.entering();
-        List<InstallerFile> result = new LinkedList<>();
+        List<CachedFile> result = new LinkedList<>();
         if (wdtModelPath != null) {
             logger.finer("IMG-0001", InstallerType.WDT, wdtVersion);
-            InstallerFile wdtInstaller = new InstallerFile(InstallerType.WDT, wdtVersion);
+            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
             result.add(wdtInstaller);
             addWdtUrl(wdtInstaller.getKey(), cacheStore, wdtVersion);
         }
         logger.exiting(result.size());
         return result;
+    }
+
+    public CachedFile getWdtInstaller() {
+        return new CachedFile(InstallerType.WDT, wdtVersion);
     }
 
     private void addWdtUrl(String wdtKey, CacheStore cacheStore, String wdtVersion) throws Exception {

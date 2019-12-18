@@ -11,6 +11,9 @@ import java.util.Arrays;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.api.model.InstallerType;
+import com.oracle.weblogic.imagetool.installers.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.wdt.DomainType;
 import org.junit.Test;
 
@@ -24,13 +27,16 @@ public class DockerfileBuilderTest {
      */
     @Test
     public void validateMustacheAliases() throws IOException {
+        MiddlewareInstall install = MiddlewareInstall.getInstall(FmwInstallerType.WLS, "12.2.1.3");
+
         DockerfileOptions dockerfileOptions = new DockerfileOptions("123")
             .setPatchingEnabled()
             .setOPatchPatchingEnabled()
             .setWdtEnabled()
             .setWdtDomainType(DomainType.WLS)
             .setWdtModels(Arrays.asList("model1.yaml", "model2.yaml"))
-            .setPackageInstaller(Constants.YUM);
+            .setPackageInstaller(Constants.YUM)
+            .setMiddlewareInstall(install);
 
         MustacheFactory mf = new DefaultMustacheFactory(new File("src/main/resources/docker-files"));
         Mustache mustache = mf.compile("Create_Image.mustache");

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import com.oracle.weblogic.imagetool.installers.MiddlewareInstall;
+import com.oracle.weblogic.imagetool.installers.MiddlewareInstallPackage;
 import com.oracle.weblogic.imagetool.wdt.DomainType;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
@@ -36,6 +38,7 @@ public class DockerfileOptions {
     private boolean isRebaseToTarget;
     private boolean isRebaseToNew;
 
+    private String javaInstaller;
     private String username;
     private String groupname;
     private String javaHome;
@@ -786,4 +789,22 @@ public class DockerfileOptions {
         return getAdditionalCommandsForSection(AdditionalBuildCommands.FINAL_BLD);
     }
 
+    private MiddlewareInstall mwInstallers;
+
+    public DockerfileOptions setMiddlewareInstall(MiddlewareInstall install) {
+        mwInstallers = install;
+        return this;
+    }
+
+    public List<MiddlewareInstallPackage> installPackages() {
+        return mwInstallers.getInstallers();
+    }
+
+    public void setJavaInstaller(String value) {
+        javaInstaller = value;
+    }
+
+    public String java_pkg() {
+        return javaInstaller;
+    }
 }

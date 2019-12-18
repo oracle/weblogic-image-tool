@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -98,7 +98,7 @@ public class AddPatchEntry extends CacheOperation {
             required = true,
             defaultValue = "wls"
     )
-    private WLSInstallerType type;
+    private FmwInstallerType type;
 
 
     @Option(

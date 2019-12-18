@@ -3,20 +3,21 @@
 
 package com.oracle.weblogic.imagetool.cachestore;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import com.oracle.weblogic.imagetool.api.model.AbstractFile;
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
+import com.oracle.weblogic.imagetool.util.Utils;
 
-public class PatchFile extends AbstractFile {
+public class CachedPatchFile extends CachedFile {
 
-    private static final LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
+    private static final LoggingFacade logger = LoggingFactory.getLogger(CachedPatchFile.class);
     private String patchId;
-    private String category;
     private String version;
     private String userId;
     private String password;
@@ -24,16 +25,13 @@ public class PatchFile extends AbstractFile {
     /**
      * Create an abstract file to hold the metadata for a patch file.
      *
-     * @param category    the patch category
      * @param version     the version of installer this patch is applicable to
      * @param patchId     the ID of the patch
      * @param userId      the username to use for retrieving the patch
      * @param password    the password to use with the userId to retrieve the patch
      */
-    public PatchFile(String category, String version, String patchId, String userId,
-                     String password) {
+    public CachedPatchFile(String version, String patchId, String userId, String password) {
         super(patchId, version);
-        this.category = category;
         this.version = version;
         this.patchId = patchId;
         this.userId = userId;
@@ -41,7 +39,7 @@ public class PatchFile extends AbstractFile {
     }
 
     @Override
-    public String resolve(CacheStore cacheStore) throws Exception {
+    public String resolve(CacheStore cacheStore) throws IOException {
         //patchId is null in case of latestPSU
 
         logger.entering(patchId);
@@ -49,13 +47,12 @@ public class PatchFile extends AbstractFile {
         boolean fileExists = isFileOnDisk(filePath);
 
         if (fileExists) {
-            logger.info("IMG-0017", category, patchId, filePath);
+            logger.info("IMG-0017", patchId, filePath);
         } else {
-            logger.fine("Could not find patch in cache category={0} version={1} patchId={2}",
-                category, version, patchId);
+            logger.fine("Could not find patch in cache patchId={2} version={1} ", patchId, version);
 
             if (userId == null || password == null) {
-                throw new Exception(String.format(
+                throw new FileNotFoundException(String.format(
                     "Patch %s is not in the cache store and you have not provide Oracle Support "
                         + "credentials in the command line.  Please provide --user with one of the password "
                         + "option or "
@@ -79,8 +76,7 @@ public class PatchFile extends AbstractFile {
         patches.forEach(x -> cacheStore.addToCache(patchKey, x.substring(x.indexOf('=') + 1)));
         String filePath = cacheStore.getValueFromCache(patchKey);
         if (!isFileOnDisk(filePath)) {
-            throw new IOException(String.format("Failed to find patch %s for product category %s, version %s",
-                    patchId, category, version));
+            throw new FileNotFoundException(Utils.getMessage("IMG-0037", patchId, version));
         }
         return filePath;
     }
