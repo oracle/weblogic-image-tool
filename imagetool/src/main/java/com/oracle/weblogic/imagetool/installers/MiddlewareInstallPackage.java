@@ -8,4 +8,5 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 public class MiddlewareInstallPackage {
     public ResponseFile responseFile;
     public CachedFile installer;
+    public String jarName;
 }

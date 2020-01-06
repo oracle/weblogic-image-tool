@@ -4,8 +4,12 @@
 package com.oracle.weblogic.imagetool.installers;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
@@ -20,28 +24,29 @@ public class MiddlewareInstall {
 
     private List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
 
-    public void copyFiles(CacheStore cacheStore, String buildContextDir) throws IOException {
-        for (MiddlewareInstallPackage installPackage: installerFiles) {
-            installPackage.installer.copyFile(cacheStore, buildContextDir);
-            installPackage.responseFile.copyFile(buildContextDir);
-            //TODO: copy response file to context Dir
+    private static String getJarNameFromInstaller(Path installerFile) throws IOException {
+        String filename = installerFile.getFileName().toString();
+        logger.entering(filename);
+        if (filename == null) {
+            return null;
         }
-    }
 
-    public List<MiddlewareInstallPackage> getInstallers() {
-        return installerFiles;
-    }
-
-    public void setResponseFiles(List<String> responseFiles) {
-        if (responseFiles != null && !responseFiles.isEmpty()) {
-            if (responseFiles.size() != installerFiles.size()) {
-                throw new IllegalArgumentException(
-                    "The number of response files did not match the number of installers " + installerFiles.size());
-            }
-            for (int i = 0; i < installerFiles.size(); i++) {
-                installerFiles.get(i).responseFile = new ProvidedResponseFile(responseFiles.get(i));
+        if (filename.endsWith(".zip")) {
+            logger.finer("locating installer JAR inside installer ZIP");
+            ZipFile zipFile = new ZipFile(installerFile.toFile());
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+                logger.finer("Entry in zip {0}: {1}", filename, entryName);
+                if (entryName.endsWith(".jar")) {
+                    filename = entryName;
+                    break;
+                }
             }
         }
+        logger.exiting(filename);
+        return filename;
     }
 
     /**
@@ -60,14 +65,40 @@ public class MiddlewareInstall {
                 result.installerFiles.add(fmw);
                 break;
             case WLS:
-                MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
-                pkg.installer = new CachedFile(InstallerType.WLS, version);
-                pkg.responseFile = new DefaultResponseFile("/response-files/wls.rsp");
-                result.installerFiles.add(pkg);
-                break;
+                return new WebLogicMiddlewareInstall(version);
             default:
                 throw new IllegalArgumentException(type.toString() + " is not a supported middleware install type");
         }
         return result;
+    }
+
+    public void copyFiles(CacheStore cacheStore, String buildContextDir) throws IOException {
+        logger.entering();
+        for (MiddlewareInstallPackage installPackage: installerFiles) {
+            Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDir);
+            installPackage.jarName = getJarNameFromInstaller(filePath);
+            installPackage.responseFile.copyFile(buildContextDir);
+        }
+        logger.exiting();
+    }
+
+    public List<MiddlewareInstallPackage> getInstallers() {
+        return installerFiles;
+    }
+
+    boolean addInstaller(MiddlewareInstallPackage installPackage) {
+        return installerFiles.add(installPackage);
+    }
+
+    public void setResponseFiles(List<String> responseFiles) {
+        if (responseFiles != null && !responseFiles.isEmpty()) {
+            if (responseFiles.size() != installerFiles.size()) {
+                throw new IllegalArgumentException(
+                    "The number of response files did not match the number of installers " + installerFiles.size());
+            }
+            for (int i = 0; i < installerFiles.size(); i++) {
+                installerFiles.get(i).responseFile = new ProvidedResponseFile(responseFiles.get(i));
+            }
+        }
     }
 }

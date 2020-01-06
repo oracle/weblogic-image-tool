@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -55,8 +56,8 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
 
             if (dockerfileOptions.installJava()) {
                 CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
-                jdk.copyFile(cacheStore, tmpDir);
-                dockerfileOptions.setJavaInstaller(jdk.name());
+                Path installerPath = jdk.copyFile(cacheStore, tmpDir);
+                dockerfileOptions.setJavaInstaller(installerPath.getFileName().toString());
             }
 
             MiddlewareInstall install = MiddlewareInstall.getInstall(this.installerType, installerVersion);

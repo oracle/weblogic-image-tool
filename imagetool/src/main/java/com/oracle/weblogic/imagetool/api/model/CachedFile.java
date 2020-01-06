@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
@@ -22,7 +23,6 @@ public class CachedFile {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
 
     private String key;
-    private String filename = null;
 
     /**
      * Represents a locally cached file.
@@ -91,26 +91,20 @@ public class CachedFile {
      * Copy file from cacheStore to Docker build context directory.
      * @param cacheStore cache to copy file from
      * @param buildContextDir directory to copy file to
+     * @return the path of the file copied to the Docker build context directory
      */
-    public void copyFile(CacheStore cacheStore, String buildContextDir) throws IOException {
+    public Path copyFile(CacheStore cacheStore, String buildContextDir) throws IOException {
         logger.entering();
+        Path result = null;
         String sourceFile = resolve(cacheStore);
         logger.info("copying {0} to build context folder.", sourceFile);
-        filename = new File(sourceFile).getName();
+        String targetFilename = new File(sourceFile).getName();
         try {
-            Files.copy(Paths.get(sourceFile), Paths.get(buildContextDir, filename));
+            result = Files.copy(Paths.get(sourceFile), Paths.get(buildContextDir, targetFilename));
         } catch (Exception ee) {
             ee.printStackTrace();
         }
-        logger.exiting();
-    }
-
-    /**
-     * After copyFile, this method will return the relative filename of the copied file in the
-     * Docker build context folder.
-     * @return name of the file
-     */
-    public String name() {
-        return filename;
+        logger.exiting(result);
+        return result;
     }
 }
