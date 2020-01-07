@@ -79,7 +79,7 @@ RUN mkdir -p {{{oracle_home}}} \
 {{#installJava}}COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
 {{/installJava}}
 
-{{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installer.name}} {{responseFile.name}} {{{tempDir}}}/
+{{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installerFilename}} {{responseFile.name}} {{{tempDir}}}/
 {{/installPackages}}
 COPY --chown={{userid}}:{{groupid}} oraInst.loc {{inv_loc}}/
 
@@ -97,7 +97,7 @@ USER {{userid}}
 {{/beforeFmwInstall}}
 
 {{#installPackages}}
-RUN unzip -q {{{tempDir}}}/{{installer.name}} -d {{{tempDir}}} \
+RUN unzip -q {{{tempDir}}}/{{installerFilename}} -d {{{tempDir}}} \
  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
     -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation
 {{/installPackages}}

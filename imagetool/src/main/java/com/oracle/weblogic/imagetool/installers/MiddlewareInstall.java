@@ -76,6 +76,7 @@ public class MiddlewareInstall {
         logger.entering();
         for (MiddlewareInstallPackage installPackage: installerFiles) {
             Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDir);
+            installPackage.installerFilename = filePath.getFileName().toString();
             installPackage.jarName = getJarNameFromInstaller(filePath);
             installPackage.responseFile.copyFile(buildContextDir);
         }
