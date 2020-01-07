@@ -1,7 +1,7 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.installers;
+package com.oracle.weblogic.imagetool.installer.type;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
-import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
+import com.oracle.weblogic.imagetool.installer.ProvidedResponseFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 
@@ -55,17 +55,24 @@ public class MiddlewareInstall {
      * @return the metadata for the given install type
      */
     public static MiddlewareInstall getInstall(FmwInstallerType type, String version) {
-        MiddlewareInstall result = new MiddlewareInstall();
+        MiddlewareInstall result;
 
         switch (type) {
-            case FMW:
-                MiddlewareInstallPackage fmw = new MiddlewareInstallPackage();
-                fmw.installer = new CachedFile(InstallerType.FMW, version);
-                fmw.responseFile = new DefaultResponseFile("/response-files/fmw.rsp");
-                result.installerFiles.add(fmw);
-                break;
             case WLS:
-                return new WebLogicMiddlewareInstall(version);
+                result =  new MiddlewareInstallWLS(version);
+                break;
+            case FMW:
+                result = new MiddlewareInstallFMW(version);
+                break;
+            case SOA:
+                result = new MiddlewareInstallSOA(version);
+                break;
+            case OSB:
+                result = new MiddlewareInstallOSB(version);
+                break;
+            case SOAOSB:
+                result = new MiddlewareInstallSOAOSB(version);
+                break;
             default:
                 throw new IllegalArgumentException(type.toString() + " is not a supported middleware install type");
         }

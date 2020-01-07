@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -12,8 +12,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
-import com.oracle.weblogic.imagetool.api.model.InstallerType;
-import com.oracle.weblogic.imagetool.installers.MiddlewareInstall;
+import com.oracle.weblogic.imagetool.installer.type.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.wdt.DomainType;
 import org.junit.Test;
 

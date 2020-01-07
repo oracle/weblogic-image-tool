@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.
+# Copyright (c) 2019, 2020 Oracle and/or its affiliates.  All rights reserved.
 #
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
@@ -97,7 +97,7 @@ USER {{userid}}
 {{/beforeFmwInstall}}
 
 {{#installPackages}}
-RUN unzip -q {{{tempDir}}}/{{installerFilename}} -d {{{tempDir}}} \
+RUN unzip -q {{{tempDir}}}/{{installerFilename}} "*.jar" -d {{{tempDir}}} \
  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
     -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation
 {{/installPackages}}
