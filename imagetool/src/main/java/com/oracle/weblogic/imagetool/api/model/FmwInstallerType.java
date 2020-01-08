@@ -3,9 +3,25 @@
 
 package com.oracle.weblogic.imagetool.api.model;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
- * Supported Fusion Middleware installer types.
+ * Supported Fusion Middleware installer sets.
  */
 public enum FmwInstallerType {
-    WLS, FMW, SOA, OSB, SOAOSB;
+    WLS(InstallerType.WLS),
+    FMW(InstallerType.FMW),
+    OSB(InstallerType.FMW, InstallerType.OSB),
+    SOA(InstallerType.FMW, InstallerType.SOA),
+    SOAOSB(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB);
+
+    private InstallerType[] installers;
+    FmwInstallerType(InstallerType... installers) {
+        this.installers = installers;
+    }
+
+    public List<InstallerType> getInstallerList() {
+        return Arrays.asList(installers);
+    }
 }

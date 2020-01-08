@@ -12,7 +12,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
-import com.oracle.weblogic.imagetool.installer.type.MiddlewareInstall;
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.wdt.DomainType;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class DockerfileBuilderTest {
      */
     @Test
     public void validateMustacheAliases() throws IOException {
-        MiddlewareInstall install = MiddlewareInstall.getInstall(FmwInstallerType.WLS, "12.2.1.3");
+        MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.3");
 
         DockerfileOptions dockerfileOptions = new DockerfileOptions("123")
             .setPatchingEnabled()

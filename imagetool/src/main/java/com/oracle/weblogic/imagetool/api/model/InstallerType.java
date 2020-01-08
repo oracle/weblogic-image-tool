@@ -14,11 +14,12 @@ import com.oracle.weblogic.imagetool.util.Constants;
  */
 public enum InstallerType {
 
-    //This ENUM MUST contain all types from FmwInstallerType in addition to JDK and WDT types
-    WLS(FmwInstallerType.WLS.toString().toLowerCase()),
-    FMW(FmwInstallerType.FMW.toString().toLowerCase()),
-    SOA(FmwInstallerType.SOA.toString().toLowerCase()),
-    OSB(FmwInstallerType.OSB.toString().toLowerCase()),
+    //Values are used to resolve response files and lookup installers in the cache
+    //There must be a matching (default) response file in {resources}/response-files/
+    WLS("wls"),
+    FMW("fmw"),
+    SOA("soa"),
+    OSB("osb"),
     JDK("jdk"),
     WDT("wdt");
 

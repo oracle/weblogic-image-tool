@@ -15,7 +15,7 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
-import com.oracle.weblogic.imagetool.installer.type.MiddlewareInstall;
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -60,7 +60,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
                 dockerfileOptions.setJavaInstaller(installerPath.getFileName().toString());
             }
 
-            MiddlewareInstall install = MiddlewareInstall.getInstall(this.installerType, installerVersion);
+            MiddlewareInstall install = new MiddlewareInstall(this.installerType, installerVersion);
             install.copyFiles(cacheStore, tmpDir);
             dockerfileOptions.setMiddlewareInstall(install);
 

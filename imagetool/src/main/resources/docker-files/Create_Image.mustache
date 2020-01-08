@@ -103,13 +103,13 @@ RUN unzip -q {{{tempDir}}}/{{installerFilename}} "*.jar" -d {{{tempDir}}} \
 {{/installPackages}}
 
 {{#isOpatchPatchingEnabled}}
-cd {{{tempDir}}}/opatch \
+RUN cd {{{tempDir}}}/opatch \
  && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \
  && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}}
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-{{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
+RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
  && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
 {{/isPatchingEnabled}}
 

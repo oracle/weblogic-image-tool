@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
-import com.oracle.weblogic.imagetool.installer.type.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.wdt.DomainType;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
