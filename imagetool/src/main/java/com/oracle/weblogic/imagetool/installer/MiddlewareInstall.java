@@ -75,6 +75,7 @@ public class MiddlewareInstall {
             Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDir);
             installPackage.installerFilename = filePath.getFileName().toString();
             installPackage.jarName = getJarNameFromInstaller(filePath);
+            installPackage.isZip = installPackage.installerFilename.endsWith(".zip");
             installPackage.responseFile.copyFile(buildContextDir);
         }
         logger.exiting();

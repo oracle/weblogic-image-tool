@@ -10,4 +10,5 @@ public class MiddlewareInstallPackage {
     public CachedFile installer;
     public String installerFilename;
     public String jarName;
+    public boolean isZip = true;
 }
