@@ -20,6 +20,15 @@ public enum InstallerType {
     FMW("fmw"),
     SOA("soa"),
     OSB("osb"),
+    IDM("idm"),
+    ODI("odi"),
+    BI("bi"),
+    OHS("ohs"),
+    OUD("oud"),
+    EDQ("edq"),
+    WCC("wcc"),
+    WCP("wcp"),
+    WCS("wcs"),
     JDK("jdk"),
     WDT("wdt");
 

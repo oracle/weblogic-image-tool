@@ -10,11 +10,24 @@ import java.util.List;
  * Supported Fusion Middleware installer sets.
  */
 public enum FmwInstallerType {
-    WLS(InstallerType.WLS),
-    FMW(InstallerType.FMW),
-    OSB(InstallerType.FMW, InstallerType.OSB),
-    SOA(InstallerType.FMW, InstallerType.SOA),
-    SOAOSB(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB);
+    WLS(InstallerType.WLS), //WebLogic Server
+    FMW(InstallerType.FMW), //WebLogic Server Infrastructure (JRF)
+    OSB(InstallerType.FMW, InstallerType.OSB),  //Service Bus
+    SOA(InstallerType.FMW, InstallerType.SOA),  //SOA Suite
+    SOAOSB(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB),
+    OAM(InstallerType.FMW, InstallerType.IDM),
+    BI(InstallerType.FMW, InstallerType.BI),
+    ODI(InstallerType.FMW, InstallerType.ODI),
+    EDQ(InstallerType.FMW, InstallerType.EDQ),
+    OHSSA(InstallerType.OHS),
+    OHS(InstallerType.FMW, InstallerType.OHS),
+    OIG(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB, InstallerType.IDM),
+    OUD(InstallerType.OUD),
+    OUDSM(InstallerType.FMW, InstallerType.OUD),
+    WCC(InstallerType.FMW, InstallerType.WCC), //Web Center Content
+    WCP(InstallerType.FMW, InstallerType.WCP), //Web Center Portal
+    WCS(InstallerType.FMW, InstallerType.WCS)  //Web Center Sites
+    ;
 
     private InstallerType[] installers;
     FmwInstallerType(InstallerType... installers) {
