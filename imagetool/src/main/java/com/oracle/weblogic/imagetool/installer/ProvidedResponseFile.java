@@ -15,35 +15,27 @@ public class ProvidedResponseFile implements ResponseFile {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(ProvidedResponseFile.class);
 
-    private String filename;
-    private String filePath;
+    private Path responseFileSource;
 
     /**
      * Use one of the default response files provided in the tool.
-     * @param path the resource path to the response file in this tool
+     * @param source the resource path to the response file in this tool
      */
-    public ProvidedResponseFile(String path) {
-        filePath = path;
-        if (path.contains("/")) {
-            filename = path.substring(path.lastIndexOf("/") + 1);
-        } else {
-            filename = path;
-        }
+    public ProvidedResponseFile(Path source) {
+        responseFileSource = source;
     }
-
 
     @Override
     public String name() {
-        return filename;
+        return responseFileSource.getFileName().toString();
     }
 
     @Override
     public void copyFile(String buildContextDir) throws IOException {
-        if (filePath != null && Files.isRegularFile(Paths.get(filePath))) {
-            logger.fine("IMG-0005", filePath);
-            Path target = Paths.get(buildContextDir, filename);
-            Files.copy(Paths.get(filePath), target);
+        if (responseFileSource != null && Files.isRegularFile(responseFileSource)) {
+            logger.fine("IMG-0005", responseFileSource);
+            Path target = Paths.get(buildContextDir, name());
+            Files.copy(responseFileSource, target);
         }
-        //TODO what if its null or not a good file?
     }
 }

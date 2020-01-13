@@ -712,17 +712,17 @@ public class Utils {
     }
 
     /**
-     * Set the Oracle Home directory based on the installer response file.
+     * Set the Oracle Home directory based on the first installer response file.
      * If no Oracle Home is provided in the response file, do nothing and accept the default value.
      *
-     * @param installerResponse installer response file to parse.
+     * @param responseFiles installer response files to parse.
      * @param options           Dockerfile options to use for the build (holds the Oracle Home argument)
      */
-    public static void setOracleHome(String installerResponse, DockerfileOptions options) throws IOException {
-        if (installerResponse == null) {
+    public static void setOracleHome(List<Path> responseFiles, DockerfileOptions options) throws IOException {
+        if (responseFiles == null || responseFiles.size() < 1) {
             return;
         }
-        Path installerResponseFile = Paths.get(installerResponse);
+        Path installerResponseFile = responseFiles.get(0);
         Pattern pattern = Pattern.compile("^\\s*ORACLE_HOME=(.*)?");
         Matcher matcher = pattern.matcher("");
         logger.finer("Reading installer response file: {0}", installerResponseFile.getFileName());

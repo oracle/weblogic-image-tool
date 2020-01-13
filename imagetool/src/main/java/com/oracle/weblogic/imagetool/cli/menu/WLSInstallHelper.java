@@ -4,10 +4,6 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -60,26 +56,6 @@ public class WLSInstallHelper {
         } else {
             dockerfileOptions.setPackageInstaller(Constants.YUM);
         }
-    }
-
-    /**
-     * Copies response files required for wls install to the tmp directory which provides docker build context.
-     *
-     * @param dirPath directory to copy to
-     * @throws IOException in case of error
-     */
-    public static void copyResponseFilesToDir(String dirPath, String installerResponseFile) throws IOException {
-        if (installerResponseFile != null && Files.isRegularFile(Paths.get(installerResponseFile))) {
-            logger.fine("IMG-0005", installerResponseFile);
-            Path target = Paths.get(dirPath, "wls.rsp");
-            Files.copy(Paths.get(installerResponseFile), target);
-        } else {
-            final String responseFile = "/response-files/wls.rsp";
-            logger.fine("IMG-0005", responseFile);
-            Utils.copyResourceAsFile(responseFile, dirPath, false);
-        }
-
-        Utils.copyResourceAsFile("/response-files/oraInst.loc", dirPath, false);
     }
 
     /**

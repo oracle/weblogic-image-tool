@@ -5,7 +5,6 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.logging.Logger;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;

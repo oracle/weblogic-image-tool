@@ -3,10 +3,6 @@
 
 package com.oracle.weblogic.imagetool.util;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public final class Constants {
 
     static final String WDT_TAGS_URL = "https://api.github.com/repos/oracle/weblogic-deploy-tooling/tags";

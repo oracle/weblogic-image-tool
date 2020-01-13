@@ -3,13 +3,14 @@
 
 package com.oracle.weblogic.imagetool.installer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -19,29 +20,35 @@ import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Utils;
 
 public class MiddlewareInstall {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(MiddlewareInstall.class);
 
     private List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
+    private final String installerListString;
 
     /**
      * Get the install metadata for a given middleware install type.
      * @param type the requested middleware install type
      */
-    public MiddlewareInstall(FmwInstallerType type, String version) {
+    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles)
+        throws FileNotFoundException {
+
         List<InstallerType> list = type.getInstallerList();
 
-        String listStr = list.stream().map(Object::toString).collect(Collectors.joining(", "));
-        logger.info("IMG-0039", listStr, version);
+        installerListString = list.stream().map(Object::toString).collect(Collectors.joining(", "));
+        logger.info("IMG-0039", installerListString, version);
 
         for (InstallerType installer : list) {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
+            pkg.type = installer;
             pkg.installer = new CachedFile(installer, version);
             pkg.responseFile = new DefaultResponseFile("/response-files/" + installer.toString() + ".rsp");
             addInstaller(pkg);
         }
+        setResponseFiles(responseFiles);
     }
 
     private static String getJarNameFromInstaller(Path installerFile) throws IOException {
@@ -89,15 +96,29 @@ public class MiddlewareInstall {
         return installerFiles.add(installPackage);
     }
 
-    public void setResponseFiles(List<String> responseFiles) {
-        if (responseFiles != null && !responseFiles.isEmpty()) {
-            if (responseFiles.size() != installerFiles.size()) {
-                throw new IllegalArgumentException(
-                    "The number of response files did not match the number of installers " + installerFiles.size());
+    private void setResponseFiles(List<Path> responseFiles) throws FileNotFoundException {
+        if (responseFiles == null || responseFiles.isEmpty()) {
+            return;
+        }
+        logger.fine("response files: {0}", responseFiles);
+
+        // make sure the two arrays are the same size for the for-loop that comes next
+        if (responseFiles.size() != installerFiles.size()) {
+            throw new IllegalArgumentException(
+                Utils.getMessage("IMG-0040",
+                    installerListString,
+                    responseFiles.size(),
+                    installerFiles.size()));
+        }
+
+        for (int i = 0; i < installerFiles.size(); i++) {
+            Path responseFile = responseFiles.get(i);
+            MiddlewareInstallPackage pkg = installerFiles.get(i);
+            if (!Files.isRegularFile(responseFile)) {
+                throw new FileNotFoundException(Utils.getMessage("IMG-0042", responseFile));
             }
-            for (int i = 0; i < installerFiles.size(); i++) {
-                installerFiles.get(i).responseFile = new ProvidedResponseFile(responseFiles.get(i));
-            }
+            logger.info("IMG-0041", responseFile, pkg.type);
+            pkg.responseFile = new ProvidedResponseFile(responseFile);
         }
     }
 }

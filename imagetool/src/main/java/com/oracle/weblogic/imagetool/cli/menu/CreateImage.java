@@ -52,20 +52,19 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
 
             WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
 
-            List<String> cmdBuilder = getInitialBuildCmd();
-
             if (dockerfileOptions.installJava()) {
                 CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
                 Path installerPath = jdk.copyFile(cacheStore, tmpDir);
                 dockerfileOptions.setJavaInstaller(installerPath.getFileName().toString());
             }
 
-            MiddlewareInstall install = new MiddlewareInstall(this.installerType, installerVersion);
+            MiddlewareInstall install = new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
             install.copyFiles(cacheStore, tmpDir);
             dockerfileOptions.setMiddlewareInstall(install);
 
+            List<String> cmdBuilder = getInitialBuildCmd();
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, getInstallerType()));
+            cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, installerType));
 
             // resolve required patches
             cmdBuilder.addAll(handlePatchFiles(null));
@@ -75,10 +74,10 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
                 installOpatchInstaller(tmpDir, opatchBugNumber);
             }
 
-            Utils.setOracleHome(installerResponseFile, dockerfileOptions);
+            Utils.setOracleHome(installerResponseFiles, dockerfileOptions);
 
             // Set where the user want to install the inventor oraInst.loc file
-
+            Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
             if (inventoryPointerInstallLoc != null) {
                 dockerfileOptions.setInventoryPointerFileSet(true);
                 dockerfileOptions.setInvLoc(inventoryPointerInstallLoc);
@@ -110,23 +109,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
         Instant endTime = Instant.now();
         logger.exiting();
         return new CommandResponse(0, "build successful in "
-                + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
-    }
-
-    private List<CachedFile> gatherRequiredInstallers() throws Exception {
-        logger.entering();
-        List<CachedFile> retVal = wdtOptions.gatherWdtRequiredInstallers();
-        return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
-            getInstallerVersion(), jdkVersion, dockerfileOptions);
-    }
-
-
-    @Override
-    FmwInstallerType getInstallerType() {
-        if (installerType == null) {
-            return wdtOptions.getWdtDomainType().installerType();
-        }
-        return installerType;
+            + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
     @Override
@@ -135,38 +118,39 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
     }
 
     @Option(
-            names = {"--type"},
-            description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
+        names = {"--type"},
+        description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
     )
     private FmwInstallerType installerType = FmwInstallerType.WLS;
 
     @Option(
-            names = {"--version"},
-            description = "Installer version. Default: ${DEFAULT-VALUE}",
-            required = true,
-            defaultValue = Constants.DEFAULT_WLS_VERSION
+        names = {"--version"},
+        description = "Installer version. Default: ${DEFAULT-VALUE}",
+        required = true,
+        defaultValue = Constants.DEFAULT_WLS_VERSION
     )
     private String installerVersion;
 
     @Option(
-            names = {"--jdkVersion"},
-            description = "Version of server jdk to install. Default: ${DEFAULT-VALUE}",
-            required = true,
-            defaultValue = Constants.DEFAULT_JDK_VERSION
+        names = {"--jdkVersion"},
+        description = "Version of server jdk to install. Default: ${DEFAULT-VALUE}",
+        required = true,
+        defaultValue = Constants.DEFAULT_JDK_VERSION
     )
     private String jdkVersion;
 
     @Option(
-            names = {"--fromImage"},
-            description = "Docker image to use as base image."
+        names = {"--fromImage"},
+        description = "Docker image to use as base image."
     )
     private String fromImage;
 
     @Option(
-            names = {"--installerResponseFile"},
-            description = "path to a response file. Override the default responses for the Oracle installer"
+        names = {"--installerResponseFile"},
+        split = ",",
+        description = "path to a response file. Override the default responses for the Oracle installer"
     )
-    private String installerResponseFile;
+    private List<Path> installerResponseFiles;
 
     @Option(
         names = {"--inventoryPointerFile"},

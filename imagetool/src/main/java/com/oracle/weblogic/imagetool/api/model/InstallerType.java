@@ -3,11 +3,6 @@
 
 package com.oracle.weblogic.imagetool.api.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.oracle.weblogic.imagetool.util.Constants;
-
 /**
  * Supported installer types in the local cache.
  * Provides list of types to the CLI for the addInstaller type flag.

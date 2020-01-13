@@ -43,8 +43,6 @@ public abstract class CommonOptions {
 
     abstract String getInstallerVersion();
 
-    abstract FmwInstallerType getInstallerType();
-
     private void handleChown() {
         if (osUserAndGroup.length != 2) {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0027"));

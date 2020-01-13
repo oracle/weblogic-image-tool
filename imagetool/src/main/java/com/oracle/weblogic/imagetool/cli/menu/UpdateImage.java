@@ -137,7 +137,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             List<String> cmdBuilder = getInitialBuildCmd();
 
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, getInstallerType()));
+            cmdBuilder.addAll(wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, installerType));
             dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
@@ -168,11 +168,6 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
     @Override
     String getInstallerVersion() {
         return installerVersion;
-    }
-
-    @Override
-    FmwInstallerType getInstallerType() {
-        return installerType;
     }
 
     private String installerVersion;

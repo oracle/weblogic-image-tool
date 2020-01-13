@@ -1,20 +1,20 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -92,7 +92,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
             } else {
                 dockerfileOptions.setRebaseToNew(true);
-                //return new CommandResponse(-1, "Target Image not set");
             }
 
             if (newJavaHome != null && !newJavaHome.equals(oldJavaHome)) {
@@ -125,9 +124,10 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
                 WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
 
-                // this handles wls, jdk and wdt install files.
-                //cmdBuilder.addAll(handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
-                //TODO remove
+                MiddlewareInstall install =
+                    new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
+                install.copyFiles(cacheStore, tmpDir);
+                dockerfileOptions.setMiddlewareInstall(install);
 
                 // resolve required patches
                 cmdBuilder.addAll(handlePatchFiles(null));
@@ -137,10 +137,8 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                     installOpatchInstaller(tmpDir, opatchBugNumber);
                 }
 
-                // Copy wls response file to tmpDir
-                WLSInstallHelper.copyResponseFilesToDir(tmpDir, installerResponseFile);
-                Utils.setOracleHome(installerResponseFile, dockerfileOptions);
-
+                Utils.setOracleHome(installerResponseFiles, dockerfileOptions);
+                Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
             }
 
             // Create Dockerfile
@@ -162,18 +160,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         logger.exiting();
         return new CommandResponse(0, "build successful in "
             + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
-    }
-
-    private  List<CachedFile> gatherRequiredInstallers() {
-        logger.entering();
-        List<CachedFile> retVal = new ArrayList<>();
-        return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
-            getInstallerVersion(), jdkVersion, dockerfileOptions);
-    }
-
-    @Override
-    FmwInstallerType getInstallerType() {
-        return installerType;
     }
 
     @Override
@@ -219,10 +205,10 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
     @Option(
         names = {"--installerResponseFile"},
+        split = ",",
         description = "path to a response file. Override the default responses for the Oracle installer"
     )
-
-    private String installerResponseFile;
+    private List<Path> installerResponseFiles;
 
     @Option(
         names = {"--fromImage"},
