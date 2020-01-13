@@ -61,7 +61,7 @@
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
-                <version>4.0.4</version>
+                <version>4.1.4</version>
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>
@@ -218,7 +218,7 @@
                         <dependency>
                             <groupId>com.oracle.weblogic.lifecycle</groupId>
                             <artifactId>build-tools</artifactId>
-                            <version>1.1</version>
+                            <version>1.2</version>
                         </dependency>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
