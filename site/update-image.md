@@ -27,7 +27,7 @@ Update WebLogic Docker image with selected patches
 |`--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | Path to the Docker executable.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to be updated. fromImage serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
+| `--fromImage` | Docker image to be updated. The fromImage option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
@@ -65,8 +65,8 @@ Each section can contain one or more valid Dockerfile commands and would look li
 #### `--latestPSU`
 
 The `latestPSU` option will continue to be supported for the CREATE option, but has been deprecated for use in the 
-UPDATE option.  Because of the number of patches and the size, using `latestPSU` as an update to an existing image can 
-increases the size of the image significantly, and is not recommended. 
+UPDATE option.  Because of the number of patches and their size, using `latestPSU` as an update to an existing image can 
+increase the size of the image significantly, and is not recommended. 
 
 ```dockerfile
 [after-fmw-install]
