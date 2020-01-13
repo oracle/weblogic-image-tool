@@ -73,14 +73,16 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
 
         USER {{userid}}
 
-        {{#beforeJdkInstall}}{{{.}}}
+        {{#beforeJdkInstall}}
+            {{{.}}}
         {{/beforeJdkInstall}}
 
         RUN tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01 \
         && mv /u01/jdk* {{{java_home}}} \
         && rm -rf {{{tempDir}}}
 
-        {{#afterJdkInstall}}{{{.}}}
+        {{#afterJdkInstall}}
+            {{{.}}}
         {{/afterJdkInstall}}
     {{/installJava}}
 
@@ -113,7 +115,8 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
 
     USER {{userid}}
 
-    {{#beforeFmwInstall}}{{{.}}}
+    {{#beforeFmwInstall}}
+        {{{.}}}
     {{/beforeFmwInstall}}
 
     {{#installPackages}}
@@ -131,7 +134,8 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
         && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
     {{/isPatchingEnabled}}
 
-    {{#afterFmwInstall}}{{{.}}}
+    {{#afterFmwInstall}}
+        {{{.}}}
     {{/afterFmwInstall}}
 
 
@@ -167,6 +171,7 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
 EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT
 WORKDIR {{{work_dir}}}
 
-{{#finalBuildCommands}}{{{.}}}
+{{#finalBuildCommands}}
+    {{{.}}}
 {{/finalBuildCommands}}
 

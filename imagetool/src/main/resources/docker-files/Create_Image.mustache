@@ -48,14 +48,16 @@ COPY --chown={{userid}}:{{groupid}} {{java_pkg}} {{{tempDir}}}/
 
 USER {{userid}}
 
-{{#beforeJdkInstall}}{{{.}}}
+{{#beforeJdkInstall}}
+    {{{.}}}
 {{/beforeJdkInstall}}
 
 RUN tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01 \
  && mv /u01/jdk* {{{java_home}}} \
  && rm -rf {{{tempDir}}}
 
-{{#afterJdkInstall}}{{{.}}}
+{{#afterJdkInstall}}
+    {{{.}}}
 {{/afterJdkInstall}}
 {{/installJava}}
 
@@ -93,7 +95,8 @@ COPY --chown={{userid}}:{{groupid}} oraInst.loc {{inv_loc}}/
 
 USER {{userid}}
 
-{{#beforeFmwInstall}}{{{.}}}
+{{#beforeFmwInstall}}
+    {{{.}}}
 {{/beforeFmwInstall}}
 
 {{#installPackages}}
@@ -113,7 +116,8 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
  && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
 {{/isPatchingEnabled}}
 
-{{#afterFmwInstall}}{{{.}}}
+{{#afterFmwInstall}}
+    {{{.}}}
 {{/afterFmwInstall}}
 
 {{#isWdtEnabled}}
@@ -152,7 +156,8 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
         COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
     {{/wdtVariables}}
 
-    {{#beforeWdtCommand}}{{{.}}}
+    {{#beforeWdtCommand}}
+        {{{.}}}
     {{/beforeWdtCommand}}
 
     RUN unzip -q {{{tempDir}}}/$WDT_PKG -d {{{wdt_home}}} \
@@ -175,7 +180,8 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
     {{/modelOnly}}
 
-    {{#afterWdtCommand}}{{{.}}}
+    {{#afterWdtCommand}}
+        {{{.}}}
     {{/afterWdtCommand}}
 
 {{/isWdtEnabled}}
@@ -236,5 +242,6 @@ WORKDIR {{{work_dir}}}
 
 #ENTRYPOINT /bin/bash
 
-{{#finalBuildCommands}}{{{.}}}
+{{#finalBuildCommands}}
+    {{{.}}}
 {{/finalBuildCommands}}
