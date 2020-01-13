@@ -95,6 +95,10 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
         OPATCH_NO_FUSER=true
 
     RUN mkdir -p {{{oracle_home}}} \
+    {{#isCustomInventoryLoc}}
+        && mkdir -p {{inv_loc}} \
+        && chown {{userid}}:{{groupid}} {{inv_loc}} \
+    {{/isCustomInventoryLoc}}
     && chown {{userid}}:{{groupid}} {{{oracle_home}}}
 
     {{#installJava}}

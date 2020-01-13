@@ -16,6 +16,8 @@ Usage: imagetool create [OPTIONS]
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
+| `--inventoryPointerFile` | Path to custom inventory pointer file.  |   |
+| `--inventoryPointerInstallLoc` | Target location for the inventory pointer file.  |   |
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
@@ -37,8 +39,6 @@ Usage: imagetool create [OPTIONS]
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
 | `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
 | `--wdtVersion` | WDT tool version to use.  |   |
-| `--inventoryPointerFile` | Path to inventory pointer file.  |   |
-| `--inventoryPointerInstallLoc` | Path to where to store the inventory pointer file.  |   |
 
 ## Additional information
 

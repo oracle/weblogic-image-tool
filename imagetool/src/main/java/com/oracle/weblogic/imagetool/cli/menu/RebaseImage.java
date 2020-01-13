@@ -138,7 +138,17 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 }
 
                 Utils.setOracleHome(installerResponseFiles, dockerfileOptions);
-                Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
+
+                // Set the inventory oraInst.loc file location (null == default location)
+                dockerfileOptions.setInvLoc(inventoryPointerInstallLoc);
+
+                // Set the inventory pointer
+                if (inventoryPointerFile != null) {
+                    Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
+                    Utils.copyLocalFile(inventoryPointerFile, tmpDir + "/oraInst.loc", false);
+                } else {
+                    Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
+                }
             }
 
             // Create Dockerfile
@@ -216,5 +226,15 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
     )
     private String fromImage;
 
+    @Option(
+        names = {"--inventoryPointerFile"},
+        description = "path to a user provided inventory pointer file as input"
+    )
+    private String inventoryPointerFile;
 
+    @Option(
+        names = {"--inventoryPointerInstallLoc"},
+        description = "path to where the inventory pointer file (oraInst.loc) should be stored in the image"
+    )
+    private String inventoryPointerInstallLoc;
 }

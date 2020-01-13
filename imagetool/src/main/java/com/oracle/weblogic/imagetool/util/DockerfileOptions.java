@@ -34,7 +34,6 @@ public class DockerfileOptions {
     private boolean applyPatches;
     private boolean updateOpatch;
     private boolean skipJavaInstall;
-    private boolean inventoryPointerFileSet = false;
     private boolean isRebaseToTarget;
     private boolean isRebaseToNew;
 
@@ -488,16 +487,12 @@ public class DockerfileOptions {
     }
 
     /**
-     * If inventoryPointerFileSet is set.
+     * If FMW inventory custom location is set.
      *
-     * @return true if inventoryPointerFileSet is set
+     * @return true if invLoc is not equal to the default location
      */
-    public boolean isInventoryPointerFileSet() {
-        return inventoryPointerFileSet;
-    }
-
-    public void setInventoryPointerFileSet(boolean value) {
-        this.inventoryPointerFileSet = value;
+    public boolean isCustomInventoryLoc() {
+        return !invLoc.equals(DEFAULT_INV_LOC);
     }
 
     /**

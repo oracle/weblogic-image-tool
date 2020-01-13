@@ -76,12 +76,8 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
 
             Utils.setOracleHome(installerResponseFiles, dockerfileOptions);
 
-            // Set where the user want to install the inventor oraInst.loc file
-            Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
-            if (inventoryPointerInstallLoc != null) {
-                dockerfileOptions.setInventoryPointerFileSet(true);
-                dockerfileOptions.setInvLoc(inventoryPointerInstallLoc);
-            }
+            // Set the inventory oraInst.loc file location (null == default location)
+            dockerfileOptions.setInvLoc(inventoryPointerInstallLoc);
 
             // Set the inventory location, so that it will be copied
             if (inventoryPointerFile != null) {

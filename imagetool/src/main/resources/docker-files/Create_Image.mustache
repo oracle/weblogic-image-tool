@@ -70,10 +70,10 @@ ENV JAVA_HOME={{{java_home}}} \
     OPATCH_NO_FUSER=true
 
 RUN mkdir -p {{{oracle_home}}} \
-{{#isInventoryPointerFileSet}}
+{{#isCustomInventoryLoc}}
     && mkdir -p {{inv_loc}} \
     && chown {{userid}}:{{groupid}} {{inv_loc}} \
-{{/isInventoryPointerFileSet}}
+{{/isCustomInventoryLoc}}
  && mkdir -p {{orainv_dir}} \
  && chown {{userid}}:{{groupid}} {{orainv_dir}} \
  && chown {{userid}}:{{groupid}} {{{oracle_home}}}
