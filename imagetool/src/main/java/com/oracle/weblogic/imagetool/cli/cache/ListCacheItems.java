@@ -10,6 +10,7 @@ import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(
         name = "listItems",
@@ -33,10 +34,20 @@ public class ListCacheItems extends CacheOperation {
                 System.out.println(Constants.CACHE_DIR_KEY + "=" + cacheDir);
                 resultMap.remove(Constants.CACHE_DIR_KEY);
             }
-            resultMap.forEach((key, value) -> System.out.println(key + "=" + value));
+
+            for (Map.Entry<String,String> entry : resultMap.entrySet()) {
+                if (key == null || entry.getKey().startsWith(key)) {
+                    System.out.println(entry.getKey() + "=" + entry.getValue());
+                }
+            }
 
             return new CommandResponse(0, "Cache contents", resultMap);
         }
     }
 
+    @Option(
+        names = {"--key"},
+        description = "list only cached items that start with this key"
+    )
+    private String key;
 }
