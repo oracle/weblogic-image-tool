@@ -97,7 +97,7 @@ public class CachedFile {
         logger.entering();
         Path result = null;
         String sourceFile = resolve(cacheStore);
-        logger.info("copying {0} to build context folder.", sourceFile);
+        logger.info("IMG-0043", sourceFile);
         String targetFilename = new File(sourceFile).getName();
         try {
             result = Files.copy(Paths.get(sourceFile), Paths.get(buildContextDir, targetFilename));

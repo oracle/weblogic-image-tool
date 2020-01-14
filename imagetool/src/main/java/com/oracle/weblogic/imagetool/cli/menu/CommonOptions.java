@@ -71,6 +71,17 @@ public abstract class CommonOptions {
             AdditionalBuildCommands additionalBuildCommands = AdditionalBuildCommands.load(additionalBuildCommandsPath);
             dockerfileOptions.setAdditionalBuildCommands(additionalBuildCommands.getContents());
         }
+
+        if (additionalBuildFiles != null) {
+            for (Path additionalFile : additionalBuildFiles) {
+                if (!Files.isRegularFile(additionalFile)) {
+                    throw new FileNotFoundException(Utils.getMessage("IMG-0030", additionalFile));
+                }
+                Path targetFile = Paths.get(getTempDirectory(), additionalFile.getFileName().toString());
+                logger.info("IMG-0043", additionalFile);
+                Utils.copyLocalFile(additionalFile.toString(), targetFile.toString(), false);
+            }
+        }
     }
 
     void runDockerCommand(String dockerfile, List<String> command) throws IOException, InterruptedException {
@@ -242,7 +253,7 @@ public abstract class CommonOptions {
     }
 
     private Path createPatchesTempDirectory() throws IOException {
-        Path tmpPatchesDir = Files.createDirectory(Paths.get(tempDirectory, "patches"));
+        Path tmpPatchesDir = Files.createDirectory(Paths.get(getTempDirectory(), "patches"));
         Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
         return tmpPatchesDir;
     }
@@ -357,6 +368,12 @@ public abstract class CommonOptions {
         description = "path to a file with additional build commands"
     )
     private Path additionalBuildCommandsPath;
+
+    @Option(
+        names = {"--additionalBuildFiles"},
+        description = "comma separated list of files that should be copied to the build context folder"
+    )
+    private List<Path> additionalBuildFiles;
 
     @Option(
         names = {"--dryRun"},
