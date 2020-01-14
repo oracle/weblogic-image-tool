@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -35,11 +36,10 @@ public class ListCacheItems extends CacheOperation {
                 resultMap.remove(Constants.CACHE_DIR_KEY);
             }
 
-            for (Map.Entry<String,String> entry : resultMap.entrySet()) {
-                if (key == null || entry.getKey().startsWith(key)) {
-                    System.out.println(entry.getKey() + "=" + entry.getValue());
-                }
-            }
+            Pattern pattern = Pattern.compile(key == null ? ".*" : key);
+            resultMap.entrySet().stream()
+                .filter(entry -> pattern.matcher(entry.getKey()).matches())
+                .forEach(System.out::println);
 
             return new CommandResponse(0, "Cache contents", resultMap);
         }
@@ -47,7 +47,7 @@ public class ListCacheItems extends CacheOperation {
 
     @Option(
         names = {"--key"},
-        description = "list only cached items that start with this key"
+        description = "list only cached items where the key matches this regex"
     )
     private String key;
 }
