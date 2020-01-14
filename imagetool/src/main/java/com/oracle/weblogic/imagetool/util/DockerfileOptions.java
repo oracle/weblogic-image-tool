@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import com.oracle.weblogic.imagetool.api.model.DomainType;
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
+import com.oracle.weblogic.imagetool.wdt.DomainType;
+import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
 public class DockerfileOptions {
 
@@ -31,10 +34,10 @@ public class DockerfileOptions {
     private boolean applyPatches;
     private boolean updateOpatch;
     private boolean skipJavaInstall;
-    private boolean inventoryPointerFileSet = false;
     private boolean isRebaseToTarget;
     private boolean isRebaseToNew;
 
+    private String javaInstaller;
     private String username;
     private String groupname;
     private String javaHome;
@@ -484,16 +487,12 @@ public class DockerfileOptions {
     }
 
     /**
-     * If inventoryPointerFileSet is set.
+     * If FMW inventory custom location is set.
      *
-     * @return true if inventoryPointerFileSet is set
+     * @return true if invLoc is not equal to the default location
      */
-    public boolean isInventoryPointerFileSet() {
-        return inventoryPointerFileSet;
-    }
-
-    public void setInventoryPointerFileSet(boolean value) {
-        this.inventoryPointerFileSet = value;
+    public boolean isCustomInventoryLoc() {
+        return !invLoc.equals(DEFAULT_INV_LOC);
     }
 
     /**
@@ -785,4 +784,22 @@ public class DockerfileOptions {
         return getAdditionalCommandsForSection(AdditionalBuildCommands.FINAL_BLD);
     }
 
+    private MiddlewareInstall mwInstallers;
+
+    public DockerfileOptions setMiddlewareInstall(MiddlewareInstall install) {
+        mwInstallers = install;
+        return this;
+    }
+
+    public List<MiddlewareInstallPackage> installPackages() {
+        return mwInstallers.getInstallers();
+    }
+
+    public void setJavaInstaller(String value) {
+        javaInstaller = value;
+    }
+
+    public String java_pkg() {
+        return javaInstaller;
+    }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -14,8 +14,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.apache.http.HttpStatus;
@@ -39,7 +39,7 @@ public class ARUUtil {
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static String getLatestPSUNumber(WLSInstallerType category, String version, String userId, String password)
+    public static String getLatestPSUNumber(FmwInstallerType category, String version, String userId, String password)
         throws Exception {
 
         logger.entering(category, version, userId);
@@ -246,7 +246,7 @@ public class ARUUtil {
     }
 
 
-    private static Document getAllReleases(WLSInstallerType category, String userId, String password)
+    private static Document getAllReleases(FmwInstallerType category, String userId, String password)
         throws IOException {
 
         logger.entering(category, userId);
@@ -256,7 +256,7 @@ public class ARUUtil {
 
             String expression;
 
-            if (WLSInstallerType.WLS == category) {
+            if (FmwInstallerType.WLS == category) {
                 expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
             } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(category.toString())) {
                 expression = "/results/release[starts-with(text(), 'OPatch')]";
@@ -273,11 +273,11 @@ public class ARUUtil {
         }
     }
 
-    private static SearchResult getRecommendedPsuMetadata(WLSInstallerType category, String release, String userId,
+    private static SearchResult getRecommendedPsuMetadata(FmwInstallerType category, String release, String userId,
                                                           String password) throws IOException {
 
         logger.entering();
-        String productId = WLSInstallerType.WLS == category ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
+        String productId = FmwInstallerType.WLS == category ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
         String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, release)
             + Constants.ONLY_GET_RECOMMENDED_PSU;
         logger.finer("getting PSU info from {0}", url);
@@ -288,8 +288,7 @@ public class ARUUtil {
     }
 
     private static String getPatch(String bugNumber, String userId, String password, String destDir)
-            throws
-            IOException {
+        throws IOException {
 
         int ind = bugNumber.indexOf('_');
         String baseBugNumber = bugNumber;
@@ -459,7 +458,7 @@ public class ARUUtil {
      * @return release number
      * @throws IOException in case of error
      */
-    private static String getReleaseNumber(WLSInstallerType category, String version, String userId, String password)
+    private static String getReleaseNumber(FmwInstallerType category, String version, String userId, String password)
         throws IOException {
         logger.entering(category, version, userId);
         String key = category + CacheStore.CACHE_KEY_SEPARATOR + version;

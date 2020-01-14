@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.cache;
@@ -8,9 +8,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -98,7 +98,7 @@ public class AddPatchEntry extends CacheOperation {
             required = true,
             defaultValue = "wls"
     )
-    private WLSInstallerType type;
+    private FmwInstallerType type;
 
 
     @Option(

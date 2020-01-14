@@ -1,9 +1,10 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.impl.meta;
+package com.oracle.weblogic.imagetool.cachestore.meta;
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;

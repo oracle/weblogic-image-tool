@@ -1,11 +1,10 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.logging.Logger;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;

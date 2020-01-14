@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -17,12 +17,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.oracle.weblogic.imagetool.api.FileResolver;
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.impl.InstallerFile;
-import com.oracle.weblogic.imagetool.impl.PatchFile;
-import com.oracle.weblogic.imagetool.impl.meta.CacheStoreFactory;
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
+import com.oracle.weblogic.imagetool.cachestore.CachedPatchFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
@@ -43,8 +42,6 @@ public abstract class CommonOptions {
     private String nonProxyHosts = null;
 
     abstract String getInstallerVersion();
-
-    abstract WLSInstallerType getInstallerType();
 
     private void handleChown() {
         if (osUserAndGroup.length != 2) {
@@ -142,7 +139,7 @@ public abstract class CommonOptions {
     }
 
     void init(String buildId) throws Exception {
-        logger.finer("Entering ImageOperation call ");
+        logger.entering(buildId);
         dockerfileOptions = new DockerfileOptions(buildId);
         logger.info("IMG-0016", buildId);
 
@@ -198,16 +195,15 @@ public abstract class CommonOptions {
             }
 
             // PSUs for WLS and JRF installers are considered WLS patches
-            String patchId = ARUUtil.getLatestPSUNumber(WLSInstallerType.WLS, getInstallerVersion(), userId, password);
+            String patchId = ARUUtil.getLatestPSUNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
             if (Utils.isEmptyString(patchId)) {
                 latestPSU = false;
                 logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
             } else {
                 logger.fine("Found latest PSU {0}", patchId);
-                FileResolver psuResolver = new PatchFile(getInstallerType().toString(), getInstallerVersion(),
-                    patchId, userId, password);
-                patchLocations.add(psuResolver.resolve(cacheStore));
+                CachedFile psu = new CachedPatchFile(getInstallerVersion(), patchId, userId, password);
+                patchLocations.add(psu.resolve(cacheStore));
                 // Add PSU patch ID to the patchList for validation (conflict check)
                 patchList.add(patchId);
             }
@@ -225,8 +221,9 @@ public abstract class CommonOptions {
 
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                patchLocations.add(new PatchFile(getInstallerType().toString(), getInstallerVersion(),
-                    patchId, userId, password).resolve(cacheStore));
+                patchLocations.add(
+                    new CachedPatchFile(getInstallerVersion(), patchId, userId, password).resolve(cacheStore)
+                );
             }
         }
         for (String patchLocation : patchLocations) {
@@ -253,46 +250,18 @@ public abstract class CommonOptions {
 
     void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
         // opatch patch now is in the format #####_opatch in the cache store
-        // So the version passing to the constructor of PatchFile is also "opatch".
+        // So the version passing to the constructor of CachedPatchFile is also "opatch".
         // since opatch releases is on it's own and there is not really a patch to opatch
         // and the version is embedded in the zip file version.txt
 
         String filePath =
-            new PatchFile(Constants.OPATCH_PATCH_TYPE, Constants.OPATCH_PATCH_TYPE, opatchBugNumber,
-                userId, password).resolve(cacheStore);
+            new CachedPatchFile(Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();
         dockerfileOptions.setOPatchFileName(filename);
     }
 
-
-
-    /**
-     * Builds a list of build args to pass on to docker with the required installer files.
-     * And, copies the installers over to build context dir.
-     *
-     * @param tmpDir build context directory
-     * @return list of build argument parameters for docker build
-     * @throws Exception in case of error
-     */
-    List<String> handleInstallerFiles(String tmpDir, List<InstallerFile> requiredInstallers) throws Exception {
-        logger.entering(tmpDir);
-        List<String> retVal = new LinkedList<>();
-        for (InstallerFile installerFile : requiredInstallers) {
-            String targetFilePath = installerFile.resolve(cacheStore);
-            logger.finer("copying targetFilePath: {0}", targetFilePath);
-            String filename = new File(targetFilePath).getName();
-            try {
-                Files.copy(Paths.get(targetFilePath), Paths.get(tmpDir, filename));
-                retVal.addAll(installerFile.getBuildArg(filename));
-            } catch (Exception ee) {
-                ee.printStackTrace();
-            }
-        }
-        logger.exiting(retVal);
-        return retVal;
-    }
 
     String getUserId() {
         return userId;

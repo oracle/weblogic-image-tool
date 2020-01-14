@@ -1,22 +1,31 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.api.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.oracle.weblogic.imagetool.util.Constants;
-
 /**
- * An enum to represent installer type.
+ * Supported installer types in the local cache.
+ * Provides list of types to the CLI for the addInstaller type flag.
  */
 public enum InstallerType {
 
-    FMW(WLSInstallerType.FMW.toString()),
+    //Values are used to resolve response files and lookup installers in the cache
+    //There must be a matching (default) response file in {resources}/response-files/
+    WLS("wls"),
+    FMW("fmw"),
+    SOA("soa"),
+    OSB("osb"),
+    IDM("idm"),
+    ODI("odi"),
+    BI("bi"),
+    OHS("ohs"),
+    OUD("oud"),
+    EDQ("edq"),
+    WCC("wcc"),
+    WCP("wcp"),
+    WCS("wcs"),
     JDK("jdk"),
-    WDT("wdt"),
-    WLS(WLSInstallerType.WLS.toString());
+    WDT("wdt");
 
     private String value;
 
@@ -27,24 +36,6 @@ public enum InstallerType {
     @Override
     public String toString() {
         return value;
-    }
-
-    /**
-     * Get the Dockerfile build argument for this installer type.
-     * @param location the location of the installer.
-     * @return --build-arg and this installer type argument and location.
-     */
-    public List<String> getBuildArg(String location) {
-        List<String> retVal = new ArrayList<>(2);
-        retVal.add(Constants.BUILD_ARG);
-        if (this == WLS || this == FMW) {
-            retVal.add("WLS_PKG=" + location);
-        } else if (this == JDK) {
-            retVal.add("JAVA_PKG=" + location);
-        } else {
-            retVal.add("WDT_PKG=" + location);
-        }
-        return retVal;
     }
 
     /**

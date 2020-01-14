@@ -4,15 +4,11 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.InstallerType;
-import com.oracle.weblogic.imagetool.impl.InstallerFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -28,13 +24,11 @@ public class WLSInstallHelper {
      * @param fromImage  image tag
      * @param dockerfileOptions docker options
      * @param tmpDir temporary directory
-     * @return true if success, otherwise false
      * @throws Exception thrown by getBaseImageProperties
      */
-    public static boolean setFromImage(String fromImage, DockerfileOptions dockerfileOptions,
-                                               String tmpDir) throws Exception {
+    public static void copyOptionsFromImage(String fromImage, DockerfileOptions dockerfileOptions, String tmpDir)
+        throws Exception {
 
-        boolean rc = true;
         if (fromImage != null && !fromImage.isEmpty()) {
             logger.finer("IMG-0002", fromImage);
             dockerfileOptions.setBaseImage(fromImage);
@@ -44,16 +38,15 @@ public class WLSInstallHelper {
 
             Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
 
-            boolean ohAlreadyExists = baseImageProperties.getProperty("WLS_VERSION", null) != null;
+            if (baseImageProperties.getProperty("WLS_VERSION", null) != null) {
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0038", fromImage,
+                    baseImageProperties.getProperty("ORACLE_HOME")));
+            }
 
             String existingJavaHome = baseImageProperties.getProperty("JAVA_HOME", null);
             if (existingJavaHome != null) {
                 dockerfileOptions.disableJavaInstall(existingJavaHome);
                 logger.info("IMG-0000", existingJavaHome);
-            }
-
-            if (ohAlreadyExists) {
-                return false;
             }
 
             String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
@@ -63,27 +56,6 @@ public class WLSInstallHelper {
         } else {
             dockerfileOptions.setPackageInstaller(Constants.YUM);
         }
-        return rc;
-    }
-
-    /**
-     * Copies response files required for wls install to the tmp directory which provides docker build context.
-     *
-     * @param dirPath directory to copy to
-     * @throws IOException in case of error
-     */
-    public static void copyResponseFilesToDir(String dirPath, String installerResponseFile) throws IOException {
-        if (installerResponseFile != null && Files.isRegularFile(Paths.get(installerResponseFile))) {
-            logger.fine("IMG-0005", installerResponseFile);
-            Path target = Paths.get(dirPath, "wls.rsp");
-            Files.copy(Paths.get(installerResponseFile), target);
-        } else {
-            final String responseFile = "/response-files/wls.rsp";
-            logger.fine("IMG-0005", responseFile);
-            Utils.copyResourceAsFile(responseFile, dirPath, false);
-        }
-
-        Utils.copyResourceAsFile("/response-files/oraInst.loc", dirPath, false);
     }
 
     /**
@@ -96,15 +68,15 @@ public class WLSInstallHelper {
      * @param dockerfileOptions  non null docker options
      * @return list of installers
      */
-    public static  List<InstallerFile> getBasicInstallers(List<InstallerFile> initialList,
-                                                           String installerType, String installerVersion,
-                                                           String jdkVersion, DockerfileOptions dockerfileOptions) {
+    public static  List<CachedFile> getBasicInstallers(List<CachedFile> initialList,
+                                                       String installerType, String installerVersion,
+                                                       String jdkVersion, DockerfileOptions dockerfileOptions) {
         logger.finer("IMG-0001", installerType, installerVersion);
-        initialList.add(new InstallerFile(InstallerType.fromValue(installerType),
+        initialList.add(new CachedFile(InstallerType.fromValue(installerType),
             installerVersion));
         if (dockerfileOptions.installJava()) {
             logger.finer("IMG-0001", InstallerType.JDK, jdkVersion);
-            initialList.add(new InstallerFile(InstallerType.JDK, jdkVersion));
+            initialList.add(new CachedFile(InstallerType.JDK, jdkVersion));
         }
         logger.exiting(initialList.size());
         return initialList;

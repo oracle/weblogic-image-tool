@@ -10,16 +10,18 @@ Usage: imagetool rebase [OPTIONS]
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
-|`--additionalBuildCommands`| Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
-|`--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
+| `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
+| `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | Path to the Docker executable.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
 | `--fromImage` | Docker image to use as a base image when creating a new image. | `oraclelinux:7-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
-| `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
+| `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
+| `--inventoryPointerFile` | Path to custom inventory pointer file.  |   |
+| `--inventoryPointerInstallLoc` | Target location for the inventory pointer file.  |   |
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
-| `--latestPSU` | Whether to apply patches from the latest PSU.  |   |
+| `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
@@ -28,7 +30,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--targetImage` | Docker image to extend for the domain's new image. |   |
-| `--type` | Installer type. Supported values: `WLS`, `FMW`  | `WLS`  |
+| `--type` | Installer type. Supported values: `WLS`, `FMW`, `BI`, `ODI`, `OHSSA`, `OSB`, `OUDSM`, `SOAOSB`, `WCP`, `EDQ`, `OAM`, `OHS`, `OIG`, `OUD`, `SOA`, `WCC`, `WCS`  | `WLS`  |
 | `--user` | Your Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
 

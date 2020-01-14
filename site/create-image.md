@@ -15,16 +15,18 @@ Usage: imagetool create [OPTIONS]
 | `--fromImage` | Docker image to use as a base image when creating a new image. | `oraclelinux:7-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
-| `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
+| `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
+| `--inventoryPointerFile` | Path to custom inventory pointer file.  |   |
+| `--inventoryPointerInstallLoc` | Target location for the inventory pointer file.  |   |
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
-| `--latestPSU` | Whether to apply patches from the latest PSU.  |   |
+| `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
-| `--type` | Installer type. Supported values: `WLS`, `FMW`  | `WLS`  |
+| `--type` | Installer type. Supported values: `WLS`, `FMW`, `BI`, `ODI`, `OHSSA`, `OSB`, `OUDSM`, `SOAOSB`, `WCP`, `EDQ`, `OAM`, `OHS`, `OIG`, `OUD`, `SOA`, `WCC`, `WCS`  | `WLS`  |
 | `--user` | Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
 | `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
@@ -37,8 +39,6 @@ Usage: imagetool create [OPTIONS]
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
 | `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
 | `--wdtVersion` | WDT tool version to use.  |   |
-| `--inventoryPointerFile` | Path to inventory pointer file.  |   |
-| `--inventoryPointerInstallLoc` | Path to where to store the inventory pointer file.  |   |
 
 ## Additional information
 

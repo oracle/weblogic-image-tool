@@ -1,7 +1,7 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.impl.meta;
+package com.oracle.weblogic.imagetool.cachestore;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,7 +15,6 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.oracle.weblogic.imagetool.api.meta.CacheStore;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 

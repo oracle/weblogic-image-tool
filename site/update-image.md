@@ -27,12 +27,12 @@ Update WebLogic Docker image with selected patches
 |`--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | Path to the Docker executable.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to use as a base image when creating a new image. | `oraclelinux:7-slim`  |
+| `--fromImage` | Docker image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
-| `--latestPSU` | Whether to apply patches from the latest PSU.  |   |
+| `--latestPSU` | (DEPRECATED) Find and apply the latest PatchSet Update, see [Additional information](#additional-information).  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
@@ -62,6 +62,12 @@ The input for this parameter is a simple text file that contains one or more of 
 
 Each section can contain one or more valid Dockerfile commands and would look like the following:
 
+#### `--latestPSU`
+
+The `latestPSU` option will continue to be supported for the CREATE option, but has been deprecated for use in the 
+UPDATE option.  Because of the number of patches and their size, using `latestPSU` as an update to an existing image can 
+increase the size of the image significantly, and is not recommended. 
+
 ```dockerfile
 [after-fmw-install]
 RUN rm /some/dir/unnecessary-file
@@ -77,13 +83,11 @@ You can save all arguments passed for the Image Tool in a file, then use the fil
 For example, create a file called `build_args`:
 
 ```bash
-create
---type wls
---version 12.2.1.3.0
---tag wls:122130
+update
+--fromImage weblogic:12.2.1.3.0
+--tag wls:122130-patched
+--patches 123456
 --user acmeuser@mycompany.com
---httpProxyUrl http://mycompany-proxy:80
---httpsProxyUrl http://mycompany-proxy:80
 --passwordEnv MYPWD
 
 ```

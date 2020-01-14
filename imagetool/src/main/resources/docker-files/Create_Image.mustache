@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.
+# Copyright (c) 2019, 2020 Oracle and/or its affiliates.  All rights reserved.
 #
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
@@ -38,14 +38,13 @@ RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && 
  && chown {{userid}}:{{groupid}} /u01
 
 {{#installJava}}
+# Install Java
 FROM OS_UPDATE as JDK_BUILD
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
-ARG JAVA_PKG
 
-ENV JAVA_PKG=${JAVA_PKG:-server-jre-*-linux-x64.tar.gz} \
-    JAVA_HOME={{{java_home}}}
+ENV JAVA_HOME={{{java_home}}}
 
-COPY --chown={{userid}}:{{groupid}} $JAVA_PKG {{{tempDir}}}/
+COPY --chown={{userid}}:{{groupid}} {{java_pkg}} {{{tempDir}}}/
 
 USER {{userid}}
 
@@ -53,7 +52,7 @@ USER {{userid}}
     {{{.}}}
 {{/beforeJdkInstall}}
 
-RUN tar xzf {{{tempDir}}}/$JAVA_PKG -C /u01 \
+RUN tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01 \
  && mv /u01/jdk* {{{java_home}}} \
  && rm -rf {{{tempDir}}}
 
@@ -62,30 +61,28 @@ RUN tar xzf {{{tempDir}}}/$JAVA_PKG -C /u01 \
 {{/afterJdkInstall}}
 {{/installJava}}
 
+# Install Middleware
 FROM OS_UPDATE as WLS_BUILD
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
-ARG WLS_PKG
 
-ENV WLS_PKG=${WLS_PKG:-fmw_12.2.1.3.0_wls_Disk1_1of1.zip} \
-    JAVA_HOME={{{java_home}}} \
+ENV JAVA_HOME={{{java_home}}} \
     ORACLE_HOME={{{oracle_home}}} \
     OPATCH_NO_FUSER=true
 
 RUN mkdir -p {{{oracle_home}}} \
-{{#isInventoryPointerFileSet}}
+{{#isCustomInventoryLoc}}
     && mkdir -p {{inv_loc}} \
     && chown {{userid}}:{{groupid}} {{inv_loc}} \
-{{/isInventoryPointerFileSet}}
+{{/isCustomInventoryLoc}}
  && mkdir -p {{orainv_dir}} \
  && chown {{userid}}:{{groupid}} {{orainv_dir}} \
  && chown {{userid}}:{{groupid}} {{{oracle_home}}}
 
-# Install base WLS
-{{#installJava}}
-    COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+{{#installJava}}COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
 {{/installJava}}
 
-COPY --chown={{userid}}:{{groupid}} $WLS_PKG wls.rsp {{{tempDir}}}/
+{{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installerFilename}} {{responseFile.name}} {{{tempDir}}}/
+{{/installPackages}}
 COPY --chown={{userid}}:{{groupid}} oraInst.loc {{inv_loc}}/
 
 {{#isOpatchPatchingEnabled}}
@@ -102,19 +99,22 @@ USER {{userid}}
     {{{.}}}
 {{/beforeFmwInstall}}
 
-RUN unzip -q {{{tempDir}}}/$WLS_PKG -d {{{tempDir}}} \
- && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/fmw_*.jar -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tempDir}}}/wls.rsp -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation \
+{{#installPackages}}
+RUN {{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.jar" -d {{{tempDir}}} &&{{/isZip}} \
+ {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
+    -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation
+{{/installPackages}}
+
 {{#isOpatchPatchingEnabled}}
- && cd {{{tempDir}}}/opatch \
+RUN cd {{{tempDir}}}/opatch \
  && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \
- && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}} \
+ && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}}
 {{/isOpatchPatchingEnabled}}
+
 {{#isPatchingEnabled}}
- && {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
- && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
+RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
+ && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
 {{/isPatchingEnabled}}
- && rm -rf {{{tempDir}}}
 
 {{#afterFmwInstall}}
     {{{.}}}

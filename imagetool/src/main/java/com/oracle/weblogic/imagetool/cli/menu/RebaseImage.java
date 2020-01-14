@@ -1,20 +1,20 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.WLSInstallerType;
-import com.oracle.weblogic.imagetool.impl.InstallerFile;
+import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -92,7 +92,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
             } else {
                 dockerfileOptions.setRebaseToNew(true);
-                //return new CommandResponse(-1, "Target Image not set");
             }
 
             if (newJavaHome != null && !newJavaHome.equals(oldJavaHome)) {
@@ -123,16 +122,12 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
             if (dockerfileOptions.isRebaseToNew()) {
 
-                boolean rc = WLSInstallHelper.setFromImage(fromImage, dockerfileOptions, tmpDir);
-                if (!rc) {
-                    Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
-                    return new CommandResponse(-1,
-                        "Oracle Home exists at location:" + baseImageProperties.getProperty("ORACLE_HOME"));
-                }
+                WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
 
-                // this handles wls, jdk and wdt install files.
-                cmdBuilder.addAll(handleInstallerFiles(tmpDir, gatherRequiredInstallers()));
-
+                MiddlewareInstall install =
+                    new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
+                install.copyFiles(cacheStore, tmpDir);
+                dockerfileOptions.setMiddlewareInstall(install);
 
                 // resolve required patches
                 cmdBuilder.addAll(handlePatchFiles(null));
@@ -142,10 +137,18 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                     installOpatchInstaller(tmpDir, opatchBugNumber);
                 }
 
-                // Copy wls response file to tmpDir
-                WLSInstallHelper.copyResponseFilesToDir(tmpDir, installerResponseFile);
-                Utils.setOracleHome(installerResponseFile, dockerfileOptions);
+                Utils.setOracleHome(installerResponseFiles, dockerfileOptions);
 
+                // Set the inventory oraInst.loc file location (null == default location)
+                dockerfileOptions.setInvLoc(inventoryPointerInstallLoc);
+
+                // Set the inventory pointer
+                if (inventoryPointerFile != null) {
+                    Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
+                    Utils.copyLocalFile(inventoryPointerFile, tmpDir + "/oraInst.loc", false);
+                } else {
+                    Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
+                }
             }
 
             // Create Dockerfile
@@ -169,18 +172,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
             + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
     }
 
-    private  List<InstallerFile> gatherRequiredInstallers() {
-        logger.entering();
-        List<InstallerFile> retVal = new ArrayList<>();
-        return WLSInstallHelper.getBasicInstallers(retVal, getInstallerType().toString(),
-            getInstallerVersion(), jdkVersion, dockerfileOptions);
-    }
-
-    @Override
-    WLSInstallerType getInstallerType() {
-        return installerType;
-    }
-
     @Override
     String getInstallerVersion() {
         return installerVersion;
@@ -191,7 +182,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}",
         defaultValue = "wls"
     )
-    private WLSInstallerType installerType;
+    private FmwInstallerType installerType;
 
     @Option(
         names = {"--version"},
@@ -224,10 +215,10 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
     @Option(
         names = {"--installerResponseFile"},
+        split = ",",
         description = "path to a response file. Override the default responses for the Oracle installer"
     )
-
-    private String installerResponseFile;
+    private List<Path> installerResponseFiles;
 
     @Option(
         names = {"--fromImage"},
@@ -235,5 +226,15 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
     )
     private String fromImage;
 
+    @Option(
+        names = {"--inventoryPointerFile"},
+        description = "path to a user provided inventory pointer file as input"
+    )
+    private String inventoryPointerFile;
 
+    @Option(
+        names = {"--inventoryPointerInstallLoc"},
+        description = "path to where the inventory pointer file (oraInst.loc) should be stored in the image"
+    )
+    private String inventoryPointerInstallLoc;
 }
