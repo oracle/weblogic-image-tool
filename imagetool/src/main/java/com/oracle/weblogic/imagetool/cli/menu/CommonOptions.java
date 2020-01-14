@@ -371,6 +371,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--additionalBuildFiles"},
+        split = ",",
         description = "comma separated list of files that should be copied to the build context folder"
     )
     private List<Path> additionalBuildFiles;
