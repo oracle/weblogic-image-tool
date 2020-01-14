@@ -155,7 +155,6 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
         JAVA_HOME={{{java_home}}} \
     {{/installJava}}
     LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
-    PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
     PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}
 
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
