@@ -27,7 +27,7 @@ Update WebLogic Docker image with selected patches
 |`--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | Path to the Docker executable.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to be updated. The fromImage option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
+| `--fromImage` | Docker image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
