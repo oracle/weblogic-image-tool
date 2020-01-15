@@ -72,10 +72,19 @@ increase the size of the image significantly, and is not recommended.
 ```dockerfile
 [after-fmw-install]
 RUN rm /some/dir/unnecessary-file
+COPY --chown=oracle:oracle files/my_additional_file.txt /u01
 
 [final-build-commands]
 LABEL owner="middleware team"
 ```
+
+#### `--additionalBuildFiles`
+
+All provided files are copied directly under the `files` subfolder of the build context.  
+Access to these files using a Docker build command such as COPY or ADD should use the original filename 
+with the `files/` folder prefix.  For example, if the 
+original file was provided as `--additionalBuildFiles /scratch/test1/convenience.sh`, the Docker build command COPY
+should look like `COPY --chown=oracle:oracle files/convenience.sh /my/internal/image/location`.
 
 #### Use an argument file
 
