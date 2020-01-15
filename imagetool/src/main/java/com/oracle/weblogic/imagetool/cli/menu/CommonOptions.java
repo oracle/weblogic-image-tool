@@ -73,13 +73,13 @@ public abstract class CommonOptions {
         }
 
         if (additionalBuildFiles != null) {
-            final String filesDir = "files";
-            Files.createDirectory(Paths.get(getTempDirectory(), filesDir));
+            final String FILES_DIR = "files";
+            Files.createDirectory(Paths.get(getTempDirectory(), FILES_DIR));
             for (Path additionalFile : additionalBuildFiles) {
                 if (!Files.isRegularFile(additionalFile)) {
                     throw new FileNotFoundException(Utils.getMessage("IMG-0030", additionalFile));
                 }
-                Path targetFile = Paths.get(getTempDirectory(), filesDir, additionalFile.getFileName().toString());
+                Path targetFile = Paths.get(getTempDirectory(), FILES_DIR, additionalFile.getFileName().toString());
                 logger.info("IMG-0043", additionalFile);
                 Utils.copyLocalFile(additionalFile.toString(), targetFile.toString(), false);
             }
