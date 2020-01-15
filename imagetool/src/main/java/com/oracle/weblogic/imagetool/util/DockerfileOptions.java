@@ -11,7 +11,6 @@ import java.util.StringJoiner;
 
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
-import com.oracle.weblogic.imagetool.wdt.DomainType;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
 public class DockerfileOptions {
@@ -57,7 +56,7 @@ public class DockerfileOptions {
     private ArrayList<String> wdtArchiveList;
     private ArrayList<String> wdtVariableList;
     private WdtOperation wdtOperation;
-    private DomainType wdtDomainType;
+    private String wdtDomainType;
     private String wdtJavaOptions;
     private boolean wdtModelOnly;
     private boolean wdtRunRcu;
@@ -644,7 +643,7 @@ public class DockerfileOptions {
      */
     @SuppressWarnings("unused")
     public String domainType() {
-        return wdtDomainType.name();
+        return wdtDomainType;
     }
 
     /**
@@ -652,7 +651,7 @@ public class DockerfileOptions {
      *
      * @param value  WLS, JRF, ...
      */
-    public DockerfileOptions setWdtDomainType(DomainType value) {
+    public DockerfileOptions setWdtDomainType(String value) {
         wdtDomainType = value;
         return this;
     }
