@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, 2020 Oracle and/or its affiliates.  All rights reserved.
+# Copyright (c) 2019, 2020, Oracle and/or its affiliates.  All rights reserved.
 #
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
@@ -124,14 +124,11 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
     FROM WLS_BUILD as WDT_BUILD
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
-    ARG WDT_PKG
-
-    ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
-        WLSDEPLOY_PROPERTIES="{{wlsdeploy_properties}} -Djava.security.egd=file:/dev/./urandom" \
+    ENV WLSDEPLOY_PROPERTIES="{{wlsdeploy_properties}} -Djava.security.egd=file:/dev/./urandom" \
         LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
         DOMAIN_HOME={{{domain_home}}}
 
-    COPY --chown={{userid}}:{{groupid}} ${WDT_PKG} {{{tempDir}}}/
+    COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
 
     RUN mkdir -p {{{wdt_home}}} \
     && chown {{userid}}:{{groupid}} {{{wdt_home}}}
@@ -158,7 +155,7 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
         {{{.}}}
     {{/beforeWdtCommand}}
 
-    RUN unzip -q {{{tempDir}}}/$WDT_PKG -d {{{wdt_home}}} \
+    RUN unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}} \
         && cd {{{wdt_home}}}/weblogic-deploy/bin \
     {{^modelOnly}}
         && ./createDomain.sh \
