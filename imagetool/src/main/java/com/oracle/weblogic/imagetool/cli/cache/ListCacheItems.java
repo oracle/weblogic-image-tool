@@ -5,11 +5,13 @@ package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(
         name = "listItems",
@@ -33,10 +35,19 @@ public class ListCacheItems extends CacheOperation {
                 System.out.println(Constants.CACHE_DIR_KEY + "=" + cacheDir);
                 resultMap.remove(Constants.CACHE_DIR_KEY);
             }
-            resultMap.forEach((key, value) -> System.out.println(key + "=" + value));
+
+            Pattern pattern = Pattern.compile(key == null ? ".*" : key);
+            resultMap.entrySet().stream()
+                .filter(entry -> pattern.matcher(entry.getKey()).matches())
+                .forEach(System.out::println);
 
             return new CommandResponse(0, "Cache contents", resultMap);
         }
     }
 
+    @Option(
+        names = {"--key"},
+        description = "list only cached items where the key matches this regex"
+    )
+    private String key;
 }
