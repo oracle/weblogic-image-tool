@@ -13,7 +13,6 @@
     ENV WDT_PKG=${WDT_PKG:-weblogic-deploy.zip} \
         WLSDEPLOY_PROPERTIES={{wlsdeploy_properties}} \
         LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
-        PROPERTIES_FILE_DIR={{{oracle_home}}}/properties \
         DOMAIN_HOME={{{domain_home}}} \
         PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{domain_home}}}/bin:{{{oracle_home}}}
 
@@ -28,8 +27,7 @@
 
     RUN cd {{{wdt_home}}} \
     && mkdir models \
-    && mkdir -p $(dirname {{{domain_home}}}) \
-    && mkdir -p ${PROPERTIES_FILE_DIR}
+    && mkdir -p $(dirname {{{domain_home}}})
 
     {{#wdtModels}}
         COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_home}}}/models/
