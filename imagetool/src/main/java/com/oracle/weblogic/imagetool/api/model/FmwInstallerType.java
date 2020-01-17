@@ -15,15 +15,13 @@ public enum FmwInstallerType {
     OSB(InstallerType.FMW, InstallerType.OSB),  //Service Bus
     SOA(InstallerType.FMW, InstallerType.SOA),  //SOA Suite
     SOAOSB(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB),
-    OAM(InstallerType.FMW, InstallerType.IDM),
-    BI(InstallerType.FMW, InstallerType.BI),
-    ODI(InstallerType.FMW, InstallerType.ODI),
-    EDQ(InstallerType.FMW, InstallerType.EDQ),
+    IDM(InstallerType.FMW, InstallerType.IDM),
+    OAM(InstallerType.FMW, InstallerType.OAM), //Identity and Access Manager
     OHSSA(InstallerType.OHS),
     OHS(InstallerType.FMW, InstallerType.OHS),
     OIG(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB, InstallerType.IDM),
-    OUD(InstallerType.OUD),
-    OUDSM(InstallerType.FMW, InstallerType.OUD),
+    OUD(InstallerType.OUD), //Oracle Unified Directory
+    OUDSM(InstallerType.FMW, InstallerType.OUD), //Oracle Unified Directory
     WCC(InstallerType.FMW, InstallerType.WCC), //Web Center Content
     WCP(InstallerType.FMW, InstallerType.WCP), //Web Center Portal
     WCS(InstallerType.FMW, InstallerType.WCS)  //Web Center Sites
