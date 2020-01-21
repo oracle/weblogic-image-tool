@@ -29,18 +29,15 @@ public class WdtOptions {
 
     /**
      * Checks whether the user requested a domain to be created with WDT.
-     * If so, returns the required build args to pass to docker and creates required file links to pass
-     * the model, archive, variables file to build process
+     * If so,  creates required file links to pass the model, archive, variables file to build process.
      *
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
-     * @return list of build args
      * @throws IOException in case of error
      */
-    List<String> handleWdtArgsIfRequired(DockerfileOptions dockerfileOptions, String tmpDir,
+    void handleWdtArgsIfRequired(DockerfileOptions dockerfileOptions, String tmpDir,
                                          FmwInstallerType installerType) throws IOException {
         logger.entering(tmpDir);
 
-        List<String> retVal = new LinkedList<>();
         if (wdtModelPath != null) {
             dockerfileOptions.setWdtEnabled();
             dockerfileOptions.setWdtModelOnly(wdtModelOnly);
@@ -72,10 +69,10 @@ public class WdtOptions {
             dockerfileOptions.setWdtStrictValidation(wdtStrictValidation);
 
             CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
-            wdtInstaller.copyFile(cacheStore, tmpDir);
+            Path wdtfile = wdtInstaller.copyFile(cacheStore, tmpDir);
+            dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
         }
         logger.exiting();
-        return retVal;
     }
 
     private List<String> addWdtFilesAsList(Path fileArg, String type, String tmpDir) throws IOException {

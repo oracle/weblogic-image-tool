@@ -61,6 +61,7 @@ public class DockerfileOptions {
     private boolean wdtModelOnly;
     private boolean wdtRunRcu;
     private boolean wdtStrictValidation;
+    private String wdtInstallerFilename;
 
     // Additional Build Commands
     private Map<String,List<String>> additionalBuildCommands;
@@ -664,6 +665,15 @@ public class DockerfileOptions {
     public DockerfileOptions setWdtModelOnly(boolean value) {
         wdtModelOnly = value;
         return this;
+    }
+
+    @SuppressWarnings("unused")
+    public String wdtInstaller() {
+        return wdtInstallerFilename;
+    }
+
+    public void setWdtInstallerFilename(String value) {
+        wdtInstallerFilename = value;
     }
 
     public boolean modelOnly() {
