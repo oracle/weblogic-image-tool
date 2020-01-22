@@ -45,7 +45,7 @@ public class MiddlewareInstall {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
             pkg.type = installer;
             pkg.installer = new CachedFile(installer, version);
-            pkg.responseFile = new DefaultResponseFile("/response-files/" + installer.toString() + ".rsp");
+            pkg.responseFile = new DefaultResponseFile(installer);
             addInstaller(pkg);
         }
         setResponseFiles(responseFiles);
@@ -92,7 +92,7 @@ public class MiddlewareInstall {
         return installerFiles;
     }
 
-    boolean addInstaller(MiddlewareInstallPackage installPackage) {
+    private boolean addInstaller(MiddlewareInstallPackage installPackage) {
         return installerFiles.add(installPackage);
     }
 

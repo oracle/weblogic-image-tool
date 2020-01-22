@@ -3,31 +3,36 @@
 
 package com.oracle.weblogic.imagetool.installer;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.Utils;
 
 public class DefaultResponseFile implements ResponseFile {
     private static final LoggingFacade logger = LoggingFactory.getLogger(DefaultResponseFile.class);
 
-    private String resource;
-    private String filename;
+    private final String installTypeResponse;
+    private final String filename;
 
     /**
-     * Use one of the default response files provided in the tool.
-     * @param resource the resource path to the response file in this tool
+     * Use the default response file for FMW installers.
+     * @param installerType the installer type with which this response file will be used
      */
-    public DefaultResponseFile(String resource) {
-        this.resource = resource;
-        if (resource.contains("/")) {
-            filename = resource.substring(resource.lastIndexOf("/") + 1);
-        } else {
-            filename = resource;
-        }
+    public DefaultResponseFile(InstallerType installerType) {
+        filename = installerType.toString() + ".rsp";
+        installTypeResponse = installerType.getInstallTypeResponse();
     }
 
+    /**
+     * Name for the response file FILE.
+     * @return filename to use
+     */
     @Override
     public String name() {
         return filename;
@@ -35,6 +40,20 @@ public class DefaultResponseFile implements ResponseFile {
 
     @Override
     public void copyFile(String buildContextDir) throws IOException {
-        Utils.copyResourceAsFile(resource, buildContextDir, false);
+        logger.entering(buildContextDir, filename, installTypeResponse);
+        MustacheFactory mf = new DefaultMustacheFactory("response-files");
+        Mustache mustache = mf.compile("default-response.mustache");
+        mustache.execute(new FileWriter(buildContextDir + File.separator + filename), this).flush();
+        logger.exiting();
+    }
+
+    /**
+     * Get the INPUT_TYPE for the silent install response file.
+     * Used by response file Mustache template.
+     * @return the value for the response file's input type field
+     */
+    @SuppressWarnings("unused")
+    public String installType() {
+        return installTypeResponse;
     }
 }
