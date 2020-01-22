@@ -13,7 +13,6 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
-import com.oracle.weblogic.imagetool.wdt.DomainType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -32,7 +31,7 @@ public class DockerfileBuilderTest {
             .setPatchingEnabled()
             .setOPatchPatchingEnabled()
             .setWdtEnabled()
-            .setWdtDomainType(DomainType.WLS)
+            .setWdtDomainType("WLS")
             .setWdtModels(Arrays.asList("model1.yaml", "model2.yaml"))
             .setPackageInstaller(Constants.YUM)
             .setMiddlewareInstall(install);

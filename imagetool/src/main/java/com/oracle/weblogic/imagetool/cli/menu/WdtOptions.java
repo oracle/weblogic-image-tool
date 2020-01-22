@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
@@ -19,10 +18,7 @@ import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
-import com.oracle.weblogic.imagetool.wdt.DomainType;
 import picocli.CommandLine.Option;
 
 public class WdtOptions {
@@ -50,12 +46,7 @@ public class WdtOptions {
             dockerfileOptions.setWdtModels(modelList);
 
             dockerfileOptions.setWdtDomainType(wdtDomainType);
-            if (wdtDomainType != DomainType.WLS) {
-                if (installerType != FmwInstallerType.FMW) {
-                    throw new IOException("FMW installer is required for JRF domain");
-                }
-                dockerfileOptions.setRunRcu(runRcu);
-            }
+            dockerfileOptions.setRunRcu(runRcu);
 
             if (wdtArchivePath != null) {
 
@@ -83,52 +74,6 @@ public class WdtOptions {
         logger.exiting();
     }
 
-    /**
-     * Builds a list of {@link CachedFile} objects based on user input which are processed.
-     * to download the required install artifacts
-     *
-     * @return list of CachedFile
-     * @throws Exception in case of error
-     */
-    public List<CachedFile> gatherWdtRequiredInstallers() throws Exception {
-        logger.entering();
-        List<CachedFile> result = new LinkedList<>();
-        if (wdtModelPath != null) {
-            logger.finer("IMG-0001", InstallerType.WDT, wdtVersion);
-            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
-            result.add(wdtInstaller);
-            addWdtUrl(wdtInstaller.getKey(), cacheStore, wdtVersion);
-        }
-        logger.exiting(result.size());
-        return result;
-    }
-
-    public CachedFile getWdtInstaller() {
-        return new CachedFile(InstallerType.WDT, wdtVersion);
-    }
-
-    private void addWdtUrl(String wdtKey, CacheStore cacheStore, String wdtVersion) throws Exception {
-        logger.entering(wdtKey);
-        String wdtUrlKey = wdtKey + "_url";
-        if (cacheStore.getValueFromCache(wdtKey) == null) {
-            //if (userId == null || password == null) {
-            //    throw new Exception("CachePolicy prohibits download. Add the required wdt installer to cache");
-            //}
-            List<String> wdtTags = HttpUtil.getWDTTags();
-            String tagToMatch = "latest".equalsIgnoreCase(wdtVersion) ? wdtTags.get(0) :
-                "weblogic-deploy-tooling-" + wdtVersion;
-            if (wdtTags.contains(tagToMatch)) {
-                String downloadLink = String.format(Constants.WDT_URL_FORMAT, tagToMatch);
-                logger.info("IMG-0007", downloadLink);
-                cacheStore.addToCache(wdtUrlKey, downloadLink);
-            } else {
-                throw new Exception("Couldn't find WDT download url for version:" + wdtVersion);
-            }
-        }
-        logger.exiting();
-    }
-
-
     private List<String> addWdtFilesAsList(Path fileArg, String type, String tmpDir) throws IOException {
         String[] listOfFiles = fileArg.toString().split(",");
         List<String> fileList = new ArrayList<>();
@@ -147,10 +92,6 @@ public class WdtOptions {
         return fileList;
     }
 
-
-    public DomainType getWdtDomainType() {
-        return wdtDomainType;
-    }
 
     @Option(
         names = {"--wdtModel"},
@@ -179,9 +120,10 @@ public class WdtOptions {
 
     @Option(
         names = {"--wdtDomainType"},
-        description = "WDT Domain Type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
+        description = "WDT Domain Type (-domain_type). Default: WLS. Supported values: WLS, JRF, or RestrictedJRF"
     )
-    private DomainType wdtDomainType = DomainType.WLS;
+    @SuppressWarnings("FieldCanBeLocal")
+    private String wdtDomainType = "WLS";
 
     @Option(
         names = "--wdtRunRCU",
