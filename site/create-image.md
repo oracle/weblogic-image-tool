@@ -64,11 +64,12 @@ LABEL owner="middleware team"
 This option provides a way to supply additional files to the image build command.
 All provided files are copied directly under the `files` subfolder of the build context.  
 To get those files into the image, additional build commands must be provided using the `additionalBuildCommands` options.
-Access to these files using a build command such as COPY or ADD should use the original filename 
+Access to these files using a build command, such as `COPY` or `ADD`, should use the original filename 
 with the folder prefix, `files/`.  For example, if the 
 original file was provided as `--additionalBuildFiles /scratch/test1/convenience.sh`, the Docker build command `COPY`
 provided in `--additionalBuildCommands` should look like 
-`COPY --chown=oracle:oracle files/convenience.sh /my/internal/image/location`.  Since Image Tool uses multi-stage 
+`COPY --chown=oracle:oracle files/convenience.sh /my/internal/image/location`.  
+Because Image Tool uses multi-stage 
 builds, it is important to place the build command (like `COPY`) in the appropriate section of the `Dockerfile` based
 on when the build needs access to the file.  For example, if the file is needed in the final image and not for 
 installation or domain creation steps, use the `final-build-commands` section so that the `COPY` command occurs in the 
