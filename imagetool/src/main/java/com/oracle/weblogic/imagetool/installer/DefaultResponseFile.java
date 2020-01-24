@@ -21,7 +21,7 @@ public class DefaultResponseFile implements ResponseFile {
     private static final String R_SOA = "SOA Suite";
     private static final String R_OSB = "Service Bus";
     private static final String R_OHS = "Standalone HTTP Server (Managed independently of WebLogic server)";
-    private static final String R_OHS_WLS = "Standalone HTTP Server (Managed independently of WebLogic server)";
+    private static final String R_OHS_WLS = "Collocated HTTP Server (Managed through WebLogic server)";
     private static final String R_IDM = "";
     private static final String R_OAM =
         "Collocated Oracle Identity and Access Manager (Managed through WebLogic server)";
