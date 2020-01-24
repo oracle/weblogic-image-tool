@@ -7,8 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.cli.WLSCommandLine;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
