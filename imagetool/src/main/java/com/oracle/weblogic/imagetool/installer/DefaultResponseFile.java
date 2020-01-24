@@ -16,6 +16,20 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 public class DefaultResponseFile implements ResponseFile {
     private static final LoggingFacade logger = LoggingFactory.getLogger(DefaultResponseFile.class);
 
+    private static final String R_WLS = "WebLogic Server";
+    private static final String R_FMW = "Fusion Middleware Infrastructure";
+    private static final String R_SOA = "SOA Suite";
+    private static final String R_OSB = "Service Bus";
+    private static final String R_OHS = "Standalone HTTP Server (Managed independently of WebLogic server)";
+    private static final String R_OHS_WLS = "Standalone HTTP Server (Managed independently of WebLogic server)";
+    private static final String R_IDM = "";
+    private static final String R_OAM =
+        "Collocated Oracle Identity and Access Manager (Managed through WebLogic server)";
+    private static final String R_OUD = "Installation for Oracle Unified Directory";
+    private static final String R_WCC = "WebCenter Content";
+    private static final String R_WCP = "WebCenter Portal";
+    private static final String R_WCS = "WebCenter Sites";
+
     private final String installTypeResponse;
     private final String filename;
 
@@ -23,9 +37,57 @@ public class DefaultResponseFile implements ResponseFile {
      * Use the default response file for FMW installers.
      * @param installerType the installer type with which this response file will be used
      */
-    public DefaultResponseFile(InstallerType installerType) {
+    public DefaultResponseFile(InstallerType installerType, FmwInstallerType fmwInstallerType) {
         filename = installerType.toString() + ".rsp";
-        installTypeResponse = installerType.getInstallTypeResponse();
+        installTypeResponse = getInstallTypeResponse(installerType, fmwInstallerType);
+    }
+
+    private static String getInstallTypeResponse(InstallerType installerType, FmwInstallerType fmwInstallerType) {
+        String response;
+
+        switch (installerType) {
+            case FMW:
+                response = R_FMW;
+                break;
+            case SOA:
+                response = R_SOA;
+                break;
+            case OSB:
+                response = R_OSB;
+                break;
+            case OHS:
+                if (FmwInstallerType.OHS == fmwInstallerType) {
+                    response = R_OHS;
+                } else {
+                    response = R_OHS_WLS;
+                }
+                break;
+            case IDM:
+                response = R_IDM;
+                break;
+            case OAM:
+                response = R_OAM;
+                break;
+            case OUD:
+                response = R_OUD;
+                break;
+            case WCC:
+                response = R_WCC;
+                break;
+            case WCP:
+                response = R_WCP;
+                break;
+            case WCS:
+                response = R_WCS;
+                break;
+            case WLS:
+            default:
+                response = R_WLS;
+                break;
+        }
+
+
+        return response;
     }
 
     /**

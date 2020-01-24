@@ -43,7 +43,7 @@ public class MiddlewareInstall {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
             pkg.type = installer;
             pkg.installer = new CachedFile(installer, version);
-            pkg.responseFile = new DefaultResponseFile(installer);
+            pkg.responseFile = new DefaultResponseFile(installer, type);
             addInstaller(pkg);
         }
         setResponseFiles(responseFiles);
