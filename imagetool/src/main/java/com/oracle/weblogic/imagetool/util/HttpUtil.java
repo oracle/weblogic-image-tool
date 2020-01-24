@@ -1,13 +1,16 @@
-// Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.StringReader;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.net.ssl.SSLException;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,16 +18,20 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -107,15 +114,54 @@ public class HttpUtil {
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
                     userId, password));
         }
-        HttpClient result = HttpClientBuilder.create().setDefaultRequestConfig(config.build())
+        HttpClient result = HttpClientBuilder.create()
+            .setDefaultRequestConfig(config.build())
+            .setRetryHandler(retryHandler())
             .setDefaultCookieStore(cookieStore).useSystemProperties()
             .setDefaultCredentialsProvider(credentialsProvider).build();
         logger.exiting();
         return result;
     }
 
+    private static HttpRequestRetryHandler retryHandler() {
+        return (exception, executionCount, context) -> {
+
+            if (executionCount > 3) {
+                // Do not retry if over max retries
+                return false;
+            }
+            if (exception instanceof InterruptedIOException) {
+                // Timeout
+                return false;
+            }
+            if (exception instanceof UnknownHostException) {
+                // Unknown host
+                return false;
+            }
+            if (exception instanceof SSLException) {
+                // SSL handshake failed
+                return false;
+            }
+            HttpClientContext clientContext = HttpClientContext.adapt(context);
+            HttpRequest request = clientContext.getRequest();
+            // return true if it is okay to retry this request type
+            boolean retriable = !(request instanceof HttpEntityEnclosingRequest);
+            if (retriable) {
+                try {
+                    logger.warning("Connect failed, retrying in 10 seconds, attempts={0} ", executionCount);
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    //continue
+                }
+                return true;
+            } else {
+                return false;
+            }
+        };
+    }
+
     /**
-     * Downlod a file from the url.
+     * Download a file from the url.
      *
      * @param url      url of the aru server
      * @param fileName full path to save the file
