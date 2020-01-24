@@ -3,7 +3,7 @@
 
 package com.oracle.weblogic.imagetool.wdt;
 
-import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 
 /**
  * Supported domain type. wls, jrf or restricted jrf.

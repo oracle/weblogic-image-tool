@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.installer;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.api.model.InstallerType;
 
 public class MiddlewareInstallPackage {
     public InstallerType type;
