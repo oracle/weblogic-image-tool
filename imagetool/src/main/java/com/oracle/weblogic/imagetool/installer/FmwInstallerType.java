@@ -14,7 +14,7 @@ public enum FmwInstallerType {
     FMW(InstallerType.FMW), //WebLogic Server Infrastructure (JRF)
     OSB(InstallerType.FMW, InstallerType.OSB),  //Service Bus
     SOA(InstallerType.FMW, InstallerType.SOA),  //SOA Suite
-    SOAOSB(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB),
+    SOA_OSB(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB),
     IDM(InstallerType.FMW, InstallerType.IDM),
     OAM(InstallerType.FMW, InstallerType.OAM), //Identity and Access Manager
     OHS(InstallerType.OHS),
