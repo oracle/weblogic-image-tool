@@ -16,6 +16,7 @@ public enum FmwInstallerType {
     SOA(InstallerType.FMW, InstallerType.SOA),  //SOA Suite
     SOA_OSB(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB),
     IDM(InstallerType.FMW, InstallerType.IDM),
+    IDM_WLS(InstallerType.IDM),
     OAM(InstallerType.FMW, InstallerType.OAM), //Identity and Access Manager
     OHS(InstallerType.OHS),
     OHS_WLS(InstallerType.FMW, InstallerType.OHS),

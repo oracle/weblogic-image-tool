@@ -22,7 +22,10 @@ public class DefaultResponseFile implements ResponseFile {
     private static final String R_OSB = "Service Bus";
     private static final String R_OHS = "Standalone HTTP Server (Managed independently of WebLogic server)";
     private static final String R_OHS_WLS = "Collocated HTTP Server (Managed through WebLogic server)";
-    private static final String R_IDM = "";
+    private static final String R_IDM =
+        "Standalone Oracle Identity and Access Manager(Managed independently of WebLogic server)";
+    private static final String R_IDM_WLS =
+        "Collocated Oracle Identity and Access Manager (Managed through WebLogic server)";
     private static final String R_OAM =
         "Collocated Oracle Identity and Access Manager (Managed through WebLogic server)";
     private static final String R_OUD = "Installation for Oracle Unified Directory";
@@ -63,7 +66,11 @@ public class DefaultResponseFile implements ResponseFile {
                 }
                 break;
             case IDM:
-                response = R_IDM;
+                if (FmwInstallerType.IDM == fmwInstallerType) {
+                    response = R_IDM;
+                } else {
+                    response = R_IDM_WLS;
+                }
                 break;
             case OAM:
                 response = R_OAM;
