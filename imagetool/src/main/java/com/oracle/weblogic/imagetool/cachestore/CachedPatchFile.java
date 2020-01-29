@@ -49,7 +49,7 @@ public class CachedPatchFile extends CachedFile {
         if (fileExists) {
             logger.info("IMG-0017", patchId, filePath);
         } else {
-            logger.fine("Could not find patch in cache patchId={2} version={1} ", patchId, version);
+            logger.fine("Could not find patch in cache patchId={0} version={1} ", patchId, version);
 
             if (userId == null || password == null) {
                 throw new FileNotFoundException(String.format(

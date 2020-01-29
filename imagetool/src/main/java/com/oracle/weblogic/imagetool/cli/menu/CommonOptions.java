@@ -403,7 +403,7 @@ public abstract class CommonOptions {
         names = {"--opatchBugNumber"},
         description = "the patch number for OPatch (patching OPatch)"
     )
-    String opatchBugNumber = "28186730";
+    String opatchBugNumber = "28186730_13.9.4.2.2";
 
     @Unmatched
     List<String> unmatchedOptions;

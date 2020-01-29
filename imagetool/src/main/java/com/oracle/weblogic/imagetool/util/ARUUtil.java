@@ -319,13 +319,17 @@ public class ARUUtil {
                     if (nodeList.getLength() > 1 && ind < 0) {
                         // only base number is specified and there are multiple patches
                         // ERROR
-                        logger.warning(Utils.getMessage("IMG-0034", baseBugNumber));
+                        List<String> patchVersions = new ArrayList<>();
                         for (int i = 1; i <= nodeList.getLength(); i++) {
                             String xpath = String.format("string(/results/patch[%d]/release/@name)", i);
                             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
-                            logger.warning(bugNumber + "_" + releaseNumber);
+                            patchVersions.add(bugNumber + "_" + releaseNumber);
                         }
-                        throw new IOException(Utils.getMessage("IMG-0035"));
+
+                        IOException ioe = new IOException(Utils.getMessage("IMG-0034", baseBugNumber,
+                            String.join(", ", patchVersions)));
+                        logger.throwing(ioe);
+                        throw ioe;
                     }
 
                 } catch (XPathExpressionException xpe) {
@@ -354,15 +358,16 @@ public class ARUUtil {
                 if (nodeList.getLength() > 1 && ind < 0) {
                     // only base number is specified and there are multiple patches
                     // ERROR
-                    String message = String.format("There are multiple patches found with id %s, please specify "
-                            + "the format as one of the following for the release you want", baseBugNumber);
-                    logger.warning(message);
+                    List<String> patchVersions = new ArrayList<>();
                     for (int i = 1; i <= nodeList.getLength(); i++) {
                         String xpath = String.format("string(/results/patch[%d]/release/@name)", i);
                         String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
-                        logger.warning(bugNumber + "_" + releaseNumber);
+                        patchVersions.add(bugNumber + "_" + releaseNumber);
                     }
-                    throw new IOException("Multiple patches with same patch number detected");
+                    IOException ioe = new IOException(Utils.getMessage("IMG-0034", baseBugNumber,
+                        String.join(", ", patchVersions)));
+                    logger.throwing(ioe);
+                    throw ioe;
                 }
                 if (optionalRelease != null) {
                     // TODO: do we need this ?
