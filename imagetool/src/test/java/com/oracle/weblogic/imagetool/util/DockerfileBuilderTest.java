@@ -11,7 +11,7 @@ import java.util.Arrays;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import org.junit.Test;
 

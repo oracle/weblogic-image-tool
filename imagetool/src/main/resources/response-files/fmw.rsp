@@ -1,6 +1,0 @@
-[ENGINE]
-Response File Version=1.0.0.0.0
-[GENERIC]
-INSTALL_TYPE=Fusion Middleware Infrastructure
-DECLINE_SECURITY_UPDATES=true
-SECURITY_UPDATES_VIA_MYORACLESUPPORT=false

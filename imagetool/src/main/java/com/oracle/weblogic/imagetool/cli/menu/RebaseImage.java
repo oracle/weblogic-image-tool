@@ -13,7 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
