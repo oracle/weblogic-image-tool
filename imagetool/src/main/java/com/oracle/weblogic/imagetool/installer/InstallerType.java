@@ -1,7 +1,7 @@
 // Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.api.model;
+package com.oracle.weblogic.imagetool.installer;
 
 /**
  * Supported installer types in the local cache.
@@ -9,18 +9,14 @@ package com.oracle.weblogic.imagetool.api.model;
  */
 public enum InstallerType {
 
-    //Values are used to resolve response files and lookup installers in the cache
-    //There must be a matching (default) response file in {resources}/response-files/
     WLS("wls"),
     FMW("fmw"),
     SOA("soa"),
     OSB("osb"),
-    IDM("idm"),
-    ODI("odi"),
-    BI("bi"),
     OHS("ohs"),
+    IDM("idm"),
+    OAM("oam"),
     OUD("oud"),
-    EDQ("edq"),
     WCC("wcc"),
     WCP("wcp"),
     WCS("wcs"),
@@ -29,6 +25,11 @@ public enum InstallerType {
 
     private String value;
 
+    /**
+     * Create an Enum value for the installer type.
+     * @param value value is the first part of the key for the installer in the cache, and the filename of the
+     *              response file
+     */
     InstallerType(String value) {
         this.value = value;
     }

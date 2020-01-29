@@ -15,8 +15,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.api.model.FmwInstallerType;
-import com.oracle.weblogic.imagetool.api.model.InstallerType;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -45,7 +43,7 @@ public class MiddlewareInstall {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
             pkg.type = installer;
             pkg.installer = new CachedFile(installer, version);
-            pkg.responseFile = new DefaultResponseFile("/response-files/" + installer.toString() + ".rsp");
+            pkg.responseFile = new DefaultResponseFile(installer, type);
             addInstaller(pkg);
         }
         setResponseFiles(responseFiles);
@@ -92,7 +90,7 @@ public class MiddlewareInstall {
         return installerFiles;
     }
 
-    boolean addInstaller(MiddlewareInstallPackage installPackage) {
+    private boolean addInstaller(MiddlewareInstallPackage installPackage) {
         return installerFiles.add(installPackage);
     }
 
