@@ -83,7 +83,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 String opatchBugNumberVersion;
 
                 if (userId == null && password == null) {
-                    String opatchFile = cacheStore.getValueFromCache(opatchBugNumber + "_opatch");
+                    String opatchFile = cacheStore.getValueFromCache(opatchBugNumber);
                     if (opatchFile != null) {
                         opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
                         logger.info("IMG-0008", opatchBugNumber, opatchFile, opatchBugNumberVersion);
