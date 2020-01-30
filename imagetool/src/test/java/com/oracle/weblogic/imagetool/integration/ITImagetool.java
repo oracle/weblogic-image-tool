@@ -23,7 +23,7 @@ public class ITImagetool extends BaseTest {
     private static final String JDK_INSTALLER_8u212 = "jdk-8u212-linux-x64.tar.gz";
     private static final String WLS_INSTALLER = "fmw_12.2.1.3.0_wls_Disk1_1of1.zip";
     private static final String P27342434_INSTALLER = "p27342434_122130_Generic.zip";
-    private static final String P28186730_INSTALLER = "p28186730_139400_Generic.zip";
+    private static final String P28186730_INSTALLER = "p28186730_139422_Generic.zip";
     private static final String P22987840_INSTALLER = "p22987840_122100_Generic.zip";
     private static final String WDT_INSTALLER = "weblogic-deploy.zip";
     private static final String FMW_INSTALLER = "fmw_12.2.1.3.0_infrastructure_Disk1_1of1.zip";
