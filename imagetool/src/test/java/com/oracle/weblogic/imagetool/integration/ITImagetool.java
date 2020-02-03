@@ -34,7 +34,7 @@ public class ITImagetool extends BaseTest {
     private static final String P22987840_ID = "22987840";
     private static final String WLS_VERSION = "12.2.1.3.0";
     private static final String WLS_VERSION_1221 = "12.2.1.0.0";
-    private static final String OPATCH_VERSION = "13.9.4.0.0";
+    private static final String OPATCH_VERSION = "13.9.4.2.2";
     private static final String JDK_VERSION = "8u202";
     private static final String JDK_VERSION_8u212 = "8u212";
     private static final String WDT_VERSION = "1.1.2";
