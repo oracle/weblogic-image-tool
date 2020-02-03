@@ -424,10 +424,11 @@ public class ARUUtil {
             Document allPatches = HttpUtil.getXMLContent(url, userId, password);
 
             String xpath;
-            if (optionalRelease != null)
+            if (optionalRelease != null) {
                 xpath = String.format("/results/patch/release[@name='%s']/@id", optionalRelease);
-            else
+            } else {
                 xpath = "/results/patch/release/@id";
+            }
 
             logger.finest("applying xpath: " + xpath);
             String releaseNumber = XPathUtil.applyXPathReturnString(allPatches, xpath);
@@ -552,8 +553,9 @@ public class ARUUtil {
                 Node n = nodeList.item(i);
                 Node copyNode = doc.importNode(n, true);
 
-                if (n instanceof Element)
+                if (n instanceof Element) {
                     element.appendChild(copyNode);
+                }
             }
 
             doc.appendChild(element);

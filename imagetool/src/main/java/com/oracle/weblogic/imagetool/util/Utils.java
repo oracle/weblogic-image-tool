@@ -804,6 +804,12 @@ public class Utils {
         return MessageFormat.format(bundle.getString(key), params);
     }
 
+    /**
+     * Remove the intermediate images created by the multi-stage Docker build.
+     * @param buildId the build ID used to identify the images created during this build.
+     * @throws IOException if the external Docker command fails.
+     * @throws InterruptedException if this program was interrupted waiting on the Docker command.
+     */
     public static void removeIntermediateDockerImages(String buildId) throws IOException, InterruptedException {
         logger.entering();
         final List<String> command = Stream.of(

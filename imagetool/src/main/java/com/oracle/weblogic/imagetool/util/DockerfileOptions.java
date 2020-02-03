@@ -279,6 +279,10 @@ public class DockerfileOptions {
         return wdtHome;
     }
 
+    /**
+     * The directory for the WORKDIR in the Docker build.
+     * @return the value for the WORKDIR
+     */
     @SuppressWarnings("unused")
     public String work_dir() {
         if ((isWdtEnabled() && !modelOnly()) || sourceImage != null) {
@@ -315,7 +319,10 @@ public class DockerfileOptions {
         }
     }
 
-
+    /**
+     * Set the value for the Oracle Inventory directory.
+     * @param value the value for inventory file (directory)
+     */
     public void setOraInvDir(String value) {
         if (value != null) {
             oraInvDir = value;

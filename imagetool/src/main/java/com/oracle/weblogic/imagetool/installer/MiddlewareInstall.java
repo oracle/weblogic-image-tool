@@ -74,6 +74,12 @@ public class MiddlewareInstall {
         return filename;
     }
 
+    /**
+     * Copy all necessary installers to the build context directory.
+     * @param cacheStore cache where the installers are defined.
+     * @param buildContextDir the directory where the installers should be copied.
+     * @throws IOException if any of the copy commands fails.
+     */
     public void copyFiles(CacheStore cacheStore, String buildContextDir) throws IOException {
         logger.entering();
         for (MiddlewareInstallPackage installPackage: installerFiles) {
