@@ -238,8 +238,11 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
-        deleteEntryFromCache(P28186730_ID + "_opatch");
+        deleteEntryFromCache(P28186730_ID + OPATCH_VERSION);
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+        ExecResult resultT = listItemsInCache();
+        System.out.println(resultT.stdout());
+        System.out.println(resultT.stderr());
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION + " --fromImage "
             + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
@@ -263,6 +266,10 @@ public class ITImagetool extends BaseTest {
     public void test9UpdateWLSImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
+
+        ExecResult resultT = listItemsInCache();
+        System.out.println(resultT.stdout());
+        System.out.println(resultT.stderr());
 
         String command = imagetool + " update --fromImage " + build_tag + ":test8CreateWLSImgUseCache --tag "
             + build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
