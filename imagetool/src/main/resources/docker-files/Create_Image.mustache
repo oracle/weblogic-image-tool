@@ -124,7 +124,7 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
     FROM WLS_BUILD as WDT_BUILD
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
-    ENV WLSDEPLOY_PROPERTIES="{{wlsdeploy_properties}} -Djava.security.egd=file:/dev/./urandom" \
+    ENV WLSDEPLOY_PROPERTIES="{{{wlsdeploy_properties}}} -Djava.security.egd=file:/dev/./urandom" \
         LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
         DOMAIN_HOME={{{domain_home}}}
 
