@@ -43,7 +43,6 @@ public class ITImagetool extends BaseTest {
     private static final String WDT_MODEL = "simple-topology.yaml";
     private static final String WDT_MODEL2 = "simple-topology2.yaml";
     private static String oracleSupportUsername;
-    private static String oracleSupportPassword;
 
     @BeforeClass
     public static void staticPrepare() throws Exception {
@@ -65,7 +64,7 @@ public class ITImagetool extends BaseTest {
 
         // get Oracle support credentials
         oracleSupportUsername = System.getenv("ORACLE_SUPPORT_USERNAME");
-        oracleSupportPassword = System.getenv("ORACLE_SUPPORT_PASSWORD");
+        String oracleSupportPassword = System.getenv("ORACLE_SUPPORT_PASSWORD");
         if (oracleSupportUsername == null || oracleSupportPassword == null) {
             throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD"
                 + " for Oracle Support credentials to download the patches.");
@@ -519,7 +518,7 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --fromImage "
             + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
             + " --version " + WLS_VERSION + " --latestPSU --user " + oracleSupportUsername
-            + " --password " + oracleSupportPassword + " --wdtVersion " + WDT_VERSION
+            + " --passwordEnv ORACLE_SUPPORT_PASSWORD" + " --wdtVersion " + WDT_VERSION
             + " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel "
             + wdtModel + " --wdtDomainType RestrictedJRF --type fmw --wdtVariables " + wdtVariables;
 
