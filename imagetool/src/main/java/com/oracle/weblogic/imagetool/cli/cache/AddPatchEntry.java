@@ -67,11 +67,11 @@ public class AddPatchEntry extends CacheOperation {
         String key = patchNumber;
 
         // Check if it is an Opatch patch
-        String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
-        if (opatchNumber != null) {
-            int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
-            key = key.substring(0, lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
-        }
+        //String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
+        //if (opatchNumber != null) {
+        //    int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
+        //    key = key.substring(0, lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
+        //}
         logger.info("adding key " + key);
         if (cacheStore.getValueFromCache(key) != null) {
             String error = String.format("Cache key %s already exists, remove it first", key);
