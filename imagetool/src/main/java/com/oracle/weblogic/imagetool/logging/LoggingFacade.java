@@ -17,6 +17,11 @@ public class LoggingFacade {
     private static final String CLASS = LoggingFacade.class.getName();
     private final Logger logger;
 
+    /**
+     * Create an Image Tool facade for the java.util.logging.Logger class.
+     * This facade is used to override the logging methods in order to infer caller details.
+     * @param logger the named logger to wrap.
+     */
     public LoggingFacade(Logger logger) {
         this.logger = logger;
 
