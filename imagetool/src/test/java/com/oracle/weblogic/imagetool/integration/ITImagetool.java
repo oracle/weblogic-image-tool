@@ -23,7 +23,7 @@ public class ITImagetool extends BaseTest {
     private static final String JDK_INSTALLER_8u212 = "jdk-8u212-linux-x64.tar.gz";
     private static final String WLS_INSTALLER = "fmw_12.2.1.3.0_wls_Disk1_1of1.zip";
     private static final String P27342434_INSTALLER = "p27342434_122130_Generic.zip";
-    private static final String P28186730_INSTALLER = "p28186730_139400_Generic.zip";
+    private static final String P28186730_INSTALLER = "p28186730_139422_Generic.zip";
     private static final String P22987840_INSTALLER = "p22987840_122100_Generic.zip";
     private static final String WDT_INSTALLER = "weblogic-deploy.zip";
     private static final String FMW_INSTALLER = "fmw_12.2.1.3.0_infrastructure_Disk1_1of1.zip";
@@ -34,7 +34,7 @@ public class ITImagetool extends BaseTest {
     private static final String P22987840_ID = "22987840";
     private static final String WLS_VERSION = "12.2.1.3.0";
     private static final String WLS_VERSION_1221 = "12.2.1.0.0";
-    private static final String OPATCH_VERSION = "13.9.4.0.0";
+    private static final String OPATCH_VERSION = "13.9.4.2.2";
     private static final String JDK_VERSION = "8u202";
     private static final String JDK_VERSION_8u212 = "8u212";
     private static final String WDT_VERSION = "1.1.2";
@@ -43,7 +43,6 @@ public class ITImagetool extends BaseTest {
     private static final String WDT_MODEL = "simple-topology.yaml";
     private static final String WDT_MODEL2 = "simple-topology2.yaml";
     private static String oracleSupportUsername;
-    private static String oracleSupportPassword;
 
     @BeforeClass
     public static void staticPrepare() throws Exception {
@@ -65,7 +64,7 @@ public class ITImagetool extends BaseTest {
 
         // get Oracle support credentials
         oracleSupportUsername = System.getenv("ORACLE_SUPPORT_USERNAME");
-        oracleSupportPassword = System.getenv("ORACLE_SUPPORT_PASSWORD");
+        String oracleSupportPassword = System.getenv("ORACLE_SUPPORT_PASSWORD");
         if (oracleSupportUsername == null || oracleSupportPassword == null) {
             throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD"
                 + " for Oracle Support credentials to download the patches.");
@@ -238,8 +237,11 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
-        deleteEntryFromCache(P28186730_ID + "_opatch");
+        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+        ExecResult resultT = listItemsInCache();
+        System.out.println(resultT.stdout());
+        System.out.println(resultT.stderr());
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION + " --fromImage "
             + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
@@ -263,6 +265,10 @@ public class ITImagetool extends BaseTest {
     public void test9UpdateWLSImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
+
+        ExecResult resultT = listItemsInCache();
+        System.out.println(resultT.stdout());
+        System.out.println(resultT.stderr());
 
         String command = imagetool + " update --fromImage " + build_tag + ":test8CreateWLSImgUseCache --tag "
             + build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
@@ -307,7 +313,7 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         // delete the cache entry first
-        deleteEntryFromCache(P28186730_ID + "_opatch");
+        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 
@@ -512,7 +518,7 @@ public class ITImagetool extends BaseTest {
         String command = imagetool + " create --fromImage "
             + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
             + " --version " + WLS_VERSION + " --latestPSU --user " + oracleSupportUsername
-            + " --password " + oracleSupportPassword + " --wdtVersion " + WDT_VERSION
+            + " --passwordEnv ORACLE_SUPPORT_PASSWORD" + " --wdtVersion " + WDT_VERSION
             + " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel "
             + wdtModel + " --wdtDomainType RestrictedJRF --type fmw --wdtVariables " + wdtVariables;
 
@@ -556,7 +562,7 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         // delete the cache entry first
-        deleteEntryFromCache(P28186730_ID + "_opatch");
+        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 

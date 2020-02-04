@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -67,11 +65,11 @@ public class AddPatchEntry extends CacheOperation {
         String key = patchNumber;
 
         // Check if it is an Opatch patch
-        String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
-        if (opatchNumber != null) {
-            int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
-            key = key.substring(0, lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
-        }
+        //String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
+        //if (opatchNumber != null) {
+        //    int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
+        //    key = key.substring(0, lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
+        //}
         logger.info("adding key " + key);
         if (cacheStore.getValueFromCache(key) != null) {
             String error = String.format("Cache key %s already exists, remove it first", key);
