@@ -237,7 +237,7 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
-        deleteEntryFromCache(P28186730_ID + OPATCH_VERSION);
+        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
         ExecResult resultT = listItemsInCache();
         System.out.println(resultT.stdout());
@@ -313,7 +313,7 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         // delete the cache entry first
-        deleteEntryFromCache(P28186730_ID + "_opatch");
+        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 
@@ -562,7 +562,7 @@ public class ITImagetool extends BaseTest {
 
         // need to add the required patches 28186730 for Opatch before create wls images
         // delete the cache entry first
-        deleteEntryFromCache(P28186730_ID + "_opatch");
+        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         String patchPath = getInstallerCacheDir() + FS + P28186730_INSTALLER;
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
 
