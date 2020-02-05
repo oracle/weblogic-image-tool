@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -82,7 +83,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             // Set the inventory location, so that it will be copied
             if (inventoryPointerFile != null) {
                 Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
-                Utils.copyLocalFile(inventoryPointerFile, tmpDir + "/oraInst.loc", false);
+                Utils.copyLocalFile(Paths.get(inventoryPointerFile), Paths.get(tmpDir,"/oraInst.loc"), false);
             } else {
                 Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
             }
@@ -95,6 +96,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             cmdBuilder.add(tmpDir);
             runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
+            logger.fine("**ERROR**", ex);
             return new CommandResponse(-1, ex.getMessage());
         } finally {
             if (!skipcleanup) {

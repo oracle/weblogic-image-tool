@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -91,18 +92,52 @@ public class Utils {
      * @param markExec     sets the executable flag if true
      * @throws IOException in case of error
      */
-    public static void copyLocalFile(String sourcePath, String destPath, boolean markExec) throws IOException {
+    public static void copyLocalFile(Path sourcePath, Path destPath, boolean markExec) throws IOException {
         Objects.requireNonNull(sourcePath);
         Objects.requireNonNull(destPath);
-        Files.copy(Paths.get(sourcePath), Paths.get(destPath),
-            StandardCopyOption.REPLACE_EXISTING);
+        logger.fine("copyLocalFile: copying file {0}->{1}", sourcePath, destPath);
+        Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
         if (markExec) {
             if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-                Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
+                Files.setPosixFilePermissions(destPath, PosixFilePermissions.fromString("r-xr-xr-x"));
             }
         }
     }
 
+    /**
+     * Utility method to copy a local directory to another local file system location.
+     *
+     * @param sourcePath   path to the local directory
+     * @param destPath     local directory to copy to.
+     * @param markExec     sets the executable flag if true
+     * @throws IOException in case of error
+     */
+    public static void copyLocalDirectory(Path sourcePath, Path destPath, boolean markExec) throws IOException {
+        Objects.requireNonNull(sourcePath);
+        Objects.requireNonNull(destPath);
+        if (!Files.isDirectory(sourcePath)) {
+            throw new IllegalArgumentException(getMessage("IMG-0007", sourcePath.toString()));
+        }
+
+        logger.fine("copyLocalDirectory: copying folder {0}->{1}", sourcePath, destPath);
+
+        // retain folder structure of source in destination folder
+        Files.createDirectory(destPath);
+
+        // get children of source directory and copy them to destination directory
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourcePath)) {
+            for (Path child : stream) {
+                if (Files.isDirectory(child)) {
+                    copyLocalDirectory(child, destPath.resolve(child.getFileName()), markExec);
+                } else if (Files.isRegularFile(child)) {
+                    copyLocalFile(child, destPath.resolve(child.getFileName()), markExec);
+                } else {
+                    logger.info("IMG-0035", sourcePath.toString());
+                }
+            }
+        }
+
+    }
 
     /**
      * Create a file with the given path.

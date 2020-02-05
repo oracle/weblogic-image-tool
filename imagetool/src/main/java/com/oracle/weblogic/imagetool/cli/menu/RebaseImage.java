@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -145,7 +146,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 // Set the inventory pointer
                 if (inventoryPointerFile != null) {
                     Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
-                    Utils.copyLocalFile(inventoryPointerFile, tmpDir + "/oraInst.loc", false);
+                    Utils.copyLocalFile(Paths.get(inventoryPointerFile), Paths.get(tmpDir,"/oraInst.loc"), false);
                 } else {
                     Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
                 }
