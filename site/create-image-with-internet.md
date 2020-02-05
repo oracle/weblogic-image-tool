@@ -74,4 +74,4 @@ oraclelinux         7-slim              f7512ac13c1b        6 weeks ago         
 
 ```
 ## Copyright
-Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019, 2020, Oracle and/or its affiliates.

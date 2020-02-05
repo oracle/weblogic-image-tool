@@ -23,4 +23,4 @@ imagetool @/path/to/build_args
 ```
 
 ### Copyright
-Copyright (c) 2019 Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019, 2020, Oracle and/or its affiliates.

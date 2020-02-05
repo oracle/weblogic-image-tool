@@ -65,4 +65,4 @@ drwxr-xr-x 18 root   root   4096 May 29 01:31 ..
 
 
 ## Copyright
-Copyright (c) 2019 Oracle and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle and/or its affiliates.
