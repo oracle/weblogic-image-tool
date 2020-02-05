@@ -25,4 +25,4 @@ As a temporary workaround, `--skipcleanup` can be used to skip the prune command
 newer version of Docker.
  
 ### Copyright
-Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019, 2020, Oracle and/or its affiliates.

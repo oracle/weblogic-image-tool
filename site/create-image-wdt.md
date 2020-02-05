@@ -37,4 +37,4 @@ specify the connection information in the model. See [Specifying RCU
 information in the model](https://github.com/oracle/weblogic-deploy-tooling/blob/master/site/rcuinfo.md).
 
 ## Copyright
-Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019, 2020, Oracle and/or its affiliates.
