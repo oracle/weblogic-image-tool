@@ -81,7 +81,7 @@ LABEL owner="middleware team"
 #### `--additionalBuildFiles`
 
 This option provides a way to supply additional files to the image build command.
-All provided files are copied directly under the `files` subfolder of the build context.  
+All provided files and directories are copied directly under the `files` subfolder of the build context.  
 To get those files into the image, additional build commands must be provided using the `additionalBuildCommands` options.
 Access to these files using a build command, such as `COPY` or `ADD`, should use the original filename 
 with the folder prefix, `files/`.  For example, if the 
