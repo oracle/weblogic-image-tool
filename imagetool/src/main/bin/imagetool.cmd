@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem imagetool.cmd
 @rem
-@rem Copyright (c) 2019, Oracle and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2019, 2020, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 IF "%JAVA_HOME%" == "" (
