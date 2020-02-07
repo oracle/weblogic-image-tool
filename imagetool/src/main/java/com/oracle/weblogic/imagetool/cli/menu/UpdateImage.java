@@ -137,11 +137,11 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             List<String> cmdBuilder = getInitialBuildCmd();
 
             // build wdt args if user passes --wdtModelPath
-            wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, installerType);
+            cmdBuilder.addAll(wdtOptions.handleWdtArgs(dockerfileOptions, tmpDir));
             dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
-            cmdBuilder.addAll(handlePatchFiles(lsinventoryText));
+            handlePatchFiles(lsinventoryText);
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",

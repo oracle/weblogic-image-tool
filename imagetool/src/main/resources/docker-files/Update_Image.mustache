@@ -6,6 +6,7 @@
 #
 {{#isWdtEnabled}}
     FROM {{baseImage}} as WDT_BUILD
+    ARG WDT_ENCRYPTION_KEY
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     ENV WLSDEPLOY_PROPERTIES={{{wlsdeploy_properties}}} \
@@ -49,10 +50,13 @@
         RUN cd {{{wdt_home}}} \
         && cd weblogic-deploy/bin \
         && chmod u+x ./*.sh \
-        && ./{{wdtCommand}} \
+        && {{#isWdtUseEncryption}}echo $WDT_ENCRYPTION_KEY | {{/isWdtUseEncryption}} ./{{wdtCommand}} \
         -oracle_home {{{oracle_home}}} \
         -domain_home {{{domain_home}}} \
         -domain_type {{domainType}} \
+        {{#isWdtUseEncryption}}
+            -use_encryption \
+        {{/isWdtUseEncryption}}
         {{#runRcu}}
             -run_rcu \
         {{/runRcu}}

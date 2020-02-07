@@ -189,15 +189,13 @@ public abstract class CommonOptions {
      * Builds a list of build args to pass on to docker with the required patches.
      * Also, creates links to patches directory under build context instead of copying over.
      *
-     * @return list of strings
+     * @param previousInventory existing inventory found in the "from" image
      * @throws Exception in case of error
      */
-    List<String> handlePatchFiles(String previousInventory) throws Exception {
+    void handlePatchFiles(String previousInventory) throws Exception {
         logger.entering();
-        List<String> retVal = new LinkedList<>();
-
         if (!applyingPatches()) {
-            return retVal;
+            return;
         }
 
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
@@ -254,8 +252,7 @@ public abstract class CommonOptions {
         if (!patchLocations.isEmpty()) {
             dockerfileOptions.setPatchingEnabled();
         }
-        logger.exiting(retVal.size());
-        return retVal;
+        logger.exiting();
     }
 
     private Path createPatchesTempDirectory() throws IOException {
@@ -266,11 +263,6 @@ public abstract class CommonOptions {
 
 
     void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
-        // opatch patch now is in the format #####_opatch in the cache store
-        // So the version passing to the constructor of CachedPatchFile is also "opatch".
-        // since opatch releases is on it's own and there is not really a patch to opatch
-        // and the version is embedded in the zip file version.txt
-
         String filePath =
             new CachedPatchFile(Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
         String filename = new File(filePath).getName();

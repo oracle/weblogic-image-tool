@@ -9,16 +9,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
 public class WdtOptions {
@@ -33,45 +35,55 @@ public class WdtOptions {
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @throws IOException in case of error
      */
-    void handleWdtArgsIfRequired(DockerfileOptions dockerfileOptions, String tmpDir,
-                                         FmwInstallerType installerType) throws IOException {
-        logger.entering(tmpDir);
-
-        if (wdtModelPath != null) {
-            dockerfileOptions.setWdtEnabled();
-            dockerfileOptions.setWdtModelOnly(wdtModelOnly);
-
-            List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
-
-            dockerfileOptions.setWdtModels(modelList);
-
-            dockerfileOptions.setWdtDomainType(wdtDomainType);
-            dockerfileOptions.setRunRcu(runRcu);
-
-            if (wdtArchivePath != null) {
-
-                List<String> archiveList = addWdtFilesAsList(wdtArchivePath, "archive", tmpDir);
-
-                dockerfileOptions.setWdtArchives(archiveList);
-            }
-            dockerfileOptions.setDomainHome(wdtDomainHome);
-
-            dockerfileOptions.setJavaOptions(wdtJavaOptions);
-
-            if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
-                String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
-                Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
-                //Until WDT supports multiple variable files, take single file argument from CLI and convert to list
-                dockerfileOptions.setWdtVariables(Collections.singletonList(wdtVariableFilename));
-            }
-
-            dockerfileOptions.setWdtStrictValidation(wdtStrictValidation);
-
-            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
-            Path wdtfile = wdtInstaller.copyFile(cacheStore, tmpDir);
-            dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
+    List<String> handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
+        List<String> result = new LinkedList<>();
+        if (wdtModelPath == null) {
+            return result;
         }
+
+        logger.entering(tmpDir);
+        encryptionKey = Utils.getPasswordFromInputs(encryptionKeyStr, encryptionKeyFile, encryptionKeyEnv);
+        if (encryptionKey != null) {
+            dockerfileOptions.setWdtUseEncryption(true);
+            result.add(Constants.BUILD_ARG);
+            result.add("WDT_ENCRYPTION_KEY=" + encryptionKey);
+        }
+
+        dockerfileOptions.setWdtEnabled();
+        dockerfileOptions.setWdtModelOnly(wdtModelOnly);
+
+        List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
+
+        dockerfileOptions.setWdtModels(modelList);
+
+        dockerfileOptions.setWdtDomainType(wdtDomainType);
+        dockerfileOptions.setRunRcu(runRcu);
+
+        if (wdtArchivePath != null) {
+
+            List<String> archiveList = addWdtFilesAsList(wdtArchivePath, "archive", tmpDir);
+
+            dockerfileOptions.setWdtArchives(archiveList);
+        }
+        dockerfileOptions.setDomainHome(wdtDomainHome);
+
+        dockerfileOptions.setJavaOptions(wdtJavaOptions);
+
+        if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
+            String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
+            Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
+            //Until WDT supports multiple variable files, take single file argument from CLI and convert to list
+            dockerfileOptions.setWdtVariables(Collections.singletonList(wdtVariableFilename));
+        }
+
+        dockerfileOptions.setWdtStrictValidation(wdtStrictValidation);
+
+        CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
+        Path wdtfile = wdtInstaller.copyFile(cacheStore, tmpDir);
+        dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
+
         logger.exiting();
+        return result;
     }
 
     private List<String> addWdtFilesAsList(Path fileArg, String type, String tmpDir) throws IOException {
@@ -161,4 +173,28 @@ public class WdtOptions {
     @SuppressWarnings("FieldCanBeLocal")
     private boolean wdtStrictValidation = false;
 
+    private String encryptionKey;
+
+    @Option(
+        names = {"--wdtEncryptionKey"},
+        interactive = true,
+        arity = "0..1",
+        paramLabel = "<passphrase>",
+        description = "Enter the passphrase to decrypt the WDT model"
+    )
+    private String encryptionKeyStr;
+
+    @Option(
+        names = {"--wdtEncryptionKeyEnv"},
+        paramLabel = "<environment variable name>",
+        description = "environment variable containing the passphrase to decrypt the WDT model"
+    )
+    private String encryptionKeyEnv;
+
+    @Option(
+        names = {"--wdtEncryptionKeyFile"},
+        paramLabel = "<passphrase file>",
+        description = "path to file the passphrase to decrypt the WDT model"
+    )
+    private Path encryptionKeyFile;
 }
