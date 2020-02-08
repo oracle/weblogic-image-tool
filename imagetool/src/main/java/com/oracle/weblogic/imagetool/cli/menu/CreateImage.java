@@ -20,6 +20,7 @@ import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -63,9 +64,9 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             install.copyFiles(cacheStore, tmpDir);
             dockerfileOptions.setMiddlewareInstall(install);
 
-            List<String> cmdBuilder = getInitialBuildCmd();
+            DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
             // build wdt args if user passes --wdtModelPath
-            cmdBuilder.addAll(wdtOptions.handleWdtArgs(dockerfileOptions, tmpDir));
+            wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
 
             // resolve required patches
             handlePatchFiles(null);
@@ -92,8 +93,6 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
                 "Create_Image.mustache", dockerfileOptions, dryRun);
 
-            // add directory to pass the context
-            cmdBuilder.add(tmpDir);
             runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
             logger.fine("**ERROR**", ex);

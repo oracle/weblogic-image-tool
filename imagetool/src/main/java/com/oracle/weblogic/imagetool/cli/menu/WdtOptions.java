@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
@@ -18,7 +17,7 @@ import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
@@ -35,18 +34,18 @@ public class WdtOptions {
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @throws IOException in case of error
      */
-    List<String> handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
-        List<String> result = new LinkedList<>();
+    void handleWdtArgs(DockerfileOptions dockerfileOptions, DockerBuildCommand cmdBuilder, String tmpDir)
+        throws IOException {
+
         if (wdtModelPath == null) {
-            return result;
+            return;
         }
 
         logger.entering(tmpDir);
-        encryptionKey = Utils.getPasswordFromInputs(encryptionKeyStr, encryptionKeyFile, encryptionKeyEnv);
+        String encryptionKey = Utils.getPasswordFromInputs(encryptionKeyStr, encryptionKeyFile, encryptionKeyEnv);
         if (encryptionKey != null) {
             dockerfileOptions.setWdtUseEncryption(true);
-            result.add(Constants.BUILD_ARG);
-            result.add("WDT_ENCRYPTION_KEY=" + encryptionKey);
+            cmdBuilder.addBuildArg("WDT_ENCRYPTION_KEY", encryptionKey, true);
         }
 
         dockerfileOptions.setWdtEnabled();
@@ -83,7 +82,6 @@ public class WdtOptions {
         dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
 
         logger.exiting();
-        return result;
     }
 
     private List<String> addWdtFilesAsList(Path fileArg, String type, String tmpDir) throws IOException {
@@ -172,8 +170,6 @@ public class WdtOptions {
     )
     @SuppressWarnings("FieldCanBeLocal")
     private boolean wdtStrictValidation = false;
-
-    private String encryptionKey;
 
     @Option(
         names = {"--wdtEncryptionKey"},
