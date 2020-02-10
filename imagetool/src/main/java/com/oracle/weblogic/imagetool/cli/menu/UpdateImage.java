@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -19,6 +18,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 import picocli.CommandLine.ArgGroup;
@@ -134,21 +134,19 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 }
             }
 
-            List<String> cmdBuilder = getInitialBuildCmd();
+            DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
 
             // build wdt args if user passes --wdtModelPath
-            wdtOptions.handleWdtArgsIfRequired(dockerfileOptions, tmpDir, installerType);
+            wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
             dockerfileOptions.setWdtCommand(wdtOperation);
 
             // resolve required patches
-            cmdBuilder.addAll(handlePatchFiles(lsinventoryText));
+            handlePatchFiles(lsinventoryText);
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
                 "Update_Image.mustache", dockerfileOptions, dryRun);
 
-            // add directory to pass the context
-            cmdBuilder.add(tmpDir);
             runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());

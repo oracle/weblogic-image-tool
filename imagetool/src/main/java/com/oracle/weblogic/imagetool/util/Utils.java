@@ -6,15 +6,11 @@ package com.oracle.weblogic.imagetool.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
@@ -25,7 +21,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
@@ -140,41 +135,6 @@ public class Utils {
     }
 
     /**
-     * Create a file with the given path.
-     *
-     * @param filePath        the path of the file to create
-     * @param defaultFileName file name to use in case a directory with the given path exists
-     * @return file path or null in case of error
-     */
-    public static Path createFile(Path filePath, String defaultFileName) {
-        Path logFilePath = filePath;
-        if (logFilePath != null) {
-            try {
-                if (!Files.exists(logFilePath)) {
-                    Files.createDirectories(logFilePath.getParent());
-                    Files.createFile(logFilePath);
-                } else {
-                    if (Files.isDirectory(logFilePath)) {
-
-                        if (defaultFileName == null || defaultFileName.isEmpty()) {
-                            defaultFileName = "default.log";  // this should not happens unless the caller pass such val
-                        }
-                        logFilePath = Paths.get(logFilePath.toAbsolutePath().toString(), defaultFileName);
-                        if (Files.exists(logFilePath)) {
-                            Files.delete(logFilePath);
-                        }
-                        Files.createFile(logFilePath);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                logFilePath = null;
-            }
-        }
-        return logFilePath;
-    }
-
-    /**
      * Set proxy based on the proxy urls.
      *
      * @param httpProxyUrl  http proxy url
@@ -239,40 +199,6 @@ public class Utils {
     }
 
     /**
-     * Executes the given docker command and writes the process stdout to log.
-     *
-     * @param cmdBuilder     command to execute
-     * @param dockerLog      log file to write to
-     * @throws IOException          if an error occurs reading from the process inputstream.
-     * @throws InterruptedException when the process wait is interrupted.
-     */
-    public static void runDockerCommand(List<String> cmdBuilder, Path dockerLog)
-        throws IOException, InterruptedException {
-        // process builder
-        logger.entering(cmdBuilder, dockerLog);
-        Path dockerLogPath = createFile(dockerLog, "dockerbuild.log");
-        logger.finer("Docker log: {0}", dockerLogPath);
-        List<OutputStream> outputStreams = new ArrayList<>();
-
-        outputStreams.add(System.out);
-
-        if (dockerLogPath != null) {
-            logger.info("dockerLog: " + dockerLog);
-            outputStreams.add(new FileOutputStream(dockerLogPath.toFile()));
-        }
-
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
-        logger.finer("Starting docker process...");
-        final Process process = processBuilder.start();
-        logger.finer("Docker process started");
-        writeFromInputToOutputStreams(process.getInputStream(), outputStreams.toArray(new OutputStream[0]));
-        logger.finer("Waiting for Docker to finish");
-        if (process.waitFor() != 0) {
-            processError(process);
-        }
-    }
-
-    /**
      * Executes the given docker command and returns the stdout of the process as properties.
      *
      * @param cmdBuilder command to execute
@@ -280,7 +206,7 @@ public class Utils {
      * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
-    public static Properties runDockerCommand(List<String> cmdBuilder) throws IOException, InterruptedException {
+    private static Properties runDockerCommand(List<String> cmdBuilder) throws IOException, InterruptedException {
         logger.entering(cmdBuilder);
         // process builder
         ProcessBuilder processBuilder = new ProcessBuilder(cmdBuilder);
@@ -305,7 +231,7 @@ public class Utils {
      * @param process the Docker process
      * @throws IOException if an error occurs while reading standard error (stderr) from the Docker build.
      */
-    private static void processError(Process process) throws IOException {
+    static void processError(Process process) throws IOException {
         try (
             BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()))
         ) {
@@ -317,37 +243,6 @@ public class Utils {
             }
             throw new IOException("docker command failed with error: " + stringBuilder.toString());
         }
-    }
-
-    private static void writeFromInputToOutputStreams(InputStream inputStream, OutputStream... outputStreams) {
-        Thread readerThread = new Thread(() -> {
-            try (
-                BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
-                CloseableList<PrintWriter> printWriters = createPrintWriters(outputStreams)
-            ) {
-                if (!printWriters.isEmpty()) {
-                    String line;
-                    while ((line = processReader.readLine()) != null) {
-                        String finalLine = line;
-                        printWriters.forEach(x -> x.println(finalLine));
-                    }
-                }
-            } catch (IOException e) {
-                logger.severe(e.getMessage());
-            }
-        });
-        readerThread.setDaemon(true);
-        readerThread.start();
-    }
-
-    private static CloseableList<PrintWriter> createPrintWriters(OutputStream... outputStreams) {
-        CloseableList<PrintWriter> retVal = new CloseableList<>();
-        if (outputStreams != null) {
-            for (OutputStream outputStream : outputStreams) {
-                retVal.add(new PrintWriter(new OutputStreamWriter(outputStream), true));
-            }
-        }
-        return retVal;
     }
 
     /**
@@ -534,7 +429,7 @@ public class Utils {
      * @param args           args to the script
      * @return command
      */
-    public static List<String> getDockerRunCmd(String hostDirToMount, String dockerImage, String scriptToRun,
+    private static List<String> getDockerRunCmd(String hostDirToMount, String dockerImage, String scriptToRun,
                                                String... args) throws IOException {
 
         // We are removing the volume mount option, -v won't work in remote docker daemon and also
