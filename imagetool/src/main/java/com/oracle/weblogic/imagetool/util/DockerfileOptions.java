@@ -62,6 +62,7 @@ public class DockerfileOptions {
     private boolean wdtRunRcu;
     private boolean wdtStrictValidation;
     private String wdtInstallerFilename;
+    private boolean wdtUseEncryption;
 
     // Additional Build Commands
     private Map<String,List<String>> additionalBuildCommands;
@@ -97,6 +98,7 @@ public class DockerfileOptions {
         wdtVariableList = new ArrayList<>();
         wdtRunRcu = false;
         wdtStrictValidation = false;
+        wdtUseEncryption = false;
     }
 
     /**
@@ -642,6 +644,21 @@ public class DockerfileOptions {
     public DockerfileOptions setWdtCommand(WdtOperation value) {
         wdtOperation = value;
         return this;
+    }
+
+    /**
+     * Enable WDT -use_encryption flag.
+     * @param value true to enable use_encryption
+     * @return this (builder)
+     */
+    public DockerfileOptions setWdtUseEncryption(boolean value) {
+        wdtUseEncryption = value;
+        return this;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean isWdtUseEncryption() {
+        return wdtUseEncryption;
     }
 
     /**

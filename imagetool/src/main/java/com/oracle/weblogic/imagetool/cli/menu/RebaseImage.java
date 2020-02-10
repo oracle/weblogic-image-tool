@@ -19,6 +19,7 @@ import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
@@ -109,16 +110,14 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, Utils.getMessage("IMG-0025"));
             }
 
-            List<String> cmdBuilder = getInitialBuildCmd();
+            DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
 
             if (adminPort != null) {
-                cmdBuilder.add(Constants.BUILD_ARG);
-                cmdBuilder.add("ADMIN_PORT=" + adminPort);
+                cmdBuilder.addBuildArg("ADMIN_PORT", adminPort);
             }
 
             if (managedServerPort != null) {
-                cmdBuilder.add(Constants.BUILD_ARG);
-                cmdBuilder.add("MANAGED_SERVER_PORT=" + managedServerPort);
+                cmdBuilder.addBuildArg("MANAGED_SERVER_PORT", managedServerPort);
             }
 
             if (dockerfileOptions.isRebaseToNew()) {
@@ -131,7 +130,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 dockerfileOptions.setMiddlewareInstall(install);
 
                 // resolve required patches
-                cmdBuilder.addAll(handlePatchFiles(null));
+                handlePatchFiles(null);
 
                 // If patching, patch OPatch first
                 if (applyingPatches()) {
@@ -157,7 +156,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 "Rebase_Image.mustache", dockerfileOptions, dryRun);
 
             // add directory to pass the context
-            cmdBuilder.add(tmpDir);
             runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());

@@ -27,7 +27,6 @@ public final class Constants {
     public static final String DEFAULT_JDK_VERSION = "8u202";
     public static final String DEFAULT_META_FILE = ".metadata";
     public static final String DELETE_ALL_FOR_SURE = "deleteAll4Sure";
-    public static final String BUILD_ARG = "--build-arg";
     public static final String FILE_CACHE = "FILE";
     public static final String HTTP = "http";
     public static final String HTTPS = "https";

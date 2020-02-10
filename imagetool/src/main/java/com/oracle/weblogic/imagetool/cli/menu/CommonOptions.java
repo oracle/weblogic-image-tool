@@ -14,8 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
@@ -27,6 +25,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
+import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.ValidationResult;
@@ -90,15 +89,15 @@ public abstract class CommonOptions {
         }
     }
 
-    void runDockerCommand(String dockerfile, List<String> command) throws IOException, InterruptedException {
-        logger.info("docker cmd = " + String.join(" ", command));
+    void runDockerCommand(String dockerfile, DockerBuildCommand command) throws IOException, InterruptedException {
+        logger.info("docker cmd = " + command.toString());
 
         if (dryRun) {
             System.out.println("########## BEGIN DOCKERFILE ##########");
             System.out.println(dockerfile);
             System.out.println("########## END DOCKERFILE ##########");
         } else {
-            Utils.runDockerCommand(command, dockerLog);
+            command.run(dockerLog);
         }
     }
 
@@ -108,32 +107,27 @@ public abstract class CommonOptions {
      *
      * @return list of options
      */
-    List<String> getInitialBuildCmd() {
+    DockerBuildCommand getInitialBuildCmd(String contextFolder) {
 
         logger.entering();
-        List<String> cmdBuilder = Stream.of("docker", "build",
-            "--force-rm=true", "--no-cache").collect(Collectors.toList());
+        DockerBuildCommand cmdBuilder = new DockerBuildCommand(contextFolder);
 
-        cmdBuilder.add("--tag");
-        cmdBuilder.add(imageTag);
+        cmdBuilder.setTag(imageTag);
 
         if (!Utils.isEmptyString(httpProxyUrl)) {
-            cmdBuilder.add(Constants.BUILD_ARG);
-            cmdBuilder.add("http_proxy=" + httpProxyUrl);
+            cmdBuilder.addBuildArg("http_proxy", httpProxyUrl);
         }
 
         if (!Utils.isEmptyString(httpsProxyUrl)) {
-            cmdBuilder.add(Constants.BUILD_ARG);
-            cmdBuilder.add("https_proxy=" + httpsProxyUrl);
+            cmdBuilder.addBuildArg("https_proxy", httpsProxyUrl);
         }
 
         if (!Utils.isEmptyString(nonProxyHosts)) {
-            cmdBuilder.add(Constants.BUILD_ARG);
-            cmdBuilder.add("no_proxy=" + nonProxyHosts);
+            cmdBuilder.addBuildArg("no_proxy", nonProxyHosts);
         }
 
         if (dockerPath != null && Files.isExecutable(dockerPath)) {
-            cmdBuilder.set(0, dockerPath.toAbsolutePath().toString());
+            cmdBuilder.setDockerPath(dockerPath.toAbsolutePath().toString());
         }
         logger.exiting();
         return cmdBuilder;
@@ -189,15 +183,13 @@ public abstract class CommonOptions {
      * Builds a list of build args to pass on to docker with the required patches.
      * Also, creates links to patches directory under build context instead of copying over.
      *
-     * @return list of strings
+     * @param previousInventory existing inventory found in the "from" image
      * @throws Exception in case of error
      */
-    List<String> handlePatchFiles(String previousInventory) throws Exception {
+    void handlePatchFiles(String previousInventory) throws Exception {
         logger.entering();
-        List<String> retVal = new LinkedList<>();
-
         if (!applyingPatches()) {
-            return retVal;
+            return;
         }
 
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
@@ -254,8 +246,7 @@ public abstract class CommonOptions {
         if (!patchLocations.isEmpty()) {
             dockerfileOptions.setPatchingEnabled();
         }
-        logger.exiting(retVal.size());
-        return retVal;
+        logger.exiting();
     }
 
     private Path createPatchesTempDirectory() throws IOException {
@@ -266,11 +257,6 @@ public abstract class CommonOptions {
 
 
     void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
-        // opatch patch now is in the format #####_opatch in the cache store
-        // So the version passing to the constructor of CachedPatchFile is also "opatch".
-        // since opatch releases is on it's own and there is not really a patch to opatch
-        // and the version is embedded in the zip file version.txt
-
         String filePath =
             new CachedPatchFile(Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
         String filename = new File(filePath).getName();
