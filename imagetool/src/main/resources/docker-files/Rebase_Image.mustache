@@ -42,7 +42,7 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
     {{#useAptGet}}
         RUN apt-get -y update \
         && apt-get -y upgrade \
-        && apt-get -y install gzip tar unzip libaio\
+        && apt-get -y install gzip tar unzip libaio \
         && apt-get -y clean all
     {{/useAptGet}}
     {{#useApk}}
