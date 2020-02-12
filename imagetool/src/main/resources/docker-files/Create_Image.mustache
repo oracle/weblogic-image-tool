@@ -9,7 +9,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER root
 
 {{#useYum}}
-RUN yum -y --downloaddir={{{tmpDir}}} install gzip tar unzip \
+RUN yum -y --downloaddir={{{tmpDir}}} install gzip tar unzip libaio \
  && yum -y --downloaddir={{{tmpDir}}} clean all \
  && rm -rf /var/cache/yum/* \
  && rm -rf {{{tmpDir}}}
@@ -17,7 +17,7 @@ RUN yum -y --downloaddir={{{tmpDir}}} install gzip tar unzip \
 {{#useAptGet}}
 RUN apt-get -y update \
  && apt-get -y upgrade \
- && apt-get -y install gzip tar unzip \
+ && apt-get -y install gzip tar unzip libaio \
  && apt-get -y clean all
 {{/useAptGet}}
 {{#useApk}}
