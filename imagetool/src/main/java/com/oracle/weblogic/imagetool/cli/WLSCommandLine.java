@@ -39,7 +39,7 @@ public class WLSCommandLine {
                 new CommandLine.DefaultExceptionHandler<List<Object>>().useErr(err).useAnsi(ansi), args);
         @SuppressWarnings("unchecked") T result = results == null || results.isEmpty() ? null : (T) results.get(0);
         if (result == null) {
-            CommandLine.usage(callable, System.out);
+            CommandLine.usage(callable, out);
             // System.exit(-1);
         }
         return result;
