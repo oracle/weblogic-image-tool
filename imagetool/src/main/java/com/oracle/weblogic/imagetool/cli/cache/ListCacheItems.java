@@ -3,7 +3,6 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -26,8 +25,7 @@ public class ListCacheItems extends CacheOperation {
     public CommandResponse call() {
         Map<String, String> resultMap = cacheStore.getCacheItems();
         if (resultMap == null || resultMap.isEmpty()) {
-            System.out.println("cache is empty");
-            return new CommandResponse(0, "cache is empty", Collections.<String, String>emptyMap());
+            return new CommandResponse(0, "IMG-0047");
         } else {
             System.out.println("Cache contents");
             String cacheDir = resultMap.getOrDefault(Constants.CACHE_DIR_KEY, null);
@@ -41,7 +39,7 @@ public class ListCacheItems extends CacheOperation {
                 .filter(entry -> pattern.matcher(entry.getKey()).matches())
                 .forEach(System.out::println);
 
-            return new CommandResponse(0, "Cache contents", resultMap);
+            return new CommandResponse(0, "");
         }
     }
 

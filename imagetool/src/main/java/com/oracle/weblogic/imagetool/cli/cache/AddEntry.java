@@ -33,8 +33,7 @@ public class AddEntry extends CacheOperation {
                 return new CommandResponse(-1, "Command Failed");
             }
         }
-        spec.commandLine().usage(System.out);
-        return new CommandResponse(-1, "Invalid arguments. --key & --path required.");
+        return new CommandResponse(-1, "IMG-0044");
     }
 
     @Option(

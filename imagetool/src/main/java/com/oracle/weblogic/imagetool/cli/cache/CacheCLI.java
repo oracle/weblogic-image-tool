@@ -36,7 +36,7 @@ public class CacheCLI implements Callable<CommandResponse> {
     @Override
     public CommandResponse call() {
         CommandLine.usage(this, System.out);
-        return new CommandResponse(0, "Invalid arguments");
+        return new CommandResponse(0, "");
     }
 
     @Unmatched

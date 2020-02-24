@@ -105,8 +105,12 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
         }
         Instant endTime = Instant.now();
         logger.exiting();
-        return new CommandResponse(0, "build successful in "
-            + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
+        if (dryRun) {
+            return new CommandResponse(0, "IMG-0054");
+        } else {
+            return new CommandResponse(0, "IMG-0053",
+                Duration.between(startTime, endTime).getSeconds(), imageTag);
+        }
     }
 
     @Override

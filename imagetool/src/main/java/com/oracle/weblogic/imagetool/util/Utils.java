@@ -731,7 +731,11 @@ public class Utils {
      * @return formatted message string including parameters
      */
     public static String getMessage(@PropertyKey(resourceBundle = "ImageTool") String key, Object... params) {
-        return MessageFormat.format(bundle.getString(key), params);
+        String message = key;
+        if (bundle.containsKey(key)) {
+            message = bundle.getString(key);
+        }
+        return MessageFormat.format(message, params);
     }
 
     /**

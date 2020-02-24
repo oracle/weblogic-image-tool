@@ -43,7 +43,7 @@ public class ImageTool implements Callable<CommandResponse> {
     @Override
     public CommandResponse call() {
         CommandLine.usage(ImageTool.class, System.out);
-        return new CommandResponse(0,"Invalid arguments");
+        return new CommandResponse(0, "");
     }
 
     /**
@@ -61,6 +61,8 @@ public class ImageTool implements Callable<CommandResponse> {
                 String message = String.format("Response code: %d, message: %s", response.getStatus(),
                     response.getMessage());
                 logger.severe(message);
+            } else if (!response.getMessage().isEmpty()) {
+                logger.info(response.getMessage());
             }
             System.exit(response.getStatus());
         }

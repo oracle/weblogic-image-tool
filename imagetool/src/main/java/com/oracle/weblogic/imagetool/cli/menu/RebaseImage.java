@@ -13,8 +13,10 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -124,6 +126,10 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
                 WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
 
+                CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
+                Path installerPath = jdk.copyFile(cacheStore, tmpDir);
+                dockerfileOptions.setJavaInstaller(installerPath.getFileName().toString());
+
                 MiddlewareInstall install =
                     new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
                 install.copyFiles(cacheStore, tmpDir);
@@ -167,8 +173,12 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         }
         Instant endTime = Instant.now();
         logger.exiting();
-        return new CommandResponse(0, "build successful in "
-            + Duration.between(startTime, endTime).getSeconds() + "s. image tag: " + imageTag);
+        if (dryRun) {
+            return new CommandResponse(0, "IMG-0054");
+        } else {
+            return new CommandResponse(0, "IMG-0053",
+                Duration.between(startTime, endTime).getSeconds(), imageTag);
+        }
     }
 
     @Override
