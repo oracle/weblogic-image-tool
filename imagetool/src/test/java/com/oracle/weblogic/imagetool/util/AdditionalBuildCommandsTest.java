@@ -7,41 +7,43 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AdditionalBuildCommandsTest {
+@Tag("unit")
+class AdditionalBuildCommandsTest {
 
     private static Path getPath(String filename) {
         return Paths.get("src/test/resources/additionalBuildCommands/" + filename);
     }
 
     @Test
-    public void loadSingleSectionFile() throws IOException {
+    void loadSingleSectionFile() throws IOException {
         String filename = "one-section.txt";
         AdditionalBuildCommands cmds = AdditionalBuildCommands.load(getPath(filename));
 
-        assertEquals("File did not have expected number of sections: " + filename, 1, cmds.size());
+        assertEquals(1, cmds.size(), "File did not have expected number of sections: " + filename);
     }
 
     @Test
-    public void loadTwoSectionFile() throws IOException {
+    void loadTwoSectionFile() throws IOException {
         String filename = "two-sections.txt";
         AdditionalBuildCommands cmds = AdditionalBuildCommands.load(getPath(filename));
-        assertEquals("File did not have expected number of sections: " + filename, 2, cmds.size());
-        assertEquals("Wrong number of lines in AFTER_FMW section: " + filename,
-            3, cmds.getSection(AdditionalBuildCommands.AFTER_FMW).size());
-        assertEquals("Wrong number of lines in BEFORE_WDT section: " + filename,
-            3, cmds.getSection(AdditionalBuildCommands.BEFORE_JDK).size());
+        assertEquals(2, cmds.size(), "File did not have expected number of sections: " + filename);
+        assertEquals(3, cmds.getSection(AdditionalBuildCommands.AFTER_FMW).size(),
+            "Wrong number of lines in AFTER_FMW section: " + filename);
+        assertEquals(3, cmds.getSection(AdditionalBuildCommands.BEFORE_JDK).size(),
+            "Wrong number of lines in BEFORE_WDT section: " + filename);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void loadBadSectionFile() throws IOException {
+    @Test
+    void loadBadSectionFile() throws IOException {
         String filename = "bad-section.txt";
-        AdditionalBuildCommands cmds = AdditionalBuildCommands.load(getPath(filename));
-        //should never reach this line, load() should throw an exception
-        fail();
+        assertThrows(IllegalArgumentException.class, () -> {
+            AdditionalBuildCommands.load(getPath(filename));
+        });
     }
 }

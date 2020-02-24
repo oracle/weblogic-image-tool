@@ -5,43 +5,45 @@ package com.oracle.weblogic.imagetool.cachestore.meta;
 
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer.Alphanumeric;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class FileCacheStoreTest {
+@Tag("unit")
+@TestMethodOrder(Alphanumeric.class)
+class FileCacheStoreTest {
 
     private CacheStore cacheStore = new CacheStoreFactory().get();
 
     @Test
-    public void a3addToCache() {
+    void a3addToCache() {
         assertTrue(cacheStore.addToCache("abc_xyz_123", "this_is_a_test"));
     }
 
     @Test
-    public void a4getValueFromCache() {
+    void a4getValueFromCache() {
         assertEquals("this_is_a_test", cacheStore.getValueFromCache("abc_xyz_123"));
     }
 
     @Test
-    public void a5hasMatchingKeyValue() {
+    void a5hasMatchingKeyValue() {
         assertTrue(cacheStore.hasMatchingKeyValue("abc_xyz_123", "this_is_a_test"));
     }
 
     @Test
-    public void a6deleteFromCache() {
+    void a6deleteFromCache() {
         assertNull(cacheStore.deleteFromCache("non_existent_key"));
         assertEquals("this_is_a_test", cacheStore.deleteFromCache("abc_xyz_123"));
     }
 
     @Test
-    public void a7getCacheItems() {
+    void a7getCacheItems() {
         assertNotNull(cacheStore.getCacheItems());
     }
 }
