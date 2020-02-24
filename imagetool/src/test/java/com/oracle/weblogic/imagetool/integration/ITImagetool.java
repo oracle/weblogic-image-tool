@@ -10,14 +10,14 @@ import java.nio.file.StandardCopyOption;
 
 import com.oracle.weblogic.imagetool.integration.utils.ExecCommand;
 import com.oracle.weblogic.imagetool.integration.utils.ExecResult;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer.Alphanumeric;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ITImagetool extends BaseTest {
+@TestMethodOrder(Alphanumeric.class)
+class ITImagetool extends BaseTest {
 
     private static final String JDK_INSTALLER = "jdk-8u202-linux-x64.tar.gz";
     private static final String JDK_INSTALLER_8u212 = "jdk-8u212-linux-x64.tar.gz";
@@ -44,8 +44,8 @@ public class ITImagetool extends BaseTest {
     private static final String WDT_MODEL2 = "simple-topology2.yaml";
     private static String oracleSupportUsername;
 
-    @BeforeClass
-    public static void staticPrepare() throws Exception {
+    @BeforeAll
+    static void staticPrepare() throws Exception {
         logger.info("prepare for image tool test ...");
         // initialize 
         initialize();
@@ -71,8 +71,8 @@ public class ITImagetool extends BaseTest {
         }
     }
 
-    @AfterClass
-    public static void staticUnprepare() throws Exception {
+    @AfterAll
+    static void staticUnprepare() throws Exception {
         logger.info("cleaning up after the test ...");
         cleanup();
     }
@@ -83,7 +83,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test1CacheListItems() throws Exception {
+    void test1CacheListItems() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -102,7 +102,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test2CacheAddInstallerJDK() throws Exception {
+    void test2CacheAddInstallerJDK() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -123,7 +123,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test3CacheAddInstallerWLS() throws Exception {
+    void test3CacheAddInstallerWLS() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -144,7 +144,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test4CreateWLSImg() throws Exception {
+    void test4CreateWLSImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -166,7 +166,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test5CacheAddPatch() throws Exception {
+    void test5CacheAddPatch() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -188,7 +188,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test6CacheAddEntry() throws Exception {
+    void test6CacheAddEntry() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -209,7 +209,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test7CacheDeleteEntry() throws Exception {
+    void test7CacheDeleteEntry() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -231,7 +231,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test8CreateWLSImgUseCache() throws Exception {
+    void test8CreateWLSImgUseCache() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -262,7 +262,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void test9UpdateWLSImg() throws Exception {
+    void test9UpdateWLSImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -288,7 +288,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testACreateWLSImgUsingWDT() throws Exception {
+    void testACreateWLSImgUsingWDT() throws Exception {
 
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -351,7 +351,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testBCreateFMWImgFullInternetAccess() throws Exception {
+    void testBCreateFMWImgFullInternetAccess() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -385,7 +385,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testCCreateFMWImgNonDefault() throws Exception {
+    void testCCreateFMWImgNonDefault() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -423,7 +423,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testDCreateJRFDomainImgUsingWDT() throws Exception {
+    void testDCreateJRFDomainImgUsingWDT() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -487,7 +487,7 @@ public class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testECreateRestricedJRFDomainImgUsingWDT() throws Exception {
+    void testECreateRestricedJRFDomainImgUsingWDT() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -533,12 +533,12 @@ public class ITImagetool extends BaseTest {
     }
 
     /**
-     * create wls image using multiple WDT model files
+     * create wls image using multiple WDT model files.
      *
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testFCreateWLSImgUsingMultiModels() throws Exception {
+    void testFCreateWLSImgUsingMultiModels() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -590,12 +590,12 @@ public class ITImagetool extends BaseTest {
     }
 
     /**
-     * create WLS image with additional build commands
+     * create WLS image with additional build commands.
      *
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testGCreateWLSImgWithAdditionalBuildCommands() throws Exception {
+    void testGCreateWLSImgWithAdditionalBuildCommands() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 

@@ -3,22 +3,24 @@
 
 package com.oracle.weblogic.imagetool.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UtilsTest {
+@Tag("unit")
+class UtilsTest {
 
     @Test
-    public void compareVersions() {
+    void compareVersions() {
         assertEquals(0, Utils.compareVersions("12.2.1.3.0", "12.2.1.3.0"));
         assertTrue(Utils.compareVersions("1.0", "1.1") < 0);
         assertTrue(Utils.compareVersions("1.1", "1.0") > 0);
     }
 
     @Test
-    public void isEmptyString() {
+    void isEmptyString() {
         assertTrue(Utils.isEmptyString(""));
     }
 }

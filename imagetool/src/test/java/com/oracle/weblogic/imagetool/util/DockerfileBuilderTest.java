@@ -13,18 +13,20 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DockerfileBuilderTest {
+@Tag("unit")
+class DockerfileBuilderTest {
 
     /**
      * Catch mismatched start/end tags and missing mustache braces.
      * @throws IOException if file read fails for mustache file.
      */
     @Test
-    public void validateMustacheAliases() throws IOException {
+    void validateMustacheAliases() throws IOException {
         MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.3", null);
 
         DockerfileOptions dockerfileOptions = new DockerfileOptions("123")
@@ -44,14 +46,14 @@ public class DockerfileBuilderTest {
     }
 
     @Test
-    public void setPackageInstaller() {
+    void setPackageInstaller() {
         DockerfileOptions options = new DockerfileOptions("123").setPackageInstaller(Constants.YUM);
-        assertTrue("Failed to set YUM installer", options.useYum);
+        assertTrue(options.useYum, "Failed to set YUM installer");
 
         options = new DockerfileOptions("123").setPackageInstaller(Constants.APTGET);
-        assertTrue("Failed to set 'APTGET' installer", options.useAptGet);
+        assertTrue(options.useAptGet, "Failed to set 'APTGET' installer");
 
         options = new DockerfileOptions("123").setPackageInstaller(Constants.ZYPPER);
-        assertTrue("Failed to set 'ZYPPER' installer", options.useZypper);
+        assertTrue(options.useZypper, "Failed to set 'ZYPPER' installer");
     }
 }

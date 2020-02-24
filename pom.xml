@@ -36,9 +36,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
-        <jar-plugin-version>3.1.1</jar-plugin-version>
-        <jgit-plugin-version>1.2.10</jgit-plugin-version>
-        <checkstyle.config.location>weblogic-image-tool/checkstyle/customized_google_checks.xml</checkstyle.config.location>
+        <test.groups>unit</test.groups>
     </properties>
 
     <modules>
@@ -69,9 +67,9 @@
                 <version>20180813</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>5.6.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -97,7 +95,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>${jar-plugin-version}</version>
+                    <version>3.1.1</version>
                     <configuration>
                         <finalName>${project.artifactId}</finalName>
                         <archive>
@@ -205,7 +203,7 @@
                             </goals>
                             <configuration>
                                 <consoleOutput>true</consoleOutput>
-                                <configLocation>${checkstyle.config.location}</configLocation>
+                                <configLocation>weblogic-image-tool/checkstyle/customized_google_checks.xml</configLocation>
                                 <suppressionsLocation>weblogic-image-tool/checkstyle/suppressions.xml</suppressionsLocation>
                                 <encoding>UTF-8</encoding>
                                 <failOnViolation>true</failOnViolation>
@@ -226,6 +224,15 @@
                             <version>8.29</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M4</version>
+                    <configuration>
+                        <groups>${test.groups}</groups>
+                        <excludedGroups>slow,failing</excludedGroups>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
