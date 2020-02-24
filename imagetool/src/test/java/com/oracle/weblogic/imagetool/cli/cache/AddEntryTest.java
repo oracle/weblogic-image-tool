@@ -4,14 +4,13 @@
 package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cli.WLSCommandLine;
+import com.oracle.weblogic.imagetool.cli.ImageTool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import picocli.CommandLine;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -19,12 +18,12 @@ import static org.junit.Assert.assertTrue;
 public class AddEntryTest {
 
     private ByteArrayOutputStream byteArrayOutputStream = null;
-    private PrintStream printStream = null;
+    private PrintWriter printStream = null;
 
     @Before
     public void setup() {
         byteArrayOutputStream = new ByteArrayOutputStream();
-        printStream = new PrintStream(byteArrayOutputStream);
+        printStream = new PrintWriter(byteArrayOutputStream);
     }
 
     @After
@@ -36,28 +35,26 @@ public class AddEntryTest {
 
     @Test
     public void testMissingParameters() {
-        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true);
+        ImageTool.run(new AddEntry(), printStream, printStream);
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required options"));
     }
 
     @Test
     public void testMissingKey() {
-        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
-                "--value", "some_value");
+        ImageTool.run(new AddEntry(), printStream, printStream, "--value", "some_value");
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required option '--key=<key>'"));
     }
 
     @Test
     public void testMissingValue() {
-        WLSCommandLine.call(new AddEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
-            "--key", "some_key");
+        ImageTool.run(new AddEntry(), printStream, printStream, "--key", "some_key");
         assertTrue(new String(byteArrayOutputStream.toByteArray())
             .contains("Missing required option '--value=<location>'"));
     }
 
     @Test
     public void testInvalidParameters() {
-        CommandResponse response = WLSCommandLine.call(new AddEntry(), "--key", "", "--value", "");
+        CommandResponse response = ImageTool.run(new AddEntry(), printStream, printStream, "--key", "", "--value", "");
         assertEquals(-1, response.getStatus());
     }
 }

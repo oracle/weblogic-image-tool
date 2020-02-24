@@ -8,10 +8,9 @@ import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
 
 @Command(
@@ -36,12 +35,9 @@ public class CacheCLI implements Callable<CommandResponse> {
 
     @Override
     public CommandResponse call() {
-        spec.commandLine().usage(System.out);
-        return new CommandResponse(-1, "Invalid arguments");
+        CommandLine.usage(this, System.out);
+        return new CommandResponse(0, "Invalid arguments");
     }
-
-    @Spec
-    CommandSpec spec;
 
     @Unmatched
     List<String> unmatchedOptions;
