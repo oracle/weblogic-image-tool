@@ -4,16 +4,15 @@
 package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cli.WLSCommandLine;
+import com.oracle.weblogic.imagetool.cli.ImageTool;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import picocli.CommandLine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AddInstallerEntryTest {
 
     private ByteArrayOutputStream byteArrayOutputStream = null;
-    private PrintStream printStream = null;
+    private PrintWriter printStream = null;
 
     @BeforeEach
     void setup() {
         byteArrayOutputStream = new ByteArrayOutputStream();
-        printStream = new PrintStream(byteArrayOutputStream);
+        printStream = new PrintWriter(byteArrayOutputStream);
     }
 
     @AfterEach
@@ -39,13 +38,13 @@ class AddInstallerEntryTest {
 
     @Test
     void testMissingParameters() {
-        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true);
+        ImageTool.run(new AddInstallerEntry(), printStream, printStream);
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required options"));
     }
 
     @Test
     void testWrongType() {
-        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
+        ImageTool.run(new AddInstallerEntry(), printStream, printStream,
                 "--type", "a2z", "--version", "some_value", "--path", "/path/to/a/file");
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains(
                 "Invalid value for option '--type'"));
@@ -53,7 +52,7 @@ class AddInstallerEntryTest {
 
     @Test
     void testMissingVersion() {
-        WLSCommandLine.call(new AddInstallerEntry(), printStream, printStream, CommandLine.Help.Ansi.AUTO, true,
+        ImageTool.run(new AddInstallerEntry(), printStream, printStream,
                 "--type", InstallerType.WLS.toString(), "--path", "/path/to/a/file");
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains(
                 "Missing required option '--version=<version>'"));
@@ -61,7 +60,7 @@ class AddInstallerEntryTest {
 
     @Test
     void testInvalidParameters() {
-        CommandResponse response = WLSCommandLine.call(new AddInstallerEntry(), "--type",
+        CommandResponse response = ImageTool.run(new AddInstallerEntry(), printStream, printStream, "--type",
                 InstallerType.WLS.toString(), "--version", "", "--path", "/path/to/non/existent/file");
         assertEquals(-1, response.getStatus());
     }

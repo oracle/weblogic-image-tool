@@ -3,7 +3,6 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,19 +31,17 @@ public class DeleteEntry extends CacheOperation {
                 //allEntries.remove(CACHE_DIR_KEY);
                 Map<String, String> deletedEntries = new HashMap<>();
                 allEntries.forEach((k, v) -> deletedEntries.put(k, cacheStore.deleteFromCache(k)));
-                return new CommandResponse(0, "Deleted all entries from cache", deletedEntries);
+                return new CommandResponse(0, "IMG-0046");
             } else {
                 String oldValue = cacheStore.deleteFromCache(key);
                 if (oldValue != null) {
-                    return new CommandResponse(0, String.format("Deleted entry %s=%s", key, oldValue),
-                            Collections.singletonMap(key, oldValue));
+                    return new CommandResponse(0, "IMG-0051", key, oldValue);
                 } else {
-                    return new CommandResponse(0, "Nothing to delete for key: " + key);
+                    return new CommandResponse(0, "IMG-0052", key);
                 }
             }
         }
-        spec.commandLine().usage(System.out);
-        return new CommandResponse(-1, "Invalid arguments. --key should correspond to a valid entry in cache");
+        return new CommandResponse(-1, "IMG-0045");
     }
 
     @Option(

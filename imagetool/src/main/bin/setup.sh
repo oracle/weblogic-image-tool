@@ -53,5 +53,5 @@ unalias imagetool 2> /dev/null
 script_dir=$( dirname "$( read_link "${BASH_SOURCE[0]}" )" )
 IMAGETOOL_HOME=`cd "${script_dir}/.." ; pwd`
 export IMAGETOOL_HOME
-alias imagetool="${JAVA_HOME}/bin/java -cp \"${IMAGETOOL_HOME}/lib/*\" -Djava.util.logging.config.file=${IMAGETOOL_HOME}/bin/logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver"
+alias imagetool="${JAVA_HOME}/bin/java -cp \"${IMAGETOOL_HOME}/lib/*\" -Djava.util.logging.config.file=${IMAGETOOL_HOME}/bin/logging.properties com.oracle.weblogic.imagetool.cli.ImageTool"
 source ${IMAGETOOL_HOME}/lib/imagetool_completion.sh

@@ -24,4 +24,4 @@ FOR /F %%i IN ('%JAVA_EXE% -version 2^>^&1') DO (
   )
 )
 SET IMAGETOOL_HOME=%~dp0%/..
-%JAVA_HOME%\bin\java -cp %IMAGETOOL_HOME%\lib\* -Djava.util.logging.config.file=%IMAGETOOL_HOME%\bin\logging.properties com.oracle.weblogic.imagetool.cli.CLIDriver %*
+%JAVA_HOME%\bin\java -cp %IMAGETOOL_HOME%\lib\* -Djava.util.logging.config.file=%IMAGETOOL_HOME%\bin\logging.properties com.oracle.weblogic.imagetool.cli.ImageTool %*

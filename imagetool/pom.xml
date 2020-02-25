@@ -98,7 +98,7 @@
                         <argument>--force</argument><!-- overwrite if exists -->
                         <argument>--completionScript</argument>
                         <argument>${project.build.directory}/imagetool_completion.sh</argument>
-                        <argument>com.oracle.weblogic.imagetool.cli.CLIDriver</argument>
+                        <argument>com.oracle.weblogic.imagetool.cli.ImageTool</argument>
                     </arguments>
                 </configuration>
             </plugin>
