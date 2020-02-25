@@ -114,6 +114,10 @@ public abstract class CommonOptions {
 
         cmdBuilder.setTag(imageTag);
 
+        if (!Utils.isEmptyString(buildNetwork)) {
+            cmdBuilder.addNetworkArg(buildNetwork);
+        }
+
         if (!Utils.isEmptyString(httpProxyUrl)) {
             cmdBuilder.addBuildArg("http_proxy", httpProxyUrl);
         }
@@ -388,13 +392,19 @@ public abstract class CommonOptions {
     )
     List<String> patches = new ArrayList<>();
 
-
     @Option(
         names = {"--opatchBugNumber"},
         description = "the patch number for OPatch (patching OPatch)"
     )
     String opatchBugNumber = "28186730_13.9.4.2.2";
 
+    @Option(
+        names = {"--buildNetwork"},
+        description = "Set the networking mode for the RUN instructions during build"
+    )
+    String buildNetwork;
+
+    @SuppressWarnings("unused")
     @Unmatched
     List<String> unmatchedOptions;
 }
