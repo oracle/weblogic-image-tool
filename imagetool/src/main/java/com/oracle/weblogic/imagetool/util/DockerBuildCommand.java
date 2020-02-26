@@ -75,6 +75,15 @@ public class DockerBuildCommand {
     }
 
     /**
+     * Add a --network to the Docker build command.
+     * @param value the Docker network to use
+     */
+    public void addNetworkArg(String value) {
+        command.add("--network");
+        command.add(value);
+    }
+
+    /**
      * Executes the given docker command and writes the process stdout to log.
      *
      * @param dockerLog      log file to write to
