@@ -10,15 +10,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
-import com.oracle.weblogic.imagetool.cachestore.CachedPatchFile;
+import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -198,9 +196,10 @@ public abstract class CommonOptions {
 
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
 
-        List<String> patchLocations = new LinkedList<>();
+        //List<String> patchLocations = new LinkedList<>();
+        List<PatchFile> patchFiles = new ArrayList<>();
 
-        List<String> patchList = new ArrayList<>(patches);
+        //List<String> patchList = new ArrayList<>(patches);
 
         if (latestPSU) {
             if (userId == null || password == null) {
@@ -215,15 +214,19 @@ public abstract class CommonOptions {
                 logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
             } else {
                 logger.fine("Found latest PSU {0}", patchId);
-                CachedFile psu = new CachedPatchFile(getInstallerVersion(), patchId, userId, password);
-                patchLocations.add(psu.resolve(cacheStore));
-                // Add PSU patch ID to the patchList for validation (conflict check)
-                patchList.add(patchId);
+                patchFiles.add(new PatchFile(getInstallerVersion(), patchId, userId, password));
+            }
+        }
+
+        // add user-provided patch list to full patch list to be applied
+        if (patches != null && !patches.isEmpty()) {
+            for (String patchId : patches) {
+                patchFiles.add(new PatchFile(getInstallerVersion(), patchId, userId, password));
             }
         }
 
         logger.info("IMG-0012");
-        ValidationResult validationResult = ARUUtil.validatePatches(previousInventory, patchList, userId, password);
+        ValidationResult validationResult = ARUUtil.validatePatches(previousInventory, patchFiles, userId, password);
         if (validationResult.isSuccess()) {
             logger.info("IMG-0006");
         } else {
@@ -232,22 +235,17 @@ public abstract class CommonOptions {
             throw new IllegalArgumentException(error);
         }
 
-        if (patches != null && !patches.isEmpty()) {
-            for (String patchId : patches) {
-                patchLocations.add(
-                    new CachedPatchFile(getInstallerVersion(), patchId, userId, password).resolve(cacheStore)
-                );
-            }
-        }
-        for (String patchLocation : patchLocations) {
-            if (patchLocation != null) {
+
+        for (PatchFile patch : patchFiles) {
+            String patchLocation = patch.resolve(cacheStore);
+            if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File patchFile = new File(patchLocation);
                 Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
             } else {
-                logger.severe("IMG-0024");
+                logger.severe("IMG-0024", patch.getKey());
             }
         }
-        if (!patchLocations.isEmpty()) {
+        if (!patchFiles.isEmpty()) {
             dockerfileOptions.setPatchingEnabled();
         }
         logger.exiting();
@@ -261,8 +259,8 @@ public abstract class CommonOptions {
 
 
     void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
-        String filePath =
-            new CachedPatchFile(Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password).resolve(cacheStore);
+        String filePath = new PatchFile(Constants.OPATCH_PATCH_TYPE, opatchBugNumber, userId, password)
+            .resolve(cacheStore);
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();

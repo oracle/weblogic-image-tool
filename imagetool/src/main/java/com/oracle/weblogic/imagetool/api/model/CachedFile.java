@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
@@ -32,6 +33,7 @@ public class CachedFile {
      * @param version     version number for the patch or installer.
      */
     public CachedFile(String id, String version) {
+        Objects.requireNonNull(id, "key for the cached file cannot be null");
         key = generateKey(id, version);
     }
 
@@ -50,12 +52,10 @@ public class CachedFile {
     }
 
     private String generateKey(String id, String version) {
-
         logger.entering(id, version);
         String mykey = id;
-        if (id == null) {  // should never happens
-            mykey = id + CacheStore.CACHE_KEY_SEPARATOR + version;
-        } else if (id.indexOf('_') < 0) {
+        // if the patch id does not have the version suffix, add it here (like 111111_12.2.1.3.0)
+        if (id.indexOf('_') < 0) {
             if (version != null) {
                 mykey = mykey + CacheStore.CACHE_KEY_SEPARATOR + version;
             }
