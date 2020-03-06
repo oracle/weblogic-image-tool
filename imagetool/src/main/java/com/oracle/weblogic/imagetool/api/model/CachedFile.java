@@ -24,7 +24,6 @@ public class CachedFile {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
 
-    //private String key;
     private String id;
     private String version;
 

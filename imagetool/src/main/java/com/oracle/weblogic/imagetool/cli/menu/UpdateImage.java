@@ -81,10 +81,10 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 String userId = getUserId();
                 String password = getPassword();
 
-                //
                 OPatchFile opatchFile = new OPatchFile(opatchBugNumber, userId, password, cacheStore);
                 String opatchFilePath = opatchFile.resolve(cacheStore);
 
+                // if there is a newer version of OPatch than contained in the image, update OPatch
                 if (Utils.compareVersions(opatchVersion, opatchFile.getVersion()) < 0) {
                     logger.info("IMG-0008", opatchVersion, opatchFile.getVersion());
                     String filename = new File(opatchFilePath).getName();
