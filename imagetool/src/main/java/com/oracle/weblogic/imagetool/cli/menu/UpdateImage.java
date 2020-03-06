@@ -4,7 +4,8 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
@@ -13,10 +14,10 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -73,33 +74,23 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
 
-            // We need to find out the actual version number of the opatchBugNumber - what if useCache=always ?
             String lsinventoryText = null;
 
             if (applyingPatches()) {
 
                 String userId = getUserId();
                 String password = getPassword();
-                String opatchBugNumberVersion;
 
-                if (userId == null && password == null) {
-                    String opatchFile = cacheStore.getValueFromCache(opatchBugNumber);
-                    if (opatchFile != null) {
-                        opatchBugNumberVersion = Utils.getOpatchVersionFromZip(opatchFile);
-                        logger.info("IMG-0008", opatchBugNumber, opatchFile, opatchBugNumberVersion);
-                    } else {
-                        String msg = String.format("OPatch patch number --opatchBugNumber %s cannot be found in cache. "
-                            + "Please download it manually and add it to the cache.", opatchBugNumber);
-                        logger.severe(msg);
-                        throw new IOException(msg);
-                    }
-                } else {
-                    opatchBugNumberVersion =
-                        ARUUtil.getOPatchVersionByBugNumber(opatchBugNumber, userId, password);
-                }
+                //
+                OPatchFile opatchFile = new OPatchFile(opatchBugNumber, userId, password, cacheStore);
+                String opatchFilePath = opatchFile.resolve(cacheStore);
 
-                if (Utils.compareVersions(opatchVersion, opatchBugNumberVersion) < 0) {
-                    installOpatchInstaller(tmpDir, opatchBugNumber);
+                if (Utils.compareVersions(opatchVersion, opatchFile.getVersion()) < 0) {
+                    logger.info("IMG-0008", opatchVersion, opatchFile.getVersion());
+                    String filename = new File(opatchFilePath).getName();
+                    Files.copy(Paths.get(opatchFilePath), Paths.get(tmpDir, filename));
+                    dockerfileOptions.setOPatchPatchingEnabled();
+                    dockerfileOptions.setOPatchFileName(filename);
                 }
 
                 logger.finer("Verifying Patches to WLS ");

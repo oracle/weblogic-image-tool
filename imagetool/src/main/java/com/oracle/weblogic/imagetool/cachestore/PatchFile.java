@@ -14,7 +14,6 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.ARUUtil;
-import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.XPathUtil;
@@ -24,12 +23,13 @@ import org.w3c.dom.NodeList;
 public class PatchFile extends CachedFile {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
-    private String patchId;
-    private String version;
-    private String userId;
-    private String password;
-    private String bugNumber;
+    private static final String BUG_SEARCH_URL = "https://updates.oracle.com/Orion/Services/search?bug=%s";
+
+    private final String bugNumber;
     private String patchVersion;
+    private final boolean patchVersionProvided;
+    private final String userId;
+    private final String password;
 
     // initialized after call to ARU
     private Document aruInfo = null;
@@ -41,14 +41,12 @@ public class PatchFile extends CachedFile {
      * Create an abstract file to hold the metadata for a patch file.
      *
      * @param patchId     the ID of the patch
-     * @param version     the version of installer this patch is applicable to
+     * @param version     the version of installer this patch is applicable
      * @param userId      the username to use for retrieving the patch
      * @param password    the password to use with the userId to retrieve the patch
      */
-    public PatchFile(String version, String patchId, String userId, String password) {
+    public PatchFile(String patchId, String version, String userId, String password) {
         super(patchId, version);
-        this.version = version;
-        this.patchId = patchId;
         this.userId = userId;
         this.password = password;
 
@@ -57,9 +55,11 @@ public class PatchFile extends CachedFile {
         if (ind > 0) {
             bugNumber = patchId.substring(0, ind);
             patchVersion = patchId.substring(ind + 1);
+            patchVersionProvided = true;
         } else {
             bugNumber = patchId;
             patchVersion = null;
+            patchVersionProvided = false;
         }
 
         if (Utils.isEmptyString(bugNumber)) {
@@ -68,20 +68,27 @@ public class PatchFile extends CachedFile {
     }
 
     @Override
-    public String resolve(CacheStore cacheStore) throws IOException {
-        //patchId is null in case of latestPSU
+    public String getVersion() {
+        if (patchVersion != null) {
+            return patchVersion;
+        } else {
+            return super.getVersion();
+        }
+    }
 
-        logger.entering(patchId);
+    @Override
+    public String resolve(CacheStore cacheStore) throws IOException {
+        logger.entering(getKey());
         String filePath = cacheStore.getValueFromCache(getKey());
         boolean fileExists = isFileOnDisk(filePath);
 
         if (fileExists) {
-            logger.info("IMG-0017", patchId, filePath);
+            logger.info("IMG-0017", getKey(), filePath);
         } else {
-            logger.fine("Could not find patch in cache patchId={0} version={1} ", patchId, version);
+            logger.info("IMG-0061", getKey(), getBugNumber());
 
             if (userId == null || password == null) {
-                throw new FileNotFoundException(Utils.getMessage("IMG-0056", patchId));
+                throw new FileNotFoundException(Utils.getMessage("IMG-0056", getKey()));
             }
             filePath = downloadPatch(cacheStore);
         }
@@ -91,25 +98,37 @@ public class PatchFile extends CachedFile {
     }
 
     /**
-     * Get the patch ID for this patch provided by the user input.
-     * @return the patch ID provided by user input.
+     * Get the bug number for this patch.
+     * @return the bug number.
      */
-    public String getPatchId() {
-        return patchId;
-    }
-
     public String getBugNumber() {
         return bugNumber;
     }
 
-    private boolean needAruInfo() {
-        return aruInfo == null;
+    Document getAruInfo() {
+        return aruInfo;
     }
 
-    private synchronized void initPatchInfo() throws IOException {
-        logger.entering(patchId);
+    void setPatchVersion(String value) {
+        patchVersion = value;
+    }
+
+    boolean needAruInfo() {
+        return aruInfo == null && userId != null && password != null;
+    }
+
+    boolean isPatchVersionProvided() {
+        return patchVersionProvided;
+    }
+
+    /**
+     * Populate internal patch metadata from Oracle ARU system.
+     * @throws IOException if an error occurs trying to get response or parsing response from ARU.
+     */
+    synchronized void initPatchInfo() throws IOException {
+        logger.entering(getKey());
         if (needAruInfo()) {
-            String url = String.format(Constants.BUG_SEARCH_URL, bugNumber);
+            String url = String.format(BUG_SEARCH_URL, bugNumber);
             aruInfo = HttpUtil.getXMLContent(url, userId, password);
         }
         confirmUniquePatchSelection();
@@ -155,12 +174,12 @@ public class PatchFile extends CachedFile {
     }
 
     /**
-     * Validate the patch selection criteria (bug number and patch version) will resolve to a unique patch.
+     * When the bug number is provided without a patch version, verify that the bug has only one patch file.
      * @throws IOException if patch selection is non-unique, or if unable to read ARU metadata
      */
-    private void confirmUniquePatchSelection() throws IOException {
-        if (patchVersion != null) {
-            // patch version was specified, no need to check
+    void confirmUniquePatchSelection() throws IOException {
+        if (isPatchVersionProvided()) {
+            // patch version was specified, no need to check if bug number resolves to a single patch
             return;
         }
 
@@ -191,7 +210,7 @@ public class PatchFile extends CachedFile {
     }
 
     private String downloadPatch(CacheStore cacheStore) throws IOException {
-        logger.info("IMG-0018", patchId);
+        logger.info("IMG-0018", getBugNumber());
 
         if (needAruInfo()) {
             initPatchInfo();
@@ -215,7 +234,7 @@ public class PatchFile extends CachedFile {
             int index = downLoadLink.indexOf("patch_file=");
 
             if (index < 0) {
-                throw new IOException(Utils.getMessage("IMG-0059", patchId));
+                throw new IOException(Utils.getMessage("IMG-0059", getBugNumber()));
             }
             // download the remote patch file to the local cache patch directory
             String filename = cacheStore.getCacheDir() + File.separator
@@ -224,12 +243,12 @@ public class PatchFile extends CachedFile {
 
             // after downloading the file, update the cache metadata
             String patchKey = getKey();
-            logger.fine("Adding patch {0} to cache: {1}", patchKey, filename);
+            logger.info("IMG-0060", patchKey, filename);
             cacheStore.addToCache(patchKey, filename);
             String filePath = cacheStore.getValueFromCache(patchKey);
 
             if (!isFileOnDisk(filePath)) {
-                throw new FileNotFoundException(Utils.getMessage("IMG-0037", patchId, version));
+                throw new FileNotFoundException(Utils.getMessage("IMG-0037", getBugNumber(), getVersion()));
             }
 
             return filePath;

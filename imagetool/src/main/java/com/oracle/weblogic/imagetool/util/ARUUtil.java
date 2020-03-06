@@ -72,12 +72,11 @@ public class ARUUtil {
      * @param patches          A list of patches number
      * @param userId           userid for support account
      * @param password         password for support account
-     * @return validationResult validation result object
      * @throws IOException when failed to access the aru api
      */
 
-    public static ValidationResult validatePatches(String inventoryContent, List<PatchFile> patches,
-                                                   String userId, String password) throws IOException {
+    public static void validatePatches(String inventoryContent, List<PatchFile> patches, String userId, String password)
+        throws IOException {
 
         logger.entering(inventoryContent, patches, userId);
 
@@ -86,9 +85,9 @@ public class ARUUtil {
         validationResult.setResults(null);
         if (userId == null || password == null) {
             logger.warning(Utils.getMessage("IMG-0033"));
-            return validationResult;
+            return;
         }
-
+        logger.info("IMG-0012");
 
         StringBuilder payload = new StringBuilder("<conflict_check_request><platform>2000</platform>");
 
@@ -134,7 +133,7 @@ public class ARUUtil {
                     continue;
                 }
 
-                logger.info("IMG-0022", patch.getPatchId(), patch.getReleaseNumber());
+                logger.info("IMG-0022", patch.getBugNumber(), patch.getReleaseNumber());
 
                 payload.append(String.format("<patch_group rel_id=\"%s\">%s</patch_group>",
                         patch.getReleaseNumber(), patch.getBugNumber()));
@@ -170,32 +169,15 @@ public class ARUUtil {
             throw new IOException(xpe);
 
         }
-        logger.exiting(validationResult);
-        return validationResult;
-    }
-
-    /**
-     * Return the version of the opatch patch.
-     *
-     * @param bugNumber opatch bug number
-     * @param userId    user for support
-     * @param password  password for support
-     * @return version name of the this opatch patch
-     * @throws IOException if XPath fails, and the patch release cannot be ascertained.
-     */
-    public static String getOPatchVersionByBugNumber(String bugNumber, String userId,
-                                                     String password) throws IOException {
-
-        try {
-            String url = String.format(Constants.BUG_SEARCH_URL, bugNumber);
-            Document allPatches = HttpUtil.getXMLContent(url, userId, password);
-            return XPathUtil.applyXPathReturnString(allPatches, "string(/results/patch[1]/release/@name)");
-        } catch (XPathExpressionException xe) {
-            throw new IOException(xe.getMessage());
+        if (validationResult.isSuccess()) {
+            logger.info("IMG-0006");
+        } else {
+            String error = validationResult.getErrorMessage();
+            logger.severe(error);
+            throw new IllegalArgumentException(error);
         }
-
+        logger.exiting(validationResult);
     }
-
 
     private static SearchResult getSearchResult(Document result) throws IOException {
         SearchResult returnResult = new SearchResult();
