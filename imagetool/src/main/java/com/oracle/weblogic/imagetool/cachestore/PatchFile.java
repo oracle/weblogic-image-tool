@@ -13,7 +13,6 @@ import javax.xml.xpath.XPathExpressionException;
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.XPathUtil;
@@ -160,7 +159,7 @@ public class PatchFile extends CachedFile {
 
         logger.finest("Searching for release number with xpath: {0}", xpath);
         try {
-            releaseNumber = XPathUtil.applyXPathReturnString(aruInfo, xpath);
+            releaseNumber = applyXpath(aruInfo, xpath);
 
             if (Utils.isEmptyString(releaseNumber)) {
                 String error = Utils.getMessage("IMG-0057", bugNumber);
@@ -198,7 +197,7 @@ public class PatchFile extends CachedFile {
                 List<String> patchVersions = new ArrayList<>();
                 for (int i = 1; i <= nodeList.getLength(); i++) {
                     String xpath = String.format("string(/results/patch[%d]/release/@name)", i);
-                    String patchVer = XPathUtil.applyXPathReturnString(aruInfo, xpath);
+                    String patchVer = applyXpath(aruInfo, xpath);
                     patchVersions.add(bugNumber + "_" + patchVer);
                 }
 
@@ -213,26 +212,35 @@ public class PatchFile extends CachedFile {
     }
 
     private String downloadPatch(CacheStore cacheStore) throws IOException {
-        logger.info("IMG-0018", getBugNumber());
-
         if (needAruInfo()) {
             initPatchInfo();
         }
         try {
-            Document patchMetadata = aruInfo;
             // if the patchVersion is specified, narrow the list of patches with the value of patchVersion
+            String patchXpath = "string(/results/patch";
             if (patchVersion != null) {
-                String xpath = String.format("/results/patch[release[@name='%s']]", patchVersion);
-                NodeList matchedResult = XPathUtil.applyXPathReturnNodeList(aruInfo, xpath);
-                patchMetadata = ARUUtil.createResultDocument(matchedResult);
-                logger.finest(XPathUtil.prettyPrint(patchMetadata));
+                patchXpath = patchXpath + "[release[@name='%s']]";
+            } else {
+                String actualVersion = applyXpath(aruInfo, "string(/results/patch/release/@name)");
+                if (Utils.compareVersions(getVersion(), actualVersion) != 0) {
+                    setPatchVersion(actualVersion);
+
+                    // search cache for this patch now that we have updated the patch version
+                    String filePath = cacheStore.getValueFromCache(getKey());
+                    if (isFileOnDisk(filePath)) {
+                        logger.info("IMG-0017", getKey(), filePath);
+                        // found patch in the cache using new patch version, no need to download
+                        return filePath;
+                    }
+                    logger.warning("IMG-0063", getBugNumber(), actualVersion);
+                }
             }
 
-            String downLoadLink = XPathUtil.applyXPathReturnString(patchMetadata, "string"
-                + "(/results/patch[1]/files/file/download_url/text())");
-
-            String downLoadHost = XPathUtil.applyXPathReturnString(patchMetadata, "string"
-                + "(/results/patch[1]/files/file/download_url/@host)");
+            String downloadUrlXpath = patchXpath + "/files/file/download_url/";
+            String downLoadLink = applyXpath(aruInfo, downloadUrlXpath + "text())");
+            String downLoadHost = applyXpath(aruInfo, downloadUrlXpath + "@host)");
+            logger.finer("using download URL xpath = {0}, found link={1}, host={2}",
+                downloadUrlXpath, downLoadLink, downLoadHost);
 
             int index = downLoadLink.indexOf("patch_file=");
 
@@ -242,6 +250,7 @@ public class PatchFile extends CachedFile {
             // download the remote patch file to the local cache patch directory
             String filename = cacheStore.getCacheDir() + File.separator
                 + downLoadLink.substring(index + "patch_file=".length());
+            logger.info("IMG-0018", getBugNumber());
             HttpUtil.downloadFile(downLoadHost + downLoadLink, filename, userId, password);
 
             // after downloading the file, update the cache metadata
@@ -258,6 +267,10 @@ public class PatchFile extends CachedFile {
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);
         }
+    }
+
+    private String applyXpath(Document doc, String path) throws XPathExpressionException {
+        return XPathUtil.applyXPathReturnString(doc, path);
     }
 
     @Override
