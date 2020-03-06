@@ -27,10 +27,10 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
-        name = "update",
-        description = "Update an existing docker image that was previously created with the image tool",
-        requiredOptionMarker = '*',
-        abbreviateSynopsis = true
+    name = "update",
+    description = "Update an existing docker image that was previously created with the image tool",
+    requiredOptionMarker = '*',
+    abbreviateSynopsis = true
 )
 public class UpdateImage extends CommonOptions implements Callable<CommandResponse> {
 
@@ -40,7 +40,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
     public CommandResponse call() throws Exception {
         logger.finer("Entering UpdateImage.call ");
         Instant startTime = Instant.now();
-        String buildId =  UUID.randomUUID().toString();
+        String buildId = UUID.randomUUID().toString();
         String tmpDir = null;
 
         try {
@@ -55,7 +55,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             tmpDir = getTempDirectory();
 
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
-                    tmpDir + File.separator + "test-env.sh", true);
+                tmpDir + File.separator + "test-env.sh", true);
 
             Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
 
@@ -131,7 +131,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
             dockerfileOptions.setWdtCommand(wdtOperation);
             if (dockerfileOptions.runRcu()
-                && (wdtOperation == WdtOperation.UPDATE ||  wdtOperation == WdtOperation.DEPLOY)) {
+                && (wdtOperation == WdtOperation.UPDATE || wdtOperation == WdtOperation.DEPLOY)) {
                 return new CommandResponse(-1, "IMG-0055");
             }
 
@@ -172,9 +172,9 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
     private FmwInstallerType installerType;
 
     @Option(
-            names = {"--fromImage"},
-            description = "Docker image to use as base image.",
-            required = true
+        names = {"--fromImage"},
+        description = "Docker image to use as base image.",
+        required = true
     )
     private String fromImage;
 

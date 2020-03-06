@@ -24,9 +24,9 @@ public class OPatchFile extends PatchFile {
      * Default patch number for OPatch is 28186730.
      * Default version for OPatch is 13.9.4.0.0.
      *
-     * @param patchId     the ID of the patch
-     * @param userId      the username to use for retrieving the patch
-     * @param password    the password to use with the userId to retrieve the patch
+     * @param patchId  the ID of the patch
+     * @param userId   the username to use for retrieving the patch
+     * @param password the password to use with the userId to retrieve the patch
      */
     public OPatchFile(String patchId, String userId, String password, CacheStore cache) {
         super(getPatchId(patchId), latestVersion(cache, patchId, userId, password), userId, password);
@@ -43,8 +43,9 @@ public class OPatchFile extends PatchFile {
     /**
      * If a version is not part of the patchId, search the cache for the latest version of the OPatch patch.
      * If the provided patchId is not null (not default), just use the default version number.
-     * @param cache cache store to search
-     * @param userId user credential
+     *
+     * @param cache    cache store to search
+     * @param userId   user credential
      * @param password user credential
      * @return the latest in the cache or the default version number
      */

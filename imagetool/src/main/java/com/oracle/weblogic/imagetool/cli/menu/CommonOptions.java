@@ -175,6 +175,7 @@ public abstract class CommonOptions {
     /**
      * Returns true if any patches should be applied.
      * A PSU is considered a patch.
+     *
      * @return true if applying patches
      */
     boolean applyingPatches() {

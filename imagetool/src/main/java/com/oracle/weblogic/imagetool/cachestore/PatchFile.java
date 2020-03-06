@@ -26,11 +26,10 @@ public class PatchFile extends CachedFile {
     private static final String BUG_SEARCH_URL = "https://updates.oracle.com/Orion/Services/search?bug=%s";
 
     private final String bugNumber;
-    private String patchVersion;
     private final boolean patchVersionProvided;
     private final String userId;
     private final String password;
-
+    private String patchVersion;
     // initialized after call to ARU
     private Document aruInfo = null;
     // derived from aruInfo
@@ -40,10 +39,10 @@ public class PatchFile extends CachedFile {
     /**
      * Create an abstract file to hold the metadata for a patch file.
      *
-     * @param patchId     the ID of the patch
-     * @param version     the version of installer this patch is applicable
-     * @param userId      the username to use for retrieving the patch
-     * @param password    the password to use with the userId to retrieve the patch
+     * @param patchId  the ID of the patch
+     * @param version  the version of installer this patch is applicable
+     * @param userId   the username to use for retrieving the patch
+     * @param password the password to use with the userId to retrieve the patch
      */
     public PatchFile(String patchId, String version, String userId, String password) {
         super(patchId, version);
@@ -99,6 +98,7 @@ public class PatchFile extends CachedFile {
 
     /**
      * Get the bug number for this patch.
+     *
      * @return the bug number.
      */
     public String getBugNumber() {
@@ -123,6 +123,7 @@ public class PatchFile extends CachedFile {
 
     /**
      * Populate internal patch metadata from Oracle ARU system.
+     *
      * @throws IOException if an error occurs trying to get response or parsing response from ARU.
      */
     synchronized void initPatchInfo() throws IOException {
@@ -137,6 +138,7 @@ public class PatchFile extends CachedFile {
 
     /**
      * Get the internal release number for this patch.
+     *
      * @return the release number provided by ARU
      * @throws IOException if an error occurs retrieving the release number from ARU
      */
@@ -175,6 +177,7 @@ public class PatchFile extends CachedFile {
 
     /**
      * When the bug number is provided without a patch version, verify that the bug has only one patch file.
+     *
      * @throws IOException if patch selection is non-unique, or if unable to read ARU metadata
      */
     void confirmUniquePatchSelection() throws IOException {

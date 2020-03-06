@@ -27,10 +27,10 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
-        name = "create",
-        description = "Build WebLogic docker image",
-        requiredOptionMarker = '*',
-        abbreviateSynopsis = true
+    name = "create",
+    description = "Build WebLogic docker image",
+    requiredOptionMarker = '*',
+    abbreviateSynopsis = true
 )
 public class CreateImage extends CommonOptions implements Callable<CommandResponse> {
 
@@ -41,7 +41,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
         logger.entering();
         Instant startTime = Instant.now();
         String tmpDir = null;
-        String buildId =  UUID.randomUUID().toString();
+        String buildId = UUID.randomUUID().toString();
 
         try {
             init(buildId);
@@ -84,7 +84,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             // Set the inventory location, so that it will be copied
             if (inventoryPointerFile != null) {
                 Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
-                Utils.copyLocalFile(Paths.get(inventoryPointerFile), Paths.get(tmpDir,"/oraInst.loc"), false);
+                Utils.copyLocalFile(Paths.get(inventoryPointerFile), Paths.get(tmpDir, "/oraInst.loc"), false);
             } else {
                 Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
             }
