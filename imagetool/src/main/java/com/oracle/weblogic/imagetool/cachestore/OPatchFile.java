@@ -17,7 +17,7 @@ public class OPatchFile extends PatchFile {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(OPatchFile.class);
 
-    private static final String DEFAULT_BUG_NUM = "28186730";
+    public static final String DEFAULT_BUG_NUM = "28186730";
 
     /**
      * Create an abstract file to hold the metadata for a patch file.

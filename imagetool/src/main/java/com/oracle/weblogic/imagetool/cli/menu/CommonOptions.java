@@ -197,10 +197,7 @@ public abstract class CommonOptions {
 
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
 
-        //List<String> patchLocations = new LinkedList<>();
         List<PatchFile> patchFiles = new ArrayList<>();
-
-        //List<String> patchList = new ArrayList<>(patches);
 
         if (latestPSU) {
             if (userId == null || password == null) {
@@ -222,7 +219,10 @@ public abstract class CommonOptions {
         // add user-provided patch list to full patch list to be applied
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                // if user mistakenly added the OPatch patch to the WLS patch list, skip it
+                if (!OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
+                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                }
             }
         }
 
