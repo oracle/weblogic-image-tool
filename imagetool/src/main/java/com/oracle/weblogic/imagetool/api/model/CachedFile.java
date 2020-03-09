@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
@@ -23,7 +24,8 @@ public class CachedFile {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
 
-    private String key;
+    private String id;
+    private String version;
 
     /**
      * Represents a locally cached file.
@@ -32,7 +34,9 @@ public class CachedFile {
      * @param version     version number for the patch or installer.
      */
     public CachedFile(String id, String version) {
-        key = generateKey(id, version);
+        Objects.requireNonNull(id, "key for the cached file cannot be null");
+        this.id = id;
+        this.version = version;
     }
 
     /**
@@ -49,24 +53,26 @@ public class CachedFile {
         return filePath != null && Files.isRegularFile(Paths.get(filePath));
     }
 
-    private String generateKey(String id, String version) {
-
-        logger.entering(id, version);
-        String mykey = id;
-        if (id == null) {  // should never happens
-            mykey = id + CacheStore.CACHE_KEY_SEPARATOR + version;
-        } else if (id.indexOf('_') < 0) {
-            if (version != null) {
-                mykey = mykey + CacheStore.CACHE_KEY_SEPARATOR + version;
-            }
+    /**
+     * Get the key for this cache entry.
+     * If the ID that was used to create this CachedFile object contains the separator (underscore),
+     * then the key is the same as the ID.  Otherwise, the key is the ID plus version, like ID + "_" + version.
+     * @return the key to use for this cache entry, like xxxx_yyyy.
+     */
+    public String getKey() {
+        if (id.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
+            return id;
+        } else {
+            return id + CacheStore.CACHE_KEY_SEPARATOR + getVersion();
         }
-
-        logger.exiting(mykey);
-        return mykey;
     }
 
-    public String getKey() {
-        return key;
+    /**
+     * Get the version number for this cache entry/file.
+     * @return the string version of this cached file.
+     */
+    public String getVersion() {
+        return version;
     }
 
     /**
