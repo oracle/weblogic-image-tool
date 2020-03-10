@@ -219,7 +219,7 @@ public class PatchFile extends CachedFile {
             // if the patchVersion is specified, narrow the list of patches with the value of patchVersion
             String patchXpath = "string(/results/patch";
             if (patchVersion != null) {
-                patchXpath = patchXpath + "[release[@name='%s']]";
+                patchXpath = String.format(patchXpath + "[release[@name='%s']]", patchVersion);
             } else {
                 String actualVersion = applyXpath(aruInfo, "string(/results/patch/release/@name)");
                 if (Utils.compareVersions(getVersion(), actualVersion) != 0) {
@@ -236,9 +236,9 @@ public class PatchFile extends CachedFile {
                 }
             }
 
-            String downloadUrlXpath = patchXpath + "/files/file/download_url/";
-            String downLoadLink = applyXpath(aruInfo, downloadUrlXpath + "text())");
-            String downLoadHost = applyXpath(aruInfo, downloadUrlXpath + "@host)");
+            String downloadUrlXpath = patchXpath + "/files/file/download_url";
+            String downLoadLink = applyXpath(aruInfo, downloadUrlXpath + "/text())");
+            String downLoadHost = applyXpath(aruInfo, downloadUrlXpath + "/@host)");
             logger.finer("using download URL xpath = {0}, found link={1}, host={2}",
                 downloadUrlXpath, downLoadLink, downLoadHost);
 
