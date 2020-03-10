@@ -156,6 +156,9 @@ public class Utils {
     }
 
     private static void setSystemProxy(String proxyUrl, String protocolToSet) throws IOException {
+        if (!proxyUrl.toLowerCase().startsWith(protocolToSet)) {
+            proxyUrl = protocolToSet + "://" + proxyUrl;
+        }
         URL url = new URL(proxyUrl);
         String host = url.getHost();
         int port = url.getPort() == -1 ? url.getDefaultPort() : url.getPort();
