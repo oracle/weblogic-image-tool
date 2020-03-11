@@ -10,7 +10,7 @@ Usage: imagetool create [OPTIONS]
 | --- | --- | --- |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
-| `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See Docker --network.  |   |
+| `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | Path to the Docker executable.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
@@ -34,9 +34,9 @@ Usage: imagetool create [OPTIONS]
 | `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  |   |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
-| `--wdtEncryptionKey` | Passphrase for WDT -use_encryption, that will be requested on STDIN. |   |
-| `--wdtEncryptionKeyEnv` | Passphrase for WDT -use_encryption, that is provided as an environment variable. |   |
-| `--wdtEncryptionKeyFile` | Passphrase for WDT -use_encryption, that is provided as a file. |   |
+| `--wdtEncryptionKey` | Passphrase for WDT -use_encryption that will be requested on STDIN. |   |
+| `--wdtEncryptionKeyEnv` | Passphrase for WDT -use_encryption that is provided as an environment variable. |   |
+| `--wdtEncryptionKeyFile` | Passphrase for WDT -use_encryption that is provided as a file. |   |
 | `--wdtJavaOptions` | Java command-line options for WDT.  |   |
 | `--wdtModel` | Path to the WDT model file that defines the domain to create.  |   |
 | `--wdtModelOnly` | Install WDT and copy the models to the image, but do not create the domain.  | `false`  |
