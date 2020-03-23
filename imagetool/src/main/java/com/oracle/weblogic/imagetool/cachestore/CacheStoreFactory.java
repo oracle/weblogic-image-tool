@@ -17,10 +17,6 @@ public class CacheStoreFactory implements Supplier<CacheStore> {
         cashStoreMap.put(Constants.FILE_CACHE, FileCacheStore.CACHE_STORE);
     }
 
-    public CacheStore getCacheStore(String backingType) {
-        return cashStoreMap.getOrDefault(backingType.toUpperCase(), FileCacheStore.CACHE_STORE);
-    }
-
     @Override
     public CacheStore get() {
         return FileCacheStore.CACHE_STORE;
