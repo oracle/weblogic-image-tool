@@ -156,8 +156,10 @@ public class Utils {
     }
 
     private static void setSystemProxy(String proxyUrl, String protocolToSet) throws IOException {
-        if (!proxyUrl.toLowerCase().startsWith(protocolToSet)) {
-            proxyUrl = protocolToSet + "://" + proxyUrl;
+
+        // If no scheme is set then default to http://
+        if (!proxyUrl.toLowerCase().startsWith("http://") && !proxyUrl.toLowerCase().startsWith("https://")) {
+            proxyUrl = "http://" + proxyUrl;
         }
         URL url = new URL(proxyUrl);
         String host = url.getHost();
