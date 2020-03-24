@@ -3,6 +3,8 @@
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -22,5 +24,35 @@ class UtilsTest {
     @Test
     void isEmptyString() {
         assertTrue(Utils.isEmptyString(""));
+    }
+
+    @Test
+    void settingProxy() throws IOException {
+        String host = "www-proxy.mycompany.com";
+        String port = "80";
+        String simpleProxy = host + ":" + port;
+        String simpleHttp = "http://" + simpleProxy;
+        String simpleHttps = "https://" + simpleProxy;
+
+        // proxy value with matching protocol, http for http, and https for https
+        Utils.setProxyIfRequired(simpleHttp, simpleHttps, "");
+        assertEquals(host, System.getProperty("http.proxyHost"));
+        assertEquals(port, System.getProperty("http.proxyPort"));
+        assertEquals(host, System.getProperty("https.proxyHost"));
+        assertEquals(port, System.getProperty("https.proxyPort"));
+
+        // proxy value with same protocol, http for http, and same for https
+        Utils.setProxyIfRequired(simpleHttp, simpleHttp, "");
+        assertEquals(host, System.getProperty("http.proxyHost"));
+        assertEquals(port, System.getProperty("http.proxyPort"));
+        assertEquals(host, System.getProperty("https.proxyHost"));
+        assertEquals(port, System.getProperty("https.proxyPort"));
+
+        // proxy value with no protocol
+        Utils.setProxyIfRequired(simpleProxy, simpleProxy, "");
+        assertEquals(host, System.getProperty("http.proxyHost"));
+        assertEquals(port, System.getProperty("http.proxyPort"));
+        assertEquals(host, System.getProperty("https.proxyHost"));
+        assertEquals(port, System.getProperty("https.proxyPort"));
     }
 }
