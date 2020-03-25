@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.logging.Level;
 
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreImpl;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreTestImpl;
+import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import static com.oracle.weblogic.imagetool.cachestore.OPatchFile.DEFAULT_BUG_NUM;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Tag("unit")
 public class CachedFileTest {
 
-    private static final CacheStore cacheStore = new CacheStoreImpl();
+    private static final CacheStore cacheStore = new CacheStoreTestImpl();
     private static final List<String> fileContents = Arrays.asList("A", "B", "C");
     private static final String SOME_VERSION = "12.2.1.3.0";
 
@@ -37,11 +39,14 @@ public class CachedFileTest {
         // build a fake cache with two installers
         String key1 = "wls_" + SOME_VERSION;
         Path path1 = tempDir.resolve("installer.file.122130.jar");
-        String key2 = "wls_12.2.1.4.0";
-        Path path2 = tempDir.resolve("installer.file.122140.jar");
-        cacheStore.addToCache(key1, path1.toString());
-        cacheStore.addToCache(key2, path2.toString());
         Files.write(path1, fileContents);
+        cacheStore.addToCache(key1, path1.toString());
+        cacheStore.addToCache("wls_12.2.1.4.0", "/dont/care");
+
+        // OPatch files
+        cacheStore.addToCache(DEFAULT_BUG_NUM + "_13.9.2.0.0", "/dont/care");
+        cacheStore.addToCache(DEFAULT_BUG_NUM + "_13.9.4.0.0", "/dont/care");
+        cacheStore.addToCache(DEFAULT_BUG_NUM + "_13.9.2.2.2", "/dont/care");
     }
 
     @Test
@@ -90,5 +95,13 @@ public class CachedFileTest {
         } finally {
             logger.setLevel(oldLevel);
         }
+    }
+
+    @Test
+    void latestOpatchVersion() {
+        // OPatch file should default to the default OPatch bug number and the latest version found in cache
+        OPatchFile patchFile = new OPatchFile(null, null, null, cacheStore);
+        assertEquals(DEFAULT_BUG_NUM + "_13.9.4.0.0", patchFile.getKey(),
+            "failed to get correct versoin of the latest OPatch version from cache");
     }
 }

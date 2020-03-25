@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
 public class PatchFileTest {
-    private static final CacheStore cacheStore = new CacheStoreImpl();
+    private static final CacheStore cacheStore = new CacheStoreTestImpl();
     private static final List<String> fileContents = Arrays.asList("A", "B", "C");
     private static final String BUGNUMBER = "123456";
     private static final String SOME_VERSION = "12.2.1.3.0";

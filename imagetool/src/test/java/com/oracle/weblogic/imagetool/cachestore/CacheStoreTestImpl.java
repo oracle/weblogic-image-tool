@@ -6,7 +6,7 @@ package com.oracle.weblogic.imagetool.cachestore;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CacheStoreImpl implements CacheStore {
+public class CacheStoreTestImpl implements CacheStore {
 
     HashMap<String, String> cache = new HashMap<>();
 
@@ -38,6 +38,6 @@ public class CacheStoreImpl implements CacheStore {
 
     @Override
     public Map<String, String> getCacheItems() {
-        return null;
+        return cache;
     }
 }
