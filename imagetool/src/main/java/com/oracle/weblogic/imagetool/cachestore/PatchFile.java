@@ -251,7 +251,7 @@ public class PatchFile extends CachedFile {
             String filename = cacheStore.getCacheDir() + File.separator
                 + downLoadLink.substring(index + "patch_file=".length());
             logger.info("IMG-0018", getBugNumber());
-            HttpUtil.downloadFile(downLoadHost + downLoadLink, filename, userId, password);
+            downloadFile(downLoadHost + downLoadLink, filename, userId, password);
 
             // after downloading the file, update the cache metadata
             String patchKey = getKey();

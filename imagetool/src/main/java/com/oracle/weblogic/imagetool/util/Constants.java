@@ -5,8 +5,6 @@ package com.oracle.weblogic.imagetool.util;
 
 public final class Constants {
 
-    static final String WDT_TAGS_URL = "https://api.github.com/repos/oracle/weblogic-deploy-tooling/tags";
-    public static final String WDT_URL_FORMAT = "https://github.com/oracle/weblogic-deploy-tooling/releases/download/%s/weblogic-deploy.zip";
     static final String REL_URL = "https://updates.oracle.com/Orion/Services/metadata?table=aru_releases";
     static final String LATEST_PSU_URL =
             "https://updates.oracle.com/Orion/Services/search?product=%s&release=%s";

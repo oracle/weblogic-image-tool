@@ -3,16 +3,22 @@
 
 package com.oracle.weblogic.imagetool.cachestore;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CacheStoreTestImpl implements CacheStore {
 
-    HashMap<String, String> cache = new HashMap<>();
+    private HashMap<String, String> cache = new HashMap<>();
+    private Path cacheDir;
+
+    public CacheStoreTestImpl(Path cacheDir) {
+        this.cacheDir = cacheDir;
+    }
 
     @Override
     public String getCacheDir() {
-        return null;
+        return cacheDir.toString();
     }
 
     @Override
@@ -22,12 +28,15 @@ public class CacheStoreTestImpl implements CacheStore {
 
     @Override
     public boolean hasMatchingKeyValue(String key, String value) {
-        return false;
+        if (key == null || value == null) {
+            return false;
+        }
+        return value.equals(cache.get(key.toLowerCase()));
     }
 
     @Override
     public boolean addToCache(String key, String value) {
-        cache.put(key, value);
+        cache.put(key.toLowerCase(), value);
         return true;
     }
 
