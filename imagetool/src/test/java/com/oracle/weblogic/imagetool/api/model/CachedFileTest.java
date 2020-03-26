@@ -30,12 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Tag("unit")
 public class CachedFileTest {
 
-    private static final CacheStore cacheStore = new CacheStoreTestImpl();
-    private static final List<String> fileContents = Arrays.asList("A", "B", "C");
-    private static final String SOME_VERSION = "12.2.1.3.0";
+    static Path cacheDir;
+    static CacheStore cacheStore;
+    static final List<String> fileContents = Arrays.asList("A", "B", "C");
+    static final String SOME_VERSION = "12.2.1.3.0";
 
     @BeforeAll
-    static void setup(@TempDir Path tempDir) throws IOException {
+    static void setup(@TempDir Path tempDir, @TempDir Path cacheDir) throws IOException {
+        CachedFileTest.cacheDir = cacheDir;
+        cacheStore  = new CacheStoreTestImpl(cacheDir);
         // build a fake cache with two installers
         String key1 = "wls_" + SOME_VERSION;
         Path path1 = tempDir.resolve("installer.file.122130.jar");

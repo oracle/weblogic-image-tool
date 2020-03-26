@@ -3,13 +3,13 @@
 
 package com.oracle.weblogic.imagetool.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
 import javax.net.ssl.SSLException;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -39,7 +39,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.BasicClientCookie;
-import org.json.JSONArray;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -48,7 +47,13 @@ public class HttpUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(HttpUtil.class);
 
-    private static Document parseXmlString(String xmlString) throws ClientProtocolException {
+    /**
+     * Parse a string into an XML Document.
+     * @param xmlString well formatted XML
+     * @return org.w3c.dom.Document built from the provided String
+     * @throws ClientProtocolException if the String contains malformed XML
+     */
+    public static Document parseXmlString(String xmlString) throws ClientProtocolException {
         logger.entering();
 
         try {
@@ -94,11 +99,18 @@ public class HttpUtil {
         String xmlString = Executor.newInstance(getOraClient(username, password))
                 .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .returnContent().asString();
+        Files.write(Paths.get("/tmp/test1"), Collections.singleton(xmlString));
         logger.exiting();
         return parseXmlString(xmlString);
     }
 
-    private static HttpClient getOraClient(String userId, String password) {
+    /**
+     * Create an HTTP client with cookie and credentials for Oracle eDelivery.
+     * @param userId Oracle credential
+     * @param password Oracle credential
+     * @return new HTTP Client ready to access eDelivery
+     */
+    public static HttpClient getOraClient(String userId, String password) {
         logger.entering(userId);
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
@@ -161,32 +173,6 @@ public class HttpUtil {
     }
 
     /**
-     * Download a file from the url.
-     *
-     * @param url      url of the aru server
-     * @param fileName full path to save the file
-     * @param username userid for support account
-     * @param password password for support account
-     * @throws IOException when it fails to access the url
-     */
-
-    public static void downloadFile(String url, String fileName, String username, String password)
-            throws IOException {
-        logger.entering(url);
-        try {
-            Executor.newInstance(getOraClient(username, password))
-                    .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
-                    .saveContent(new File(fileName));
-        } catch (Exception ex) {
-            String message = String.format("Failed to download and save file %s from %s: %s", fileName, url,
-                    ex.getLocalizedMessage());
-            logger.severe(message);
-            throw new IOException(message, ex);
-        }
-        logger.exiting(fileName);
-    }
-
-    /**
      * Check conflicts post method.
      *
      * @param url      url for conflict checker api
@@ -231,21 +217,5 @@ public class HttpUtil {
         logger.exiting();
         return parseXmlString(xmlString);
 
-    }
-
-    /**
-     * Looks at the GitHub repo and retrieves the tags from the source code.
-     * @return a list of tags found.
-     * @throws IOException if the HTTP client fails.
-     */
-    public static List<String> getWDTTags() throws IOException {
-        List<String> retVal = new ArrayList<>();
-        String results = Executor.newInstance(getOraClient(null, null)).execute(Request.Get(Constants.WDT_TAGS_URL))
-                .returnContent().asString();
-        JSONArray jsonArr = new JSONArray(results);
-        for (int i = 0; i < jsonArr.length(); i++) {
-            retVal.add(jsonArr.getJSONObject(i).getString("name"));
-        }
-        return retVal;
     }
 }

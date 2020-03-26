@@ -15,7 +15,10 @@ import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
+import org.apache.http.client.fluent.Executor;
+import org.apache.http.client.fluent.Request;
 
 /**
  * Base class to represent either an installer or a patch file.
@@ -113,5 +116,32 @@ public class CachedFile {
         }
         logger.exiting(result);
         return result;
+    }
+
+
+    /**
+     * Download a file from the url.
+     *
+     * @param url      url of the aru server
+     * @param fileName full path to save the file
+     * @param username userid for support account
+     * @param password password for support account
+     * @throws IOException when it fails to access the url
+     */
+
+    public void downloadFile(String url, String fileName, String username, String password)
+        throws IOException {
+        logger.entering(url);
+        try {
+            Executor.newInstance(HttpUtil.getOraClient(username, password))
+                .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+                .saveContent(new File(fileName));
+        } catch (Exception ex) {
+            String message = String.format("Failed to download and save file %s from %s: %s", fileName, url,
+                ex.getLocalizedMessage());
+            logger.severe(message);
+            throw new IOException(message, ex);
+        }
+        logger.exiting(fileName);
     }
 }
