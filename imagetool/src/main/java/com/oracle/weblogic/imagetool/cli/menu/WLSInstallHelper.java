@@ -4,11 +4,8 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
-import java.util.List;
 import java.util.Properties;
 
-import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -56,30 +53,5 @@ public class WLSInstallHelper {
         } else {
             dockerfileOptions.setPackageInstaller(Constants.YUM);
         }
-    }
-
-    /**
-     * Return a list of basic installers.
-     *
-     * @param initialList  An initial non-null list of installers
-     * @param installerType installer type
-     * @param installerVersion installer version
-     * @param jdkVersion jdkVersion of the installer
-     * @param dockerfileOptions  non null docker options
-     * @return list of installers
-     */
-    public static  List<CachedFile> getBasicInstallers(List<CachedFile> initialList,
-                                                       String installerType, String installerVersion,
-                                                       String jdkVersion, DockerfileOptions dockerfileOptions) {
-        logger.finer("IMG-0001", installerType, installerVersion);
-        initialList.add(new CachedFile(InstallerType.fromValue(installerType),
-            installerVersion));
-        if (dockerfileOptions.installJava()) {
-            logger.finer("IMG-0001", InstallerType.JDK, jdkVersion);
-            initialList.add(new CachedFile(InstallerType.JDK, jdkVersion));
-        }
-        logger.exiting(initialList.size());
-        return initialList;
-
     }
 }
