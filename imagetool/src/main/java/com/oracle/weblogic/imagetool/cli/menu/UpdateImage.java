@@ -68,6 +68,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             if (oracleHome == null) {
                 return new CommandResponse(-1, "ORACLE_HOME env variable undefined in base image: " + fromImage);
             }
+            dockerfileOptions.setOracleHome(oracleHome);
             installerType = FmwInstallerType.valueOf(baseImageProperties.getProperty("WLS_TYPE",
                 FmwInstallerType.WLS.toString()).toUpperCase());
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
