@@ -14,14 +14,8 @@ ARG MANAGED_SERVER_PORT
 ENV ADMIN_PORT=${ADMIN_PORT} \
 MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
-USER {{userid}}
-RUN mkdir -p {{domain_home}}
-COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
-
 
 {{/isRebaseToTarget}}
-
-
 {{#isRebaseToNew}}
     FROM {{sourceImage}} as SOURCE_IMAGE
     FROM {{baseImage}} as OS_UPDATE
@@ -99,6 +93,8 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
         && mkdir -p {{inv_loc}} \
         && chown {{userid}}:{{groupid}} {{inv_loc}} \
     {{/isCustomInventoryLoc}}
+    && mkdir -p {{orainv_dir}} \
+    && chown {{userid}}:{{groupid}} {{orainv_dir}} \
     && chown {{userid}}:{{groupid}} {{{oracle_home}}}
 
     {{#installJava}}
@@ -164,12 +160,17 @@ COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain
     {{/installJava}}
 
     COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
-
-    USER {{userid}}
-    RUN mkdir -p {{domain_home}}
-    COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
-
+    {{#copyOraInst}}
+        COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{inv_loc}}/oraInst.loc  {{inv_loc}}/oraInst.loc
+    {{/copyOraInst}}
+    {{#copyOraInventoryDir}}
+        COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
+    {{/copyOraInventoryDir}}
 {{/isRebaseToNew}}
+
+USER {{userid}}
+RUN mkdir -p {{domain_home}}
+COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
 
 EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT
 WORKDIR {{{work_dir}}}
