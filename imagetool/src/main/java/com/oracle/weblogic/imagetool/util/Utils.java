@@ -705,12 +705,13 @@ public class Utils {
             BufferedReader reader = new BufferedReader(new FileReader(inventoryLoc.toFile()));
             String line;
             while ((line = reader.readLine()) != null) {
-                logger.finest("Read inventory loc file line: {0}", line);
+                logger.finer("Read inventory loc file line: {0}", line);
 
                 matcher.reset(line);
                 if (matcher.find()) {
                     String invLoc = matcher.group(1);
                     if (invLoc != null) {
+                        logger.fine("inventory location file specified new inventory location: {0}", invLoc);
                         options.setOraInvDir(invLoc);
                     }
                     break;
