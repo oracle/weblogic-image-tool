@@ -18,8 +18,6 @@ public enum FmwInstallerType {
     IDM(InstallerType.FMW, InstallerType.IDM),
     IDM_WLS(InstallerType.IDM),
     OAM(InstallerType.FMW, InstallerType.OAM), //Identity and Access Manager
-    OHS(InstallerType.OHS),
-    OHS_WLS(InstallerType.FMW, InstallerType.OHS),
     OIG(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB, InstallerType.IDM),
     OUD(InstallerType.OUD), //Oracle Unified Directory
     OUD_WLS(InstallerType.FMW, InstallerType.OUD), //Oracle Unified Directory
