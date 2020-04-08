@@ -32,7 +32,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--targetImage` | Docker image to extend for the domain's new image. |   |
-| `--type` | Installer type. Supported values: `WLS`, `FMW`, `IDM`, `OHS_WLS`, `OHS`, `OSB`, `OUD_WLS`, `SOA_OSB`, `WCP`, `OAM`, `OIG`, `OUD`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
+| `--type` | Installer type. Supported values: `WLS`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `WCP`, `OAM`, `OIG`, `OUD`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Your Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
 
