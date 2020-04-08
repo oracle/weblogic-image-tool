@@ -32,8 +32,6 @@ Update WebLogic Docker image with selected patches
 | `--fromImage` | Docker image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
-| `--installerResponseFile` | Path to a response file. Overrides the default responses for the Oracle installer.  |   |
-| `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | (DEPRECATED) Find and apply the latest PatchSet Update, see [Additional information](#additional-information).  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
