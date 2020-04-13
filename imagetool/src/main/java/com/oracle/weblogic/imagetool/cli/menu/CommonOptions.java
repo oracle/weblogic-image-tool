@@ -106,30 +106,18 @@ public abstract class CommonOptions {
      * @return list of options
      */
     DockerBuildCommand getInitialBuildCmd(String contextFolder) {
-
         logger.entering();
         DockerBuildCommand cmdBuilder = new DockerBuildCommand(contextFolder);
 
-        cmdBuilder.setTag(imageTag);
-
-        if (!Utils.isEmptyString(buildNetwork)) {
-            cmdBuilder.addNetworkArg(buildNetwork);
-        }
-
-        if (!Utils.isEmptyString(httpProxyUrl)) {
-            cmdBuilder.addBuildArg("http_proxy", httpProxyUrl);
-        }
-
-        if (!Utils.isEmptyString(httpsProxyUrl)) {
-            cmdBuilder.addBuildArg("https_proxy", httpsProxyUrl);
-        }
-
-        if (!Utils.isEmptyString(nonProxyHosts)) {
-            cmdBuilder.addBuildArg("no_proxy", nonProxyHosts);
-        }
+        cmdBuilder.tag(imageTag)
+            .network(buildNetwork)
+            .pull(buildPull)
+            .buildArg("http_proxy", httpProxyUrl)
+            .buildArg("https_proxy", httpsProxyUrl)
+            .buildArg("no_proxy", nonProxyHosts);
 
         if (dockerPath != null && Files.isExecutable(dockerPath)) {
-            cmdBuilder.setDockerPath(dockerPath.toAbsolutePath().toString());
+            cmdBuilder.dockerPath(dockerPath.toAbsolutePath().toString());
         }
         logger.exiting();
         return cmdBuilder;
@@ -391,6 +379,12 @@ public abstract class CommonOptions {
         description = "Set the networking mode for the RUN instructions during build"
     )
     String buildNetwork;
+
+    @Option(
+        names = {"--pull"},
+        description = "Always attempt to pull a newer version of base images during the build"
+    )
+    boolean buildPull = false;
 
     @SuppressWarnings("unused")
     @Unmatched

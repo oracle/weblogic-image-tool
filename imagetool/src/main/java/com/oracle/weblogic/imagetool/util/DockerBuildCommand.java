@@ -41,13 +41,22 @@ public class DockerBuildCommand {
         context = contextFolder;
     }
 
-    public void setDockerPath(String value) {
+    public void dockerPath(String value) {
         command.set(0, value);
     }
 
-    public void setTag(String value) {
+    /**
+     * Add Docker image tag name for this build command.
+     * @param value name to be used as the image tag.
+     * @return this
+     */
+    public DockerBuildCommand tag(String value) {
+        if (Utils.isEmptyString(value)) {
+            return this;
+        }
         command.add("--tag");
         command.add(value);
+        return this;
     }
 
     /**
@@ -56,8 +65,8 @@ public class DockerBuildCommand {
      * @param key the ARG
      * @param value the value to be used in the Dockerfile for this ARG
      */
-    public void addBuildArg(String key, String value) {
-        addBuildArg(key, value, false);
+    public DockerBuildCommand buildArg(String key, String value) {
+        return buildArg(key, value, false);
     }
 
     /**
@@ -66,21 +75,40 @@ public class DockerBuildCommand {
      * @param value the value to be used in the Dockerfile for this ARG
      * @param conceal true for passwords so the value is not logged
      */
-    public void addBuildArg(String key, String value, boolean conceal) {
+    public DockerBuildCommand buildArg(String key, String value, boolean conceal) {
+        if (Utils.isEmptyString(value)) {
+            return this;
+        }
         BuildArg arg = new BuildArg();
         arg.key = key;
         arg.value = value;
         arg.conceal = conceal;
         buildArgs.add(arg);
+        return this;
     }
 
     /**
      * Add a --network to the Docker build command.
      * @param value the Docker network to use
      */
-    public void addNetworkArg(String value) {
+    public DockerBuildCommand network(String value) {
+        if (Utils.isEmptyString(value)) {
+            return this;
+        }
         command.add("--network");
         command.add(value);
+        return this;
+    }
+
+    /**
+     * Add a --pull to the Docker build command.  If value is false, return without adding the --pull.
+     * @param value true to add the pull
+     */
+    public DockerBuildCommand pull(boolean value) {
+        if (value) {
+            command.add("--pull");
+        }
+        return this;
     }
 
     /**
@@ -90,7 +118,7 @@ public class DockerBuildCommand {
      * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
-    public void run(Path dockerLog)
+    public DockerBuildCommand run(Path dockerLog)
         throws IOException, InterruptedException {
         // process builder
         logger.entering(getCommand(false), dockerLog);
@@ -114,6 +142,7 @@ public class DockerBuildCommand {
         if (process.waitFor() != 0) {
             Utils.processError(process);
         }
+        return this;
     }
 
     /**

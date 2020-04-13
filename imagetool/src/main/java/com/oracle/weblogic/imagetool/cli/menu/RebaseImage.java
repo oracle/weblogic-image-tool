@@ -114,13 +114,8 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
             DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
 
-            if (adminPort != null) {
-                cmdBuilder.addBuildArg("ADMIN_PORT", adminPort);
-            }
-
-            if (managedServerPort != null) {
-                cmdBuilder.addBuildArg("MANAGED_SERVER_PORT", managedServerPort);
-            }
+            cmdBuilder.buildArg("ADMIN_PORT", adminPort)
+                .buildArg("MANAGED_SERVER_PORT", managedServerPort);
 
             if (dockerfileOptions.isRebaseToNew()) {
 
