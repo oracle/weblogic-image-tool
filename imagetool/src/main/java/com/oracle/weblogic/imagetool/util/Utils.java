@@ -450,7 +450,7 @@ public class Utils {
         String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
         logger.finer("ONE COMMAND [" + oneCommand + "]");
         final List<String> retVal = Stream.of(
-            "docker", "run",
+            "docker", "run", "--rm",
             dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
