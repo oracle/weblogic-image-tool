@@ -3,10 +3,14 @@
 
 package com.oracle.weblogic.imagetool.cachestore;
 
+import java.io.File;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.Alphanumeric;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,7 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestMethodOrder(Alphanumeric.class)
 class FileCacheStoreTest {
 
-    private CacheStore cacheStore = new CacheStoreFactory().get();
+    private static CacheStore cacheStore;
+
+    @BeforeAll
+    static void init(@TempDir File tempDir) {
+        System.setProperty(FileCacheStore.CACHEDIR, tempDir.getAbsolutePath());
+        cacheStore = CacheStoreFactory.get();
+    }
 
     @Test
     void a3addToCache() {

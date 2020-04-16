@@ -18,22 +18,19 @@ import picocli.CommandLine.Option;
 )
 public class DeleteEntry extends CacheOperation {
 
-    public DeleteEntry() {
-    }
-
     @Override
     public CommandResponse call() {
         if (!Utils.isEmptyString(key)) {
-            if (Constants.CACHE_DIR_KEY.equals(key.toLowerCase())) {
+            if (Constants.CACHE_DIR_KEY.equalsIgnoreCase(key)) {
                 return new CommandResponse(0, "Cannot delete key: " + key);
             } else if (Constants.DELETE_ALL_FOR_SURE.equalsIgnoreCase(key)) {
-                Map<String, String> allEntries = cacheStore.getCacheItems();
+                Map<String, String> allEntries = cache().getCacheItems();
                 //allEntries.remove(CACHE_DIR_KEY);
                 Map<String, String> deletedEntries = new HashMap<>();
-                allEntries.forEach((k, v) -> deletedEntries.put(k, cacheStore.deleteFromCache(k)));
+                allEntries.forEach((k, v) -> deletedEntries.put(k, cache().deleteFromCache(k)));
                 return new CommandResponse(0, "IMG-0046");
             } else {
-                String oldValue = cacheStore.deleteFromCache(key);
+                String oldValue = cache().deleteFromCache(key);
                 if (oldValue != null) {
                     return new CommandResponse(0, "IMG-0051", key, oldValue);
                 } else {

@@ -18,12 +18,9 @@ import picocli.CommandLine.Option;
 )
 public class ListCacheItems extends CacheOperation {
 
-    public ListCacheItems() {
-    }
-
     @Override
     public CommandResponse call() {
-        Map<String, String> resultMap = cacheStore.getCacheItems();
+        Map<String, String> resultMap = cache().getCacheItems();
         if (resultMap == null || resultMap.isEmpty()) {
             return new CommandResponse(0, "IMG-0047");
         } else {

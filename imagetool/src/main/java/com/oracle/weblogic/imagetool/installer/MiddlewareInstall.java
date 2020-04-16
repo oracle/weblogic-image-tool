@@ -58,15 +58,16 @@ public class MiddlewareInstall {
 
         if (filename.endsWith(".zip")) {
             logger.finer("locating installer JAR inside installer ZIP");
-            ZipFile zipFile = new ZipFile(installerFile.toFile());
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                String entryName = entry.getName();
-                logger.finer("Entry in zip {0}: {1}", filename, entryName);
-                if (entryName.endsWith(".jar")) {
-                    filename = entryName;
-                    break;
+            try (ZipFile zipFile = new ZipFile(installerFile.toFile())) {
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
+                    String entryName = entry.getName();
+                    logger.finer("Entry in zip {0}: {1}", filename, entryName);
+                    if (entryName.endsWith(".jar")) {
+                        filename = entryName;
+                        break;
+                    }
                 }
             }
         }

@@ -14,20 +14,17 @@ import picocli.CommandLine.Option;
 )
 public class AddEntry extends CacheOperation {
 
-    public AddEntry() {
-    }
-
     @Override
     public CommandResponse call() {
         if (!Utils.isEmptyString(key) && !Utils.isEmptyString(location)) {
-            String oldValue = cacheStore.getValueFromCache(key);
+            String oldValue = cache().getValueFromCache(key);
             String msg;
             if (oldValue != null) {
                 msg = String.format("Replaced old value %s with new value %s for key %s", oldValue, location, key);
             } else {
                 msg = String.format("Added entry %s=%s", key, location);
             }
-            if (cacheStore.addToCache(key, location)) {
+            if (cache().addToCache(key, location)) {
                 return new CommandResponse(0, msg);
             } else {
                 return new CommandResponse(-1, "Command Failed");

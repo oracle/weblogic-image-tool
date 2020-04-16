@@ -20,18 +20,15 @@ import picocli.CommandLine.Option;
 )
 public class AddInstallerEntry extends CacheOperation {
 
-    public AddInstallerEntry() {
-    }
-
     @Override
     public CommandResponse call() {
         if (location != null && Files.isRegularFile(location) && !Utils.isEmptyString(version)) {
             String key = String.format("%s%s%s", type, CacheStore.CACHE_KEY_SEPARATOR, version);
-            if (cacheStore.getValueFromCache(key) != null) {
-                return new CommandResponse(-1, "IMG-0048", key, cacheStore.getValueFromCache(key));
+            if (cache().getValueFromCache(key) != null) {
+                return new CommandResponse(-1, "IMG-0048", key, cache().getValueFromCache(key));
             }
-            cacheStore.addToCache(key, location.toAbsolutePath().toString());
-            return new CommandResponse(0, "IMG-0050", key, cacheStore.getValueFromCache(key));
+            cache().addToCache(key, location.toAbsolutePath().toString());
+            return new CommandResponse(0, "IMG-0050", key, cache().getValueFromCache(key));
         }
         return new CommandResponse(-1, "IMG-0049", location);
     }

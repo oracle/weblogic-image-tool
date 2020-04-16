@@ -8,6 +8,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
@@ -15,37 +19,41 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.Utils;
 
-public enum FileCacheStore implements CacheStore {
+public class FileCacheStore implements CacheStore {
 
-    CACHE_STORE;
+    private static final LoggingFacade logger = LoggingFactory.getLogger(FileCacheStore.class);
+    public static final String CACHEDIR = "WLSIMG_CACHEDIR";
 
     private final Properties properties = new Properties();
     private String metadataPath;
 
     FileCacheStore() {
         try {
-            String userCacheDir = Utils.getCacheDir();
-            metadataPath = String.format("%s%s%s", userCacheDir, File.separator, Constants.DEFAULT_META_FILE);
+            String userCacheDir = initCacheDir();
+            metadataPath = userCacheDir + File.separator + Constants.DEFAULT_META_FILE;
             File metadataFile = new File(metadataPath);
             if (metadataFile.exists() && metadataFile.isFile()) {
                 loadProperties(metadataFile);
             } else {
-                metadataFile.getParentFile().mkdirs();
-                metadataFile.createNewFile();
+                if (!metadataFile.createNewFile()) {
+                    throw new IOException("Failed to create file cache metadata file " + metadataFile.getName());
+                }
             }
             if (properties.getProperty(Constants.CACHE_DIR_KEY) == null) {
                 properties.put(Constants.CACHE_DIR_KEY, userCacheDir);
                 persistToDisk();
             }
             File cacheDir = new File(properties.getProperty(Constants.CACHE_DIR_KEY));
-            if (!cacheDir.exists()) {
-                cacheDir.mkdirs();
+            if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+                // the cache directory did not exist, and the mkdirs failed to create it
+                throw new IOException("Failed to create cache directory: " + cacheDir.getName());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            logger.severe("Failed to establish a cache store on the filesystem", e);
             System.exit(-1);
         }
     }
@@ -80,7 +88,7 @@ public enum FileCacheStore implements CacheStore {
     @Override
     public String deleteFromCache(String key) {
         Objects.requireNonNull(key, "key cannot be null");
-        if (Constants.CACHE_DIR_KEY.equals(key.toLowerCase())) {
+        if (Constants.CACHE_DIR_KEY.equalsIgnoreCase(key)) {
             return properties.getProperty(Constants.CACHE_DIR_KEY, null);
         }
         String oldValue = (String) properties.remove(key.toLowerCase());
@@ -99,19 +107,22 @@ public enum FileCacheStore implements CacheStore {
     }
 
     private boolean persistToDisk() {
+        logger.entering();
         boolean retVal = true;
         synchronized (properties) {
             try (FileOutputStream outputStream = new FileOutputStream(metadataPath)) {
                 properties.store(outputStream, "changed on:" + LocalDateTime.now());
             } catch (IOException e) {
                 retVal = false;
-                e.printStackTrace();
+                logger.fine("Could not persist cache file", e);
             }
         }
+        logger.exiting(retVal);
         return retVal;
     }
 
     private void loadProperties(File propsFile) {
+        logger.entering();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(propsFile))) {
             if (properties.isEmpty()) {
                 properties.load(bufferedReader);
@@ -123,9 +134,40 @@ public enum FileCacheStore implements CacheStore {
                 tmpProperties.forEach((key, value) -> properties.put(((String) key).toLowerCase(), value));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // it is okay to fail, the constructor will attempt to create a new one
+            logger.fine("Failed to load properties file", e);
         }
+        logger.exiting();
     }
 
+    /**
+     * Initialize the cache store directory.
+     *
+     * @return cache directory
+     */
+    private static String initCacheDir() throws IOException {
+        String cacheDirStr = System.getenv(CACHEDIR);
+        if (cacheDirStr == null) {
+            cacheDirStr = System.getProperty(CACHEDIR);
+        }
+        if (cacheDirStr == null) {
+            cacheDirStr = System.getProperty("user.home") + "/cache";
+        }
+        Path cacheDir = Paths.get(cacheDirStr);
 
+        boolean pathExists = Files.exists(cacheDir, LinkOption.NOFOLLOW_LINKS);
+
+        if (!pathExists) {
+            Files.createDirectory(cacheDir);
+        } else {
+            if (!Files.isDirectory(cacheDir)) {
+                throw new IOException("Cache Directory specified is not a directory " + cacheDirStr);
+            }
+            if (!Files.isWritable(cacheDir)) {
+                throw new IOException("Cache Directory specified is not writable " + cacheDirStr);
+            }
+        }
+
+        return cacheDirStr;
+    }
 }

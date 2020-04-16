@@ -25,9 +25,6 @@ public class AddPatchEntry extends CacheOperation {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(AddPatchEntry.class);
 
-    public AddPatchEntry() {
-    }
-
     @Override
     public CommandResponse call() throws Exception {
 
@@ -71,12 +68,12 @@ public class AddPatchEntry extends CacheOperation {
         //    key = key.substring(0, lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
         //}
         logger.info("adding key " + key);
-        if (cacheStore.getValueFromCache(key) != null) {
+        if (cache().getValueFromCache(key) != null) {
             String error = String.format("Cache key %s already exists, remove it first", key);
             logger.severe(error);
             throw new IllegalArgumentException(error);
         }
-        cacheStore.addToCache(key, location.toAbsolutePath().toString());
+        cache().addToCache(key, location.toAbsolutePath().toString());
         String msg = String.format("Added Patch entry %s=%s for %s", key, location.toAbsolutePath(), type);
         logger.info(msg);
         return new CommandResponse(0, msg);

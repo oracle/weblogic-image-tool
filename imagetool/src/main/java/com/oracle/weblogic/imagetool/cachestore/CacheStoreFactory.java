@@ -5,20 +5,40 @@ package com.oracle.weblogic.imagetool.cachestore;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import com.oracle.weblogic.imagetool.util.Constants;
 
-public class CacheStoreFactory implements Supplier<CacheStore> {
+/**
+ * Provides access to a Cache Store.
+ */
+public class CacheStoreFactory {
 
-    private static final Map<String, CacheStore> cashStoreMap = new HashMap<>();
+    private static CacheStoreFactory factory;
 
-    static {
-        cashStoreMap.put(Constants.FILE_CACHE, FileCacheStore.CACHE_STORE);
+    private Map<String, CacheStore> stores;
+
+    private CacheStoreFactory() {
+        stores = new HashMap<>();
+        stores.put(Constants.FILE_CACHE, new FileCacheStore());
     }
 
-    @Override
-    public CacheStore get() {
-        return FileCacheStore.CACHE_STORE;
+    /**
+     * Get the default file store cache.
+     * @return the cached instance of the file cache.
+     */
+    public CacheStore defaultStore() {
+        return stores.get(Constants.FILE_CACHE);
+    }
+
+    /**
+     * Get the default cache store.
+     * @return the cached instance of the file cache store
+     */
+    public static CacheStore get() {
+        if (factory == null) {
+            factory = new CacheStoreFactory();
+        }
+
+        return factory.defaultStore();
     }
 }

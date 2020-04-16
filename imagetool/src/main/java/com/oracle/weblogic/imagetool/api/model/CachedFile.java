@@ -112,7 +112,10 @@ public class CachedFile {
         try {
             result = Files.copy(Paths.get(sourceFile), Paths.get(buildContextDir, targetFilename));
         } catch (Exception ee) {
-            ee.printStackTrace();
+            String msg = Utils.getMessage("IMG-0064", sourceFile, buildContextDir);
+            logger.severe(msg);
+            logger.fine(msg, ee);
+            throw ee;
         }
         logger.exiting(result);
         return result;

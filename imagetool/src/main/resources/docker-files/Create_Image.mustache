@@ -54,7 +54,8 @@ USER {{userid}}
 
 RUN tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01 \
  && mv /u01/jdk* {{{java_home}}} \
- && rm -rf {{{tempDir}}}
+ && rm -rf {{{tempDir}}} \
+ && rm -f {{{java_home}}}/javafx-src.zip {{{java_home}}}/src.zip
 
 {{#afterJdkInstall}}
     {{{.}}}

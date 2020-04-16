@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -742,7 +743,7 @@ public class DockerfileOptions {
 
     private List<String> getAdditionalCommandsForSection(String sectionName) {
         if (additionalBuildCommands == null) {
-            return null;
+            return Collections.emptyList();
         }
         return additionalBuildCommands.get(sectionName);
     }

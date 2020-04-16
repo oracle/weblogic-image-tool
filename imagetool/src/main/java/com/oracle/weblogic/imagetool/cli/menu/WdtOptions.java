@@ -25,7 +25,7 @@ import picocli.CommandLine.Option;
 public class WdtOptions {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(WdtOptions.class);
-    protected CacheStore cacheStore = new CacheStoreFactory().get();
+    protected CacheStore cacheStore = CacheStoreFactory.get();
 
     /**
      * Checks whether the user requested a domain to be created with WDT.

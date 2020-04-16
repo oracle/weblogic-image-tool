@@ -33,7 +33,7 @@ import picocli.CommandLine.Unmatched;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
-    protected CacheStore cacheStore = new CacheStoreFactory().get();
+    protected CacheStore cacheStore = CacheStoreFactory.get();
     DockerfileOptions dockerfileOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;

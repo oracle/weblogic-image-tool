@@ -16,7 +16,15 @@ import picocli.CommandLine.Unmatched;
 
 public abstract class CacheOperation implements Callable<CommandResponse> {
 
-    protected CacheStore cacheStore = new CacheStoreFactory().get();
+    private CacheStore cacheStore;
+
+    CacheStore cache() {
+        if (cacheStore == null) {
+            cacheStore = CacheStoreFactory.get();
+        }
+
+        return cacheStore;
+    }
 
     @Unmatched
     List<String> unmatchedOptions = new ArrayList<>();

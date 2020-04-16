@@ -219,7 +219,7 @@ public class PatchFile extends CachedFile {
             // if the patchVersion is specified, narrow the list of patches with the value of patchVersion
             String patchXpath = "string(/results/patch";
             if (patchVersion != null) {
-                patchXpath = String.format(patchXpath + "[release[@name='%s']]", patchVersion);
+                patchXpath = String.format("%s[release[@name='%s']]", patchXpath, patchVersion);
             } else {
                 String actualVersion = applyXpath(aruInfo, "string(/results/patch/release/@name)");
                 if (Utils.compareVersions(getVersion(), actualVersion) != 0) {

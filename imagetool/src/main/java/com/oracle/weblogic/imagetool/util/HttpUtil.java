@@ -163,7 +163,7 @@ public class HttpUtil {
                     logger.warning("Connect failed, retrying in 10 seconds, attempts={0} ", executionCount);
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
-                    //continue
+                    Thread.currentThread().interrupt();
                 }
                 return true;
             } else {
