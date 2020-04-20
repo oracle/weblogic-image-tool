@@ -1,7 +1,7 @@
-// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
+// Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.integration;
+package com.oracle.weblogic.imagetool.tests;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -9,8 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
-import com.oracle.weblogic.imagetool.integration.utils.ExecCommand;
-import com.oracle.weblogic.imagetool.integration.utils.ExecResult;
+import com.oracle.weblogic.imagetool.tests.utils.ExecCommand;
+import com.oracle.weblogic.imagetool.tests.utils.ExecResult;
 
 public class BaseTest {
 
@@ -34,19 +34,33 @@ public class BaseTest {
     protected static String build_tag = "";
     protected static final String WDT_MODEL1 = "simple-topology1.yaml";
 
+    /**
+     * Get the named property from system environment or Java system property.
+     * If the property is defined in the Environment, that value will take precedence over
+     * Java properties.
+     *
+     * @param name the name of the environment variable, or Java property
+     * @return the value defined in the env or system property
+     */
+    public static String getEnvironmentProperty(String name) {
+        String result = System.getenv(name);
+        if (result == null || result.isEmpty()) {
+            result = System.getProperty(name);
+        }
+        return result;
+    }
+
     protected static void initialize() throws Exception {
         logger.info("Initializing the tests ...");
 
         projectRoot = System.getProperty("user.dir");
 
-        if (System.getenv("WLSIMG_BLDDIR") != null) {
-            wlsImgBldDir = System.getenv("WLSIMG_BLDDIR");
-        } else {
+        wlsImgBldDir = getEnvironmentProperty("WLSIMG_BLDDIR");
+        if (wlsImgBldDir == null) {
             wlsImgBldDir = System.getenv("HOME");
         }
-        if (System.getenv("WLSIMG_CACHEDIR") != null) {
-            wlsImgCacheDir = System.getenv("WLSIMG_CACHEDIR");
-        } else {
+        wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
+        if (wlsImgCacheDir == null) {
             wlsImgCacheDir = System.getenv("HOME") + FS + "cache";
         }
 
@@ -58,13 +72,14 @@ public class BaseTest {
         if (build_tag != null) {
             build_tag = build_tag.toLowerCase();
         } else {
-            build_tag = "imagetool";
+            build_tag = "imagetoolTest";
         }
         dbContainerName = "InfraDB4" + build_tag;
         logger.info("DEBUG: build_tag=" + build_tag);
         logger.info("DEBUG: WLSIMG_BLDDIR=" + wlsImgBldDir);
         logger.info("DEBUG: WLSIMG_CACHEDIR=" + wlsImgCacheDir);
         logger.info("DEBUG: imagetool=" + imagetool);
+        throw new IllegalArgumentException("STOP NOW");
     }
 
     protected static void setup() throws Exception {

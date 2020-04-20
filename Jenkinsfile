@@ -9,8 +9,8 @@ pipeline {
     }
 
     environment {
-        WLSIMG_BLDDIR = "${env.WORKSPACE}/imagetool/target/build"
-        WLSIMG_CACHEDIR = "${env.WORKSPACE}/imagetool/target/cache"
+        WLSIMG_BLDDIR = "${env.WORKSPACE}/tests/target/build"
+        WLSIMG_CACHEDIR = "${env.WORKSPACE}/tests/target/cache"
     }
 
     stages {

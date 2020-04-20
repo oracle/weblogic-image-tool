@@ -11,7 +11,7 @@
     <version>1.8.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>WebLogic Image Tool (parent)</name>
+    <name>WebLogic Image Tool</name>
     <description>Build Docker images with a specific WebLogic install and Java version.</description>
     <url>https://github.com/oracle/weblogic-image-tool</url>
     <inceptionYear>2019</inceptionYear>
@@ -35,13 +35,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <test.groups>unit</test.groups>
+        <aggregate.report.dir>tests/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>
     </properties>
 
     <modules>
         <module>build-tools</module>
         <module>imagetool</module>
+        <module>tests</module>
     </modules>
 
     <dependencyManagement>
@@ -117,7 +118,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin.version}</version>
+                    <version>1.6.0</version>
                     <executions>
                         <execution>
                             <id>generate-autocompletion-script</id>
@@ -233,14 +234,38 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M4</version>
+                    <version>2.22.2</version>
                     <configuration>
                         <groups>${test.groups}</groups>
                         <excludedGroups>slow,failing</excludedGroups>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
