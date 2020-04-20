@@ -8,23 +8,11 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
 
 public abstract class CacheOperation implements Callable<CommandResponse> {
-
-    private CacheStore cacheStore;
-
-    CacheStore cache() {
-        if (cacheStore == null) {
-            cacheStore = CacheStoreFactory.get();
-        }
-
-        return cacheStore;
-    }
 
     @Unmatched
     List<String> unmatchedOptions = new ArrayList<>();

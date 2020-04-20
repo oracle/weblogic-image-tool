@@ -8,10 +8,13 @@ import java.nio.file.Path;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 @Command(
         name = "addInstaller",
@@ -21,7 +24,7 @@ import picocli.CommandLine.Option;
 public class AddInstallerEntry extends CacheOperation {
 
     @Override
-    public CommandResponse call() {
+    public CommandResponse call() throws CacheStoreException {
         if (location != null && Files.isRegularFile(location) && !Utils.isEmptyString(version)) {
             String key = String.format("%s%s%s", type, CacheStore.CACHE_KEY_SEPARATOR, version);
             if (cache().getValueFromCache(key) != null) {

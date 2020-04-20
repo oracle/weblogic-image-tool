@@ -31,7 +31,7 @@ public class FileCacheStore implements CacheStore {
     private final Properties properties = new Properties();
     private String metadataPath;
 
-    FileCacheStore() {
+    FileCacheStore() throws CacheStoreException {
         try {
             String userCacheDir = initCacheDir();
             metadataPath = userCacheDir + File.separator + Constants.DEFAULT_META_FILE;
@@ -53,8 +53,10 @@ public class FileCacheStore implements CacheStore {
                 throw new IOException("Failed to create cache directory: " + cacheDir.getName());
             }
         } catch (IOException e) {
-            logger.severe("Failed to establish a cache store on the filesystem", e);
-            System.exit(-1);
+            CacheStoreException error =
+                new CacheStoreException("Failed to establish a cache store on the filesystem", e);
+            logger.throwing(error);
+            throw error;
         }
     }
 
@@ -78,15 +80,15 @@ public class FileCacheStore implements CacheStore {
     }
 
     @Override
-    public boolean addToCache(String key, String value) {
+    public void addToCache(String key, String value) throws CacheStoreException {
         Objects.requireNonNull(key, "key cannot be null");
         Objects.requireNonNull(value, "Cache item value cannot be null");
         properties.put(key.toLowerCase(), value);
-        return persistToDisk();
+        persistToDisk();
     }
 
     @Override
-    public String deleteFromCache(String key) {
+    public String deleteFromCache(String key) throws CacheStoreException {
         Objects.requireNonNull(key, "key cannot be null");
         if (Constants.CACHE_DIR_KEY.equalsIgnoreCase(key)) {
             return properties.getProperty(Constants.CACHE_DIR_KEY, null);
@@ -99,6 +101,17 @@ public class FileCacheStore implements CacheStore {
     }
 
     @Override
+    public void clearCache() throws CacheStoreException {
+        // remove all cache entries except the cache directory
+        for (Object key: properties.keySet()) {
+            if (!key.equals(Constants.CACHE_DIR_KEY)) {
+                properties.remove(key);
+            }
+        }
+        persistToDisk();
+    }
+
+    @Override
     public Map<String, String> getCacheItems() {
         Stream<Map.Entry<Object, Object>> stream = properties.entrySet().stream();
         return stream.collect(Collectors.toMap(
@@ -106,19 +119,18 @@ public class FileCacheStore implements CacheStore {
             e -> String.valueOf(e.getValue())));
     }
 
-    private boolean persistToDisk() {
+    private void persistToDisk() throws CacheStoreException {
         logger.entering();
-        boolean retVal = true;
         synchronized (properties) {
             try (FileOutputStream outputStream = new FileOutputStream(metadataPath)) {
                 properties.store(outputStream, "changed on:" + LocalDateTime.now());
             } catch (IOException e) {
-                retVal = false;
-                logger.fine("Could not persist cache file", e);
+                CacheStoreException error = new CacheStoreException("Could not persist cache file", e);
+                logger.throwing(error);
+                throw error;
             }
         }
-        logger.exiting(retVal);
-        return retVal;
+        logger.exiting();
     }
 
     private void loadProperties(File propsFile) {

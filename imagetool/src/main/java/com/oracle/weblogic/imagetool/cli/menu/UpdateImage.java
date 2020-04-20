@@ -26,6 +26,8 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
+
 @Command(
     name = "update",
     description = "Update an existing docker image that was previously created with the image tool",
@@ -82,8 +84,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 String userId = getUserId();
                 String password = getPassword();
 
-                OPatchFile opatchFile = new OPatchFile(opatchBugNumber, userId, password, cacheStore);
-                String opatchFilePath = opatchFile.resolve(cacheStore);
+                OPatchFile opatchFile = new OPatchFile(opatchBugNumber, userId, password, cache());
+                String opatchFilePath = opatchFile.resolve(cache());
 
                 // if there is a newer version of OPatch than contained in the image, update OPatch
                 if (Utils.compareVersions(opatchVersion, opatchFile.getVersion()) < 0) {

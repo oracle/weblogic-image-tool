@@ -27,6 +27,8 @@ import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
+
 @Command(
     name = "rebase",
     description = "Copy domain from one image to another",
@@ -122,12 +124,12 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
 
                 CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
-                Path installerPath = jdk.copyFile(cacheStore, tmpDir);
+                Path installerPath = jdk.copyFile(cache(), tmpDir);
                 dockerfileOptions.setJavaInstaller(installerPath.getFileName().toString());
 
                 MiddlewareInstall install =
                     new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
-                install.copyFiles(cacheStore, tmpDir);
+                install.copyFiles(cache(), tmpDir);
                 dockerfileOptions.setMiddlewareInstall(install);
 
                 // resolve required patches

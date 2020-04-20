@@ -3,42 +3,26 @@
 
 package com.oracle.weblogic.imagetool.cachestore;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.oracle.weblogic.imagetool.util.Constants;
-
 /**
  * Provides access to a Cache Store.
  */
 public class CacheStoreFactory {
 
-    private static CacheStoreFactory factory;
-
-    private Map<String, CacheStore> stores;
+    private static CacheStore store;
 
     private CacheStoreFactory() {
-        stores = new HashMap<>();
-        stores.put(Constants.FILE_CACHE, new FileCacheStore());
+        // hidden constructor
     }
 
     /**
-     * Get the default file store cache.
-     * @return the cached instance of the file cache.
-     */
-    public CacheStore defaultStore() {
-        return stores.get(Constants.FILE_CACHE);
-    }
-
-    /**
-     * Get the default cache store.
+     * Get the cache store.
      * @return the cached instance of the file cache store
      */
-    public static CacheStore get() {
-        if (factory == null) {
-            factory = new CacheStoreFactory();
+    public static CacheStore cache() throws CacheStoreException {
+        if (store == null) {
+            store = new FileCacheStore();
         }
 
-        return factory.defaultStore();
+        return store;
     }
 }

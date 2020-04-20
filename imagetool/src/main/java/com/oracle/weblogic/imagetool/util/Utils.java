@@ -384,7 +384,7 @@ public class Utils {
      * Defaults to YUM.  Known OS's include: ubuntu, debian, opensuse, centos, ol, and rhel.
      *
      * @param osID identifier for the OS, like ubuntu, debian, rhel, ol, ...
-     * @return
+     * @return the package manager
      */
     public static String getPackageMgrStr(String osID) {
         String retVal = Constants.YUM;
@@ -526,12 +526,28 @@ public class Utils {
     }
 
     /**
+     * Get the named property from system environment or Java system property.
+     * If the property is defined in the Environment, that value will take precedence over
+     * Java properties.
+     *
+     * @param name the name of the environment variable, or Java property
+     * @return the value defined in the env or system property
+     */
+    public static String getEnvironmentProperty(String name) {
+        String result = System.getenv(name);
+        if (isEmptyString(result)) {
+            result = System.getProperty(name);
+        }
+        return result;
+    }
+
+    /**
      * returns the working dir for docker build.
      *
      * @return working directory
      */
     public static String getBuildWorkingDir() throws IOException {
-        String workingDir = System.getenv("WLSIMG_BLDDIR");
+        String workingDir = getEnvironmentProperty("WLSIMG_BLDDIR");
         if (workingDir == null) {
             workingDir = System.getProperty("user.home");
         }

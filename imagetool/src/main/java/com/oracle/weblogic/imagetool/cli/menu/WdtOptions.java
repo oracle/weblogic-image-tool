@@ -12,8 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -22,10 +20,11 @@ import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
+
 public class WdtOptions {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(WdtOptions.class);
-    protected CacheStore cacheStore = CacheStoreFactory.get();
 
     /**
      * Checks whether the user requested a domain to be created with WDT.
@@ -78,7 +77,7 @@ public class WdtOptions {
         dockerfileOptions.setWdtStrictValidation(wdtStrictValidation);
 
         CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
-        Path wdtfile = wdtInstaller.copyFile(cacheStore, tmpDir);
+        Path wdtfile = wdtInstaller.copyFile(cache(), tmpDir);
         dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
 
         logger.exiting();

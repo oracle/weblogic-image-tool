@@ -45,9 +45,8 @@ public interface CacheStore {
      *
      * @param key   artifact identifier
      * @param value a file path
-     * @return true if add is successful
      */
-    boolean addToCache(String key, String value);
+    void addToCache(String key, String value) throws CacheStoreException;
 
     /**
      * Delete an entry from the cache.
@@ -55,7 +54,12 @@ public interface CacheStore {
      * @param key key corresponding to an entry in the cache
      * @return value or null
      */
-    String deleteFromCache(String key);
+    String deleteFromCache(String key) throws CacheStoreException;
+
+    /**
+     * Delete all entries from the cache.
+     */
+    void clearCache() throws CacheStoreException;
 
     /**
      * Returns a map of current items in the cache.
