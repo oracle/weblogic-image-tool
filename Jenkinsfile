@@ -49,7 +49,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'imagetool/target/failsafe-reports/*.xml'
+                    junit 'tests/target/failsafe-reports/*.xml'
                 }
             }
         }
