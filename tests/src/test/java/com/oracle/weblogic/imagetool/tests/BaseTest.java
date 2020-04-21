@@ -79,7 +79,6 @@ public class BaseTest {
         logger.info("DEBUG: WLSIMG_BLDDIR=" + wlsImgBldDir);
         logger.info("DEBUG: WLSIMG_CACHEDIR=" + wlsImgCacheDir);
         logger.info("DEBUG: imagetool=" + imagetool);
-        throw new IllegalArgumentException("STOP NOW");
     }
 
     protected static void setup() throws Exception {
