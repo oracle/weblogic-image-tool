@@ -46,6 +46,7 @@
                 <executions>
                     <execution>
                         <id>enforce-build-environment</id>
+                        <phase>verify</phase>
                         <goals>
                             <goal>enforce</goal>
                         </goals>
