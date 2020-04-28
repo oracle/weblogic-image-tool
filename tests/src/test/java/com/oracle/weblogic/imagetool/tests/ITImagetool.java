@@ -250,15 +250,16 @@ class ITImagetool extends BaseTest {
         addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
         ExecResult resultT = listItemsInCache();
 
+        String versionTag = "test8img";
         String command = imagetool + " create --jdkVersion " + JDK_VERSION + " --fromImage "
-            + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
+            + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + versionTag
             + " --version " + WLS_VERSION;
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
         verifyExitValue(result, command);
 
         // verify the docker image is created
-        verifyDockerImages(testMethodName);
+        verifyDockerImages(versionTag);
 
         logTestEnd(testMethodName);
     }
@@ -276,7 +277,7 @@ class ITImagetool extends BaseTest {
 
         ExecResult resultT = listItemsInCache();
 
-        String command = imagetool + " update --fromImage " + build_tag + ":test8CreateWLSImgUseCache --tag "
+        String command = imagetool + " update --fromImage " + build_tag + ":test8img --tag "
             + build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
