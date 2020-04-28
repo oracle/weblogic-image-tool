@@ -13,6 +13,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -103,7 +104,7 @@ public class FileCacheStore implements CacheStore {
     @Override
     public void clearCache() throws CacheStoreException {
         // remove all cache entries except the cache directory
-        for (Object key: properties.keySet()) {
+        for (Object key: new HashSet<>(properties.keySet())) {
             if (!key.equals(Constants.CACHE_DIR_KEY)) {
                 properties.remove(key);
             }

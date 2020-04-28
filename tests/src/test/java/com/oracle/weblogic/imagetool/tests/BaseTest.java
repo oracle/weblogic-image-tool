@@ -7,6 +7,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import com.oracle.weblogic.imagetool.tests.utils.ExecCommand;
@@ -15,7 +17,6 @@ import com.oracle.weblogic.imagetool.tests.utils.ExecResult;
 public class BaseTest {
 
     protected static final Logger logger = Logger.getLogger(ITImagetool.class.getName());
-    protected static final String PS = File.pathSeparator;
     protected static final String FS = File.separator;
     protected static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
@@ -23,14 +24,12 @@ public class BaseTest {
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     protected static String dbContainerName = "";
     private static String projectRoot = "";
-    protected static String wlsImgBldDir = "";
-    protected static String wlsImgCacheDir = "";
-    protected static String imagetool = "";
-    private static int maxIterations = 50;
-    private static int waitTime = 5;
-    private static final String IMAGETOOLZIPFILE = "imagetool.zip";
-    private static final String IMAGETOOLDIR = "imagetool";
-    private static final String INSTALLERCACHEDIR = "/scratch/artifacts/imagetool";
+    protected static final String wlsImgBldDir = getEnvironmentProperty("WLSIMG_BLDDIR");
+    protected static final String wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
+    protected static String imagetool;
+    private static final String IMAGETOOLDIR = "installers/imagetool";
+    // STAGING_DIR - directory where JDK and other installers are pre-staged before testing
+    private static final String STAGING_DIR = getEnvironmentProperty("STAGING_DIR");
     protected static String build_tag = "";
     protected static final String WDT_MODEL1 = "simple-topology1.yaml";
 
@@ -50,110 +49,93 @@ public class BaseTest {
         return result;
     }
 
-    protected static void initialize() throws Exception {
+    protected static void validateEnvironmentSettings() throws Exception {
         logger.info("Initializing the tests ...");
 
         projectRoot = System.getProperty("user.dir");
 
-        wlsImgBldDir = getEnvironmentProperty("WLSIMG_BLDDIR");
-        if (wlsImgBldDir == null) {
-            wlsImgBldDir = System.getenv("HOME");
-        }
-        wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
-        if (wlsImgCacheDir == null) {
-            wlsImgCacheDir = System.getenv("HOME") + FS + "cache";
+        List<String> missingSettings = new ArrayList<>();
+        if (wlsImgBldDir == null || wlsImgBldDir.isEmpty()) {
+            missingSettings.add("WLSIMG_BLDDIR");
         }
 
-        imagetool = "java -cp \"" + getImagetoolHome() + FS + "lib" + FS + "*\" -Djava.util.logging.config.file="
-            + getImagetoolHome() + FS + "bin" + FS + "logging.properties com.oracle.weblogic.imagetool.cli.ImageTool";
+        if (wlsImgCacheDir == null || wlsImgCacheDir.isEmpty()) {
+            missingSettings.add("WLSIMG_CACHEDIR");
+        }
+
+        if (STAGING_DIR == null || STAGING_DIR.isEmpty()) {
+            missingSettings.add("STAGING_DIR");
+        }
+
+        if (missingSettings.size() > 0) {
+            String error = String.join(", ", missingSettings)
+                + " must be set as a system property or ENV variable";
+            throw new IllegalArgumentException(error);
+        }
+
+        imagetool = getImagetoolHome() + FS + "bin" + FS + "imagetool.sh";
 
         // get the build tag from Jenkins build environment variable BUILD_TAG
         build_tag = System.getenv("BUILD_TAG");
         if (build_tag != null) {
             build_tag = build_tag.toLowerCase();
         } else {
-            build_tag = "imagetoolTest";
+            build_tag = "imagetool-itest";
         }
         dbContainerName = "InfraDB4" + build_tag;
-        logger.info("DEBUG: build_tag=" + build_tag);
-        logger.info("DEBUG: WLSIMG_BLDDIR=" + wlsImgBldDir);
-        logger.info("DEBUG: WLSIMG_CACHEDIR=" + wlsImgCacheDir);
-        logger.info("DEBUG: imagetool=" + imagetool);
+        logger.info("build_tag = " + build_tag);
+        logger.info("WLSIMG_BLDDIR = " + wlsImgBldDir);
+        logger.info("WLSIMG_CACHEDIR = " + wlsImgCacheDir);
+        logger.info("imagetool script = " + imagetool);
     }
 
-    protected static void setup() throws Exception {
+    protected static void setup() {
 
         logger.info("Setting up the test environment ...");
-        String command = "rm -rf " + getImagetoolHome();
-        executeNoVerify(command);
-
-        // unzip the weblogic-image-tool/imagetool/target/imagetool.zip
-        command = "unzip " + getTargetDir() + FS + IMAGETOOLZIPFILE + " -d " + getTargetDir();
-        executeNoVerify(command);
-
-        command = "source " + getImagetoolHome() + FS + "bin" + FS + "setup.sh";
-        executeNoVerify(command);
 
         if (!(new File(wlsImgBldDir)).exists()) {
             logger.info(wlsImgBldDir + " does not exist, creating it");
-            (new File(wlsImgBldDir)).mkdir();
+            if (!(new File(wlsImgBldDir)).mkdir()) {
+                throw new IllegalStateException("Unable to create build directory " + wlsImgBldDir);
+            }
         }
     }
 
     protected static void cleanup() throws Exception {
         logger.info("cleaning up the test environment ...");
-        String command = "rm -rf " + wlsImgCacheDir;
-        executeNoVerify(command);
-
-        command = "mkdir " + wlsImgCacheDir;
-        executeNoVerify(command);
 
         // clean up the db container
-        command = "docker rm -f -v " + dbContainerName;
+        String command = "docker rm -f -v " + dbContainerName;
         executeNoVerify(command);
 
         // clean up the images created in the tests
-        command = "docker rmi -f $(docker images | grep " + build_tag + " | tr -s ' ' | cut -d ' ' -f 3)";
-        executeNoVerify(command);
-
-        // clean up the possible left over wlsimgbuilder_temp*
-        command = "rm -rf " + wlsImgBldDir + FS + "wlsimgbuilder_temp*";
-        executeNoVerify(command);
-        command = "rm -rf " + wlsImgBldDir + FS + WDT_MODEL1;
+        command = "docker rmi -f $(docker images -q '" + build_tag + "' | uniq)";
         executeNoVerify(command);
     }
 
-    protected static void pullBaseOSDockerImage() throws Exception {
+    protected static void pullBaseOsDockerImage() throws Exception {
         logger.info("Pulling OS base images from OCIR ...");
         pullDockerImage(BASE_OS_IMG, BASE_OS_IMG_TAG);
     }
 
-    protected static void pullOracleDBDockerImage() throws Exception {
+    protected static void pullOracleDbDockerImage() throws Exception {
         logger.info("Pulling Oracle DB image from OCIR ...");
         pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
     }
 
-    protected static void downloadInstallers(String... installers) throws Exception {
-        // create the cache dir for downloading installers if not exists
-        File cacheDir = new File(getInstallerCacheDir());
-        if (!cacheDir.exists()) {
-            cacheDir.mkdir();
-        }
-
-        boolean missingInstaller = false;
-        StringBuffer errorMsg = new StringBuffer();
-        errorMsg.append("The test installers are missing. Please download: \n");
-        // check the required installer is downloaded
+    static void verifyStagedFiles(String... installers) {
+        // determine if any of the required installers are missing from the stage directory
+        List<String> missingInstallers = new ArrayList<>();
         for (String installer : installers) {
-            File installFile = new File(getInstallerCacheDir() + FS + installer);
+            File installFile = new File(getStagingDir() + FS + installer);
             if (!installFile.exists()) {
-                missingInstaller = true;
-                errorMsg.append("    " + installer + "\n");
+                missingInstallers.add(installer);
             }
         }
-        errorMsg.append("and put them in " + getInstallerCacheDir());
-        if (missingInstaller) {
-            throw new Exception(errorMsg.toString());
+        if (missingInstallers.size() > 0) {
+            String error = "Could not find these installers in the staging directory: " + getStagingDir() + "\n   ";
+            error += String.join("\n   ", missingInstallers);
+            throw new IllegalStateException(error);
         }
     }
 
@@ -165,20 +147,19 @@ public class BaseTest {
         return getProjectRoot() + FS + "target";
     }
 
-    protected static String getImagetoolHome() throws Exception {
-
+    protected static String getImagetoolHome() {
         return getTargetDir() + FS + IMAGETOOLDIR;
     }
 
-    protected static String getInstallerCacheDir() {
-        return INSTALLERCACHEDIR;
+    protected static String getStagingDir() {
+        return STAGING_DIR;
     }
 
-    protected static String getWDTResourcePath() {
+    protected static String getWdtResourcePath() {
         return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "wdt";
     }
 
-    protected static String getABCResourcePath() {
+    protected static String getAbcResourcePath() {
         return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "additionalBuildCommands";
     }
 
@@ -195,8 +176,7 @@ public class BaseTest {
 
     protected void verifyExitValue(ExecResult result, String command) throws Exception {
         if (result.exitValue() != 0) {
-            logger.info("DEBUG: result.exitValue=" + result.exitValue());
-            logger.info("DEBUG: result.stderr=" + result.stderr());
+            logger.info("ERROR: result.exitValue=" + result.exitValue());
             throw new Exception("executing the following command failed: " + command);
         }
     }
@@ -216,8 +196,6 @@ public class BaseTest {
         logger.info("executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
         if (!result.stdout().contains(expectedContent)) {
-            logger.info("DEBUG: result.stdout=" + result.stdout());
-            logger.info("DEBUG: result.stderr=" + result.stderr());
             throw new Exception("The image " + imagename + " does not have the expected file content: "
                 + expectedContent);
         }
@@ -231,19 +209,19 @@ public class BaseTest {
         }
     }
 
-    protected void logTestBegin(String testMethodName) throws Exception {
+    protected void logTestBegin(String testMethodName) {
         logger.info("=======================================");
         logger.info("BEGIN test " + testMethodName + " ...");
     }
 
-    protected void logTestEnd(String testMethodName) throws Exception {
+    protected void logTestEnd(String testMethodName) {
         logger.info("SUCCESS - " + testMethodName);
         logger.info("=======================================");
     }
 
     protected ExecResult listItemsInCache() throws Exception {
         String command = imagetool + " cache listItems";
-        return executeAndVerify(command, false);
+        return executeAndVerify(command, true);
     }
 
     protected ExecResult addInstallerToCache(String type, String version, String path) throws Exception {
@@ -268,9 +246,9 @@ public class BaseTest {
         return executeAndVerify(command, false);
     }
 
-    protected ExecResult buildWDTArchive() throws Exception {
+    protected ExecResult buildWdtArchive() throws Exception {
         logger.info("Building WDT archive ...");
-        String command = "sh " + getWDTResourcePath() + FS + "build-archive.sh";
+        String command = "sh " + getWdtResourcePath() + FS + "build-archive.sh";
         return executeAndVerify(command, true);
     }
 
@@ -300,7 +278,7 @@ public class BaseTest {
 
     private ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {
         logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command, isRedirectToOut);
+        ExecResult result = ExecCommand.exec(command);
         verifyExitValue(result, command);
         logger.info(result.stdout());
         return result;
@@ -308,7 +286,9 @@ public class BaseTest {
 
     private static void pullDockerImage(String imagename, String imagetag) throws Exception {
 
-        ExecCommand.exec("docker pull " + imagename + ":" + imagetag);
+        String pullCommand = "docker pull " + imagename + ":" + imagetag;
+        logger.info(pullCommand);
+        ExecResult pullResult = ExecCommand.exec(pullCommand);
 
         // verify the docker image is pulled
         ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep "
@@ -320,8 +300,9 @@ public class BaseTest {
         }
     }
 
-    private static void checkCmdInLoop(String cmd, String matchStr)
-            throws Exception {
+    private static void checkCmdInLoop(String cmd, String matchStr) throws Exception {
+        final int maxIterations = 50;
+
         int i = 0;
         while (i < maxIterations) {
             ExecResult result = ExecCommand.exec(cmd);
@@ -329,12 +310,12 @@ public class BaseTest {
             // pod might not have been created or if created loop till condition
             if (result.exitValue() != 0
                     || (result.exitValue() == 0 && !result.stdout().contains(matchStr))) {
-                logger.info("Output for " + cmd + "\n" + result.stdout() + "\n " + result.stderr());
                 // check for last iteration
                 if (i == (maxIterations - 1)) {
                     throw new RuntimeException(
                             "FAILURE: " + cmd + " does not return the expected string " + matchStr + ", exiting!");
                 }
+                final int waitTime = 5;
                 logger.info(
                         "Waiting for the expected String " + matchStr
                                 + ": Ite ["

@@ -9,12 +9,10 @@ package com.oracle.weblogic.imagetool.tests.utils;
 public class ExecResult {
     private int exitValue;
     private String stdout;
-    private String stderr;
 
-    public ExecResult(int exitValue, String stdout, String stderr) throws Exception {
+    public ExecResult(int exitValue, String stdout) {
         this.exitValue = exitValue;
         this.stdout = stdout;
-        this.stderr = stderr;
     }
 
     public int exitValue() {
@@ -25,7 +23,4 @@ public class ExecResult {
         return this.stdout;
     }
 
-    public String stderr() {
-        return this.stderr;
-    }
 }
