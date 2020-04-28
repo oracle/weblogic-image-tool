@@ -8,6 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>imagetool</artifactId>
+    <name>Image Tool Core</name>
 
     <parent>
         <artifactId>imagetool-parent</artifactId>
@@ -116,10 +117,6 @@
                         <argument>com.oracle.weblogic.imagetool.cli.ImageTool</argument>
                     </arguments>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>flatten-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
