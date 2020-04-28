@@ -10,7 +10,7 @@
 
     <parent>
         <artifactId>imagetool-parent</artifactId>
-        <groupId>com.oracle.weblogic.lifecycle</groupId>
+        <groupId>com.oracle.weblogic.lifecycle.imagetool</groupId>
         <version>1.8.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <artifactId>imagetool</artifactId>
-            <groupId>com.oracle.weblogic.lifecycle</groupId>
+            <groupId>${project.groupId}</groupId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -73,17 +73,21 @@
             <plugin> <!-- tests module does not have a JAR (shippable source) -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
                 <executions>
                     <execution>
                         <id>default-jar</id>
-                        <phase>none</phase>
                         <configuration>
-                            <finalName>unwanted</finalName>
-                            <classifier>unwanted</classifier>
+                            <skipIfEmpty>true</skipIfEmpty>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
