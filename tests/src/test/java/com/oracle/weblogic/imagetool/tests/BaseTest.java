@@ -27,7 +27,7 @@ public class BaseTest {
     protected static final String wlsImgBldDir = getEnvironmentProperty("WLSIMG_BLDDIR");
     protected static final String wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
     protected static String imagetool;
-    private static final String IMAGETOOLDIR = "installers/imagetool";
+    private static final String IMAGETOOLDIR = "imagetool";
     // STAGING_DIR - directory where JDK and other installers are pre-staged before testing
     private static final String STAGING_DIR = getEnvironmentProperty("STAGING_DIR");
     protected static String build_tag = "";
