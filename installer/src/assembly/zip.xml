@@ -23,7 +23,7 @@
             <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
-            <directory>.</directory>
+            <directory>../</directory>
             <outputDirectory>.</outputDirectory>
             <includes>
                 <include>LICENSE.txt</include>
@@ -41,10 +41,9 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
             <unpack>false</unpack>
-            <excludes>
-                <exclude>${artifact}</exclude>
-            </excludes>
+            <scope>runtime</scope>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -111,32 +111,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>build-zip-installer</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>${installer-name}</finalName>
-                            <descriptors>
-                                <descriptor>src/assembly/zip.xml</descriptor>
-                            </descriptors>
-                            <archiveBaseDirectory>${project.basedir}</archiveBaseDirectory>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <archiverConfig>
-                                <directoryMode>0750</directoryMode>
-                                <defaultDirectoryMode>0750</defaultDirectoryMode>
-                                <fileMode>0640</fileMode>
-                            </archiverConfig>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
         </plugins>

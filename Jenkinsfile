@@ -9,8 +9,7 @@ pipeline {
     }
 
     environment {
-        WLSIMG_BLDDIR = "${env.WORKSPACE}/tests/target/build"
-        WLSIMG_CACHEDIR = "${env.WORKSPACE}/tests/target/cache"
+        STAGING_DIR = "/scratch/artifacts/imagetool"
     }
 
     stages {
@@ -44,7 +43,7 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
-                    sh 'mvn verify'
+                    sh 'mvn verify -Dtest.staging.dir=${STAGING_DIR}'
                 }
             }
             post {
