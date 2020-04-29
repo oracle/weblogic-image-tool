@@ -168,7 +168,7 @@ public class DockerBuildCommand {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.fine("Failed to create Docker log file", e);
                 logFilePath = null;
             }
         }

@@ -6,12 +6,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.oracle.weblogic.lifecycle</groupId>
+    <groupId>com.oracle.weblogic.lifecycle.imagetool</groupId>
     <artifactId>imagetool-parent</artifactId>
     <version>1.8.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>WebLogic Image Tool (parent)</name>
+    <name>WebLogic Image Tool</name>
     <description>Build Docker images with a specific WebLogic install and Java version.</description>
     <url>https://github.com/oracle/weblogic-image-tool</url>
     <inceptionYear>2019</inceptionYear>
@@ -31,17 +31,18 @@
     </scm>
 
     <properties>
-        <installer-name>imagetool</installer-name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <test.groups>unit</test.groups>
+        <aggregate.report.dir>tests/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>
     </properties>
 
     <modules>
         <module>build-tools</module>
         <module>imagetool</module>
+        <module>installer</module>
+        <module>tests</module>
     </modules>
 
     <dependencyManagement>
@@ -95,7 +96,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.1.2</version>
                     <configuration>
                         <finalName>${project.artifactId}</finalName>
                         <archive>
@@ -111,13 +112,18 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>3.0.0-M3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin.version}</version>
+                    <version>1.6.0</version>
                     <executions>
                         <execution>
                             <id>generate-autocompletion-script</id>
@@ -139,36 +145,6 @@
                             <argument>com.oracle.weblogic.imagetool.cli.ImageTool</argument>
                         </arguments>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.1.0</version>
-                    <configuration>
-                        <updatePomFile>true</updatePomFile>
-                        <pomElements>
-                            <repositories>flatten</repositories>
-                            <dependencies>remove</dependencies>
-                        </pomElements>
-                    </configuration>
-                    <executions>
-                        <!-- enable flattening -->
-                        <execution>
-                            <id>flatten</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>flatten</goal>
-                            </goals>
-                        </execution>
-                        <!-- ensure proper cleanup -->
-                        <execution>
-                            <id>flatten.clean</id>
-                            <phase>clean</phase>
-                            <goals>
-                                <goal>clean</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -219,7 +195,7 @@
                     </executions>
                     <dependencies>
                         <dependency>
-                            <groupId>com.oracle.weblogic.lifecycle</groupId>
+                            <groupId>com.oracle.weblogic.lifecycle.imagetool</groupId>
                             <artifactId>build-tools</artifactId>
                             <version>1.2</version>
                         </dependency>
@@ -233,11 +209,26 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M4</version>
+                    <version>2.22.2</version>
                     <configuration>
                         <groups>${test.groups}</groups>
                         <excludedGroups>slow,failing</excludedGroups>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0-M2</version>
                 </plugin>
             </plugins>
         </pluginManagement>

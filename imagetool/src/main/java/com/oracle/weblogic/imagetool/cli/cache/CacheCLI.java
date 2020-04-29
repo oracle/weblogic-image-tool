@@ -30,9 +30,6 @@ import picocli.CommandLine.Unmatched;
 )
 public class CacheCLI implements Callable<CommandResponse> {
 
-    public CacheCLI() {
-    }
-
     @Override
     public CommandResponse call() {
         CommandLine.usage(this, System.out);

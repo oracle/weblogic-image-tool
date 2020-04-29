@@ -3,14 +3,13 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 @Command(
         name = "deleteEntry",
@@ -18,22 +17,16 @@ import picocli.CommandLine.Option;
 )
 public class DeleteEntry extends CacheOperation {
 
-    public DeleteEntry() {
-    }
-
     @Override
-    public CommandResponse call() {
+    public CommandResponse call() throws Exception {
         if (!Utils.isEmptyString(key)) {
-            if (Constants.CACHE_DIR_KEY.equals(key.toLowerCase())) {
+            if (Constants.CACHE_DIR_KEY.equalsIgnoreCase(key)) {
                 return new CommandResponse(0, "Cannot delete key: " + key);
             } else if (Constants.DELETE_ALL_FOR_SURE.equalsIgnoreCase(key)) {
-                Map<String, String> allEntries = cacheStore.getCacheItems();
-                //allEntries.remove(CACHE_DIR_KEY);
-                Map<String, String> deletedEntries = new HashMap<>();
-                allEntries.forEach((k, v) -> deletedEntries.put(k, cacheStore.deleteFromCache(k)));
+                cache().clearCache();
                 return new CommandResponse(0, "IMG-0046");
             } else {
-                String oldValue = cacheStore.deleteFromCache(key);
+                String oldValue = cache().deleteFromCache(key);
                 if (oldValue != null) {
                     return new CommandResponse(0, "IMG-0051", key, oldValue);
                 } else {

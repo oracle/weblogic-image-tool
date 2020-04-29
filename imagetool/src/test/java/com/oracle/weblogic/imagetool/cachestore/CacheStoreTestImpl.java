@@ -35,14 +35,17 @@ public class CacheStoreTestImpl implements CacheStore {
     }
 
     @Override
-    public boolean addToCache(String key, String value) {
+    public void addToCache(String key, String value) {
         cache.put(key.toLowerCase(), value);
-        return true;
     }
 
     @Override
     public String deleteFromCache(String key) {
         return null;
+    }
+
+    @Override
+    public void clearCache() {
     }
 
     @Override

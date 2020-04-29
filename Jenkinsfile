@@ -9,8 +9,7 @@ pipeline {
     }
 
     environment {
-        WLSIMG_BLDDIR = "${env.WORKSPACE}/imagetool/target/build"
-        WLSIMG_CACHEDIR = "${env.WORKSPACE}/imagetool/target/cache"
+        STAGING_DIR = "/scratch/artifacts/imagetool"
     }
 
     stages {
@@ -25,7 +24,7 @@ pipeline {
         }
         stage ('Build') {
             steps {
-                sh 'mvn -B -DskipTests clean package'
+                sh 'mvn -B -DskipTests -DskipITs clean install'
             }
         }
         stage ('Test') {
@@ -44,12 +43,12 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
-                    sh 'mvn verify'
+                    sh 'mvn verify -Dtest.staging.dir=${STAGING_DIR}'
                 }
             }
             post {
                 always {
-                    junit 'imagetool/target/failsafe-reports/*.xml'
+                    junit 'tests/target/failsafe-reports/*.xml'
                 }
             }
         }

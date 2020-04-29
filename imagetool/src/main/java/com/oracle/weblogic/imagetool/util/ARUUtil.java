@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,6 +30,10 @@ public class ARUUtil {
 
     private static final Map<String, String> releaseNumbersMap = new HashMap<>();
     private static final LoggingFacade logger = LoggingFactory.getLogger(ARUUtil.class);
+
+    private ARUUtil() {
+        // hide constructor, usage of this class is only static utilities
+    }
 
     /**
      * Get list of PSU available for given category and release.
@@ -343,6 +348,12 @@ public class ARUUtil {
     public static Document createResultDocument(NodeList nodeList) throws IOException {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+            // Prevent XXE attacks
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
             DocumentBuilder builder = dbf.newDocumentBuilder();
             Document doc = builder.newDocument();
             Element element = doc.createElement("results");

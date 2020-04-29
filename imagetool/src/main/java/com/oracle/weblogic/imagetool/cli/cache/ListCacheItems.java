@@ -7,10 +7,13 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 @Command(
         name = "listItems",
@@ -18,12 +21,9 @@ import picocli.CommandLine.Option;
 )
 public class ListCacheItems extends CacheOperation {
 
-    public ListCacheItems() {
-    }
-
     @Override
-    public CommandResponse call() {
-        Map<String, String> resultMap = cacheStore.getCacheItems();
+    public CommandResponse call() throws CacheStoreException {
+        Map<String, String> resultMap = cache().getCacheItems();
         if (resultMap == null || resultMap.isEmpty()) {
             return new CommandResponse(0, "IMG-0047");
         } else {

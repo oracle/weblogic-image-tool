@@ -9,7 +9,6 @@ public class CommandResponse {
 
     private int status;
     private String message;
-    private Object result;
     private Object[] messageParams;
 
     /**

@@ -16,6 +16,10 @@ public class WLSInstallHelper {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(WLSInstallHelper.class);
 
+    private WLSInstallHelper() {
+        // hide constructor, usage of this class is only static utilities
+    }
+
     /**
      * Set the docker options for build if fromImage parameter is present.
      * @param fromImage  image tag

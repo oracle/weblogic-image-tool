@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
@@ -30,10 +28,10 @@ import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
-    protected CacheStore cacheStore = new CacheStoreFactory().get();
     DockerfileOptions dockerfileOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
@@ -217,7 +215,7 @@ public abstract class CommonOptions {
         ARUUtil.validatePatches(previousInventory, patchFiles, userId, password);
 
         for (PatchFile patch : patchFiles) {
-            String patchLocation = patch.resolve(cacheStore);
+            String patchLocation = patch.resolve(cache());
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File patchFile = new File(patchLocation);
                 Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
@@ -238,8 +236,8 @@ public abstract class CommonOptions {
     }
 
     void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
-        String filePath = new OPatchFile(opatchBugNumber, userId, password, cacheStore)
-            .resolve(cacheStore);
+        String filePath = new OPatchFile(opatchBugNumber, userId, password, cache())
+            .resolve(cache());
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();

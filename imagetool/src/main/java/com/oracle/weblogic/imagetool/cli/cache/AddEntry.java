@@ -4,9 +4,12 @@
 package com.oracle.weblogic.imagetool.cli.cache;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 @Command(
         name = "addEntry",
@@ -14,24 +17,18 @@ import picocli.CommandLine.Option;
 )
 public class AddEntry extends CacheOperation {
 
-    public AddEntry() {
-    }
-
     @Override
-    public CommandResponse call() {
+    public CommandResponse call() throws CacheStoreException {
         if (!Utils.isEmptyString(key) && !Utils.isEmptyString(location)) {
-            String oldValue = cacheStore.getValueFromCache(key);
+            String oldValue = cache().getValueFromCache(key);
             String msg;
             if (oldValue != null) {
                 msg = String.format("Replaced old value %s with new value %s for key %s", oldValue, location, key);
             } else {
                 msg = String.format("Added entry %s=%s", key, location);
             }
-            if (cacheStore.addToCache(key, location)) {
-                return new CommandResponse(0, msg);
-            } else {
-                return new CommandResponse(-1, "Command Failed");
-            }
+            cache().addToCache(key, location);
+            return new CommandResponse(0, msg);
         }
         return new CommandResponse(-1, "IMG-0044");
     }

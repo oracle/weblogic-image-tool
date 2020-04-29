@@ -26,6 +26,8 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
+
 @Command(
     name = "create",
     description = "Build WebLogic docker image",
@@ -56,12 +58,12 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
 
             if (dockerfileOptions.installJava()) {
                 CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
-                Path installerPath = jdk.copyFile(cacheStore, tmpDir);
+                Path installerPath = jdk.copyFile(cache(), tmpDir);
                 dockerfileOptions.setJavaInstaller(installerPath.getFileName().toString());
             }
 
             MiddlewareInstall install = new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
-            install.copyFiles(cacheStore, tmpDir);
+            install.copyFiles(cache(), tmpDir);
             dockerfileOptions.setMiddlewareInstall(install);
 
             DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);

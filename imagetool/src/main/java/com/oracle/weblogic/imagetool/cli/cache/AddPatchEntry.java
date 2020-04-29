@@ -9,12 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 @Command(
         name = "addPatch",
@@ -24,9 +27,6 @@ import picocli.CommandLine.Option;
 public class AddPatchEntry extends CacheOperation {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(AddPatchEntry.class);
-
-    public AddPatchEntry() {
-    }
 
     @Override
     public CommandResponse call() throws Exception {
@@ -60,9 +60,8 @@ public class AddPatchEntry extends CacheOperation {
      * @param patchNumber the patchId (minus the 'p') of the patch to add
      * @return CLI command response
      */
-    private CommandResponse addToCache(String patchNumber) {
+    private CommandResponse addToCache(String patchNumber) throws CacheStoreException {
         logger.info("adding key " + patchNumber);
-        String key = patchNumber;
 
         // Check if it is an Opatch patch
         //String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
@@ -70,14 +69,14 @@ public class AddPatchEntry extends CacheOperation {
         //    int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
         //    key = key.substring(0, lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
         //}
-        logger.info("adding key " + key);
-        if (cacheStore.getValueFromCache(key) != null) {
-            String error = String.format("Cache key %s already exists, remove it first", key);
+        logger.info("adding key " + patchNumber);
+        if (cache().getValueFromCache(patchNumber) != null) {
+            String error = String.format("Cache key %s already exists, remove it first", patchNumber);
             logger.severe(error);
             throw new IllegalArgumentException(error);
         }
-        cacheStore.addToCache(key, location.toAbsolutePath().toString());
-        String msg = String.format("Added Patch entry %s=%s for %s", key, location.toAbsolutePath(), type);
+        cache().addToCache(patchNumber, location.toAbsolutePath().toString());
+        String msg = String.format("Added Patch entry %s=%s for %s", patchNumber, location.toAbsolutePath(), type);
         logger.info(msg);
         return new CommandResponse(0, msg);
     }

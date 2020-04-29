@@ -52,6 +52,10 @@ public class Utils {
     @NonNls
     private static ResourceBundle bundle = ResourceBundle.getBundle("ImageTool");
 
+    private Utils() {
+        // hide constructor, usage of this class is only static utilities
+    }
+
     /**
      * Utility method to copy a resource from the jar to local file system.
      *
@@ -260,11 +264,12 @@ public class Utils {
     public static void deleteFilesRecursively(String pathDir) throws IOException {
         if (pathDir != null) {
             Path tmpDir = Paths.get(pathDir);
-            Files.walk(tmpDir)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                //.peek(System.out::println)
-                .forEach(File::delete);
+            try (Stream<Path> walk = Files.walk(tmpDir)) {
+                walk.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    //.peek(System.out::println)
+                    .forEach(File::delete);
+            }
 
             if (Files.exists(tmpDir)) {
                 logger.warning("Unable to cleanup temp directory, it is safe to remove this directory manually "
@@ -379,7 +384,7 @@ public class Utils {
      * Defaults to YUM.  Known OS's include: ubuntu, debian, opensuse, centos, ol, and rhel.
      *
      * @param osID identifier for the OS, like ubuntu, debian, rhel, ol, ...
-     * @return
+     * @return the package manager
      */
     public static String getPackageMgrStr(String osID) {
         String retVal = Constants.YUM;
@@ -521,12 +526,28 @@ public class Utils {
     }
 
     /**
+     * Get the named property from system environment or Java system property.
+     * If the property is defined in the Environment, that value will take precedence over
+     * Java properties.
+     *
+     * @param name the name of the environment variable, or Java property
+     * @return the value defined in the env or system property
+     */
+    public static String getEnvironmentProperty(String name) {
+        String result = System.getenv(name);
+        if (isEmptyString(result)) {
+            result = System.getProperty(name);
+        }
+        return result;
+    }
+
+    /**
      * returns the working dir for docker build.
      *
      * @return working directory
      */
     public static String getBuildWorkingDir() throws IOException {
-        String workingDir = System.getenv("WLSIMG_BLDDIR");
+        String workingDir = getEnvironmentProperty("WLSIMG_BLDDIR");
         if (workingDir == null) {
             workingDir = System.getProperty("user.home");
         }
@@ -546,34 +567,6 @@ public class Utils {
         }
 
         return workingDir;
-    }
-
-    /**
-     * returns the cache store directory.
-     *
-     * @return cache directory
-     */
-    public static String getCacheDir() throws IOException {
-        String cacheDir = System.getenv("WLSIMG_CACHEDIR");
-        if (cacheDir == null) {
-            cacheDir = System.getProperty("user.home") + "/cache";
-        }
-        Path path = Paths.get(cacheDir);
-
-        boolean pathExists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
-
-        if (!pathExists) {
-            Files.createDirectory(path);
-        } else {
-            if (!Files.isDirectory(path)) {
-                throw new IOException("Cache Directory specified is not a directory " + cacheDir);
-            }
-            if (!Files.isWritable(path)) {
-                throw new IOException("Cache Directory specified is not writable " + cacheDir);
-            }
-        }
-
-        return cacheDir;
     }
 
     /**
@@ -663,8 +656,7 @@ public class Utils {
         Matcher matcher = pattern.matcher("");
         logger.finer("Reading installer response file: {0}", installerResponseFile.getFileName());
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(installerResponseFile.toFile()));
+        try (BufferedReader reader = new BufferedReader(new FileReader(installerResponseFile.toFile()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 logger.finest("Read response file line: {0}", line);
@@ -701,8 +693,7 @@ public class Utils {
         Matcher matcher = pattern.matcher("");
         logger.finer("Reading inventory location file: {0}", inventoryLoc.getFileName());
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(inventoryLoc.toFile()));
+        try (BufferedReader reader = new BufferedReader(new FileReader(inventoryLoc.toFile()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 logger.finer("Read inventory loc file line: {0}", line);
