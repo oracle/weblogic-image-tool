@@ -164,7 +164,7 @@ public class FileCacheStore implements CacheStore {
             cacheDirStr = System.getProperty(CACHEDIR);
         }
         if (cacheDirStr == null) {
-            cacheDirStr = System.getProperty("user.home") + "/cache";
+            cacheDirStr = System.getProperty("user.home") + File.separator + "cache";
         }
         Path cacheDir = Paths.get(cacheDirStr);
 
