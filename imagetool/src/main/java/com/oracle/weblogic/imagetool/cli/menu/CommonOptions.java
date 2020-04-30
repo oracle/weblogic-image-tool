@@ -169,6 +169,19 @@ public abstract class CommonOptions {
     }
 
     /**
+     * Should OPatch version be updated.
+     * OPatch should be updated to the latest version available unless the user
+     * requests that OPatch should not be updated.
+     * @return true if OPatch should be updated.
+     */
+    boolean shouldUpdateOpatch() {
+        if (skipOpatchUpdate) {
+            logger.fine("OPatch update was skipped at user's request");
+        }
+        return !skipOpatchUpdate;
+    }
+
+    /**
      * Builds a list of build args to pass on to docker with the required patches.
      * Also, creates links to patches directory under build context instead of copying over.
      *
@@ -382,7 +395,13 @@ public abstract class CommonOptions {
         names = {"--pull"},
         description = "Always attempt to pull a newer version of base images during the build"
     )
-    boolean buildPull = false;
+    private boolean buildPull = false;
+
+    @Option(
+        names = {"--skipOpatchUpdate"},
+        description = "Do not update OPatch version, even if a newer version is available."
+    )
+    private boolean skipOpatchUpdate = false;
 
     @SuppressWarnings("unused")
     @Unmatched
