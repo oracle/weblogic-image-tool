@@ -4,7 +4,15 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -54,5 +62,48 @@ class UtilsTest {
         assertEquals(port, System.getProperty("http.proxyPort"));
         assertEquals(host, System.getProperty("https.proxyHost"));
         assertEquals(port, System.getProperty("https.proxyPort"));
+    }
+
+    @Test
+    void passwordResolution() throws Exception {
+
+        assertEquals("pass1",
+            Utils.getPasswordFromInputs("pass1", null, null),
+            "getPasswordFromInputs did not retrieve the password from a string");
+
+        assertEquals("pass2",
+            Utils.getPasswordFromInputs(null,
+                Paths.get("./src/test/resources/utilsTest/testPasswordFile.txt"),
+                null),
+            "getPasswordFromInputs did not retrieve the password from a file");
+
+        assertEquals("pass3",
+            Utils.getPasswordFromInputs(null, null, "TEST_ENV_PASSWORD"),
+            "getPasswordFromInputs did not retrieve the password from the environment");
+
+        assertEquals("pass2",
+            Utils.getPasswordFromInputs(null,
+                Paths.get("./src/test/resources/utilsTest/testPasswordFile.txt"),
+                "TEST_ENV_PASSWORD"),
+            "getPasswordFromInputs did not give preference to the file over the environment");
+    }
+
+    @Test
+    void oracleHomeFromResponseFile() throws Exception {
+        LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
+        Level oldLevel = logger.getLevel();
+        logger.setLevel(Level.WARNING);
+        try {
+            Path responseFile = Paths.get("./src/test/resources/utilsTest/responseFile1.txt");
+            List<Path> responseFiles = new ArrayList<>();
+            responseFiles.add(responseFile);
+            DockerfileOptions options = new DockerfileOptions("tests");
+
+            Utils.setOracleHome(responseFiles, options);
+            assertEquals("/my/oraclehomeDir", options.oracle_home(),
+                "set Oracle Home from response file failed");
+        } finally {
+            logger.setLevel(oldLevel);
+        }
     }
 }
