@@ -12,4 +12,3 @@ RUN ls -al /u01/oracle
   [ before-jdk-install ]
 RUN ls -al /tmp
 RUN ls -al /u01
-
