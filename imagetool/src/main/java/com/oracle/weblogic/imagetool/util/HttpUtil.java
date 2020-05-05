@@ -47,6 +47,10 @@ public class HttpUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(HttpUtil.class);
 
+    private HttpUtil() {
+        // utility class with static methods
+    }
+
     /**
      * Parse a string into an XML Document.
      * @param xmlString well formatted XML
@@ -61,13 +65,13 @@ public class HttpUtil {
             try {
                 factory.setXIncludeAware(false);
                 factory.setExpandEntityReferences(false);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 logger.warning("Failed to set XML factory feature: {0}", ex.getLocalizedMessage());
             }
 
             try {
                 factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 logger.warning("Failed to set FEATURE_SECURE_PROCESSING: {0}", ex.getLocalizedMessage());
             }
 

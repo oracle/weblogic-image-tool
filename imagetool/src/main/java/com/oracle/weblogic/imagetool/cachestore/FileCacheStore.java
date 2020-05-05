@@ -26,8 +26,9 @@ import com.oracle.weblogic.imagetool.util.Constants;
 
 public class FileCacheStore implements CacheStore {
 
-    private static final LoggingFacade logger = LoggingFactory.getLogger(FileCacheStore.class);
     public static final String CACHEDIR = "WLSIMG_CACHEDIR";
+    private static final LoggingFacade logger = LoggingFactory.getLogger(FileCacheStore.class);
+    private static final String KEY_NOT_NULL = "key cannot be null";
 
     private final Properties properties = new Properties();
     private String metadataPath;
@@ -68,7 +69,7 @@ public class FileCacheStore implements CacheStore {
 
     @Override
     public String getValueFromCache(String key) {
-        Objects.requireNonNull(key, "key cannot be null");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
         return properties.getProperty(key.toLowerCase());
     }
 
@@ -82,7 +83,7 @@ public class FileCacheStore implements CacheStore {
 
     @Override
     public void addToCache(String key, String value) throws CacheStoreException {
-        Objects.requireNonNull(key, "key cannot be null");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
         Objects.requireNonNull(value, "Cache item value cannot be null");
         properties.put(key.toLowerCase(), value);
         persistToDisk();
@@ -90,7 +91,7 @@ public class FileCacheStore implements CacheStore {
 
     @Override
     public String deleteFromCache(String key) throws CacheStoreException {
-        Objects.requireNonNull(key, "key cannot be null");
+        Objects.requireNonNull(key, KEY_NOT_NULL);
         if (Constants.CACHE_DIR_KEY.equalsIgnoreCase(key)) {
             return properties.getProperty(Constants.CACHE_DIR_KEY, null);
         }
