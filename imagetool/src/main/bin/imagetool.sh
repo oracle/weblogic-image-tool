@@ -26,14 +26,6 @@ else
   exit -1
 fi
 
-JVM_OUTPUT=`${JAVA_EXE} -version 2>&1`
-case "${JVM_OUTPUT}" in
-  *OpenJDK*)
-    echo "JAVA_HOME ${JAVA_HOME} contains OpenJDK, which is not supported" >&2
-    exit -1
-    ;;
-esac
-
 function read_link() {
 PREV_DIR=`pwd`
 CHASE_LINK=$1
