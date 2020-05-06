@@ -34,9 +34,9 @@ class AdditionalBuildCommandsTest {
         AdditionalBuildCommands cmds = AdditionalBuildCommands.load(getPath(filename));
         assertEquals(2, cmds.size(), "File did not have expected number of sections: " + filename);
         assertEquals(3, cmds.getSection(AdditionalBuildCommands.AFTER_FMW).size(),
-            "Wrong number of lines in AFTER_FMW section: " + filename);
-        assertEquals(3, cmds.getSection(AdditionalBuildCommands.BEFORE_JDK).size(),
-            "Wrong number of lines in BEFORE_WDT section: " + filename);
+            "Wrong number of lines in AFTER_FMW section of " + filename);
+        assertEquals(2, cmds.getSection(AdditionalBuildCommands.BEFORE_JDK).size(),
+            "Wrong number of lines in BEFORE_JDK section of " + filename);
     }
 
     @Test
