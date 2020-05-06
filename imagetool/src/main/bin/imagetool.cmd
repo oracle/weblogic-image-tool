@@ -17,11 +17,5 @@ IF EXIST %JAVA_HOME%\bin\java.exe (
   ECHO Java executable does not exist at %JAVA_HOME%\bin\java.exe does not exist >&2
   EXIT /B 2
 )
-FOR /F %%i IN ('%JAVA_EXE% -version 2^>^&1') DO (
-  IF "%%i" == "OpenJDK" (
-    ECHO JAVA_HOME %JAVA_HOME% contains OpenJDK^, which is not supported >&2
-    EXIT /B 2
-  )
-)
 SET IMAGETOOL_HOME=%~dp0%/..
 %JAVA_HOME%\bin\java -cp %IMAGETOOL_HOME%\lib\* -Djava.util.logging.config.file=%IMAGETOOL_HOME%\bin\logging.properties com.oracle.weblogic.imagetool.cli.ImageTool %*
