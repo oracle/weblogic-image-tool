@@ -16,6 +16,7 @@ public class ProvidedResponseFile implements ResponseFile {
     private static final LoggingFacade logger = LoggingFactory.getLogger(ProvidedResponseFile.class);
 
     private Path responseFileSource;
+    private String filename = null;
 
     /**
      * Use one of the default response files provided in the tool.
@@ -23,18 +24,32 @@ public class ProvidedResponseFile implements ResponseFile {
      */
     public ProvidedResponseFile(Path source) {
         responseFileSource = source;
+        if (responseFileSource != null && Files.isRegularFile(responseFileSource)) {
+            filename = responseFileSource.getFileName().toString();
+        }
     }
 
     @Override
     public String name() {
-        return responseFileSource.getFileName().toString();
+        return filename;
     }
 
     @Override
     public void copyFile(String buildContextDir) throws IOException {
-        if (responseFileSource != null && Files.isRegularFile(responseFileSource)) {
+        if (name() != null) {
             logger.fine("IMG-0005", responseFileSource);
             Path target = Paths.get(buildContextDir, name());
+            if (Files.exists(target)) {
+                int idx = 1;
+                String trialName = filename + idx;
+                target = Paths.get(buildContextDir, trialName);
+                while (Files.exists(target)) {
+                    trialName = filename + ++idx;
+                    target = Paths.get(buildContextDir, trialName);
+                }
+                logger.fine("copying installer response file {0} as {1}", filename, trialName);
+                filename = trialName;
+            }
             Files.copy(responseFileSource, target);
         }
     }
