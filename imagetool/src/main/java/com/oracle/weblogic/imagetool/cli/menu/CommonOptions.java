@@ -174,7 +174,7 @@ public abstract class CommonOptions {
      * @return true if applying patches
      */
     boolean applyingPatches() {
-        return latestPSU || !patches.isEmpty();
+        return (latestPSU || recommendedPatches) || !patches.isEmpty();
     }
 
     /**
@@ -206,12 +206,26 @@ public abstract class CommonOptions {
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
 
         List<PatchFile> patchFiles = new ArrayList<>();
-
-        if (latestPSU) {
+        if (recommendedPatches || latestPSU) {
             if (userId == null || password == null) {
                 throw new Exception(Utils.getMessage("IMG-0031"));
             }
+        }
+        if (recommendedPatches) {
+            // Get the latest PSU and its recommended patches
+            List<String> patchList =
+                ARUUtil.getLatestPSURecommendedPatches(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
+            if (Utils.isEmptyList(patchList)) {
+                recommendedPatches = false;
+                logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
+            } else {
+                for (String patchId: patchList) {
+                    logger.fine("Add latest recommended patch {0} to list", patchId);
+                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                }
+            }
+        } else if (latestPSU) {
             // PSUs for WLS and JRF installers are considered WLS patches
             String patchId = ARUUtil.getLatestPSUNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
@@ -379,6 +393,12 @@ public abstract class CommonOptions {
         description = "Whether to apply patches from latest PSU."
     )
     boolean latestPSU = false;
+
+    @Option(
+        names = {"--recommendedPatches"},
+        description = "Whether to apply recommended patches from latest PSU."
+    )
+    boolean recommendedPatches = false;
 
     @Option(
         names = {"--patches"},

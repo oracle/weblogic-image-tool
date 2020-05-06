@@ -35,6 +35,16 @@ class UtilsTest {
     }
 
     @Test
+    void isNullList() {
+        assertTrue(Utils.isEmptyList((null)));
+    }
+
+    @Test
+    void isEmptyList() {
+        assertTrue(Utils.isEmptyList(new ArrayList<>()));
+    }
+
+    @Test
     void settingProxy() throws IOException {
         String host = "www-proxy.mycompany.com";
         String port = "80";

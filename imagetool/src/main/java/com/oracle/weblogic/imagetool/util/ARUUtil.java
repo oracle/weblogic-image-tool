@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,52 @@ public class ARUUtil {
             }
         } catch (IOException | XPathExpressionException e) {
             throw new Exception(Utils.getMessage("IMG-0032", category, version), e);
+        }
+        logger.exiting();
+        return null;
+    }
+
+    /**
+     * Get list of PSU available for given category and release.
+     *
+     * @param category wls or fmw
+     * @param version  version number like 12.2.1.3.0
+     * @param userId   user
+     * @return Document listing of all patches (full details)
+     */
+    public static List<String> getLatestPSURecommendedPatches(FmwInstallerType category, String version,
+                                                        String userId, String password) throws Exception {
+
+        logger.entering(category, version, userId);
+        try {
+            logger.info("IMG-0067");
+            String releaseNumber = getReleaseNumber(category, version, userId, password);
+            SearchResult searchResult = getRecommendedPatchesMetadata(category, releaseNumber, userId, password);
+            if (searchResult.isSuccess()) {
+                Document results = searchResult.getResults();
+                NodeList nodeList = XPathUtil.applyXPathReturnNodeList(results, "/results/patch");
+                List<String> result = new ArrayList<>();
+                for (int i = 1; i <= nodeList.getLength(); i++) {
+                    String patchId = XPathUtil.applyXPathReturnString(results,
+                        String.format("string(/results/patch[%d]/name)", i));
+                    String patchVersion = XPathUtil.applyXPathReturnString(results,
+                        String.format("string(/results/patch[%d]/release/@name)", i));
+                    if (!Utils.isEmptyString(patchVersion)) {
+                        patchId = patchId + '_' + patchVersion;
+                    }
+                    logger.info("IMG-0068", patchId);
+                    result.add(patchId);
+                }
+                logger.exiting(result);
+                return result;
+            } else if (!Utils.isEmptyString(searchResult.getErrorMessage())) {
+                logger.warning("IMG-0069", category, version);
+                logger.fine(searchResult.getErrorMessage());
+            } else {
+                throw new Exception(Utils.getMessage("IMG-0070", category, version));
+            }
+        } catch (IOException | XPathExpressionException e) {
+            throw new Exception(Utils.getMessage("IMG-0070", category, version), e);
         }
         logger.exiting();
         return null;
@@ -240,6 +287,19 @@ public class ARUUtil {
         String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, release)
             + Constants.ONLY_GET_RECOMMENDED_PSU;
         logger.finer("getting PSU info from {0}", url);
+
+        SearchResult result = getSearchResult(HttpUtil.getXMLContent(url, userId, password));
+        logger.exiting();
+        return result;
+    }
+
+    private static SearchResult getRecommendedPatchesMetadata(FmwInstallerType category, String release, String userId,
+                                                          String password) throws IOException {
+
+        logger.entering();
+        String productId = FmwInstallerType.WLS == category ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
+        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, release);
+        logger.finer("getting recommend patches info from {0}", url);
 
         SearchResult result = getSearchResult(HttpUtil.getXMLContent(url, userId, password));
         logger.exiting();
