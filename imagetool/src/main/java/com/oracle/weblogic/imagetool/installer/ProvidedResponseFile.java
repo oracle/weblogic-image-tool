@@ -36,7 +36,7 @@ public class ProvidedResponseFile implements ResponseFile {
 
     @Override
     public void copyFile(String buildContextDir) throws IOException {
-        if (filename != null) {
+        if (name() != null) {
             logger.fine("IMG-0005", responseFileSource);
             Path target = Paths.get(buildContextDir, name());
             if (Files.exists(target)) {
