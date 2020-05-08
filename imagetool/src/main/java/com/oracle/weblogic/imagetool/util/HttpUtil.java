@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collections;
 import javax.net.ssl.SSLException;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -98,12 +95,10 @@ public class HttpUtil {
      * @throws IOException when it fails to access the url
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
-
         logger.entering(url);
         String xmlString = Executor.newInstance(getOraClient(username, password))
                 .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .returnContent().asString();
-        Files.write(Paths.get("/tmp/test1"), Collections.singleton(xmlString));
         logger.exiting();
         return parseXmlString(xmlString);
     }

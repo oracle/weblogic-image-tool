@@ -46,26 +46,38 @@ public class ARUUtil {
      */
     public static String getLatestPSUNumber(FmwInstallerType category, String version, String userId, String password)
         throws Exception {
+        return getLatestPSUNumber(new SearchHelper(category, version, userId, password));
+    }
 
-        logger.entering(category, version, userId);
+    /**
+     * Get the Latest PSU patch number for the search information in the helper.
+     *
+     * @param searchHelper containing category, version, credentials for the search
+     * @return PSU patch number
+     * @throws Exception if the search or xml parse of result fails
+     */
+    public static String getLatestPSUNumber(SearchHelper searchHelper) throws Exception {
+        logger.entering(searchHelper);
         try {
             logger.info("IMG-0019");
-            String releaseNumber = getReleaseNumber(category, version, userId, password);
-            SearchResult searchResult = getRecommendedPsuMetadata(category, releaseNumber, userId, password);
-            if (searchResult.isSuccess()) {
-                Document results = searchResult.getResults();
+            searchHelper.setRelease(getReleaseNumber(searchHelper));
+            getRecommendedPsuMetadata(searchHelper);
+            if (searchHelper.isSuccess()) {
+                Document results = searchHelper.getResults();
                 String result = XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
                 logger.exiting(result);
                 logger.info("IMG-0020", result);
                 return result;
-            } else if (!Utils.isEmptyString(searchResult.getErrorMessage())) {
-                logger.warning("IMG-0023", category, version);
-                logger.fine(searchResult.getErrorMessage());
+            } else if (!Utils.isEmptyString(searchHelper.getErrorMessage())) {
+                logger.warning("IMG-0023", searchHelper.getCategory(), searchHelper.getVersion());
+                logger.fine(searchHelper.getErrorMessage());
             } else {
-                throw new Exception(Utils.getMessage("IMG-0032", category, version));
+                throw new Exception(Utils.getMessage("IMG-0032", 
+                    searchHelper.getCategory(), searchHelper.getVersion()));
             }
         } catch (IOException | XPathExpressionException e) {
-            throw new Exception(Utils.getMessage("IMG-0032", category, version), e);
+            throw new Exception(Utils.getMessage("IMG-0032", 
+                searchHelper.getCategory(), searchHelper.getVersion()), e);
         }
         logger.exiting();
         return null;
@@ -81,14 +93,25 @@ public class ARUUtil {
      */
     public static List<String> getLatestPSURecommendedPatches(FmwInstallerType category, String version,
                                                         String userId, String password) throws Exception {
+        return getLatestPSURecommendedPatches(new SearchHelper(category, version, userId, password));
+    }
 
-        logger.entering(category, version, userId);
+    /**
+     * Get the latest PSU along with recommended patches for the information in the search helper.
+     *
+     * @param searchHelper containing the search category, version and credentials
+     * @return List of recommended patches
+     * @throws Exception the search or resulting parse failed
+     */
+    public static List<String> getLatestPSURecommendedPatches(SearchHelper searchHelper)
+        throws Exception {
+        logger.entering(searchHelper);
         try {
             logger.info("IMG-0067");
-            String releaseNumber = getReleaseNumber(category, version, userId, password);
-            SearchResult searchResult = getRecommendedPatchesMetadata(category, releaseNumber, userId, password);
-            if (searchResult.isSuccess()) {
-                Document results = searchResult.getResults();
+            searchHelper.setRelease(getReleaseNumber(searchHelper));
+            getRecommendedPatchesMetadata(searchHelper);
+            if (searchHelper.isSuccess()) {
+                Document results = searchHelper.getResults();
                 NodeList nodeList = XPathUtil.applyXPathReturnNodeList(results, "/results/patch");
                 List<String> result = new ArrayList<>();
                 for (int i = 1; i <= nodeList.getLength(); i++) {
@@ -104,14 +127,16 @@ public class ARUUtil {
                 }
                 logger.exiting(result);
                 return result;
-            } else if (!Utils.isEmptyString(searchResult.getErrorMessage())) {
-                logger.warning("IMG-0069", category, version);
-                logger.fine(searchResult.getErrorMessage());
+            } else if (!Utils.isEmptyString(searchHelper.getErrorMessage())) {
+                logger.warning("IMG-0069", searchHelper.getCategory(), searchHelper.getVersion());
+                logger.fine(searchHelper.getErrorMessage());
             } else {
-                throw new Exception(Utils.getMessage("IMG-0070", category, version));
+                throw new Exception(Utils.getMessage("IMG-0070", 
+                    searchHelper.getCategory(), searchHelper.getVersion()));
             }
         } catch (IOException | XPathExpressionException e) {
-            throw new Exception(Utils.getMessage("IMG-0070", category, version), e);
+            throw new Exception(Utils.getMessage("IMG-0070", 
+                searchHelper.getCategory(), searchHelper.getVersion()), e);
         }
         logger.exiting();
         return null;
@@ -231,45 +256,22 @@ public class ARUUtil {
         logger.exiting(validationResult);
     }
 
-    private static SearchResult getSearchResult(Document result) throws IOException {
-        SearchResult returnResult = new SearchResult();
-        returnResult.setSuccess(true);
-
-        try {
-            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(result, "/results/error");
-            if (nodeList.getLength() > 0) {
-                returnResult.setSuccess(false);
-                returnResult.setErrorMessage(XPathUtil.applyXPathReturnString(result, "/results/error/message"));
-            } else {
-                returnResult.setResults(result);
-            }
-        } catch (XPathExpressionException xpe) {
-            throw new IOException(xpe);
-        }
-
-        return returnResult;
-
-    }
-
-
-    private static Document getAllReleases(FmwInstallerType category, String userId, String password)
-        throws IOException {
-
-        logger.entering(category, userId);
-        Document allReleases = HttpUtil.getXMLContent(Constants.REL_URL, userId, password);
+    private static Document getAllReleases(SearchHelper searchHelper) throws IOException {
+        logger.entering(searchHelper);
+        searchHelper.getXmlContent(Constants.REL_URL);
 
         try {
 
             String expression;
 
-            if (FmwInstallerType.WLS == category) {
+            if (FmwInstallerType.WLS == searchHelper.getCategory()) {
                 expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
-            } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(category.toString())) {
+            } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(searchHelper.getCategory().toString())) {
                 expression = "/results/release[starts-with(text(), 'OPatch')]";
             } else {
                 expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
             }
-            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(allReleases, expression);
+            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(searchHelper.getResults(), expression);
             Document doc = createResultDocument(nodeList);
             logger.exiting();
             return doc;
@@ -279,65 +281,61 @@ public class ARUUtil {
         }
     }
 
-    private static SearchResult getRecommendedPsuMetadata(FmwInstallerType category, String release, String userId,
-                                                          String password) throws IOException {
+    private static void getRecommendedPsuMetadata(SearchHelper searchHelper) throws IOException {
 
         logger.entering();
-        String productId = FmwInstallerType.WLS == category ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
-        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, release)
+        String productId = FmwInstallerType.WLS
+            == searchHelper.getCategory() ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
+        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, searchHelper.getRelease())
             + Constants.ONLY_GET_RECOMMENDED_PSU;
         logger.finer("getting PSU info from {0}", url);
 
-        SearchResult result = getSearchResult(HttpUtil.getXMLContent(url, userId, password));
+        searchHelper.getXmlContent(url);
         logger.exiting();
-        return result;
     }
 
-    private static SearchResult getRecommendedPatchesMetadata(FmwInstallerType category, String release, String userId,
-                                                          String password) throws IOException {
+    private static void getRecommendedPatchesMetadata(SearchHelper searchHelper) throws IOException {
 
         logger.entering();
-        String productId = FmwInstallerType.WLS == category ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
-        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, release);
-        logger.finer("getting recommend patches info from {0}", url);
+        String productId = FmwInstallerType.WLS
+            == searchHelper.getCategory() ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
+        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, searchHelper.getRelease());
+        logger.finer("getting recommended patches info from {0}", url);
 
-        SearchResult result = getSearchResult(HttpUtil.getXMLContent(url, userId, password));
+        searchHelper.getXmlContent(url);
         logger.exiting();
-        return result;
     }
 
     /**
      * Given a product category (wls, fmw, opatch) and version, determines the release number corresponding to that
      * in the ARU database.
      *
-     * @param category wls, fmw, opatch
-     * @param version  12.2.1.3.0 or such
-     * @param userId   support email id
-     * @param password password
+     * @param searchHelper helper with information for release search
      * @return release number
      * @throws IOException in case of error
      */
-    private static String getReleaseNumber(FmwInstallerType category, String version, String userId, String password)
+    private static String getReleaseNumber(SearchHelper searchHelper)
         throws IOException {
-        logger.entering(category, version, userId);
-        String key = category + CacheStore.CACHE_KEY_SEPARATOR + version;
+        logger.entering(searchHelper);
+        String key = searchHelper.getCategory() + CacheStore.CACHE_KEY_SEPARATOR + searchHelper.getVersion();
         String retVal = releaseNumbersMap.getOrDefault(key, null);
         if (Utils.isEmptyString(retVal)) {
             logger.fine("Retrieving product release numbers from Oracle...");
-            Document allReleases = getAllReleases(category, userId, password);
+            Document allReleases = getAllReleases(searchHelper);
 
-            String expression = String.format("string(/results/release[@name = '%s']/@id)", version);
+            String expression = String.format("string(/results/release[@name = '%s']/@id)", searchHelper.getVersion());
             try {
                 retVal = XPathUtil.applyXPathReturnString(allReleases, expression);
-                logger.fine("Release number for {0} is {1}", category, retVal);
+                logger.fine("Release number for {0} is {1}", searchHelper.getCategory(), retVal);
             } catch (XPathExpressionException xpe) {
                 throw new IOException(xpe);
             }
             if (!Utils.isEmptyString(retVal)) {
-                releaseNumbersMap.put(category + CacheStore.CACHE_KEY_SEPARATOR + version, retVal);
+                releaseNumbersMap.put(searchHelper.getCategory()
+                    + CacheStore.CACHE_KEY_SEPARATOR + searchHelper.getVersion(), retVal);
             } else {
                 throw new IOException(String.format("Failed to determine release number for category %s, version %s",
-                        category, version));
+                        searchHelper.getCategory(), searchHelper.getVersion()));
             }
         }
         logger.exiting(retVal);
@@ -355,8 +353,9 @@ public class ARUUtil {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             return false;
         }
+        SearchHelper searchHelper = new SearchHelper(null, null, username, password);
         try {
-            HttpUtil.getXMLContent(Constants.ARU_LANG_URL, username, password);
+            searchHelper.getXmlContent(Constants.ARU_LANG_URL);
         } catch (IOException e) {
             Throwable cause = (e.getCause() == null) ? e : e.getCause();
             if (cause.getClass().isAssignableFrom(HttpResponseException.class)
@@ -364,7 +363,7 @@ public class ARUUtil {
                 return false;
             }
         }
-        return true;
+        return searchHelper.isSuccess();
     }
 
     /**
@@ -405,7 +404,7 @@ public class ARUUtil {
      * @return a Document based on the NodeList provided
      * @throws IOException if an XML parser exception occurs trying to build the document
      */
-    public static Document createResultDocument(NodeList nodeList) throws IOException {
+    private static Document createResultDocument(NodeList nodeList) throws IOException {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
