@@ -20,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -29,12 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(EasyMockExtension.class)
 @Tag("unit")
-public class ARUUtilTest {
+class AruUtilTest {
 
     @Mock
-    private SearchHelper mock;
+    private AruSearch mock;
 
-    private static LoggingFacade logger = LoggingFactory.getLogger(ARUUtil.class);
+    private static LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
     private static Level oldLevel;
 
     @BeforeAll
@@ -49,26 +48,24 @@ public class ARUUtilTest {
     }
 
     @AfterEach
-    void clearMap() throws Exception {
-        ARUUtil.releaseNumbersMap.clear();
+    void clearMap() {
+        AruUtil.releaseNumbersMap.clear();
     }
 
     @Test
     void testRecommendedPSUPatches() throws Exception {
         String[] expected = { "30965714_12.2.1.3.0","28512225_12.2.1.3.0","28278427_12.2.1.3.0" };
-        expect(mock.getCategory()).andReturn(FmwInstallerType.WLS).anyTimes();
-        expect(mock.getRelease()).andReturn(ARUUtilTestConstants.ReleaseNumber).anyTimes();
-        expect(mock.getVersion()).andReturn(ARUUtilTestConstants.Version).anyTimes();
-        mock.getXmlContent(anyString());
-        expectLastCall().times(2);
-        expect(mock.getResults()).andReturn(ARUUtilTestConstants.getReleasesResponse());
-        mock.setRelease(ARUUtilTestConstants.ReleaseNumber);
-        expectLastCall();
+        expect(mock.category()).andReturn(FmwInstallerType.WLS).anyTimes();
+        expect(mock.release()).andReturn(ARUUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.version()).andReturn(ARUUtilTestConstants.Version).anyTimes();
+        expect(mock.execSearch(anyString())).andReturn(mock).times(2);
+        expect(mock.results()).andReturn(ARUUtilTestConstants.getReleasesResponse());
+        expect(mock.setRelease(ARUUtilTestConstants.ReleaseNumber)).andReturn(mock);
         expect(mock.isSuccess()).andReturn(true).anyTimes();
-        expect(mock.getResults()).andReturn(ARUUtilTestConstants.getPatchesResponse());
+        expect(mock.results()).andReturn(ARUUtilTestConstants.getPatchesResponse());
         replay(mock);
         List<String> resultList =
-            ARUUtil.getLatestPSURecommendedPatches(mock);
+            AruUtil.getLatestPsuRecommendedPatches(mock);
         verify(mock);
         assertNotNull(resultList);
         String[] resultArray = resultList.toArray(new String[resultList.size()]);
@@ -76,22 +73,20 @@ public class ARUUtilTest {
     }
 
     @Test
-    void testNoRecomendedPatches() throws Exception {
-        expect(mock.getCategory()).andReturn(FmwInstallerType.WLS).anyTimes();
-        expect(mock.getRelease()).andReturn(ARUUtilTestConstants.ReleaseNumber).anyTimes();
-        expect(mock.getVersion()).andReturn(ARUUtilTestConstants.Version).anyTimes();
-        mock.getXmlContent(anyString());
-        expectLastCall().times(2);
-        expect(mock.getResults()).andReturn(ARUUtilTestConstants.getReleasesResponse());
-        mock.setRelease(ARUUtilTestConstants.ReleaseNumber);
-        expectLastCall();
+    void testNoRecommendedPatches() throws Exception {
+        expect(mock.category()).andReturn(FmwInstallerType.WLS).anyTimes();
+        expect(mock.release()).andReturn(ARUUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.version()).andReturn(ARUUtilTestConstants.Version).anyTimes();
+        expect(mock.execSearch(anyString())).andReturn(mock).times(2);
+        expect(mock.results()).andReturn(ARUUtilTestConstants.getReleasesResponse());
+        expect(mock.setRelease(ARUUtilTestConstants.ReleaseNumber)).andReturn(mock);
         expect(mock.isSuccess()).andReturn(false);
-        expect(mock.getErrorMessage()).andReturn("No results found").anyTimes();
+        expect(mock.errorMessage()).andReturn("No results found").anyTimes();
         replay(mock);
         List<String> resultList =
-            ARUUtil.getLatestPSURecommendedPatches(mock);
+            AruUtil.getLatestPsuRecommendedPatches(mock);
         verify(mock);
-        assertTrue(Utils.isEmptyList(resultList));
+        assertTrue(resultList.isEmpty());
     }
 
 }

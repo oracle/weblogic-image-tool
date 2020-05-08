@@ -10,7 +10,7 @@ import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-public class SearchHelper {
+public class AruSearch {
     private boolean success;
     private Document results;
     private String errorMessage;
@@ -28,7 +28,7 @@ public class SearchHelper {
      * @param userid ARU user credentials
      * @param password ARU password credentials
      */
-    public SearchHelper(FmwInstallerType category, String version, String userid, String password) {
+    AruSearch(FmwInstallerType category, String version, String userid, String password) {
         this.category = category;
         this.version = version;
         this.userid = userid;
@@ -36,16 +36,12 @@ public class SearchHelper {
         this.success = true;
     }
 
-    public SearchHelper() {
-        // default Constructor
-    }
-
     /**
      * Get the error errorMessage.
      *
-     * @return
+     * @return the search error message
      */
-    public String getErrorMessage() {
+    String errorMessage() {
         return errorMessage;
     }
 
@@ -54,20 +50,22 @@ public class SearchHelper {
      *
      * @param errorMessage message value.
      */
-    public void setErrorMessage(String errorMessage) {
+    AruSearch setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+        return this;
     }
 
     /**
      * Returns true if no conflicts ; false if there is conflicts.
      * @return true if no conflicts ; false if there is conflicts
      */
-    public boolean isSuccess() {
+    boolean isSuccess() {
         return success;
     }
 
-    public void setSuccess(boolean success) {
+    AruSearch setSuccess(boolean success) {
         this.success = success;
+        return this;
     }
 
     /**
@@ -75,7 +73,7 @@ public class SearchHelper {
      *
      * @return dom document detailing about the conflicts
      */
-    public Document getResults() {
+    Document results() {
         return results;
     }
 
@@ -84,8 +82,9 @@ public class SearchHelper {
      *
      * @param results dom document detailing about the conflicts
      */
-    public void setResults(Document results) {
+    AruSearch setResults(Document results) {
         this.results = results;
+        return this;
     }
 
     /**
@@ -93,7 +92,7 @@ public class SearchHelper {
      *
      * @return category
      */
-    public FmwInstallerType getCategory() {
+    FmwInstallerType category() {
         return category;
     }
 
@@ -102,8 +101,9 @@ public class SearchHelper {
      *
      * @param category category type
      */
-    public void setCategory(FmwInstallerType category) {
+    AruSearch setCategory(FmwInstallerType category) {
         this.category = category;
+        return this;
     }
 
     /**
@@ -111,7 +111,7 @@ public class SearchHelper {
      *
      * @return product version number
      */
-    public String getVersion() {
+    String version() {
         return version;
     }
 
@@ -120,8 +120,9 @@ public class SearchHelper {
      *
      * @param version product version number
      */
-    public void setVersion(String version) {
+    AruSearch setVersion(String version) {
         this.version = version;
+        return this;
     }
 
     /**
@@ -129,7 +130,7 @@ public class SearchHelper {
      *
      * @return ARU release number
      */
-    public String getRelease() {
+    String release() {
         return release;
     }
 
@@ -138,8 +139,9 @@ public class SearchHelper {
      *
      * @param release set the product release number
      */
-    public void setRelease(String release) {
+    AruSearch setRelease(String release) {
         this.release = release;
+        return this;
     }
 
     /**
@@ -147,7 +149,7 @@ public class SearchHelper {
      *
      * @return user id
      */
-    public String getUserId() {
+    String userId() {
         return userid;
     }
 
@@ -156,8 +158,9 @@ public class SearchHelper {
      *
      * @param userid user id
      */
-    public void setUserId(String userid) {
+    public AruSearch setUserId(String userid) {
         this.userid = userid;
+        return this;
     }
 
     /**
@@ -165,7 +168,7 @@ public class SearchHelper {
      *
      * @return password
      */
-    public String getPassword() {
+    public String password() {
         return password;
     }
 
@@ -174,8 +177,9 @@ public class SearchHelper {
      *
      * @param password for ARU credentials
      */
-    public void setPassword(String password) {
+    AruSearch setPassword(String password) {
         this.password = password;
+        return this;
     }
 
     /**
@@ -184,8 +188,9 @@ public class SearchHelper {
      * @param url for the ARU Search
      * @throws IOException if the search fails
      */
-    public void getXmlContent(String url) throws IOException {
-        setSearchResult(HttpUtil.getXMLContent(url, getUserId(), getPassword()));
+    AruSearch execSearch(String url) throws IOException {
+        setSearchResult(HttpUtil.getXMLContent(url, userId(), password()));
+        return this;
     }
 
     private void setSearchResult(Document result) throws IOException {

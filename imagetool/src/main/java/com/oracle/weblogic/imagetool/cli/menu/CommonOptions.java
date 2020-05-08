@@ -19,8 +19,8 @@ import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
+import com.oracle.weblogic.imagetool.util.AruUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
@@ -156,7 +156,7 @@ public abstract class CommonOptions {
         // check user support credentials if useCache not set to always and we are applying any patches
 
         if (userId != null || password != null) {
-            if (!ARUUtil.checkCredentials(userId, password)) {
+            if (!AruUtil.checkCredentials(userId, password)) {
                 throw new Exception("user Oracle support credentials do not match");
             }
         }
@@ -214,9 +214,9 @@ public abstract class CommonOptions {
         if (recommendedPatches) {
             // Get the latest PSU and its recommended patches
             List<String> patchList =
-                ARUUtil.getLatestPSURecommendedPatches(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
+                AruUtil.getLatestPsuRecommendedPatches(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
-            if (Utils.isEmptyList(patchList)) {
+            if (patchList.isEmpty()) {
                 recommendedPatches = false;
                 logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
             } else {
@@ -227,7 +227,7 @@ public abstract class CommonOptions {
             }
         } else if (latestPSU) {
             // PSUs for WLS and JRF installers are considered WLS patches
-            String patchId = ARUUtil.getLatestPSUNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
+            String patchId = AruUtil.getLatestPsuNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
             if (Utils.isEmptyString(patchId)) {
                 latestPSU = false;
@@ -248,7 +248,7 @@ public abstract class CommonOptions {
             }
         }
 
-        ARUUtil.validatePatches(previousInventory, patchFiles, userId, password);
+        AruUtil.validatePatches(previousInventory, patchFiles, userId, password);
 
         for (PatchFile patch : patchFiles) {
             String patchLocation = patch.resolve(cache());

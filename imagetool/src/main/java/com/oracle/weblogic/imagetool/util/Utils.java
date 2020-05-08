@@ -370,16 +370,6 @@ public class Utils {
     }
 
     /**
-     * Determines if the list is null or empty.
-     *
-     * @param l the generic list to check
-     * @return true if the list is null or empty
-     */
-    public static boolean isEmptyList(List<?> l) {
-        return (l == null) || l.isEmpty();
-    }
-
-    /**
      * Determines if the string is null or empty.
      *
      * @param s the string to check

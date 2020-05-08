@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +28,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ARUUtil {
+public class AruUtil {
 
     static final Map<String, String> releaseNumbersMap = new HashMap<>();
-    private static final LoggingFacade logger = LoggingFactory.getLogger(ARUUtil.class);
+    private static final LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
 
-    private ARUUtil() {
+    private AruUtil() {
         // hide constructor, usage of this class is only static utilities
     }
 
@@ -44,40 +45,40 @@ public class ARUUtil {
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static String getLatestPSUNumber(FmwInstallerType category, String version, String userId, String password)
+    public static String getLatestPsuNumber(FmwInstallerType category, String version, String userId, String password)
         throws Exception {
-        return getLatestPSUNumber(new SearchHelper(category, version, userId, password));
+        return getLatestPsuNumber(new AruSearch(category, version, userId, password));
     }
 
     /**
      * Get the Latest PSU patch number for the search information in the helper.
      *
-     * @param searchHelper containing category, version, credentials for the search
+     * @param aruSearch containing category, version, credentials for the search
      * @return PSU patch number
      * @throws Exception if the search or xml parse of result fails
      */
-    public static String getLatestPSUNumber(SearchHelper searchHelper) throws Exception {
-        logger.entering(searchHelper);
+    static String getLatestPsuNumber(AruSearch aruSearch) throws Exception {
+        logger.entering(aruSearch);
         try {
             logger.info("IMG-0019");
-            searchHelper.setRelease(getReleaseNumber(searchHelper));
-            getRecommendedPsuMetadata(searchHelper);
-            if (searchHelper.isSuccess()) {
-                Document results = searchHelper.getResults();
+            aruSearch.setRelease(getReleaseNumber(aruSearch));
+            getRecommendedPsuMetadata(aruSearch);
+            if (aruSearch.isSuccess()) {
+                Document results = aruSearch.results();
                 String result = XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
                 logger.exiting(result);
                 logger.info("IMG-0020", result);
                 return result;
-            } else if (!Utils.isEmptyString(searchHelper.getErrorMessage())) {
-                logger.warning("IMG-0023", searchHelper.getCategory(), searchHelper.getVersion());
-                logger.fine(searchHelper.getErrorMessage());
+            } else if (!Utils.isEmptyString(aruSearch.errorMessage())) {
+                logger.warning("IMG-0023", aruSearch.category(), aruSearch.version());
+                logger.fine(aruSearch.errorMessage());
             } else {
                 throw new Exception(Utils.getMessage("IMG-0032", 
-                    searchHelper.getCategory(), searchHelper.getVersion()));
+                    aruSearch.category(), aruSearch.version()));
             }
         } catch (IOException | XPathExpressionException e) {
             throw new Exception(Utils.getMessage("IMG-0032", 
-                searchHelper.getCategory(), searchHelper.getVersion()), e);
+                aruSearch.category(), aruSearch.version()), e);
         }
         logger.exiting();
         return null;
@@ -91,27 +92,27 @@ public class ARUUtil {
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static List<String> getLatestPSURecommendedPatches(FmwInstallerType category, String version,
+    public static List<String> getLatestPsuRecommendedPatches(FmwInstallerType category, String version,
                                                         String userId, String password) throws Exception {
-        return getLatestPSURecommendedPatches(new SearchHelper(category, version, userId, password));
+        return getLatestPsuRecommendedPatches(new AruSearch(category, version, userId, password));
     }
 
     /**
      * Get the latest PSU along with recommended patches for the information in the search helper.
      *
-     * @param searchHelper containing the search category, version and credentials
+     * @param aruSearch containing the search category, version and credentials
      * @return List of recommended patches
      * @throws Exception the search or resulting parse failed
      */
-    public static List<String> getLatestPSURecommendedPatches(SearchHelper searchHelper)
+    static List<String> getLatestPsuRecommendedPatches(AruSearch aruSearch)
         throws Exception {
-        logger.entering(searchHelper);
+        logger.entering(aruSearch);
         try {
             logger.info("IMG-0067");
-            searchHelper.setRelease(getReleaseNumber(searchHelper));
-            getRecommendedPatchesMetadata(searchHelper);
-            if (searchHelper.isSuccess()) {
-                Document results = searchHelper.getResults();
+            aruSearch.setRelease(getReleaseNumber(aruSearch));
+            getRecommendedPatchesMetadata(aruSearch);
+            if (aruSearch.isSuccess()) {
+                Document results = aruSearch.results();
                 NodeList nodeList = XPathUtil.applyXPathReturnNodeList(results, "/results/patch");
                 List<String> result = new ArrayList<>();
                 for (int i = 1; i <= nodeList.getLength(); i++) {
@@ -127,19 +128,19 @@ public class ARUUtil {
                 }
                 logger.exiting(result);
                 return result;
-            } else if (!Utils.isEmptyString(searchHelper.getErrorMessage())) {
-                logger.warning("IMG-0069", searchHelper.getCategory(), searchHelper.getVersion());
-                logger.fine(searchHelper.getErrorMessage());
+            } else if (!Utils.isEmptyString(aruSearch.errorMessage())) {
+                logger.warning("IMG-0069", aruSearch.category(), aruSearch.version());
+                logger.fine(aruSearch.errorMessage());
             } else {
                 throw new Exception(Utils.getMessage("IMG-0070", 
-                    searchHelper.getCategory(), searchHelper.getVersion()));
+                    aruSearch.category(), aruSearch.version()));
             }
         } catch (IOException | XPathExpressionException e) {
             throw new Exception(Utils.getMessage("IMG-0070", 
-                searchHelper.getCategory(), searchHelper.getVersion()), e);
+                aruSearch.category(), aruSearch.version()), e);
         }
         logger.exiting();
-        return null;
+        return Collections.emptyList();
     }
 
     /**
@@ -256,22 +257,22 @@ public class ARUUtil {
         logger.exiting(validationResult);
     }
 
-    private static Document getAllReleases(SearchHelper searchHelper) throws IOException {
-        logger.entering(searchHelper);
-        searchHelper.getXmlContent(Constants.REL_URL);
+    private static Document getAllReleases(AruSearch aruSearch) throws IOException {
+        logger.entering(aruSearch);
+        aruSearch.execSearch(Constants.REL_URL);
 
         try {
 
             String expression;
 
-            if (FmwInstallerType.WLS == searchHelper.getCategory()) {
+            if (FmwInstallerType.WLS == aruSearch.category()) {
                 expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
-            } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(searchHelper.getCategory().toString())) {
+            } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(aruSearch.category().toString())) {
                 expression = "/results/release[starts-with(text(), 'OPatch')]";
             } else {
                 expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
             }
-            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(searchHelper.getResults(), expression);
+            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(aruSearch.results(), expression);
             Document doc = createResultDocument(nodeList);
             logger.exiting();
             return doc;
@@ -281,28 +282,28 @@ public class ARUUtil {
         }
     }
 
-    private static void getRecommendedPsuMetadata(SearchHelper searchHelper) throws IOException {
+    private static void getRecommendedPsuMetadata(AruSearch aruSearch) throws IOException {
 
         logger.entering();
         String productId = FmwInstallerType.WLS
-            == searchHelper.getCategory() ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
-        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, searchHelper.getRelease())
+            == aruSearch.category() ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
+        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, aruSearch.release())
             + Constants.ONLY_GET_RECOMMENDED_PSU;
         logger.finer("getting PSU info from {0}", url);
 
-        searchHelper.getXmlContent(url);
+        aruSearch.execSearch(url);
         logger.exiting();
     }
 
-    private static void getRecommendedPatchesMetadata(SearchHelper searchHelper) throws IOException {
+    private static void getRecommendedPatchesMetadata(AruSearch aruSearch) throws IOException {
 
         logger.entering();
         String productId = FmwInstallerType.WLS
-            == searchHelper.getCategory() ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
-        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, searchHelper.getRelease());
+            == aruSearch.category() ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
+        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, aruSearch.release());
         logger.finer("getting recommended patches info from {0}", url);
 
-        searchHelper.getXmlContent(url);
+        aruSearch.execSearch(url);
         logger.exiting();
     }
 
@@ -310,32 +311,32 @@ public class ARUUtil {
      * Given a product category (wls, fmw, opatch) and version, determines the release number corresponding to that
      * in the ARU database.
      *
-     * @param searchHelper helper with information for release search
+     * @param aruSearch helper with information for release search
      * @return release number
      * @throws IOException in case of error
      */
-    private static String getReleaseNumber(SearchHelper searchHelper)
+    private static String getReleaseNumber(AruSearch aruSearch)
         throws IOException {
-        logger.entering(searchHelper);
-        String key = searchHelper.getCategory() + CacheStore.CACHE_KEY_SEPARATOR + searchHelper.getVersion();
+        logger.entering(aruSearch);
+        String key = aruSearch.category() + CacheStore.CACHE_KEY_SEPARATOR + aruSearch.version();
         String retVal = releaseNumbersMap.getOrDefault(key, null);
         if (Utils.isEmptyString(retVal)) {
             logger.fine("Retrieving product release numbers from Oracle...");
-            Document allReleases = getAllReleases(searchHelper);
+            Document allReleases = getAllReleases(aruSearch);
 
-            String expression = String.format("string(/results/release[@name = '%s']/@id)", searchHelper.getVersion());
+            String expression = String.format("string(/results/release[@name = '%s']/@id)", aruSearch.version());
             try {
                 retVal = XPathUtil.applyXPathReturnString(allReleases, expression);
-                logger.fine("Release number for {0} is {1}", searchHelper.getCategory(), retVal);
+                logger.fine("Release number for {0} is {1}", aruSearch.category(), retVal);
             } catch (XPathExpressionException xpe) {
                 throw new IOException(xpe);
             }
             if (!Utils.isEmptyString(retVal)) {
-                releaseNumbersMap.put(searchHelper.getCategory()
-                    + CacheStore.CACHE_KEY_SEPARATOR + searchHelper.getVersion(), retVal);
+                releaseNumbersMap.put(aruSearch.category()
+                    + CacheStore.CACHE_KEY_SEPARATOR + aruSearch.version(), retVal);
             } else {
                 throw new IOException(String.format("Failed to determine release number for category %s, version %s",
-                        searchHelper.getCategory(), searchHelper.getVersion()));
+                        aruSearch.category(), aruSearch.version()));
             }
         }
         logger.exiting(retVal);
@@ -353,9 +354,9 @@ public class ARUUtil {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             return false;
         }
-        SearchHelper searchHelper = new SearchHelper(null, null, username, password);
+        AruSearch aruSearch = new AruSearch(null, null, username, password);
         try {
-            searchHelper.getXmlContent(Constants.ARU_LANG_URL);
+            aruSearch.execSearch(Constants.ARU_LANG_URL);
         } catch (IOException e) {
             Throwable cause = (e.getCause() == null) ? e : e.getCause();
             if (cause.getClass().isAssignableFrom(HttpResponseException.class)
@@ -363,7 +364,7 @@ public class ARUUtil {
                 return false;
             }
         }
-        return searchHelper.isSuccess();
+        return aruSearch.isSuccess();
     }
 
     /**
