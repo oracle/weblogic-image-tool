@@ -29,7 +29,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
     imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
     ```
 
-3. For each WebLogic patch, download it from [Oracle Support](https://support.oracle.com/keystone/) and set up the cache.
+3. For each WebLogic patch, download it from [Oracle Support](https://support.oracle.com/) and set up the cache.
 
     For example, if you download patch number `27342434` for WebLogic Server version 12.2.1.3.0:
 
