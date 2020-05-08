@@ -29,7 +29,7 @@ import org.w3c.dom.NodeList;
 
 public class ARUUtil {
 
-    private static final Map<String, String> releaseNumbersMap = new HashMap<>();
+    static final Map<String, String> releaseNumbersMap = new HashMap<>();
     private static final LoggingFacade logger = LoggingFactory.getLogger(ARUUtil.class);
 
     private ARUUtil() {
