@@ -18,11 +18,13 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AruUtilTest {
 
     @Mock
-    private AruSearch mock;
+    private AruHttpHelper mock;
 
     private static LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
     private static Level oldLevel;
@@ -53,15 +55,16 @@ class AruUtilTest {
     }
 
     @Test
-    void testRecommendedPSUPatches() throws Exception {
+    void testRecommendedPsuPatches() throws Exception {
         String[] expected = { "30965714_12.2.1.3.0","28512225_12.2.1.3.0","28278427_12.2.1.3.0" };
         expect(mock.category()).andReturn(FmwInstallerType.WLS).anyTimes();
         expect(mock.release()).andReturn(ARUUtilTestConstants.ReleaseNumber).anyTimes();
         expect(mock.version()).andReturn(ARUUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
-        expect(mock.results()).andReturn(ARUUtilTestConstants.getReleasesResponse());
+        expect(mock.results()).andReturn(ARUUtilTestConstants.getReleasesResponse()).times(2);
+        expect(mock.createResultDocument(anyObject())).andReturn(mock);
         expect(mock.setRelease(ARUUtilTestConstants.ReleaseNumber)).andReturn(mock);
-        expect(mock.isSuccess()).andReturn(true).anyTimes();
+        expect(mock.success()).andReturn(true).anyTimes();
         expect(mock.results()).andReturn(ARUUtilTestConstants.getPatchesResponse());
         replay(mock);
         List<String> resultList =
@@ -78,15 +81,35 @@ class AruUtilTest {
         expect(mock.release()).andReturn(ARUUtilTestConstants.ReleaseNumber).anyTimes();
         expect(mock.version()).andReturn(ARUUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
-        expect(mock.results()).andReturn(ARUUtilTestConstants.getReleasesResponse());
+        expect(mock.createResultDocument(anyObject())).andReturn(mock);
+        expect(mock.results()).andReturn(ARUUtilTestConstants.getReleasesResponse()).times(2);
         expect(mock.setRelease(ARUUtilTestConstants.ReleaseNumber)).andReturn(mock);
-        expect(mock.isSuccess()).andReturn(false);
+        expect(mock.success()).andReturn(false);
         expect(mock.errorMessage()).andReturn("No results found").anyTimes();
         replay(mock);
         List<String> resultList =
             AruUtil.getLatestPsuRecommendedPatches(mock);
         verify(mock);
         assertTrue(resultList.isEmpty());
+    }
+
+    @Test
+    void testRecommendedPsu() throws Exception {
+        String expected = "30965714";
+        expect(mock.category()).andReturn(FmwInstallerType.WLS).anyTimes();
+        expect(mock.release()).andReturn(ARUUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.version()).andReturn(ARUUtilTestConstants.Version).anyTimes();
+        expect(mock.execSearch(anyString())).andReturn(mock).times(2);
+        expect(mock.setRelease(ARUUtilTestConstants.ReleaseNumber)).andReturn(mock);
+        expect(mock.createResultDocument(anyObject())).andReturn(mock);
+        expect(mock.results()).andReturn(ARUUtilTestConstants.getReleasesResponse()).times(2);
+        expect(mock.success()).andReturn(true).anyTimes();
+        expect(mock.results()).andReturn(ARUUtilTestConstants.getPatchesResponse());
+        replay(mock);
+        String result = AruUtil.getLatestPsuNumber(mock);
+        verify(mock);
+        assertNotNull(result);
+        assertEquals(expected, result);
     }
 
 }
