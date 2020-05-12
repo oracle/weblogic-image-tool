@@ -37,11 +37,11 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 
    Where ```--user --passwordEnv``` provides the credentials for a user who is entitled to download patches from Oracle Support.
 
- **NOTE**: You can provide the password in one of three ways (see Create Tool for the three command-line arguments):
+ **NOTE**: You can provide the password in one of three ways:
 
- * Plain text
- * Environment variable
- * File containing the password
+ * Plain text --password
+ * Environment variable --passwordEnv
+ * File containing the password --passwordFile
 
 
 You will see the Docker command output as the tool runs:
