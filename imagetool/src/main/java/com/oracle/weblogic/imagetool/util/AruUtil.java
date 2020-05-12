@@ -104,7 +104,7 @@ public class AruUtil {
         logger.entering(aruHttpHelper);
         try {
             logger.info("IMG-0067");
-            aruHttpHelper.setRelease(getReleaseNumber(aruHttpHelper));
+            aruHttpHelper.storeRelease(getReleaseNumber(aruHttpHelper));
             getRecommendedPatchesMetadata(aruHttpHelper);
             if (aruHttpHelper.success()) {
                 Document results = aruHttpHelper.results();

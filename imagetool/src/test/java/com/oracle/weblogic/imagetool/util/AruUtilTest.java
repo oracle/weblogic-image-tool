@@ -63,7 +63,7 @@ class AruUtilTest {
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
         expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
         expect(mock.createResultDocument(anyObject())).andReturn(mock);
-        expect(mock.setRelease(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
+        expect(mock.storeRelease(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
         expect(mock.success()).andReturn(true).anyTimes();
         expect(mock.results()).andReturn(AruUtilTestConstants.getPatchesResponse());
         replay(mock);
@@ -83,7 +83,7 @@ class AruUtilTest {
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
         expect(mock.createResultDocument(anyObject())).andReturn(mock);
         expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
-        expect(mock.setRelease(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
+        expect(mock.storeRelease(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
         expect(mock.success()).andReturn(false);
         expect(mock.errorMessage()).andReturn("No results found").anyTimes();
         replay(mock);
@@ -100,7 +100,7 @@ class AruUtilTest {
         expect(mock.release()).andReturn(AruUtilTestConstants.ReleaseNumber).anyTimes();
         expect(mock.version()).andReturn(AruUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
-        expect(mock.setRelease(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
+        expect(mock.storeRelease(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
         expect(mock.createResultDocument(anyObject())).andReturn(mock);
         expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
         expect(mock.success()).andReturn(true).anyTimes();
