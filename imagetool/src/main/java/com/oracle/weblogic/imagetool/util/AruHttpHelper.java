@@ -57,16 +57,6 @@ public class AruHttpHelper {
     }
 
     /**
-     * Set the error errorMessage.
-     *
-     * @param errorMessage message value.
-     */
-    AruHttpHelper setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-        return this;
-    }
-
-    /**
      * Returns true if no conflicts ; false if there is conflicts.
      * @return true if no conflicts ; false if there is conflicts
      */
@@ -112,16 +102,6 @@ public class AruHttpHelper {
     }
 
     /**
-     * Set the product version number for the search.
-     *
-     * @param version product version number
-     */
-    AruHttpHelper setVersion(String version) {
-        this.version = version;
-        return this;
-    }
-
-    /**
      * Return the Release number for the category and version.
      *
      * @return ARU release number
@@ -135,7 +115,7 @@ public class AruHttpHelper {
      *
      * @param release set the product release number
      */
-    AruHttpHelper setRelease(String release) {
+    AruHttpHelper storeRelease(String release) {
         this.release = release;
         return this;
     }
@@ -169,11 +149,26 @@ public class AruHttpHelper {
         return this;
     }
 
+    /**
+     * Call ARU via the HTTPUtil methods and check the result for conflict messages about
+     * patches not compatible.
+     *
+     * @param url to the ARU conflict patch numbers site.
+     * @param payload XML string containing the patch number being validated
+     * @return encapsulation of the
+     * @throws IOException if the ARU request is not successful
+     */
     AruHttpHelper execValidation(String url, String payload) throws IOException {
-        storeResults(HttpUtil.postCheckConflictRequest(url, payload, userId, password));
+        results = HttpUtil.postCheckConflictRequest(url, payload, userId, password);
         return this;
     }
 
+    /**
+     * Check the resulting document from the execValidation for conflicts.
+     *
+     * @return this instance of the encapsulation of the validated results
+     * @throws IOException if not able to parse the returned Document for conflict messages
+     */
     AruHttpHelper validation() throws IOException {
         NodeList conflictSets;
         try {
@@ -191,7 +186,7 @@ public class AruHttpHelper {
 
                 createResultDocument(nodeList);
 
-                setErrorMessage(parsePatchValidationError());
+                errorMessage = parsePatchValidationError();
 
             } catch (XPathExpressionException xpe) {
                 throw new IOException(xpe);
@@ -231,10 +226,11 @@ public class AruHttpHelper {
 
             doc.appendChild(element);
 
-            return storeResults(doc);
+            results = doc;
         } catch (ParserConfigurationException pce) {
             throw new IOException(pce);
         }
+        return this;
     }
 
     /**
@@ -242,7 +238,7 @@ public class AruHttpHelper {
      *
      * @return String
      */
-    String parsePatchValidationError() {
+    private String parsePatchValidationError() {
         StringBuilder stringBuilder = new StringBuilder();
         Node conflictsResultNode = results();
         if (conflictsResultNode != null) {
@@ -275,9 +271,9 @@ public class AruHttpHelper {
             NodeList nodeList = XPathUtil.applyXPathReturnNodeList(result, "/results/error");
             if (nodeList.getLength() > 0) {
                 success = false;
-                setErrorMessage(XPathUtil.applyXPathReturnString(result, "/results/error/message"));
+                errorMessage = XPathUtil.applyXPathReturnString(result, "/results/error/message");
             } else {
-                storeResults(result);
+                results = result;
             }
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);

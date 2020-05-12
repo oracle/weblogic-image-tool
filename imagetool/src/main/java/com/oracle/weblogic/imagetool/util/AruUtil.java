@@ -56,7 +56,7 @@ public class AruUtil {
         logger.entering(aruHttpHelper);
         try {
             logger.info("IMG-0019");
-            aruHttpHelper.setRelease(getReleaseNumber(aruHttpHelper));
+            aruHttpHelper.storeRelease(getReleaseNumber(aruHttpHelper));
             getRecommendedPsuMetadata(aruHttpHelper);
             if (aruHttpHelper.success()) {
                 Document results = aruHttpHelper.results();
