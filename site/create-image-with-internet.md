@@ -37,7 +37,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 
    Where ```--user --passwordEnv``` provides the credentials for a user who is entitled to download patches from Oracle Support.
 
- **NOTE**: You can provide the password in one of three ways (see Create Tool for the three command line arguments):
+ **NOTE**: You can provide the password in one of three ways (see Create Tool for the three command-line arguments):
 
  * Plain text
  * Environment variable
