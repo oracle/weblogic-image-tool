@@ -39,7 +39,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 
  **NOTE**: You can provide the password in one of three ways:
 
- * Plain text --password
+ * Read from STDIN --password
  * Environment variable --passwordEnv
  * File containing the password --passwordFile
 
