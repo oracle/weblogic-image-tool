@@ -199,7 +199,9 @@ public class Utils {
         throws IOException {
         MustacheFactory mf = new DefaultMustacheFactory("docker-files");
         Mustache mustache = mf.compile(template);
-        mustache.execute(new FileWriter(destPath), options).flush();
+        try (FileWriter fw = new FileWriter(destPath)) {
+            mustache.execute(fw, options).flush();
+        }
 
         if (dryRun) {
             return mustache.execute(new StringWriter(), options).toString();

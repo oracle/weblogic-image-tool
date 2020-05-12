@@ -102,7 +102,9 @@ public class DefaultResponseFile implements ResponseFile {
         logger.entering(buildContextDir, filename, installTypeResponse);
         MustacheFactory mf = new DefaultMustacheFactory("response-files");
         Mustache mustache = mf.compile("default-response.mustache");
-        mustache.execute(new FileWriter(buildContextDir + File.separator + filename), this).flush();
+        try (FileWriter fw = new FileWriter(buildContextDir + File.separator + filename)) {
+            mustache.execute(fw, this).flush();
+        }
         logger.exiting();
     }
 
