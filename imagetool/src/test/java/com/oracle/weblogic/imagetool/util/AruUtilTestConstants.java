@@ -6,7 +6,7 @@ package com.oracle.weblogic.imagetool.util;
 import org.apache.http.client.ClientProtocolException;
 import org.w3c.dom.Document;
 
-class ARUUtilTestConstants {
+class AruUtilTestConstants {
 
     static final String ReleaseNumber = "600000000073715";
     static final String Version = "12.2.1.3.0";
