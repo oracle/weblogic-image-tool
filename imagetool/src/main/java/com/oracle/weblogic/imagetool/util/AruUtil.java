@@ -56,7 +56,7 @@ public class AruUtil {
         logger.entering(aruHttpHelper);
         try {
             logger.info("IMG-0019");
-            aruHttpHelper.storeRelease(getReleaseNumber(aruHttpHelper));
+            aruHttpHelper.release(getReleaseNumber(aruHttpHelper));
             getRecommendedPsuMetadata(aruHttpHelper);
             if (aruHttpHelper.success()) {
                 Document results = aruHttpHelper.results();
@@ -104,7 +104,7 @@ public class AruUtil {
         logger.entering(aruHttpHelper);
         try {
             logger.info("IMG-0067");
-            aruHttpHelper.storeRelease(getReleaseNumber(aruHttpHelper));
+            aruHttpHelper.release(getReleaseNumber(aruHttpHelper));
             getRecommendedPatchesMetadata(aruHttpHelper);
             if (aruHttpHelper.success()) {
                 Document results = aruHttpHelper.results();

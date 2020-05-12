@@ -16,6 +16,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * This class assists with requests made against the ARU server using the HTTPHelper. Common
+ * information is encapsulated in the helper class. Checking for errors is also done in this class.
+ */
 public class AruHttpHelper {
     private boolean success;
     private Document results;
@@ -43,6 +47,12 @@ public class AruHttpHelper {
         this.results = null;
     }
 
+    /**
+     * For searches that only provide the credentials for the ARU searches.
+     *
+     * @param userId ARU credentials userid
+     * @param password ARU credentials password
+     */
     AruHttpHelper(String userId, String password) {
         this(null, null, userId, password);
     }
@@ -71,16 +81,6 @@ public class AruHttpHelper {
      */
     Document results() {
         return results;
-    }
-
-    /**
-     * Set the result object from the search.
-     *
-     * @param results dom document detailing about the conflicts
-     */
-    AruHttpHelper storeResults(Document results) {
-        this.results = results;
-        return this;
     }
 
     /**
@@ -115,7 +115,7 @@ public class AruHttpHelper {
      *
      * @param release set the product release number
      */
-    AruHttpHelper storeRelease(String release) {
+    AruHttpHelper release(String release) {
         this.release = release;
         return this;
     }
@@ -142,6 +142,7 @@ public class AruHttpHelper {
      * Perform the ARU search, and parse the returned XML String into a document.
      *
      * @param url for the ARU Search
+     * @return this instance of encapsulation of ARU search information
      * @throws IOException if the search fails
      */
     AruHttpHelper execSearch(String url) throws IOException {
@@ -155,7 +156,7 @@ public class AruHttpHelper {
      *
      * @param url to the ARU conflict patch numbers site.
      * @param payload XML string containing the patch number being validated
-     * @return encapsulation of the
+     * @return this instance of encapsulation of ARU search information
      * @throws IOException if the ARU request is not successful
      */
     AruHttpHelper execValidation(String url, String payload) throws IOException {
