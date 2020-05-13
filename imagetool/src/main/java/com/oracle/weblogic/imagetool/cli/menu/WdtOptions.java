@@ -27,6 +27,14 @@ public class WdtOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(WdtOptions.class);
 
     /**
+     * Return true if the user specified a WDT model or WDT archive on the command line.
+     * @return true if WDT was selected by the user
+     */
+    boolean isUsingWdt() {
+        return wdtModelPath != null || wdtArchivePath != null;
+    }
+
+    /**
      * Checks whether the user requested a domain to be created with WDT.
      * If so,  creates required file links to pass the model, archive, variables file to build process.
      *

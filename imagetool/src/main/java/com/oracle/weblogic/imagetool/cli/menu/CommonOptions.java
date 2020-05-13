@@ -185,7 +185,7 @@ public abstract class CommonOptions {
      */
     boolean shouldUpdateOpatch() {
         if (skipOpatchUpdate) {
-            logger.fine("OPatch update was skipped at user's request");
+            logger.fine("IMG-0065");
         }
         return !skipOpatchUpdate;
     }
