@@ -19,8 +19,8 @@ import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
+import com.oracle.weblogic.imagetool.util.AruUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
@@ -156,7 +156,7 @@ public abstract class CommonOptions {
         // check user support credentials if useCache not set to always and we are applying any patches
 
         if (userId != null || password != null) {
-            if (!ARUUtil.checkCredentials(userId, password)) {
+            if (!AruUtil.checkCredentials(userId, password)) {
                 throw new Exception("user Oracle support credentials do not match");
             }
         }
@@ -174,7 +174,7 @@ public abstract class CommonOptions {
      * @return true if applying patches
      */
     boolean applyingPatches() {
-        return latestPSU || !patches.isEmpty();
+        return (latestPSU || recommendedPatches) || !patches.isEmpty();
     }
 
     /**
@@ -206,14 +206,28 @@ public abstract class CommonOptions {
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
 
         List<PatchFile> patchFiles = new ArrayList<>();
-
-        if (latestPSU) {
+        if (recommendedPatches || latestPSU) {
             if (userId == null || password == null) {
                 throw new Exception(Utils.getMessage("IMG-0031"));
             }
+        }
+        if (recommendedPatches) {
+            // Get the latest PSU and its recommended patches
+            List<String> patchList =
+                AruUtil.getLatestPsuRecommendedPatches(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
+            if (patchList.isEmpty()) {
+                recommendedPatches = false;
+                logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
+            } else {
+                for (String patchId: patchList) {
+                    logger.fine("Add latest recommended patch {0} to list", patchId);
+                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                }
+            }
+        } else if (latestPSU) {
             // PSUs for WLS and JRF installers are considered WLS patches
-            String patchId = ARUUtil.getLatestPSUNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
+            String patchId = AruUtil.getLatestPsuNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
             if (Utils.isEmptyString(patchId)) {
                 latestPSU = false;
@@ -234,7 +248,7 @@ public abstract class CommonOptions {
             }
         }
 
-        ARUUtil.validatePatches(previousInventory, patchFiles, userId, password);
+        AruUtil.validatePatches(previousInventory, patchFiles, userId, password);
 
         for (PatchFile patch : patchFiles) {
             String patchLocation = patch.resolve(cache());
@@ -379,6 +393,12 @@ public abstract class CommonOptions {
         description = "Whether to apply patches from latest PSU."
     )
     boolean latestPSU = false;
+
+    @Option(
+        names = {"--recommendedPatches"},
+        description = "Whether to apply recommended patches from latest PSU."
+    )
+    boolean recommendedPatches = false;
 
     @Option(
         names = {"--patches"},
