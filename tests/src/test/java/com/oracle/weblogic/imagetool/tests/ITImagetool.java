@@ -590,7 +590,8 @@ class ITImagetool extends BaseTest {
             + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
             + " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION
             + " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel "
-            + wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables;
+            + wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables
+            + "--wdtModelOnly";
 
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
