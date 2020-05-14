@@ -393,8 +393,8 @@ class ITImagetool extends BaseTest {
      *
      * @throws Exception - if any error occurs
      */
-    @Test
-    @Order(12)
+    //@Test
+    //@Order(12)
     void createFmwImgNonDefault() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -432,8 +432,8 @@ class ITImagetool extends BaseTest {
      *
      * @throws Exception - if any error occurs
      */
-    @Test
-    @Order(13)
+    //@Test
+    //@Order(13)
     void testDCreateJRFDomainImgUsingWDT() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -497,8 +497,8 @@ class ITImagetool extends BaseTest {
      *
      * @throws Exception - if any error occurs
      */
-    @Test
-    @Order(14)
+    //@Test
+    //@Order(14)
     void createRestricedJrfDomainImgUsingWdt() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -590,8 +590,7 @@ class ITImagetool extends BaseTest {
             + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
             + " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION
             + " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel "
-            + wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables
-            + "--wdtModelOnly";
+            + wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables;
 
         logger.info("Executing command: " + command);
         ExecResult result = ExecCommand.exec(command);
@@ -608,8 +607,8 @@ class ITImagetool extends BaseTest {
      *
      * @throws Exception - if any error occurs
      */
-    @Test
-    @Order(16)
+    //@Test
+    //@Order(16)
     void createWLSImgWithAdditionalBuildCommands() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
