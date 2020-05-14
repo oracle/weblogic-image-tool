@@ -15,7 +15,6 @@ import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -68,11 +67,17 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             String oracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
             if (oracleHome == null) {
-                return new CommandResponse(-1, "ORACLE_HOME env variable undefined in base image: " + fromImage);
+                return new CommandResponse(-1, "IMG-0072", fromImage);
             }
             dockerfileOptions.setOracleHome(oracleHome);
-            installerType = FmwInstallerType.valueOf(baseImageProperties.getProperty("WLS_TYPE",
-                FmwInstallerType.WLS.toString()).toUpperCase());
+
+            if (wdtOptions.isUsingWdt()) {
+                String domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
+                if (domainHome == null && wdtOperation == WdtOperation.UPDATE) {
+                    return new CommandResponse(-1, "IMG-0071", fromImage);
+                }
+            }
+
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
@@ -173,8 +178,6 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
     }
 
     private String installerVersion;
-
-    private FmwInstallerType installerType;
 
     @Option(
         names = {"--fromImage"},
