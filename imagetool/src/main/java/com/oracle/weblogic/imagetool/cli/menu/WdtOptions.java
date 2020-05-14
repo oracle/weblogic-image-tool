@@ -44,7 +44,7 @@ public class WdtOptions {
     void handleWdtArgs(DockerfileOptions dockerfileOptions, DockerBuildCommand cmdBuilder, String tmpDir)
         throws IOException {
 
-        if (wdtModelPath == null) {
+        if (!isUsingWdt()) {
             return;
         }
 
@@ -57,10 +57,10 @@ public class WdtOptions {
 
         dockerfileOptions.setWdtEnabled();
         dockerfileOptions.setWdtModelOnly(wdtModelOnly);
-
-        List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
-
-        dockerfileOptions.setWdtModels(modelList);
+        if (wdtModelPath != null) {
+            List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
+            dockerfileOptions.setWdtModels(modelList);
+        }
 
         dockerfileOptions.setWdtDomainType(wdtDomainType);
         dockerfileOptions.setRunRcu(runRcu);
