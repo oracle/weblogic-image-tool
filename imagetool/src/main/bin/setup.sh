@@ -10,7 +10,7 @@ umask 27
 # JDK 8 or higher JVM (and that it isn't OpenJDK).
 #
 if [ -z "${JAVA_HOME}" ]; then
-  echo "JAVA_HOME not set. Please set the JAVA_HOME environment variable to match the location of your Java 8 or 11 installation." >&2
+  echo "Please set the JAVA_HOME environment variable to match the location of your Java installation. Java 8 or newer is required." >&2
   return
 elif [ ! -d "${JAVA_HOME}" ]; then
   echo "Your JAVA_HOME environment variable points to a non-existent directory: ${JAVA_HOME}" >&2
