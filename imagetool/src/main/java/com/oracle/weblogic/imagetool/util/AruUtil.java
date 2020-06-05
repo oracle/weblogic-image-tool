@@ -148,7 +148,7 @@ public class AruUtil {
      * @throws IOException when failed to access the aru api
      */
     public static void validatePatches(String inventoryContent, List<PatchFile> patches, String userId, String password)
-        throws IOException {
+        throws IOException, XPathExpressionException {
         validatePatches(inventoryContent, patches, new AruHttpHelper(userId, password));
     }
 
@@ -161,7 +161,7 @@ public class AruUtil {
      * @throws IOException when failed to access the aru api
      */
     static void validatePatches(String inventoryContent, List<PatchFile> patches,
-                                       AruHttpHelper aruHttpHelper) throws IOException {
+                                       AruHttpHelper aruHttpHelper) throws IOException, XPathExpressionException {
         logger.entering(inventoryContent, patches, aruHttpHelper);
 
         if (aruHttpHelper.userId() == null || aruHttpHelper.password() == null) {
@@ -178,28 +178,22 @@ public class AruUtil {
 
             AruHttpHelper upiResult = aruHttpHelper.execValidation(Constants.GET_LSINVENTORY_URL, upiPayload);
 
-            try {
-                NodeList upiList = XPathUtil.applyXPathReturnNodeList(upiResult.results(),
-                        "/inventory_upi_response/upi");
-                if (upiList.getLength() > 0) {
-                    payload.append("<target_patch_list>");
+            NodeList upiList = XPathUtil.applyXPathReturnNodeList(upiResult.results(),
+                    "/inventory_upi_response/upi");
+            if (upiList.getLength() > 0) {
+                payload.append("<target_patch_list>");
 
-                    for (int ii = 0; ii < upiList.getLength(); ii++) {
-                        Node upi = upiList.item(ii);
-                        NamedNodeMap m = upi.getAttributes();
-                        payload.append(String.format("<installed_patch upi=\"%s\"/>",
-                                m.getNamedItem("number").getNodeValue()));
+                for (int ii = 0; ii < upiList.getLength(); ii++) {
+                    Node upi = upiList.item(ii);
+                    NamedNodeMap m = upi.getAttributes();
+                    payload.append(String.format("<installed_patch upi=\"%s\"/>",
+                            m.getNamedItem("number").getNodeValue()));
 
-                    }
-                    payload.append("</target_patch_list>");
-                } else {
-                    payload.append("<target_patch_list/>");
                 }
-            } catch (XPathExpressionException xpe) {
-                throw new IOException(xpe);
-
+                payload.append("</target_patch_list>");
+            } else {
+                payload.append("<target_patch_list/>");
             }
-
         } else {
             payload.append("<target_patch_list/>");
         }
@@ -213,7 +207,7 @@ public class AruUtil {
                     continue;
                 }
 
-                logger.info("IMG-0022", patch.getBugNumber(), patch.getReleaseNumber());
+                logger.info("IMG-0022", patch.getBugNumber(), patch.getReleaseName(), patch.getReleaseNumber());
 
                 payload.append(String.format("<patch_group rel_id=\"%s\">%s</patch_group>",
                         patch.getReleaseNumber(), patch.getBugNumber()));
@@ -236,29 +230,23 @@ public class AruUtil {
         logger.exiting(aruHttpHelper);
     }
 
-    private static Document getAllReleases(AruHttpHelper aruHttpHelper) throws IOException {
+    private static Document getAllReleases(AruHttpHelper aruHttpHelper) throws IOException, XPathExpressionException {
         logger.entering(aruHttpHelper);
         aruHttpHelper.execSearch(Constants.REL_URL);
 
-        try {
+        String expression;
 
-            String expression;
-
-            if (FmwInstallerType.WLS == aruHttpHelper.category()) {
-                expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
-            } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(aruHttpHelper.category().toString())) {
-                expression = "/results/release[starts-with(text(), 'OPatch')]";
-            } else {
-                expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
-            }
-            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(aruHttpHelper.results(), expression);
-            aruHttpHelper = aruHttpHelper.createResultDocument(nodeList);
-            logger.exiting();
-            return aruHttpHelper.results();
-
-        } catch (XPathExpressionException xpe) {
-            throw new IOException(xpe);
+        if (FmwInstallerType.WLS == aruHttpHelper.category()) {
+            expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
+        } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(aruHttpHelper.category().toString())) {
+            expression = "/results/release[starts-with(text(), 'OPatch')]";
+        } else {
+            expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
         }
+        NodeList nodeList = XPathUtil.applyXPathReturnNodeList(aruHttpHelper.results(), expression);
+        aruHttpHelper = aruHttpHelper.createResultDocument(nodeList);
+        logger.exiting();
+        return aruHttpHelper.results();
     }
 
     private static void getRecommendedPsuMetadata(AruHttpHelper aruHttpHelper) throws IOException {
@@ -294,8 +282,7 @@ public class AruUtil {
      * @return release number
      * @throws IOException in case of error
      */
-    private static String getReleaseNumber(AruHttpHelper aruHttpHelper)
-        throws IOException {
+    private static String getReleaseNumber(AruHttpHelper aruHttpHelper) throws IOException, XPathExpressionException {
         logger.entering(aruHttpHelper);
         String key = aruHttpHelper.category() + CacheStore.CACHE_KEY_SEPARATOR + aruHttpHelper.version();
         String retVal = releaseNumbersMap.getOrDefault(key, null);

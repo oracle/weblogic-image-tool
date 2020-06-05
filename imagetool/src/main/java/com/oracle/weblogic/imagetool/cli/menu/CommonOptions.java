@@ -194,15 +194,26 @@ public abstract class CommonOptions {
      * Builds a list of build args to pass on to docker with the required patches.
      * Also, creates links to patches directory under build context instead of copying over.
      *
+     * @throws Exception in case of error
+     */
+    void handlePatchFiles() throws Exception {
+        handlePatchFiles(null, null);
+    }
+
+    /**
+     * Builds a list of build args to pass on to docker with the required patches.
+     * Also, creates links to patches directory under build context instead of copying over.
+     *
      * @param previousInventory existing inventory found in the "from" image
      * @throws Exception in case of error
      */
-    void handlePatchFiles(String previousInventory) throws Exception {
+    void handlePatchFiles(String previousInventory, String existingPsuVersion) throws Exception {
         logger.entering();
         if (!applyingPatches()) {
             return;
         }
 
+        String psuVersion = existingPsuVersion;
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
 
         List<PatchFile> patchFiles = new ArrayList<>();
@@ -222,7 +233,7 @@ public abstract class CommonOptions {
             } else {
                 for (String patchId: patchList) {
                     logger.fine("Add latest recommended patch {0} to list", patchId);
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
                 }
             }
         } else if (latestPSU) {
@@ -234,7 +245,7 @@ public abstract class CommonOptions {
                 logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
             } else {
                 logger.fine("Found latest PSU {0}", patchId);
-                patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                patchFiles.add(new PatchFile(patchId, getInstallerVersion(), null, userId, password));
             }
         }
 
@@ -243,7 +254,7 @@ public abstract class CommonOptions {
             for (String patchId : patches) {
                 // if user mistakenly added the OPatch patch to the WLS patch list, skip it
                 if (!OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
                 }
             }
         }

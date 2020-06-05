@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -305,12 +304,7 @@ public class Utils {
         String strippedOtherVersion = tmp[0];
         String[] otherVersionElements = strippedOtherVersion.split("\\.");
 
-        int fieldsToCompare;
-        if (thisVersionElements.length <= otherVersionElements.length) {
-            fieldsToCompare = thisVersionElements.length;
-        } else {
-            fieldsToCompare = otherVersionElements.length;
-        }
+        int fieldsToCompare = Math.min(thisVersionElements.length, otherVersionElements.length);
 
         int idx;
         for (idx = 0; idx < fieldsToCompare; idx++) {
@@ -424,13 +418,7 @@ public class Utils {
         throws IOException, InterruptedException {
 
         List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, dockerImage, "test-env.sh");
-        Properties result = Utils.runDockerCommand(imageEnvCmd);
-
-        if (logger.isLoggable(Level.FINE)) {
-            result.keySet().forEach(x -> logger.fine(
-                "ENV(" + dockerImage + "): " + x + "=" + result.getProperty(x.toString())));
-        }
-        return result;
+        return Utils.runDockerCommand(imageEnvCmd);
     }
 
     /**
@@ -612,7 +600,6 @@ public class Utils {
      */
 
     public static boolean validatePatchIds(List<String> patches, boolean rigid) {
-        boolean result = true;
         Pattern patchIdPattern;
         if (rigid) {
             patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
@@ -632,14 +619,13 @@ public class Utils {
                     }
 
                     logger.severe("IMG-0004", patchId, errorFormat);
-                    result = false;
-                    return result;
+                    return false;
                 }
             }
 
         }
 
-        return result;
+        return true;
     }
 
     /**

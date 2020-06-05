@@ -24,13 +24,13 @@ if [[ -n "$ORACLE_HOME" ]]; then
     echo WLS_TYPE="$WLS_TYPE"
   fi
   if [[ -n "$JAVA_HOME" ]]; then
-    echo WLS_VERSION="$("$JAVA_HOME"/bin/java -cp $ORACLE_HOME/wlserver/server/lib/weblogic.jar weblogic.version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)' | head -1)"
+    echo WLS_VERSION="$("$JAVA_HOME"/bin/java -cp "$ORACLE_HOME"/wlserver/server/lib/weblogic.jar weblogic.version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)' | head -1)"
   fi
   echo OPATCH_VERSION="$("$ORACLE_HOME"/OPatch/opatch version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)')"
   "$ORACLE_HOME"/OPatch/opatch lsinventory > /tmp/lsout 2> /dev/null
 
   if [[  -f "/tmp/lsout" ]]; then
-    echo LSINV_TEXT="$(base64 /tmp/lsout)"
+    echo LSINV_TEXT="$(base64 -w 0 /tmp/lsout)"
   fi
 fi
 

@@ -12,6 +12,8 @@ import java.util.Base64;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
@@ -36,6 +38,7 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 public class UpdateImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
+    private String psuVersion = null;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -100,6 +103,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                         Files.copy(Paths.get(opatchFilePath), Paths.get(tmpDir, filename));
                         dockerfileOptions.setOPatchPatchingEnabled();
                         dockerfileOptions.setOPatchFileName(filename);
+                    } else {
+                        logger.info("IMG-0073", opatchVersion, opatchFile.getVersion());
                     }
                 }
 
@@ -128,6 +133,17 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                             logger.severe("ls inventory = " + lsinventoryText);
                             return new CommandResponse(-1, "lsinventory failed");
                         }
+                        // search inventory for PSU and extract PSU version, if available
+                        Pattern psuPattern = Pattern.compile("WLS PATCH SET UPDATE (\\d+\\.\\d+\\.\\d+\\.\\d+\\.)\\d+"
+                            + "\\(ID:(\\d+)\\.\\d+\\)");
+                        for (String line: lsinventoryText.split("\\n")) {
+                            Matcher matcher = psuPattern.matcher(line);
+                            if (matcher.find()) {
+                                psuVersion = matcher.group(1) + matcher.group(2);
+                                logger.fine("Found PSU in inventory {0}, in {1}", psuVersion, matcher.group(0));
+                                break;
+                            }
+                        }
                     } else {
                         return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
                     }
@@ -146,7 +162,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             }
 
             // resolve required patches
-            handlePatchFiles(lsinventoryText);
+            handlePatchFiles(lsinventoryText, psuVersion);
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
