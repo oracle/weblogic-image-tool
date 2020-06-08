@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,6 +25,7 @@ import com.oracle.weblogic.imagetool.util.AruUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.ResolverOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
@@ -33,6 +35,7 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
     DockerfileOptions dockerfileOptions;
+    private List<Object> resolveOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
 
@@ -165,6 +168,13 @@ public abstract class CommonOptions {
         handleAdditionalBuildCommands();
 
         logger.exiting();
+    }
+
+    List<Object> resolveOptions() {
+        if (resolveFiles != null) {
+            resolveOptions = Collections.singletonList(new ResolverOptions(imageTag, dockerfileOptions.domain_home()));
+        }
+        return resolveOptions;
     }
 
     /**
@@ -431,6 +441,12 @@ public abstract class CommonOptions {
         description = "Do not update OPatch version, even if a newer version is available."
     )
     private boolean skipOpatchUpdate = false;
+
+    @Option(
+        names = {"--resolveFiles"},
+        description = "Files with parameters that need to be resolved by values in the images tool."
+    )
+    List<String> resolveFiles;
 
     @SuppressWarnings("unused")
     @Unmatched

@@ -211,6 +211,38 @@ public class Utils {
     }
 
     /**
+     * Resolve the parameters in the list of Mustache templates with values passed in command line
+     * arguments or other values described by the image tool.
+     * @param fileNames list of file names with mustache parameters to be resolved
+     * @param options list of option files to resolve the mustache parameters
+     * @throws IOException if a file in the fileNames is invalid
+     */
+    public static void writeResolvedFiles(List<String> fileNames, List<Object> options)
+        throws IOException {
+        if (fileNames != null) {
+            for (String fileName : fileNames) {
+                logger.fine("writeResolvedFiles: resolve parameters in file {0}", fileName);
+                File template = new File(fileName);
+                File directory = template.getParentFile();
+                if (directory == null
+                    || !(template.isFile() && template.canRead() && template.canWrite())) {
+                    throw new IllegalArgumentException(getMessage("IMG-0073", template.toString()));
+                }
+
+                MustacheFactory mf = new DefaultMustacheFactory(directory);
+                Mustache mustache;
+                try (FileReader fr = new FileReader(template)) {
+                    mustache = mf.compile(fr, fileName);
+                }
+                try (FileWriter fw = new FileWriter(template)) {
+                    mustache.execute(fw, options).flush();
+                }
+            }
+        }
+
+    }
+
+    /**
      * Executes the given docker command and returns the stdout of the process as properties.
      *
      * @param cmdBuilder command to execute

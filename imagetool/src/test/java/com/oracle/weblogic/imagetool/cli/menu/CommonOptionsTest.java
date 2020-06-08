@@ -3,14 +3,18 @@
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -20,11 +24,13 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("unit")
@@ -125,4 +131,48 @@ public class CommonOptionsTest {
         }
     }
 
+    /**
+     * Test resolving options in a list of input files.
+     *
+     * @throws Exception if in error or IOException
+     */
+    @Test
+    void testResolveOptions() throws Exception {
+        CreateImage createImage = new CreateImage();
+
+        // accessing private fields normally set by the command line
+        Field optionsField = CommonOptions.class.getDeclaredField("dockerfileOptions");
+        optionsField.setAccessible(true);
+        DockerfileOptions dockerfile = new DockerfileOptions("testbuildid");
+        optionsField.set(createImage, dockerfile);
+
+        Field imageTagField = CommonOptions.class.getDeclaredField("imageTag");
+        imageTagField.setAccessible(true);
+        imageTagField.set(createImage, "phx.ocir.io/stevengreenberginc/todo:1.0.0");
+
+        createImage.resolveFiles = Arrays.asList("target/test-classes/templates/resolver.yml",
+            "target/test-classes/templates/verrazzano.yml");
+
+        Utils.writeResolvedFiles(createImage.resolveFiles, createImage.resolveOptions());
+
+        List<String> linesRead = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+            new FileInputStream("target/test-classes/templates/resolver.yml")))) {
+            while (br.ready()) {
+                linesRead.add(br.readLine());
+            }
+        }
+        assertEquals(2, linesRead.size(), "Number of lines read from the file was unexpected");
+        for (String line : linesRead) {
+            if (line.contains("domainHome")) {
+                assertTrue(line.contains("/u01/domains/base_domain"), "Invalid domain home value " + line);
+            } else if (line.contains("image")) {
+                assertTrue(line.contains("phx.ocir.io/stevengreenberginc/todo:1.0.0"),
+                    "Invalid tag name " + line);
+            } else {
+                fail("Unexpected line read " + line);
+            }
+
+        }
+    }
 }
