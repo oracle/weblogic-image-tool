@@ -39,8 +39,10 @@ public class CachedFile {
      */
     public CachedFile(String id, String version) {
         Objects.requireNonNull(id, "key for the cached file cannot be null");
+        logger.entering(id, version);
         this.id = id;
         this.version = version;
+        logger.exiting();
     }
 
     /**

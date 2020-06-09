@@ -208,7 +208,7 @@ public abstract class CommonOptions {
      * @throws Exception in case of error
      */
     void handlePatchFiles(String previousInventory, String existingPsuVersion) throws Exception {
-        logger.entering();
+        logger.entering(existingPsuVersion);
         if (!applyingPatches()) {
             return;
         }

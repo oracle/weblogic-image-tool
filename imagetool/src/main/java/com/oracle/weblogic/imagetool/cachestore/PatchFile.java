@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
@@ -46,6 +45,7 @@ public class PatchFile extends CachedFile {
      */
     public PatchFile(String patchId, String version, String patchSetVersion, String userId, String password) {
         super(patchId, version);
+        logger.entering(patchId, version, patchSetVersion, userId);
         this.userId = userId;
         this.password = password;
         this.patchSetVersion = patchSetVersion;
@@ -65,6 +65,7 @@ public class PatchFile extends CachedFile {
         if (Utils.isEmptyString(bugNumber)) {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0058", patchId));
         }
+        logger.exiting(patchVersion);
     }
 
     @Override
@@ -88,38 +89,14 @@ public class PatchFile extends CachedFile {
     public String resolve(CacheStore cacheStore) throws IOException, XPathExpressionException {
         String cacheKey = getKey();
         logger.entering(cacheKey, patchSetVersion);
+        if (needAruInfo()) {
+            initPatchInfo();
+        }
         String filePath;
         boolean fileExists;
-        // check the cache for a PSU version of the patch, before checking the installer version of the patch
-        if (checkPsuVersion()) {
-            cacheKey = buildKeyFromVersion(patchSetVersion);
-            logger.info("IMG-0074", bugNumber, cacheKey);
-        }
 
         filePath = cacheStore.getValueFromCache(cacheKey);
         fileExists = isFileOnDisk(filePath);
-
-        // if it was checking the PSU version, and could not be found locally ...
-        if (!fileExists && checkPsuVersion()) {
-            // if online, check ARU for a PSU version of the patch
-            if (!offlineMode()) {
-                // get ARU info to see if there are multiple patches for this bug number
-                if (needAruInfo()) {
-                    initPatchInfo();
-                }
-                String patchXpath = String.format("string(/results/patch/release[@name='%s'])", patchSetVersion);
-                String patch = XPathUtil.applyXPathReturnString(getAruInfo(), patchXpath);
-                // if the patch has a PSU version in ARU, set the patch version to PSU version (download PSU version)
-                if (!Utils.isEmptyString(patch)) {
-                    setPatchVersion(patchSetVersion);
-                }
-            } else {
-                // if offline, use the default cache key to resolve patch locally
-                cacheKey = getKey();
-                filePath = cacheStore.getValueFromCache(cacheKey);
-                fileExists = isFileOnDisk(filePath);
-            }
-        }
 
         if (fileExists) {
             logger.info("IMG-0017", getKey(), filePath);
@@ -166,54 +143,39 @@ public class PatchFile extends CachedFile {
      *
      * @throws IOException if an error occurs trying to get response or parsing response from ARU.
      */
-    synchronized void initPatchInfo() throws IOException {
+    synchronized void initPatchInfo() throws IOException, XPathExpressionException {
         logger.entering(bugNumber);
         if (needAruInfo()) {
             String url = String.format(BUG_SEARCH_URL, bugNumber);
             aruInfo = HttpUtil.getXMLContent(url, userId, password);
         }
-        //confirmUniquePatchSelection();
-        //if (checkPsuVersion()) {
-        //    String patchXpath = String.format("string(/results/patch/release[@name='%s'])", patchSetVersion);
-        //    String patch = XPathUtil.applyXPathReturnString(aruInfo, patchXpath);
-        //    // if the patch has a PSU version in ARU, set the patch version to PSU version (download PSU version)
-        //    if (!Utils.isEmptyString(patch)) {
-        //        setPatchVersion(patchSetVersion);
-        //    }
-        //}
+
+        if (checkPsuVersion()) {
+            String patchXpath = String.format("string(/results/patch/release[@name='%s'])", patchSetVersion);
+            String patch = XPathUtil.applyXPathReturnString(aruInfo, patchXpath);
+            // if the patch has a PSU version in ARU, set the patch version to PSU version (download PSU version)
+            if (!Utils.isEmptyString(patch)) {
+                logger.fine("Found PSU version in ARU for patch {0}, version set to {1}",
+                    bugNumber, patchSetVersion);
+                setPatchVersion(patchSetVersion);
+            }
+        } else {
+            // check to see if we have information to resolve a unique patch
+            verifyPatchVersion();
+        }
+
+        getReleaseInfoFromAru();
 
         logger.exiting();
     }
 
     /**
-     * Get the release name for this patch.
-     *
-     * @return the release name provided by ARU
-     * @throws IOException if an error occurs retrieving the release number/name from ARU
+     * Set the release number and release name for this patch using the ARU info.
+     * @throws IOException when the release number for a given bug version is unresolved.
+     * @throws XPathExpressionException when the XPath into the ARU XML fails.
      */
-    public String getReleaseName() throws IOException, XPathExpressionException {
-        if (releaseNumber != null) {
-            return releaseName;
-        }
-        getReleaseNumber();
-        return releaseName;
-    }
-
-    /**
-     * Get the internal release number for this patch.
-     *
-     * @return the release number provided by ARU
-     * @throws IOException if an error occurs retrieving the release number from ARU
-     */
-    public String getReleaseNumber() throws IOException, XPathExpressionException {
-        if (releaseNumber != null) {
-            return releaseNumber;
-        }
-
-        if (needAruInfo()) {
-            initPatchInfo();
-        }
-
+    private void getReleaseInfoFromAru() throws IOException, XPathExpressionException {
+        // get release number and release name from ARU data
         String releasePath = String.format("/results/patch/release[@name='%s']/@id", getVersion());
         String releaseNamePath = String.format("/results/patch/release[@name='%s']/text()", getVersion());
 
@@ -228,6 +190,33 @@ public class PatchFile extends CachedFile {
         }
 
         logger.finest("XPath return release number {0}", releaseNumber);
+    }
+
+    /**
+     * Get the release name for this patch.
+     *
+     * @return the release name provided by ARU
+     * @throws IOException if an error occurs retrieving the release number/name from ARU
+     */
+    public String getReleaseName() throws IOException, XPathExpressionException {
+        if (needAruInfo()) {
+            initPatchInfo();
+        }
+
+        return releaseName;
+    }
+
+    /**
+     * Get the release number for this patch.
+     *
+     * @return the release number provided by ARU
+     * @throws IOException if an error occurs retrieving the release number from ARU
+     */
+    public String getReleaseNumber() throws IOException, XPathExpressionException {
+        if (needAruInfo()) {
+            initPatchInfo();
+        }
+
         return releaseNumber;
     }
 
@@ -236,7 +225,7 @@ public class PatchFile extends CachedFile {
      * If the patch is found, but the version does not match what was requested, set the version to match
      * the response from Oracle Support and WARN the user.  OPatch apply <b>may</b> fail during the build.
      */
-    boolean verifyPatchVersion() throws IOException, XPathExpressionException {
+    boolean verifyPatchVersion() throws MultiplePatchVersionsException, XPathExpressionException {
         List<String> versionsForPatch =
             XPathUtil.applyXPathReturnList(getAruInfo(), "/results/patch/release/@name");
         logger.fine("versions for patch {0} are {1}", getBugNumber(), versionsForPatch);
@@ -244,20 +233,17 @@ public class PatchFile extends CachedFile {
         if (!versionsForPatch.contains(getVersion())) {
             logger.fine("Could not find patch version {0} for bug {1}", getVersion(), getBugNumber());
             if (versionsForPatch.size() == 1) {
-                // patch version was not provided, but there is only one patch.  Version in ARU does not match
-                // installer version, so warn the user.
+                // patch version was not provided, but there is only one patch.
                 String newVersion = versionsForPatch.get(0);
                 setPatchVersion(newVersion);
+                // Version in ARU does not match installer version, so warn the user that we altered the version number.
                 logger.warning("IMG-0063", getBugNumber(), newVersion);
                 return true;
             } else {
                 // there were more than one version of the patch, but the desired version was not found
-                IOException ioe = new IOException(Utils.getMessage("IMG-0034", bugNumber,
-                    versionsForPatch.stream()
-                        .map(s -> getBugNumber() + "_" + s)
-                        .collect(Collectors.joining(", "))));
-                logger.throwing(ioe);
-                throw ioe;
+                MultiplePatchVersionsException mpe = new MultiplePatchVersionsException(bugNumber, versionsForPatch);
+                logger.throwing(mpe);
+                throw mpe;
             }
         }
         return false;

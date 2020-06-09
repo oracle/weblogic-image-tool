@@ -1,0 +1,38 @@
+Oracle Interim Patch Installer version 13.9.4.2.2
+Copyright (c) 2020, Oracle Corporation.  All rights reserved.
+
+
+Oracle Home       : /u01/oracle
+Central Inventory : /u01/oracle/oraInventory
+   from           : /u01/oracle/oraInst.loc
+OPatch version    : 13.9.4.2.2
+OUI version       : 13.9.4.0.0
+Log file location : /u01/oracle/cfgtoollogs/opatch/opatch2020-06-08_21-39-49PM_1.log
+
+
+OPatch detects the Middleware Home as "/u01/oracle"
+
+Lsinventory Output file location : /u01/oracle/cfgtoollogs/opatch/lsinv/lsinventory2020-06-08_21-39-49PM.txt
+
+--------------------------------------------------------------------------------
+Local Machine Information::
+Hostname: 04e85614fe54
+ARU platform id: 226
+ARU platform description:: Linux x86-64
+
+
+Interim patches (1) :
+
+Patch  30689820     : applied on Sat Jun 06 01:10:59 GMT 2020
+Unique Patch ID:  23281789
+Patch description:  "WLS PATCH SET UPDATE 12.2.1.4.191220"
+   Created on 20 Dec 2019, 17:56:29 hrs PST8PDT
+   Bugs fixed:
+     26444945, 29671344, 29769772, 30067299, 30153412, 30230430, 30341541
+     30342923, 30362026, 30362086, 30589563
+
+
+
+--------------------------------------------------------------------------------
+
+OPatch succeeded.

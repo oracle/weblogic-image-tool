@@ -12,8 +12,6 @@ import java.util.Base64;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
@@ -134,16 +132,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                             return new CommandResponse(-1, "lsinventory failed");
                         }
                         // search inventory for PSU and extract PSU version, if available
-                        Pattern psuPattern = Pattern.compile("WLS PATCH SET UPDATE (\\d+\\.\\d+\\.\\d+\\.\\d+\\.)\\d+"
-                            + "\\(ID:(\\d+)\\.\\d+\\)");
-                        for (String line: lsinventoryText.split("\\n")) {
-                            Matcher matcher = psuPattern.matcher(line);
-                            if (matcher.find()) {
-                                psuVersion = matcher.group(1) + matcher.group(2);
-                                logger.fine("Found PSU in inventory {0}, in {1}", psuVersion, matcher.group(0));
-                                break;
-                            }
-                        }
+                        psuVersion = Utils.getPsuVersion(lsinventoryText);
                     } else {
                         return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
                     }

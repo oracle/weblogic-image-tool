@@ -106,18 +106,19 @@ public class PatchFileTest {
 
 
     private PatchFile getPatchFileWithAruInfo(String patchId, String version, String psuVer, String aruXml)
-        throws IOException, NoSuchFieldException, IllegalAccessException {
+        throws IOException, NoSuchFieldException, IllegalAccessException, XPathExpressionException {
 
-        Field reader = PatchFile.class.getDeclaredField("aruInfo");
-        reader.setAccessible(true);
+        Field aruInfoField = PatchFile.class.getDeclaredField("aruInfo");
+        aruInfoField.setAccessible(true);
         assertNull(cacheStore.getValueFromCache(patchId), "ERROR, patch should not exist in cache before test starts");
         PatchFile patchFile = new TestPatchFile(patchId, version, psuVer, "myname@sample.org", "pass");
         try (BufferedReader buffer = new BufferedReader(new InputStreamReader(
             this.getClass().getResourceAsStream(aruXml)))) {
 
             String aruInfo = buffer.lines().collect(Collectors.joining("\n"));
-            reader.set(patchFile, HttpUtil.parseXmlString(aruInfo));
+            aruInfoField.set(patchFile, HttpUtil.parseXmlString(aruInfo));
         }
+        patchFile.initPatchInfo();
         return patchFile;
     }
 

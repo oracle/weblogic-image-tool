@@ -739,4 +739,32 @@ public class Utils {
         logger.fine("Intermediate images removed: {0}", result.get("Total"));
         logger.exiting();
     }
+
+    /**
+     * Find PSU version from inventory.
+     */
+    public static String getPsuVersion(String lsInventory) {
+        logger.entering();
+        String result = null;
+        // search inventory for PSU and extract PSU version, if available
+        Pattern patternOne = Pattern.compile(
+            "WLS PATCH SET UPDATE (\\d+\\.\\d+\\.\\d+\\.\\d+\\.)\\d+\\(ID:(\\d+)\\.\\d+\\)");
+        Pattern patternTwo = Pattern.compile(
+            "WLS PATCH SET UPDATE (\\d+\\.\\d+\\.\\d+\\.\\d+\\.[1-9]\\d+)");
+        for (String line: lsInventory.split("\\n")) {
+            Matcher matchPatternOne = patternOne.matcher(line);
+            Matcher matchPatternTwo = patternTwo.matcher(line);
+            if (matchPatternOne.find()) {
+                result = matchPatternOne.group(1) + matchPatternOne.group(2);
+                logger.fine("Found PSU in inventory {0}, in {1}", result, line);
+                break;
+            } else if (matchPatternTwo.find()) {
+                result = matchPatternTwo.group(1);
+                logger.fine("Found PSU in inventory {0}, in {1}", result, line);
+                break;
+            }
+        }
+        logger.exiting(result);
+        return result;
+    }
 }

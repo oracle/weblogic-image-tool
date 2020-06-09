@@ -162,7 +162,7 @@ public class AruUtil {
      */
     static void validatePatches(String inventoryContent, List<PatchFile> patches,
                                        AruHttpHelper aruHttpHelper) throws IOException, XPathExpressionException {
-        logger.entering(inventoryContent, patches, aruHttpHelper);
+        logger.entering(patches, aruHttpHelper);
 
         if (aruHttpHelper.userId() == null || aruHttpHelper.password() == null) {
             logger.warning(Utils.getMessage("IMG-0033"));
