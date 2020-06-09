@@ -4,10 +4,10 @@
 package com.oracle.weblogic.imagetool.util;
 
 /**
- * Mustache collection of options used to resolve values in a list of mustache templates
+ * Mustache collection of options used to resolve values for the Verrazzano Model
  * as provided with the --resolverFiles command line argument.
  */
-public class ResolverOptions {
+public class VerrazzanoModel {
 
     private String imageName;
     private String domainHome;
@@ -19,7 +19,7 @@ public class ResolverOptions {
      * @param imageName name from the image tag argument
      * @param domainHome domain home argument or default if no argument
      */
-    public ResolverOptions(String imageName, String domainHome) {
+    public VerrazzanoModel(String imageName, String domainHome) {
         this.imageName = imageName;
         this.domainHome = domainHome;
     }

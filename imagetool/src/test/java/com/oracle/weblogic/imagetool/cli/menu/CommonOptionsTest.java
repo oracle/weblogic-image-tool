@@ -3,11 +3,8 @@
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -148,26 +145,26 @@ public class CommonOptionsTest {
 
         Field imageTagField = CommonOptions.class.getDeclaredField("imageTag");
         imageTagField.setAccessible(true);
-        imageTagField.set(createImage, "phx.ocir.io/stevengreenberginc/todo:1.0.0");
+        imageTagField.set(createImage, "mydomain:latest");
 
-        createImage.resolveFiles = Arrays.asList("target/test-classes/templates/resolver.yml",
-            "target/test-classes/templates/verrazzano.yml");
+        Field resolveFilesField = CommonOptions.class.getDeclaredField("resolveFiles");
+        resolveFilesField.setAccessible(true);
+        List<Path> resolveFiles =
+            Arrays.asList(new File("target/test-classes/templates/resolver.yml").toPath(),
+            new File("target/test-classes/templates/verrazzano.yml").toPath());
+        resolveFilesField.set(createImage, resolveFiles);
 
-        Utils.writeResolvedFiles(createImage.resolveFiles, createImage.resolveOptions());
+        Utils.writeResolvedFiles(resolveFiles, createImage.resolveOptions());
 
-        List<String> linesRead = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-            new FileInputStream("target/test-classes/templates/resolver.yml")))) {
-            while (br.ready()) {
-                linesRead.add(br.readLine());
-            }
-        }
+        List<String> linesRead =
+            Files.readAllLines(new File("target/test-classes/templates/resolver.yml").toPath());
         assertEquals(2, linesRead.size(), "Number of lines read from the file was unexpected");
         for (String line : linesRead) {
-            if (line.contains("domainHome")) {
-                assertTrue(line.contains("/u01/domains/base_domain"), "Invalid domain home value " + line);
-            } else if (line.contains("image")) {
-                assertTrue(line.contains("phx.ocir.io/stevengreenberginc/todo:1.0.0"),
+            line = line.trim();
+            if (line.startsWith("domainHome")) {
+                assertTrue(line.endsWith("/u01/domains/base_domain"), "Invalid domain home value " + line);
+            } else if (line.startsWith("image")) {
+                assertTrue(line.endsWith("mydomain:latest"),
                     "Invalid tag name " + line);
             } else {
                 fail("Unexpected line read " + line);

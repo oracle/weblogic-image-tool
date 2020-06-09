@@ -95,7 +95,8 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
                 "Create_Image.mustache", dockerfileOptions, dryRun);
 
-            Utils.writeResolvedFiles(resolveFiles, resolveOptions());
+            // resolve parameters in the list of mustache templates returned by gatherFiles()
+            Utils.writeResolvedFiles(gatherFiles(), resolveOptions());
 
             runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {

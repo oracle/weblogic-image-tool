@@ -25,8 +25,8 @@ import com.oracle.weblogic.imagetool.util.AruUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
-import com.oracle.weblogic.imagetool.util.ResolverOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.VerrazzanoModel;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
@@ -35,9 +35,11 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
     DockerfileOptions dockerfileOptions;
-    private List<Object> resolveOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
+
+    private List<Object> resolveOptions = null;
+    private List<Path> resolveFiles = null;
 
     abstract String getInstallerVersion();
 
@@ -170,9 +172,19 @@ public abstract class CommonOptions {
         logger.exiting();
     }
 
+    List<Path> gatherFiles() {
+        if (resolveFiles == null) {
+            resolveFiles = new ArrayList<>();
+        }
+        if (verrazzanoModel != null) {
+            resolveFiles.add(verrazzanoModel);
+        }
+        return resolveFiles;
+    }
+
     List<Object> resolveOptions() {
-        if (resolveFiles != null) {
-            resolveOptions = Collections.singletonList(new ResolverOptions(imageTag, dockerfileOptions.domain_home()));
+        if (resolveFiles != null && !resolveFiles.isEmpty()) {
+            resolveOptions = Collections.singletonList(new VerrazzanoModel(imageTag, dockerfileOptions.domain_home()));
         }
         return resolveOptions;
     }
@@ -443,10 +455,10 @@ public abstract class CommonOptions {
     private boolean skipOpatchUpdate = false;
 
     @Option(
-        names = {"--resolveFiles"},
-        description = "Files with parameters that need to be resolved by values in the images tool."
+        names = {"--vzModel"},
+        description = "For verrazzano, resolve parameters in the verrazzano model with information from the image tool."
     )
-    List<String> resolveFiles;
+    Path verrazzanoModel;
 
     @SuppressWarnings("unused")
     @Unmatched
