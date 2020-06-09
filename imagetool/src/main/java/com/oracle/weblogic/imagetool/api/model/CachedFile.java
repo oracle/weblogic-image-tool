@@ -91,7 +91,7 @@ public class CachedFile {
      * @return the Path of the file, if found
      * @throws IOException throws FileNotFoundException, if this cached file (key) could not be located in the cache
      */
-    public String resolve(CacheStore cacheStore) throws IOException, XPathExpressionException {
+    public String resolve(CacheStore cacheStore) throws IOException {
         // check entry exists in cache
         String key = getKey();
         logger.entering(key);
