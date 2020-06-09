@@ -102,7 +102,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                         dockerfileOptions.setOPatchPatchingEnabled();
                         dockerfileOptions.setOPatchFileName(filename);
                     } else {
-                        logger.info("IMG-0073", opatchVersion, opatchFile.getVersion());
+                        logger.info("IMG-0074", opatchVersion, opatchFile.getVersion());
                     }
                 }
 
