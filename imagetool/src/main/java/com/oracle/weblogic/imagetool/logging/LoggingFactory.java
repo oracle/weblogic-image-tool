@@ -46,13 +46,7 @@ public class LoggingFactory {
      */
     public static synchronized LoggingFacade getLogger(String name, String resourceBundleName) {
 
-        LoggingFacade lf = facade.get(resourceBundleName);
-        if (lf == null) {
-            Logger logger = Logger.getLogger(name, resourceBundleName);
-            lf = new LoggingFacade(logger);
-            facade.put(resourceBundleName, lf);
-        }
-
-        return lf;
+        return facade.computeIfAbsent(resourceBundleName,
+            k -> new LoggingFacade(Logger.getLogger(name, resourceBundleName)));
     }
 }

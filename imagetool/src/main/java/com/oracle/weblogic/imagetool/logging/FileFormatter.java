@@ -18,7 +18,6 @@ public class FileFormatter extends Formatter {
     private static final String CATALOG_KEY_PATTERN_STRING = "^[A-Z]{3,10}?-[0-9]{3,5}?$";
     private static final Pattern CATALOG_KEY_PATTERN = Pattern.compile(CATALOG_KEY_PATTERN_STRING);
 
-    //private static final String DATE_FORMAT_STRING = "####<{0,date} {0,time}>";
     private static final String DATE_FORMAT_STRING = "####<{0,date,yyyy.MM.dd} {0,time,HH:mm:ss}>";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
