@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -20,11 +21,13 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("unit")
@@ -125,4 +128,48 @@ public class CommonOptionsTest {
         }
     }
 
+    /**
+     * Test resolving options in a list of input files.
+     *
+     * @throws Exception if in error or IOException
+     */
+    @Test
+    void testResolveOptions() throws Exception {
+        CreateImage createImage = new CreateImage();
+
+        // accessing private fields normally set by the command line
+        Field optionsField = CommonOptions.class.getDeclaredField("dockerfileOptions");
+        optionsField.setAccessible(true);
+        DockerfileOptions dockerfile = new DockerfileOptions("testbuildid");
+        optionsField.set(createImage, dockerfile);
+
+        Field imageTagField = CommonOptions.class.getDeclaredField("imageTag");
+        imageTagField.setAccessible(true);
+        imageTagField.set(createImage, "mydomain:latest");
+
+        Field resolveFilesField = CommonOptions.class.getDeclaredField("resolveFiles");
+        resolveFilesField.setAccessible(true);
+        List<Path> resolveFiles =
+            Arrays.asList(new File("target/test-classes/templates/resolver.yml").toPath(),
+            new File("target/test-classes/templates/verrazzano.yml").toPath());
+        resolveFilesField.set(createImage, resolveFiles);
+
+        Utils.writeResolvedFiles(resolveFiles, createImage.resolveOptions());
+
+        List<String> linesRead =
+            Files.readAllLines(new File("target/test-classes/templates/resolver.yml").toPath());
+        assertEquals(2, linesRead.size(), "Number of lines read from the file was unexpected");
+        for (String line : linesRead) {
+            line = line.trim();
+            if (line.startsWith("domainHome")) {
+                assertTrue(line.endsWith("/u01/domains/base_domain"), "Invalid domain home value " + line);
+            } else if (line.startsWith("image")) {
+                assertTrue(line.endsWith("mydomain:latest"),
+                    "Invalid tag name " + line);
+            } else {
+                fail("Unexpected line read " + line);
+            }
+
+        }
+    }
 }
