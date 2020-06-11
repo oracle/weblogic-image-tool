@@ -36,6 +36,7 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 public class UpdateImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
+    private String psuVersion = null;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -100,6 +101,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                         Files.copy(Paths.get(opatchFilePath), Paths.get(tmpDir, filename));
                         dockerfileOptions.setOPatchPatchingEnabled();
                         dockerfileOptions.setOPatchFileName(filename);
+                    } else {
+                        logger.info("IMG-0074", opatchVersion, opatchFile.getVersion());
                     }
                 }
 
@@ -128,6 +131,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                             logger.severe("ls inventory = " + lsinventoryText);
                             return new CommandResponse(-1, "lsinventory failed");
                         }
+                        // search inventory for PSU and extract PSU version, if available
+                        psuVersion = Utils.getPsuVersion(lsinventoryText);
                     } else {
                         return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
                     }
@@ -146,7 +151,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             }
 
             // resolve required patches
-            handlePatchFiles(lsinventoryText);
+            handlePatchFiles(lsinventoryText, psuVersion);
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",

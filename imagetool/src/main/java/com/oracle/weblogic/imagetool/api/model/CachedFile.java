@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
@@ -38,8 +39,10 @@ public class CachedFile {
      */
     public CachedFile(String id, String version) {
         Objects.requireNonNull(id, "key for the cached file cannot be null");
+        logger.entering(id, version);
         this.id = id;
         this.version = version;
+        logger.exiting();
     }
 
     /**
@@ -66,8 +69,12 @@ public class CachedFile {
         if (id.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
             return id;
         } else {
-            return id + CacheStore.CACHE_KEY_SEPARATOR + getVersion();
+            return buildKeyFromVersion(getVersion());
         }
+    }
+
+    protected String buildKeyFromVersion(String version) {
+        return id + CacheStore.CACHE_KEY_SEPARATOR + version;
     }
 
     /**
@@ -84,7 +91,7 @@ public class CachedFile {
      * @return the Path of the file, if found
      * @throws IOException throws FileNotFoundException, if this cached file (key) could not be located in the cache
      */
-    public String resolve(CacheStore cacheStore) throws IOException {
+    public String resolve(CacheStore cacheStore) throws IOException, XPathExpressionException {
         // check entry exists in cache
         String key = getKey();
         logger.entering(key);
@@ -103,9 +110,9 @@ public class CachedFile {
      * @param buildContextDir directory to copy file to
      * @return the path of the file copied to the Docker build context directory
      */
-    public Path copyFile(CacheStore cacheStore, String buildContextDir) throws IOException {
+    public Path copyFile(CacheStore cacheStore, String buildContextDir) throws IOException, XPathExpressionException {
         logger.entering();
-        Path result = null;
+        Path result;
         String sourceFile = resolve(cacheStore);
         logger.info("IMG-0043", sourceFile);
         String targetFilename = new File(sourceFile).getName();

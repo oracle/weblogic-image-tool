@@ -29,7 +29,7 @@ public class OPatchFile extends PatchFile {
      * @param password the password to use with the userId to retrieve the patch
      */
     public OPatchFile(String patchId, String userId, String password, CacheStore cache) {
-        super(getPatchId(patchId), latestVersion(cache, patchId, userId, password), userId, password);
+        super(getPatchId(patchId), latestVersion(cache, patchId, userId, password), null, userId, password);
     }
 
     private static String getPatchId(String patchId) {
@@ -74,7 +74,7 @@ public class OPatchFile extends PatchFile {
     }
 
     @Override
-    public String resolve(CacheStore cacheStore) throws IOException {
+    public String resolve(CacheStore cacheStore) throws IOException, XPathExpressionException {
         if (needAruInfo()) {
             initPatchInfo();
         }
@@ -86,18 +86,16 @@ public class OPatchFile extends PatchFile {
     }
 
     @Override
-    void confirmUniquePatchSelection() throws IOException {
-        // if the user did not provide the patch version on the command line, use the latest version from ARU
+    boolean verifyPatchVersion() throws XPathExpressionException {
+        // if the user did not provide the patch version on the command line, use the latest version from Oracle Support
         if (!isPatchVersionProvided()) {
-            // grab the latest version for OPatch from ARU
-            try {
-                String latestVersion = XPathUtil.applyXPathReturnString(getAruInfo(),
-                    "string(/results/patch[access = 'Open access']/release/@name)");
-                setPatchVersion(latestVersion);
-                logger.fine("From ARU, setting OPatch patch version to {0}", latestVersion);
-            } catch (XPathExpressionException xe) {
-                throw new IOException(xe.getMessage());
-            }
+            // grab the latest version for OPatch from Oracle Support
+            String latestVersion = XPathUtil.applyXPathReturnString(getAruInfo(),
+                "string(/results/patch[access = 'Open access']/release/@name)");
+            setPatchVersion(latestVersion);
+            logger.fine("From ARU, setting OPatch patch version to {0}", latestVersion);
+            return true;
         }
+        return false;
     }
 }

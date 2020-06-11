@@ -5,6 +5,8 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -26,6 +28,19 @@ public class XPathUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(XPathUtil.class);
 
+    private static XPathFactory factory = null;
+
+    private static XPathFactory factory() {
+        if (factory == null) {
+            synchronized (XPathUtil.class) {
+                if (factory == null) {
+                    factory = XPathFactory.newInstance();
+                }
+            }
+        }
+        return factory;
+    }
+
     /**
      * Apply XPath and return the results as nodelist.
      *
@@ -35,16 +50,8 @@ public class XPathUtil {
      * @throws XPathExpressionException when xpath failed
      */
     public static NodeList applyXPathReturnNodeList(Node node, String expression) throws XPathExpressionException {
-
-        XPathFactory factory = XPathFactory.newInstance();
-
-        XPath xpath = factory.newXPath();
-
-        NodeList nodeList;
-
-        nodeList = (NodeList) xpath.evaluate(expression, node, XPathConstants.NODESET);
-        return nodeList;
-
+        XPath xpath = factory().newXPath();
+        return (NodeList) xpath.evaluate(expression, node, XPathConstants.NODESET);
     }
 
     /**
@@ -56,13 +63,25 @@ public class XPathUtil {
      * @throws XPathExpressionException when xpath failed
      */
     public static String applyXPathReturnString(Document doc, String expression) throws XPathExpressionException {
-
-        XPathFactory factory = XPathFactory.newInstance();
-
-        XPath xpath = factory.newXPath();
-
+        XPath xpath = factory().newXPath();
         return (String) xpath.evaluate(expression, doc, XPathConstants.STRING);
+    }
 
+    /**
+     * Apply XPath and return the results as a list of strings.
+     * @param doc        dom document
+     * @param expression xpath expression
+     * @return list result
+     * @throws XPathExpressionException when xpath fails
+     */
+    public static List<String> applyXPathReturnList(Document doc, String expression) throws XPathExpressionException {
+        List<String> result = new ArrayList<>();
+        NodeList list = (NodeList) XPathFactory.newInstance().newXPath()
+            .evaluate(expression, doc, XPathConstants.NODESET);
+        for (int i = 0; i < list.getLength(); i++) {
+            result.add(list.item(i).getNodeValue());
+        }
+        return result;
     }
 
     /**
@@ -70,7 +89,7 @@ public class XPathUtil {
      *
      * @param xml dom document
      */
-    public static final String prettyPrint(Document xml) {
+    public static String prettyPrint(Document xml) {
         try {
             Transformer tf = TransformerFactory.newInstance().newTransformer();
             tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -84,6 +103,5 @@ public class XPathUtil {
             return errMsg;
         }
     }
-
 
 }

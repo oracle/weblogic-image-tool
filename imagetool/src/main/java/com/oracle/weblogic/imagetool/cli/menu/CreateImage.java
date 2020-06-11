@@ -71,7 +71,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
 
             // resolve required patches
-            handlePatchFiles(null);
+            handlePatchFiles();
 
             // If patching, patch OPatch first
             if (applyingPatches() && shouldUpdateOpatch()) {

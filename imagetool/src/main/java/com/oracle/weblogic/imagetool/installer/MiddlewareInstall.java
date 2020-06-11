@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
@@ -81,7 +82,7 @@ public class MiddlewareInstall {
      * @param buildContextDir the directory where the installers should be copied.
      * @throws IOException if any of the copy commands fails.
      */
-    public void copyFiles(CacheStore cacheStore, String buildContextDir) throws IOException {
+    public void copyFiles(CacheStore cacheStore, String buildContextDir) throws IOException, XPathExpressionException {
         logger.entering();
         for (MiddlewareInstallPackage installPackage: installerFiles) {
             Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDir);
