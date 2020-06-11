@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +26,7 @@ import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.VerrazzanoModel;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
@@ -35,6 +37,9 @@ public abstract class CommonOptions {
     DockerfileOptions dockerfileOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
+
+    private List<Object> resolveOptions = null;
+    private List<Path> resolveFiles = null;
 
     abstract String getInstallerVersion();
 
@@ -165,6 +170,23 @@ public abstract class CommonOptions {
         handleAdditionalBuildCommands();
 
         logger.exiting();
+    }
+
+    List<Path> gatherFiles() {
+        if (resolveFiles == null) {
+            resolveFiles = new ArrayList<>();
+        }
+        if (verrazzanoModel != null) {
+            resolveFiles.add(verrazzanoModel);
+        }
+        return resolveFiles;
+    }
+
+    List<Object> resolveOptions() {
+        if (resolveFiles != null && !resolveFiles.isEmpty()) {
+            resolveOptions = Collections.singletonList(new VerrazzanoModel(imageTag, dockerfileOptions.domain_home()));
+        }
+        return resolveOptions;
     }
 
     /**
@@ -442,6 +464,12 @@ public abstract class CommonOptions {
         description = "Do not update OPatch version, even if a newer version is available."
     )
     private boolean skipOpatchUpdate = false;
+
+    @Option(
+        names = {"--vzModel"},
+        description = "For verrazzano, resolve parameters in the verrazzano model with information from the image tool."
+    )
+    Path verrazzanoModel;
 
     @SuppressWarnings("unused")
     @Unmatched
