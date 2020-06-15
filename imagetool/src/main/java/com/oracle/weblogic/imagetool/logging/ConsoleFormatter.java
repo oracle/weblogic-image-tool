@@ -29,7 +29,7 @@ public class ConsoleFormatter extends Formatter {
             String flag = LogManager.getLogManager().getProperty("java.util.logging.ConsoleHandler.color");
             if (flag == null) {
                 String os = System.getProperty("os.name");
-                if (os != null && os.indexOf("win") > 0) {
+                if (os != null && os.toLowerCase().contains("win")) {
                     // For the Windows OS, default the color logging to disabled
                     // The Windows OS terminal does not enable color by default
                     AnsiColor.disable();
