@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
  */
 public class ConsoleFormatter extends Formatter {
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final Pattern colorPattern = Pattern.compile("\\[\\[([a-z]+): (.+?)]]");
 
     static {
         // if user is redirecting output, do not print color codes
@@ -26,7 +27,15 @@ public class ConsoleFormatter extends Formatter {
         } else {
             // check logging properties to see if the user wants to disable color output
             String flag = LogManager.getLogManager().getProperty("java.util.logging.ConsoleHandler.color");
-            if (flag != null && flag.equalsIgnoreCase("false")) {
+            if (flag == null) {
+                String os = System.getProperty("os.name");
+                if (os != null && os.indexOf("win") > 0) {
+                    // For the Windows OS, default the color logging to disabled
+                    // The Windows OS terminal does not enable color by default
+                    AnsiColor.disable();
+                }
+                // The default for non-Windows OS's is color enabled.
+            } else if (flag.equalsIgnoreCase("false")) {
                 AnsiColor.disable();
             }
         }
@@ -35,15 +44,15 @@ public class ConsoleFormatter extends Formatter {
     private AnsiColor getMessageLevelColor(Level level) {
         if (level.intValue() > 800) {
             return AnsiColor.BRIGHT_RED;
+        } else if (level.intValue() < 800) {
+            return AnsiColor.BRIGHT_WHITE;
         } else {
             return AnsiColor.BRIGHT_BLUE;
         }
     }
 
     private String replaceColorTokens(String text) {
-        //Pattern pattern = Pattern.compile("\\[([a-z]+)\\]");
-        Pattern pattern = Pattern.compile("\\[\\[([a-z]+): (.+?)]]");
-        Matcher matcher = pattern.matcher(text);
+        Matcher matcher = colorPattern.matcher(text);
 
         StringBuilder builder = new StringBuilder();
         int i = 0;
