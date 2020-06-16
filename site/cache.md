@@ -20,8 +20,8 @@ List and set cache options
 | Option | Description |
 | --- | --- |
 |`listItems`| List cache contents. |
-|`addInstaller` | Add cache entry for `wls`, `fmw`, `jdk`, or `wdt` installer. |
-| `addPatch` | Add cache entry for `wls` or `fmw` patch, or `psu`.  |
+|`addInstaller` | Add an installer to the cache. |
+| `addPatch` | Add a patch to the cache.  |
 | `addEntry` | Add a cache entry. Use with caution. |  
 | `help` | Display help information for the specified command.|
 
@@ -46,13 +46,13 @@ List and set cache options
     imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
     ```
 
-- `addPatch`: Add a patch to the cache. This command verifies if the path points to a valid patch by querying the Oracle Support portal.
+- `addPatch`: Add a patch to the cache. 
     ```
-    imagetool cache addPatch --type wls --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
+    imagetool cache addPatch --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
     ```
-    **Note**:  When adding a patch to the cache store, the `patchId` should be in the following format:  `99999999_9.9.9.9.99999`  The first 8 digits is the patch ID, followed by an underscore, and then the release number.  This is needed if you want to distinguish a patch that has different patch versions.  
+    **Note**:  When adding a patch to the cache store, the `patchId` should be in the following format:  `99999999_9.9.9.9.99999`  The first 8 digits is the patch ID, followed by an underscore, and then the release number to identify the patch between different patch versions.  
 
-    For example, patch `29135930` has several different versions in Oracle Support, one for each release in which the bug is fixed.
+    For example, patch `29135930` has several different versions in Oracle Support, one for each release or PSU in which the bug is fixed.
 
 | Patch Name | Release |
 | ---------|---------|

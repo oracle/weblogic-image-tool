@@ -49,7 +49,7 @@ public class BaseTest {
         return result;
     }
 
-    protected static void validateEnvironmentSettings() throws Exception {
+    protected static void validateEnvironmentSettings() {
         logger.info("Initializing the tests ...");
 
         projectRoot = System.getProperty("user.dir");
@@ -230,9 +230,8 @@ public class BaseTest {
         return executeAndVerify(command, false);
     }
 
-    protected ExecResult addPatchToCache(String type, String patchId, String version, String path) throws Exception {
-        String command = imagetool + " cache addPatch --type " + type + " --patchId " + patchId + "_"
-            + version + " --path " + path;
+    protected ExecResult addPatchToCache(String patchId, String version, String path) throws Exception {
+        String command = imagetool + " cache addPatch --patchId " + patchId + "_" + version + " --path " + path;
         return executeAndVerify(command, false);
     }
 

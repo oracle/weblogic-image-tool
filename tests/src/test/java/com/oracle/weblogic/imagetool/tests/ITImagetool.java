@@ -178,7 +178,7 @@ class ITImagetool extends BaseTest {
 
         String patchPath = getStagingDir() + FS + P27342434_INSTALLER;
         deleteEntryFromCache(P27342434_ID + "_" + WLS_VERSION);
-        addPatchToCache("wls", P27342434_ID, WLS_VERSION, patchPath);
+        addPatchToCache(P27342434_ID, WLS_VERSION, patchPath);
 
         // verify the result
         ExecResult result = listItemsInCache();
@@ -247,7 +247,7 @@ class ITImagetool extends BaseTest {
         // need to add the required patches 28186730 for Opatch before create wls images
         String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
         deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
-        addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
         ExecResult resultT = listItemsInCache();
 
         String versionTag = "test8img";
@@ -323,12 +323,12 @@ class ITImagetool extends BaseTest {
         // delete the cache entry first
         deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
-        addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
 
         // add the patch to the cache
         deleteEntryFromCache(P27342434_ID + "_" + WLS_VERSION);
         patchPath = getStagingDir() + FS + P27342434_INSTALLER;
-        addPatchToCache("wls", P27342434_ID, WLS_VERSION, patchPath);
+        addPatchToCache(P27342434_ID, WLS_VERSION, patchPath);
 
         // build the wdt archive
         buildWdtArchive();
@@ -412,7 +412,7 @@ class ITImagetool extends BaseTest {
         // add the patch to the cache
         String patchPath = getStagingDir() + FS + P22987840_INSTALLER;
         deleteEntryFromCache(P22987840_ID + "_" + WLS_VERSION_1221);
-        addPatchToCache("fmw", P22987840_ID, WLS_VERSION_1221, patchPath);
+        addPatchToCache(P22987840_ID, WLS_VERSION_1221, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221
             + " --tag " + build_tag + ":" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
@@ -577,7 +577,7 @@ class ITImagetool extends BaseTest {
         // delete the cache entry first
         deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
-        addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
 
         // build the wdt archive
         buildWdtArchive();
