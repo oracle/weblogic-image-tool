@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.cli.menu;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -287,7 +288,11 @@ public abstract class CommonOptions {
             String patchLocation = patch.resolve(cache());
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File patchFile = new File(patchLocation);
-                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+                try {
+                    Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+                } catch (FileAlreadyExistsException ee) {
+                    logger.warning("IMG-0077", patch.getKey());
+                }
             } else {
                 logger.severe("IMG-0024", patch.getKey());
             }
