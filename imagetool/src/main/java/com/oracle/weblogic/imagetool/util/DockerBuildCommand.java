@@ -36,8 +36,7 @@ public class DockerBuildCommand {
     public DockerBuildCommand(String contextFolder) {
         Objects.requireNonNull(contextFolder);
         buildArgs = new ArrayList<>();
-        command = Stream.of("docker", "build",
-            "--force-rm=true", "--no-cache").collect(Collectors.toList());
+        command = Stream.of("docker", "build", "--no-cache").collect(Collectors.toList());
         context = contextFolder;
     }
 
@@ -56,6 +55,19 @@ public class DockerBuildCommand {
         }
         command.add("--tag");
         command.add(value);
+        return this;
+    }
+
+    /**
+     * Always remove intermediate containers if set to true.
+     * By default, Docker leaves intermediate containers when the build fails which is not ideal for CI/CD servers.
+     * @param value true to enable --force-rm on docker build.
+     * @return this
+     */
+    public DockerBuildCommand forceRm(boolean value) {
+        if (value) {
+            command.add("--force-rm");
+        }
         return this;
     }
 
@@ -137,7 +149,7 @@ public class DockerBuildCommand {
         logger.finer("Starting docker process...");
         final Process process = processBuilder.start();
         logger.finer("Docker process started");
-        writeFromInputToOutputStreams(process.getInputStream(), outputStreams.toArray(new OutputStream[0]));
+        writeFromInputToOutputStreams(process.getInputStream(), outputStreams);
         logger.finer("Waiting for Docker to finish");
         if (process.waitFor() != 0) {
             Utils.processError(process);
@@ -175,7 +187,7 @@ public class DockerBuildCommand {
         return logFilePath;
     }
 
-    private void writeFromInputToOutputStreams(InputStream inputStream, OutputStream... outputStreams) {
+    private void writeFromInputToOutputStreams(InputStream inputStream, List<OutputStream> outputStreams) {
         Thread readerThread = new Thread(() -> {
             try (
                 BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -196,12 +208,10 @@ public class DockerBuildCommand {
         readerThread.start();
     }
 
-    private CloseableList<PrintWriter> createPrintWriters(OutputStream... outputStreams) {
+    private CloseableList<PrintWriter> createPrintWriters(List<OutputStream> outputStreams) {
         CloseableList<PrintWriter> retVal = new CloseableList<>();
-        if (outputStreams != null) {
-            for (OutputStream outputStream : outputStreams) {
-                retVal.add(new PrintWriter(new OutputStreamWriter(outputStream), true));
-            }
+        for (OutputStream outputStream : outputStreams) {
+            retVal.add(new PrintWriter(new OutputStreamWriter(outputStream), true));
         }
         return retVal;
     }

@@ -113,7 +113,8 @@ public abstract class CommonOptions {
         logger.entering();
         DockerBuildCommand cmdBuilder = new DockerBuildCommand(contextFolder);
 
-        cmdBuilder.tag(imageTag)
+        cmdBuilder.forceRm(!skipcleanup)
+            .tag(imageTag)
             .network(buildNetwork)
             .pull(buildPull)
             .buildArg("http_proxy", httpProxyUrl)
@@ -230,13 +231,12 @@ public abstract class CommonOptions {
      * @param previousInventory existing inventory found in the "from" image
      * @throws Exception in case of error
      */
-    void handlePatchFiles(String previousInventory, String existingPsuVersion) throws Exception {
-        logger.entering(existingPsuVersion);
+    void handlePatchFiles(String previousInventory, String psuVersion) throws Exception {
+        logger.entering(psuVersion);
         if (!applyingPatches()) {
             return;
         }
 
-        String psuVersion = existingPsuVersion;
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
 
         List<PatchFile> patchFiles = new ArrayList<>();
@@ -394,8 +394,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--skipcleanup"},
-        description = "Do no delete Docker context folder or intermediate images.",
-        hidden = true
+        description = "Do no delete Docker context folder, intermediate images, and failed build container."
     )
     boolean skipcleanup = false;
 
