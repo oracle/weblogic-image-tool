@@ -31,7 +31,7 @@ public class AddPatchEntry extends CacheOperation {
     public CommandResponse call() throws Exception {
 
         if (type != null) {
-            logger.warning("[[cyan: --type]] is [[brightred: DEPRECATED]] and will be removed in an upcoming release.");
+            logger.warning("IMG-0078");
         }
 
         if (patchId != null && !patchId.isEmpty()
