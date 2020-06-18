@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.cli.menu;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -112,7 +113,8 @@ public abstract class CommonOptions {
         logger.entering();
         DockerBuildCommand cmdBuilder = new DockerBuildCommand(contextFolder);
 
-        cmdBuilder.tag(imageTag)
+        cmdBuilder.forceRm(!skipcleanup)
+            .tag(imageTag)
             .network(buildNetwork)
             .pull(buildPull)
             .buildArg("http_proxy", httpProxyUrl)
@@ -229,13 +231,12 @@ public abstract class CommonOptions {
      * @param previousInventory existing inventory found in the "from" image
      * @throws Exception in case of error
      */
-    void handlePatchFiles(String previousInventory, String existingPsuVersion) throws Exception {
-        logger.entering(existingPsuVersion);
+    void handlePatchFiles(String previousInventory, String psuVersion) throws Exception {
+        logger.entering(psuVersion);
         if (!applyingPatches()) {
             return;
         }
 
-        String psuVersion = existingPsuVersion;
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
 
         List<PatchFile> patchFiles = new ArrayList<>();
@@ -287,7 +288,11 @@ public abstract class CommonOptions {
             String patchLocation = patch.resolve(cache());
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File patchFile = new File(patchLocation);
-                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+                try {
+                    Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+                } catch (FileAlreadyExistsException ee) {
+                    logger.warning("IMG-0077", patch.getKey());
+                }
             } else {
                 logger.severe("IMG-0024", patch.getKey());
             }
@@ -389,8 +394,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--skipcleanup"},
-        description = "Do no delete Docker context folder or intermediate images.",
-        hidden = true
+        description = "Do no delete Docker context folder, intermediate images, and failed build container."
     )
     boolean skipcleanup = false;
 

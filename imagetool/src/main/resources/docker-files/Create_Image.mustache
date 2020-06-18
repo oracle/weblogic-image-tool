@@ -114,7 +114,9 @@ RUN cd {{{tempDir}}}/opatch \
 
 {{#isPatchingEnabled}}
 RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
- && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
+ && test $? -eq 0 \
+ && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
+ || (cat {{{oracle_home}}}/cfgtoollogs/opatch/opatch*.log && exit 1)
 {{/isPatchingEnabled}}
 
 {{#afterFmwInstall}}
