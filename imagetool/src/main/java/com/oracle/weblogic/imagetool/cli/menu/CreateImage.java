@@ -54,7 +54,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, "Patch ID validation failed");
             }
 
-            WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
+            copyOptionsFromImage(fromImage, tmpDir);
 
             if (dockerfileOptions.installJava()) {
                 CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
