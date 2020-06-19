@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -85,6 +86,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(1)
+    @Tag("gate")
     void cacheListItems() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -105,6 +107,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(2)
+    @Tag("gate")
     void cacheAddInstallerJDK() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -127,6 +130,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(3)
+    @Tag("gate")
     void cacheAddInstallerWls() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -149,6 +153,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(4)
+    @Tag("nightly")
     void createWlsImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -172,6 +177,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(5)
+    @Tag("gate")
     void cacheAddPatch() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -195,6 +201,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(6)
+    @Tag("gate")
     void cacheAddTestEntry() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -217,6 +224,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(7)
+    @Tag("gate")
     void cacheDeleteTestEntry() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -240,6 +248,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(8)
+    @Tag("gate")
     void createWLSImgUseCache() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -271,6 +280,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(9)
+    @Tag("gate")
     void updateWLSImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -296,6 +306,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(10)
+    @Tag("gate")
     void createWlsImgUsingWdt() throws Exception {
 
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -360,6 +371,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(11)
+    @Tag("nightly")
     void createFmwImgFullInternetAccess() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -395,6 +407,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(12)
+    @Tag("nightly")
     void createFmwImgNonDefault() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -434,6 +447,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(13)
+    @Tag("nightly")
     void testDCreateJRFDomainImgUsingWDT() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -499,6 +513,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(14)
+    @Tag("nightly")
     void createRestricedJrfDomainImgUsingWdt() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -551,6 +566,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(15)
+    @Tag("nightly")
     void createWlsImgUsingMultiModels() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -609,6 +625,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(16)
+    @Tag("nightly")
     void createWLSImgWithAdditionalBuildCommands() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
