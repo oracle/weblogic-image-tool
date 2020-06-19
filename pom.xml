@@ -34,7 +34,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <test.groups>unit</test.groups>
+        <test.groups>gate</test.groups>
         <aggregate.report.dir>tests/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>
     </properties>
 
@@ -124,6 +124,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>2.22.2</version>
+                    <configuration>
+                        <groups>${test.groups}</groups>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -216,8 +219,8 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                     <configuration>
-                        <groups>${test.groups}</groups>
-                        <excludedGroups>slow,failing</excludedGroups>
+                        <groups>unit</groups>
+                        <excludedGroups>failing</excludedGroups>
                         <environmentVariables>
                             <TEST_ENV_PASSWORD>pass3</TEST_ENV_PASSWORD>
                         </environmentVariables>
