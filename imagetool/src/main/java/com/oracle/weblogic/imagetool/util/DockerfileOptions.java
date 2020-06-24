@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import com.oracle.weblogic.imagetool.cli.menu.PackageManagerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
@@ -25,10 +26,6 @@ public class DockerfileOptions {
     private static final String DEFAULT_ORAINV_DIR = "/u01/oracle/oraInventory";
 
     final String buildId;
-    boolean useYum = false;
-    boolean useAptGet = false;
-    boolean useApk = false;
-    boolean useZypper = false;
 
     private boolean useWdt;
     private boolean applyPatches;
@@ -50,6 +47,7 @@ public class DockerfileOptions {
     private String opatchFileName;
     private String sourceImage;
     private String targetImage;
+    private PackageManagerType pkgMgr;
 
     // WDT values
     private String wdtHome;
@@ -227,29 +225,34 @@ public class DockerfileOptions {
     }
 
     /**
-     * Only one package installer should be allowed.
+     * Set the Linux package Manager type to use during the build.
      *
-     * @param option the String constant identifying the installer to use.
+     * @param option the Linux package Manager type to use during the build.
      * @return this DockerfileOptions object
      */
-    public DockerfileOptions setPackageInstaller(String option) {
-        useZypper = false;
-        useAptGet = false;
-        useApk = false;
-        useYum = false;
-        switch (option) {
-            case Constants.YUM:
-                useYum = true;
-                break;
-            case Constants.APTGET:
-                useAptGet = true;
-                break;
-            case Constants.ZYPPER:
-                useZypper = true;
-                break;
-            default:
-        }
+    public DockerfileOptions setPackageInstaller(PackageManagerType option) {
+        pkgMgr = option;
         return this;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean useYum() {
+        return pkgMgr == PackageManagerType.YUM;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean useAptGet() {
+        return pkgMgr == PackageManagerType.APTGET;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean useZypper() {
+        return pkgMgr == PackageManagerType.ZYPPER;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean useApk() {
+        return pkgMgr == PackageManagerType.APK;
     }
 
     @SuppressWarnings("unused")

@@ -121,7 +121,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
             if (dockerfileOptions.isRebaseToNew()) {
 
-                WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
+                copyOptionsFromImage(fromImage, tmpDir);
 
                 CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
                 Path installerPath = jdk.copyFile(cache(), tmpDir);

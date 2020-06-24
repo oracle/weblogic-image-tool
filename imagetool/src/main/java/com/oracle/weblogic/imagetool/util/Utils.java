@@ -408,36 +408,6 @@ public class Utils {
     }
 
     /**
-     * Returns the package manager that should be used to install software on a given Linux OS.
-     * Defaults to YUM.  Known OS's include: ubuntu, debian, opensuse, centos, ol, and rhel.
-     *
-     * @param osID identifier for the OS, like ubuntu, debian, rhel, ol, ...
-     * @return the package manager
-     */
-    public static String getPackageMgrStr(String osID) {
-        String retVal = Constants.YUM;
-        if (osID != null) {
-            osID = osID.replaceAll("[\"]", "");
-            switch (osID) {
-                case "ubuntu":
-                case "debian":
-                    retVal = Constants.APTGET;
-                    break;
-                case "opensuse":
-                    retVal = Constants.ZYPPER;
-                    break;
-                case "centos":
-                case "ol":
-                case "rhel":
-                default:
-                    retVal = Constants.YUM;
-                    break;
-            }
-        }
-        return retVal;
-    }
-
-    /**
      * Reads the docker image environment variables into Java Properties.
      *
      * @param dockerImage the name of the Docker image to read from

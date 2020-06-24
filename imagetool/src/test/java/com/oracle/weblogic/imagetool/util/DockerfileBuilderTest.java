@@ -11,6 +11,7 @@ import java.util.Arrays;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.oracle.weblogic.imagetool.cli.menu.PackageManagerType;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import org.junit.jupiter.api.Tag;
@@ -35,7 +36,7 @@ class DockerfileBuilderTest {
             .setWdtEnabled()
             .setWdtDomainType("WLS")
             .setWdtModels(Arrays.asList("model1.yaml", "model2.yaml"))
-            .setPackageInstaller(Constants.YUM)
+            .setPackageInstaller(PackageManagerType.YUM)
             .setMiddlewareInstall(install);
 
         MustacheFactory mf = new DefaultMustacheFactory(new File("src/main/resources/docker-files"));
@@ -47,13 +48,13 @@ class DockerfileBuilderTest {
 
     @Test
     void setPackageInstaller() {
-        DockerfileOptions options = new DockerfileOptions("123").setPackageInstaller(Constants.YUM);
-        assertTrue(options.useYum, "Failed to set YUM installer");
+        DockerfileOptions options = new DockerfileOptions("123").setPackageInstaller(PackageManagerType.YUM);
+        assertTrue(options.useYum(), "Failed to set YUM installer");
 
-        options = new DockerfileOptions("123").setPackageInstaller(Constants.APTGET);
-        assertTrue(options.useAptGet, "Failed to set 'APTGET' installer");
+        options = new DockerfileOptions("123").setPackageInstaller(PackageManagerType.APTGET);
+        assertTrue(options.useAptGet(), "Failed to set 'APTGET' installer");
 
-        options = new DockerfileOptions("123").setPackageInstaller(Constants.ZYPPER);
-        assertTrue(options.useZypper, "Failed to set 'ZYPPER' installer");
+        options = new DockerfileOptions("123").setPackageInstaller(PackageManagerType.ZYPPER);
+        assertTrue(options.useZypper(), "Failed to set 'ZYPPER' installer");
     }
 }
