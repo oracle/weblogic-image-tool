@@ -55,7 +55,7 @@ class AddInstallerEntryTest {
         ImageTool.run(new AddInstallerEntry(), printStream, printStream,
                 "--type", InstallerType.WLS.toString(), "--path", "/path/to/a/file");
         assertTrue(new String(byteArrayOutputStream.toByteArray()).contains(
-                "Missing required option '--version=<version>'"));
+                "Missing required option: '--version=<version>'"));
     }
 
     @Test
