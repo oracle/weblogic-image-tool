@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -318,6 +319,51 @@ public abstract class CommonOptions {
         dockerfileOptions.setOPatchFileName(filename);
     }
 
+    /**
+     * Set the docker options for build if fromImage parameter is present.
+     * @param fromImage  image tag
+     * @param tmpDir temporary directory
+     * @throws Exception thrown by getBaseImageProperties
+     */
+    public void copyOptionsFromImage(String fromImage, String tmpDir)
+        throws Exception {
+
+        if (fromImage != null && !fromImage.isEmpty()) {
+            logger.finer("IMG-0002", fromImage);
+            dockerfileOptions.setBaseImage(fromImage);
+
+            Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
+                tmpDir + File.separator + "test-env.sh", true);
+
+            Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
+
+            if (baseImageProperties.getProperty("WLS_VERSION", null) != null) {
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0038", fromImage,
+                    baseImageProperties.getProperty("ORACLE_HOME")));
+            }
+
+            String existingJavaHome = baseImageProperties.getProperty("JAVA_HOME", null);
+            if (existingJavaHome != null) {
+                dockerfileOptions.disableJavaInstall(existingJavaHome);
+                logger.info("IMG-0000", existingJavaHome);
+            }
+
+            String osProperty = baseImageProperties.getProperty("ID", "ol");
+            PackageManagerType pkgMgr = PackageManagerType.fromOperatingSystem(osProperty);
+            logger.fine("fromImage is {0}, using package manager {1}", osProperty, pkgMgr);
+            if (packageManager != PackageManagerType.OS_DEFAULT && pkgMgr != packageManager) {
+                logger.info("IMG-0079", pkgMgr, packageManager);
+                pkgMgr = packageManager;
+            }
+            dockerfileOptions.setPackageInstaller(pkgMgr);
+        } else if (packageManager == PackageManagerType.OS_DEFAULT) {
+            // Default OS is Oracle Linux, so default package manager is YUM
+            dockerfileOptions.setPackageInstaller(PackageManagerType.YUM);
+        } else {
+            dockerfileOptions.setPackageInstaller(packageManager);
+        }
+    }
+
     String getUserId() {
         return userId;
     }
@@ -474,6 +520,12 @@ public abstract class CommonOptions {
         description = "For verrazzano, resolve parameters in the verrazzano model with information from the image tool."
     )
     Path verrazzanoModel;
+
+    @Option(
+        names = {"--packageManager"},
+        description = "Set the Linux package manager to use for installing OS packages. Default: ${DEFAULT-VALUE}"
+    )
+    PackageManagerType packageManager = PackageManagerType.OS_DEFAULT;
 
     @SuppressWarnings("unused")
     @Unmatched

@@ -29,10 +29,6 @@ public final class Constants {
     public static final String HTTPS = "https";
     public static final String PATCH_ID_REGEX =  "^(\\d{8})(?:[_][0-9][0-9]\\.[0-9]\\.[0-9]\\.[0-9]\\.(\\d+))?";
     public static final String RIGID_PATCH_ID_REGEX =  "^(\\d{8})[_][0-9][0-9]\\.[0-9]\\.[0-9]\\.[0-9]\\.(\\d+)";
-    //Option flags
-    public static final String YUM = "_YUM";
-    public static final String APTGET = "_APT";
-    public static final String ZYPPER = "_SUSE";
 
 
     private Constants() {

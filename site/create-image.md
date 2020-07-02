@@ -23,6 +23,7 @@ Usage: imagetool create [OPTIONS]
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
+| `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `OS_DEFAULT`, `YUM`, `ZYPPER`  | `OS_DEFAULT`  |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
