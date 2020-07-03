@@ -24,6 +24,7 @@ Usage: imagetool create [OPTIONS]
 | `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
 | `--recommendedPatches` | Find and apply the latest PatchSet Update and recommended patches. This takes precedence over --latestPSU  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
+| `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `OS_DEFAULT`, `YUM`, `ZYPPER`  | `OS_DEFAULT`  |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |

@@ -34,7 +34,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <test.groups>unit</test.groups>
+        <test.groups>gate</test.groups>
         <aggregate.report.dir>tests/target/site/jacoco-aggregate/jacoco.xml</aggregate.report.dir>
     </properties>
 
@@ -50,32 +50,37 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>fluent-hc</artifactId>
-                <version>4.5.6</version>
+                <version>4.5.12</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>4.5.6</version>
+                <version>4.5.12</version>
             </dependency>
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
-                <version>4.1.4</version>
+                <version>4.3.2</version>
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
-                <version>20180813</version>
+                <version>20200518</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>5.6.0</version>
             </dependency>
+             <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>4.2</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>19.0</version>
+                <version>29.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>com.github.spullara.mustache.java</groupId>
@@ -85,7 +90,7 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>17.0.0</version>
+                <version>18.0.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -119,6 +124,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>2.22.2</version>
+                    <configuration>
+                        <groups>${test.groups}</groups>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -211,8 +219,8 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                     <configuration>
-                        <groups>${test.groups}</groups>
-                        <excludedGroups>slow,failing</excludedGroups>
+                        <groups>unit</groups>
+                        <excludedGroups>failing</excludedGroups>
                         <environmentVariables>
                             <TEST_ENV_PASSWORD>pass3</TEST_ENV_PASSWORD>
                         </environmentVariables>

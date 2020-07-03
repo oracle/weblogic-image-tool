@@ -28,10 +28,10 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     USER root
 
     {{#useYum}}
-        RUN yum -y --downloaddir={{{tmpDir}}} install gzip tar unzip libaio \
-        && yum -y --downloaddir={{{tmpDir}}} clean all \
+        RUN yum -y --downloaddir={{{tempDir}}} install gzip tar unzip libaio \
+        && yum -y --downloaddir={{{tempDir}}} clean all \
         && rm -rf /var/cache/yum/* \
-        && rm -rf {{{tmpDir}}}
+        && rm -rf {{{tempDir}}}
     {{/useYum}}
     {{#useAptGet}}
         RUN apt-get -y update \

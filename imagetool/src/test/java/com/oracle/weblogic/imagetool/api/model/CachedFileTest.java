@@ -72,7 +72,7 @@ public class CachedFileTest {
     }
 
     @Test
-    void resolveFile() throws IOException {
+    void resolveFile() throws Exception {
         // resolve should fail for a CachedFile that is not in the store
         CachedFile fakeFile = new CachedFile(InstallerType.WLS, "10.3.6.0.0");
         assertThrows(FileNotFoundException.class, () -> fakeFile.resolve(cacheStore));
@@ -84,7 +84,7 @@ public class CachedFileTest {
     }
 
     @Test
-    void copyFile(@TempDir Path contextDir) throws IOException {
+    void copyFile(@TempDir Path contextDir) throws Exception {
         LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
         Level oldLevel = logger.getLevel();
         logger.setLevel(Level.OFF);

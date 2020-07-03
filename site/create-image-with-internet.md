@@ -39,9 +39,9 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 
  **NOTE**: You can provide the password in one of three ways:
 
- * Plain text
- * Environment variable
- * File containing the password
+ * Read from STDIN --password
+ * Environment variable --passwordEnv
+ * File containing the password --passwordFile
 
 
 You will see the Docker command output as the tool runs:

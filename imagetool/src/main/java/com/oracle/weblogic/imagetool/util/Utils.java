@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -199,13 +198,47 @@ public class Utils {
         throws IOException {
         MustacheFactory mf = new DefaultMustacheFactory("docker-files");
         Mustache mustache = mf.compile(template);
-        mustache.execute(new FileWriter(destPath), options).flush();
+        try (FileWriter fw = new FileWriter(destPath)) {
+            mustache.execute(fw, options).flush();
+        }
 
         if (dryRun) {
             return mustache.execute(new StringWriter(), options).toString();
         } else {
             return null;
         }
+    }
+
+    /**
+     * Resolve the parameters in the list of Mustache templates with values passed in command line
+     * arguments or other values described by the image tool.
+     * @param paths list of file paths that are mustache templates
+     * @param options list of option files to resolve the mustache parameters
+     * @throws IOException if a file in the fileNames is invalid
+     */
+    public static void writeResolvedFiles(List<Path> paths, List<Object> options)
+        throws IOException {
+        if (paths != null) {
+            for (Path path : paths) {
+                logger.fine("writeResolvedFiles: resolve parameters in file {0}", path);
+                File directory = path.toFile().getParentFile();
+                if (directory == null
+                    || !(Files.exists(path) && Files.isReadable(path) && Files.isWritable(path))) {
+                    throw new IllegalArgumentException(getMessage("IMG-0073", path));
+                }
+
+                MustacheFactory mf = new DefaultMustacheFactory(directory);
+                Mustache mustache;
+                try (FileReader fr = new FileReader(path.toFile())) {
+                    mustache = mf.compile(fr, path.getFileName().toString());
+                }
+
+                try (FileWriter fw = new FileWriter(path.toFile())) {
+                    mustache.execute(fw, options).flush();
+                }
+            }
+        }
+
     }
 
     /**
@@ -303,12 +336,7 @@ public class Utils {
         String strippedOtherVersion = tmp[0];
         String[] otherVersionElements = strippedOtherVersion.split("\\.");
 
-        int fieldsToCompare;
-        if (thisVersionElements.length <= otherVersionElements.length) {
-            fieldsToCompare = thisVersionElements.length;
-        } else {
-            fieldsToCompare = otherVersionElements.length;
-        }
+        int fieldsToCompare = Math.min(thisVersionElements.length, otherVersionElements.length);
 
         int idx;
         for (idx = 0; idx < fieldsToCompare; idx++) {
@@ -380,36 +408,6 @@ public class Utils {
     }
 
     /**
-     * Returns the package manager that should be used to install software on a given Linux OS.
-     * Defaults to YUM.  Known OS's include: ubuntu, debian, opensuse, centos, ol, and rhel.
-     *
-     * @param osID identifier for the OS, like ubuntu, debian, rhel, ol, ...
-     * @return the package manager
-     */
-    public static String getPackageMgrStr(String osID) {
-        String retVal = Constants.YUM;
-        if (osID != null) {
-            osID = osID.replaceAll("[\"]", "");
-            switch (osID) {
-                case "ubuntu":
-                case "debian":
-                    retVal = Constants.APTGET;
-                    break;
-                case "opensuse":
-                    retVal = Constants.ZYPPER;
-                    break;
-                case "centos":
-                case "ol":
-                case "rhel":
-                default:
-                    retVal = Constants.YUM;
-                    break;
-            }
-        }
-        return retVal;
-    }
-
-    /**
      * Reads the docker image environment variables into Java Properties.
      *
      * @param dockerImage the name of the Docker image to read from
@@ -422,13 +420,7 @@ public class Utils {
         throws IOException, InterruptedException {
 
         List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, dockerImage, "test-env.sh");
-        Properties result = Utils.runDockerCommand(imageEnvCmd);
-
-        if (logger.isLoggable(Level.FINE)) {
-            result.keySet().forEach(x -> logger.fine(
-                "ENV(" + dockerImage + "): " + x + "=" + result.getProperty(x.toString())));
-        }
-        return result;
+        return Utils.runDockerCommand(imageEnvCmd);
     }
 
     /**
@@ -610,7 +602,6 @@ public class Utils {
      */
 
     public static boolean validatePatchIds(List<String> patches, boolean rigid) {
-        boolean result = true;
         Pattern patchIdPattern;
         if (rigid) {
             patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
@@ -630,14 +621,13 @@ public class Utils {
                     }
 
                     logger.severe("IMG-0004", patchId, errorFormat);
-                    result = false;
-                    return result;
+                    return false;
                 }
             }
 
         }
 
-        return result;
+        return true;
     }
 
     /**
@@ -750,5 +740,33 @@ public class Utils {
         Properties result = runDockerCommand(command);
         logger.fine("Intermediate images removed: {0}", result.get("Total"));
         logger.exiting();
+    }
+
+    /**
+     * Find PSU version from inventory.
+     */
+    public static String getPsuVersion(String lsInventory) {
+        logger.entering();
+        String result = null;
+        // search inventory for PSU and extract PSU version, if available
+        Pattern patternOne = Pattern.compile(
+            "WLS PATCH SET UPDATE (\\d+\\.\\d+\\.\\d+\\.\\d+\\.)\\d+\\(ID:(\\d+)\\.\\d+\\)");
+        Pattern patternTwo = Pattern.compile(
+            "WLS PATCH SET UPDATE (\\d+\\.\\d+\\.\\d+\\.\\d+\\.[1-9]\\d+)");
+        for (String line: lsInventory.split("\\n")) {
+            Matcher matchPatternOne = patternOne.matcher(line);
+            Matcher matchPatternTwo = patternTwo.matcher(line);
+            if (matchPatternOne.find()) {
+                result = matchPatternOne.group(1) + matchPatternOne.group(2);
+                logger.fine("Found PSU in inventory {0}, in {1}", result, line);
+                break;
+            } else if (matchPatternTwo.find()) {
+                result = matchPatternTwo.group(1);
+                logger.fine("Found PSU in inventory {0}, in {1}", result, line);
+                break;
+            }
+        }
+        logger.exiting(result);
+        return result;
     }
 }

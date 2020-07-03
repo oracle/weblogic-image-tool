@@ -15,7 +15,6 @@ import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -37,6 +36,7 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 public class UpdateImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
+    private String psuVersion = null;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -61,18 +61,19 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
 
-            String pkgMgr = Utils.getPackageMgrStr(baseImageProperties.getProperty("ID", "ol"));
-            if (!Utils.isEmptyString(pkgMgr)) {
-                dockerfileOptions.setPackageInstaller(pkgMgr);
-            }
-
             String oracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
             if (oracleHome == null) {
-                return new CommandResponse(-1, "ORACLE_HOME env variable undefined in base image: " + fromImage);
+                return new CommandResponse(-1, "IMG-0072", fromImage);
             }
             dockerfileOptions.setOracleHome(oracleHome);
-            installerType = FmwInstallerType.valueOf(baseImageProperties.getProperty("WLS_TYPE",
-                FmwInstallerType.WLS.toString()).toUpperCase());
+
+            if (wdtOptions.isUsingWdt()) {
+                String domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
+                if (domainHome == null && wdtOperation == WdtOperation.UPDATE) {
+                    return new CommandResponse(-1, "IMG-0071", fromImage);
+                }
+            }
+
             installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
@@ -95,6 +96,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                         Files.copy(Paths.get(opatchFilePath), Paths.get(tmpDir, filename));
                         dockerfileOptions.setOPatchPatchingEnabled();
                         dockerfileOptions.setOPatchFileName(filename);
+                    } else {
+                        logger.info("IMG-0074", opatchVersion, opatchFile.getVersion());
                     }
                 }
 
@@ -123,6 +126,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                             logger.severe("ls inventory = " + lsinventoryText);
                             return new CommandResponse(-1, "lsinventory failed");
                         }
+                        // search inventory for PSU and extract PSU version, if available
+                        psuVersion = Utils.getPsuVersion(lsinventoryText);
                     } else {
                         return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
                     }
@@ -141,11 +146,14 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             }
 
             // resolve required patches
-            handlePatchFiles(lsinventoryText);
+            handlePatchFiles(lsinventoryText, psuVersion);
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
                 "Update_Image.mustache", dockerfileOptions, dryRun);
+
+            // resolve parameters in the list of mustache templates returned by gatherFiles()
+            Utils.writeResolvedFiles(gatherFiles(), resolveOptions());
 
             runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
@@ -173,8 +181,6 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
     }
 
     private String installerVersion;
-
-    private FmwInstallerType installerType;
 
     @Option(
         names = {"--fromImage"},

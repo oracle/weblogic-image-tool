@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -85,6 +86,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(1)
+    @Tag("gate")
     void cacheListItems() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -105,6 +107,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(2)
+    @Tag("gate")
     void cacheAddInstallerJDK() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -127,6 +130,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(3)
+    @Tag("gate")
     void cacheAddInstallerWls() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -149,6 +153,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(4)
+    @Tag("nightly")
     void createWlsImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -172,13 +177,14 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(5)
+    @Tag("gate")
     void cacheAddPatch() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
         String patchPath = getStagingDir() + FS + P27342434_INSTALLER;
         deleteEntryFromCache(P27342434_ID + "_" + WLS_VERSION);
-        addPatchToCache("wls", P27342434_ID, WLS_VERSION, patchPath);
+        addPatchToCache(P27342434_ID, WLS_VERSION, patchPath);
 
         // verify the result
         ExecResult result = listItemsInCache();
@@ -195,6 +201,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(6)
+    @Tag("gate")
     void cacheAddTestEntry() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -217,6 +224,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(7)
+    @Tag("gate")
     void cacheDeleteTestEntry() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -240,6 +248,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(8)
+    @Tag("gate")
     void createWLSImgUseCache() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -247,7 +256,7 @@ class ITImagetool extends BaseTest {
         // need to add the required patches 28186730 for Opatch before create wls images
         String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
         deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
-        addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
         ExecResult resultT = listItemsInCache();
 
         String versionTag = "test8img";
@@ -271,6 +280,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(9)
+    @Tag("gate")
     void updateWLSImg() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -296,6 +306,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(10)
+    @Tag("gate")
     void createWlsImgUsingWdt() throws Exception {
 
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -323,12 +334,12 @@ class ITImagetool extends BaseTest {
         // delete the cache entry first
         deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
-        addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
 
         // add the patch to the cache
         deleteEntryFromCache(P27342434_ID + "_" + WLS_VERSION);
         patchPath = getStagingDir() + FS + P27342434_INSTALLER;
-        addPatchToCache("wls", P27342434_ID, WLS_VERSION, patchPath);
+        addPatchToCache(P27342434_ID, WLS_VERSION, patchPath);
 
         // build the wdt archive
         buildWdtArchive();
@@ -360,6 +371,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(11)
+    @Tag("nightly")
     void createFmwImgFullInternetAccess() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -395,6 +407,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(12)
+    @Tag("nightly")
     void createFmwImgNonDefault() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -412,7 +425,7 @@ class ITImagetool extends BaseTest {
         // add the patch to the cache
         String patchPath = getStagingDir() + FS + P22987840_INSTALLER;
         deleteEntryFromCache(P22987840_ID + "_" + WLS_VERSION_1221);
-        addPatchToCache("fmw", P22987840_ID, WLS_VERSION_1221, patchPath);
+        addPatchToCache(P22987840_ID, WLS_VERSION_1221, patchPath);
 
         String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221
             + " --tag " + build_tag + ":" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
@@ -434,6 +447,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(13)
+    @Tag("nightly")
     void testDCreateJRFDomainImgUsingWDT() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -499,6 +513,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(14)
+    @Tag("nightly")
     void createRestricedJrfDomainImgUsingWdt() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -551,6 +566,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(15)
+    @Tag("nightly")
     void createWlsImgUsingMultiModels() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
@@ -577,7 +593,7 @@ class ITImagetool extends BaseTest {
         // delete the cache entry first
         deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
         String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
-        addPatchToCache("wls", P28186730_ID, OPATCH_VERSION, patchPath);
+        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
 
         // build the wdt archive
         buildWdtArchive();
@@ -609,6 +625,7 @@ class ITImagetool extends BaseTest {
      */
     @Test
     @Order(16)
+    @Tag("nightly")
     void createWLSImgWithAdditionalBuildCommands() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);

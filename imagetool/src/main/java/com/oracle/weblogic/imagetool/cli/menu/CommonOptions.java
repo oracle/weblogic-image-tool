@@ -6,11 +6,14 @@ package com.oracle.weblogic.imagetool.cli.menu;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,12 +22,13 @@ import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.ARUUtil;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
+import com.oracle.weblogic.imagetool.util.AruUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.VerrazzanoModel;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
@@ -35,6 +39,9 @@ public abstract class CommonOptions {
     DockerfileOptions dockerfileOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
+
+    private List<Object> resolveOptions = null;
+    private List<Path> resolveFiles = null;
 
     abstract String getInstallerVersion();
 
@@ -107,7 +114,8 @@ public abstract class CommonOptions {
         logger.entering();
         DockerBuildCommand cmdBuilder = new DockerBuildCommand(contextFolder);
 
-        cmdBuilder.tag(imageTag)
+        cmdBuilder.forceRm(!skipcleanup)
+            .tag(imageTag)
             .network(buildNetwork)
             .pull(buildPull)
             .buildArg("http_proxy", httpProxyUrl)
@@ -156,7 +164,7 @@ public abstract class CommonOptions {
         // check user support credentials if useCache not set to always and we are applying any patches
 
         if (userId != null || password != null) {
-            if (!ARUUtil.checkCredentials(userId, password)) {
+            if (!AruUtil.checkCredentials(userId, password)) {
                 throw new Exception("user Oracle support credentials do not match");
             }
         }
@@ -167,6 +175,23 @@ public abstract class CommonOptions {
         logger.exiting();
     }
 
+    List<Path> gatherFiles() {
+        if (resolveFiles == null) {
+            resolveFiles = new ArrayList<>();
+        }
+        if (verrazzanoModel != null) {
+            resolveFiles.add(verrazzanoModel);
+        }
+        return resolveFiles;
+    }
+
+    List<Object> resolveOptions() {
+        if (resolveFiles != null && !resolveFiles.isEmpty()) {
+            resolveOptions = Collections.singletonList(new VerrazzanoModel(imageTag, dockerfileOptions.domain_home()));
+        }
+        return resolveOptions;
+    }
+
     /**
      * Returns true if any patches should be applied.
      * A PSU is considered a patch.
@@ -174,7 +199,7 @@ public abstract class CommonOptions {
      * @return true if applying patches
      */
     boolean applyingPatches() {
-        return latestPSU || !patches.isEmpty();
+        return (latestPSU || recommendedPatches) || !patches.isEmpty();
     }
 
     /**
@@ -185,9 +210,19 @@ public abstract class CommonOptions {
      */
     boolean shouldUpdateOpatch() {
         if (skipOpatchUpdate) {
-            logger.fine("OPatch update was skipped at user's request");
+            logger.fine("IMG-0065");
         }
         return !skipOpatchUpdate;
+    }
+
+    /**
+     * Builds a list of build args to pass on to docker with the required patches.
+     * Also, creates links to patches directory under build context instead of copying over.
+     *
+     * @throws Exception in case of error
+     */
+    void handlePatchFiles() throws Exception {
+        handlePatchFiles(null, null);
     }
 
     /**
@@ -197,8 +232,8 @@ public abstract class CommonOptions {
      * @param previousInventory existing inventory found in the "from" image
      * @throws Exception in case of error
      */
-    void handlePatchFiles(String previousInventory) throws Exception {
-        logger.entering();
+    void handlePatchFiles(String previousInventory, String psuVersion) throws Exception {
+        logger.entering(psuVersion);
         if (!applyingPatches()) {
             return;
         }
@@ -206,21 +241,35 @@ public abstract class CommonOptions {
         String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
 
         List<PatchFile> patchFiles = new ArrayList<>();
-
-        if (latestPSU) {
+        if (recommendedPatches || latestPSU) {
             if (userId == null || password == null) {
                 throw new Exception(Utils.getMessage("IMG-0031"));
             }
+        }
+        if (recommendedPatches) {
+            // Get the latest PSU and its recommended patches
+            List<String> patchList =
+                AruUtil.getLatestPsuRecommendedPatches(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
+            if (patchList.isEmpty()) {
+                recommendedPatches = false;
+                logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
+            } else {
+                for (String patchId: patchList) {
+                    logger.fine("Add latest recommended patch {0} to list", patchId);
+                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
+                }
+            }
+        } else if (latestPSU) {
             // PSUs for WLS and JRF installers are considered WLS patches
-            String patchId = ARUUtil.getLatestPSUNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
+            String patchId = AruUtil.getLatestPsuNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
 
             if (Utils.isEmptyString(patchId)) {
                 latestPSU = false;
                 logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
             } else {
                 logger.fine("Found latest PSU {0}", patchId);
-                patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                patchFiles.add(new PatchFile(patchId, getInstallerVersion(), null, userId, password));
             }
         }
 
@@ -229,18 +278,22 @@ public abstract class CommonOptions {
             for (String patchId : patches) {
                 // if user mistakenly added the OPatch patch to the WLS patch list, skip it
                 if (!OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), userId, password));
+                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
                 }
             }
         }
 
-        ARUUtil.validatePatches(previousInventory, patchFiles, userId, password);
+        AruUtil.validatePatches(previousInventory, patchFiles, userId, password);
 
         for (PatchFile patch : patchFiles) {
             String patchLocation = patch.resolve(cache());
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File patchFile = new File(patchLocation);
-                Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+                try {
+                    Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+                } catch (FileAlreadyExistsException ee) {
+                    logger.warning("IMG-0077", patch.getKey());
+                }
             } else {
                 logger.severe("IMG-0024", patch.getKey());
             }
@@ -264,6 +317,51 @@ public abstract class CommonOptions {
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();
         dockerfileOptions.setOPatchFileName(filename);
+    }
+
+    /**
+     * Set the docker options for build if fromImage parameter is present.
+     * @param fromImage  image tag
+     * @param tmpDir temporary directory
+     * @throws Exception thrown by getBaseImageProperties
+     */
+    public void copyOptionsFromImage(String fromImage, String tmpDir)
+        throws Exception {
+
+        if (fromImage != null && !fromImage.isEmpty()) {
+            logger.finer("IMG-0002", fromImage);
+            dockerfileOptions.setBaseImage(fromImage);
+
+            Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
+                tmpDir + File.separator + "test-env.sh", true);
+
+            Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
+
+            if (baseImageProperties.getProperty("WLS_VERSION", null) != null) {
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0038", fromImage,
+                    baseImageProperties.getProperty("ORACLE_HOME")));
+            }
+
+            String existingJavaHome = baseImageProperties.getProperty("JAVA_HOME", null);
+            if (existingJavaHome != null) {
+                dockerfileOptions.disableJavaInstall(existingJavaHome);
+                logger.info("IMG-0000", existingJavaHome);
+            }
+
+            String osProperty = baseImageProperties.getProperty("ID", "ol");
+            PackageManagerType pkgMgr = PackageManagerType.fromOperatingSystem(osProperty);
+            logger.fine("fromImage is {0}, using package manager {1}", osProperty, pkgMgr);
+            if (packageManager != PackageManagerType.OS_DEFAULT && pkgMgr != packageManager) {
+                logger.info("IMG-0079", pkgMgr, packageManager);
+                pkgMgr = packageManager;
+            }
+            dockerfileOptions.setPackageInstaller(pkgMgr);
+        } else if (packageManager == PackageManagerType.OS_DEFAULT) {
+            // Default OS is Oracle Linux, so default package manager is YUM
+            dockerfileOptions.setPackageInstaller(PackageManagerType.YUM);
+        } else {
+            dockerfileOptions.setPackageInstaller(packageManager);
+        }
     }
 
     String getUserId() {
@@ -342,8 +440,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--skipcleanup"},
-        description = "Do no delete Docker context folder or intermediate images.",
-        hidden = true
+        description = "Do no delete Docker context folder, intermediate images, and failed build container."
     )
     boolean skipcleanup = false;
 
@@ -381,6 +478,12 @@ public abstract class CommonOptions {
     boolean latestPSU = false;
 
     @Option(
+        names = {"--recommendedPatches"},
+        description = "Whether to apply recommended patches from latest PSU."
+    )
+    boolean recommendedPatches = false;
+
+    @Option(
         names = {"--patches"},
         paramLabel = "patchId",
         split = ",",
@@ -411,6 +514,18 @@ public abstract class CommonOptions {
         description = "Do not update OPatch version, even if a newer version is available."
     )
     private boolean skipOpatchUpdate = false;
+
+    @Option(
+        names = {"--vzModel"},
+        description = "For verrazzano, resolve parameters in the verrazzano model with information from the image tool."
+    )
+    Path verrazzanoModel;
+
+    @Option(
+        names = {"--packageManager"},
+        description = "Set the Linux package manager to use for installing OS packages. Default: ${DEFAULT-VALUE}"
+    )
+    PackageManagerType packageManager = PackageManagerType.OS_DEFAULT;
 
     @SuppressWarnings("unused")
     @Unmatched

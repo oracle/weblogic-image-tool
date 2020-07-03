@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.logging;
 
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -30,6 +31,9 @@ public class LoggingFacade {
         for (final Handler handler : handlers) {
             if (handler instanceof FileHandler) {
                 handler.setFormatter(new FileFormatter());
+            }
+            if (handler instanceof ConsoleHandler) {
+                handler.setFormatter(new ConsoleFormatter());
             }
         }
     }

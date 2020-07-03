@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -30,6 +29,10 @@ public class AddPatchEntry extends CacheOperation {
 
     @Override
     public CommandResponse call() throws Exception {
+
+        if (type != null) {
+            logger.warning("IMG-0078");
+        }
 
         if (patchId != null && !patchId.isEmpty()
                 && location != null && Files.exists(location)
@@ -61,26 +64,12 @@ public class AddPatchEntry extends CacheOperation {
      * @return CLI command response
      */
     private CommandResponse addToCache(String patchNumber) throws CacheStoreException {
-        logger.info("adding key " + patchNumber);
-
-        // Check if it is an Opatch patch
-        //String opatchNumber = Utils.getOpatchVersionFromZip(location.toAbsolutePath().toString());
-        //if (opatchNumber != null) {
-        //    int lastSeparator = key.lastIndexOf(CacheStore.CACHE_KEY_SEPARATOR);
-        //    key = key.substring(0, lastSeparator) + CacheStore.CACHE_KEY_SEPARATOR + Constants.OPATCH_PATCH_TYPE;
-        //}
-        logger.info("adding key " + patchNumber);
         if (cache().getValueFromCache(patchNumber) != null) {
-            String error = String.format("Cache key %s already exists, remove it first", patchNumber);
-            logger.severe(error);
-            throw new IllegalArgumentException(error);
+            return new CommandResponse(-1, "IMG-0076", patchNumber);
         }
         cache().addToCache(patchNumber, location.toAbsolutePath().toString());
-        String msg = String.format("Added Patch entry %s=%s for %s", patchNumber, location.toAbsolutePath(), type);
-        logger.info(msg);
-        return new CommandResponse(0, msg);
+        return new CommandResponse(0, Utils.getMessage("IMG-0075", patchNumber, location.toAbsolutePath()));
     }
-
 
     @Option(
             names = {"--patchId"},
@@ -91,12 +80,10 @@ public class AddPatchEntry extends CacheOperation {
 
     @Option(
             names = {"--type"},
-            description = "Type of patch. Valid values: ${COMPLETION-CANDIDATES}",
-            required = true,
-            defaultValue = "wls"
+            description = "Type of patch. DEPRECATED"
     )
-    private FmwInstallerType type;
-
+    @Deprecated
+    private String type;
 
     @Option(
             names = {"--path"},

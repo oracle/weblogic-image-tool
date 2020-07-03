@@ -54,7 +54,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, "Patch ID validation failed");
             }
 
-            WLSInstallHelper.copyOptionsFromImage(fromImage, dockerfileOptions, tmpDir);
+            copyOptionsFromImage(fromImage, tmpDir);
 
             if (dockerfileOptions.installJava()) {
                 CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);
@@ -71,7 +71,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
 
             // resolve required patches
-            handlePatchFiles(null);
+            handlePatchFiles();
 
             // If patching, patch OPatch first
             if (applyingPatches() && shouldUpdateOpatch()) {
@@ -94,6 +94,9 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             // Create Dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
                 "Create_Image.mustache", dockerfileOptions, dryRun);
+
+            // resolve parameters in the list of mustache templates returned by gatherFiles()
+            Utils.writeResolvedFiles(gatherFiles(), resolveOptions());
 
             runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
