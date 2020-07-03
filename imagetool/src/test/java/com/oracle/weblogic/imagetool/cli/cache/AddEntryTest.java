@@ -44,14 +44,14 @@ class AddEntryTest {
     @Test
     void testMissingKey() {
         ImageTool.run(new AddEntry(), printStream, printStream, "--value", "some_value");
-        assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required option '--key=<key>'"));
+        assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required option: '--key=<key>'"));
     }
 
     @Test
     void testMissingValue() {
         ImageTool.run(new AddEntry(), printStream, printStream, "--key", "some_key");
         assertTrue(new String(byteArrayOutputStream.toByteArray())
-            .contains("Missing required option '--value=<location>'"));
+            .contains("Missing required option: '--value=<location>'"));
     }
 
     @Test
