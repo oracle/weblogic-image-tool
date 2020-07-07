@@ -67,7 +67,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             }
             dockerfileOptions.setOracleHome(oracleHome);
 
-            if (wdtOptions.isUsingWdt()) {
+            if (wdtOptions.isUsingWdt() && !wdtOptions.modelOnly()) {
                 String domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
                 if (domainHome == null && wdtOperation == WdtOperation.UPDATE) {
                     return new CommandResponse(-1, "IMG-0071", fromImage);
