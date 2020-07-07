@@ -36,6 +36,15 @@ public class WdtOptions {
     }
 
     /**
+     * Return true if the user specified the wdtModelOnly option, and
+     * WDT should not run a create or update script.
+     * @return true if the WDT script should not run during the build.
+     */
+    boolean modelOnly() {
+        return wdtModelOnly;
+    }
+
+    /**
      * Checks whether the user requested a domain to be created with WDT.
      * If so,  creates required file links to pass the model, archive, variables file to build process.
      *
