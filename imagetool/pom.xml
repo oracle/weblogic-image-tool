@@ -71,6 +71,7 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>version-info.properties</include>
+                    <include>VERSION.txt</include>
                 </includes>
             </resource>
             <resource>
@@ -78,6 +79,7 @@
                 <filtering>false</filtering>
                 <excludes>
                     <exclude>version-info.properties</exclude>
+                    <exclude>VERSION.txt</exclude>
                 </excludes>
             </resource>
         </resources>
