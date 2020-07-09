@@ -37,6 +37,13 @@
                 <include>*.sh</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>.</outputDirectory>
+            <includes>
+                <include>VERSION.txt</include>
+            </includes>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
