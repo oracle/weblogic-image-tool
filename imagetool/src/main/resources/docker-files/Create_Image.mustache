@@ -53,7 +53,7 @@ USER {{userid}}
 {{/beforeJdkInstall}}
 
 RUN tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01 \
- && $(test -d /u01/jdk* && mvn /u01/jdk* {{{java_home}}} || mv /u01/graal* {{{java_home}}}) \
+ && $(test -d /u01/jdk* && mv /u01/jdk* {{{java_home}}} || mv /u01/graal* {{{java_home}}}) \
  && rm -rf {{{tempDir}}} \
  && rm -f {{{java_home}}}/javafx-src.zip {{{java_home}}}/src.zip
 
