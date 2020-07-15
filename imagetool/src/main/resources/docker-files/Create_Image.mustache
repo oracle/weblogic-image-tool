@@ -52,11 +52,10 @@ USER {{userid}}
     {{{.}}}
 {{/beforeJdkInstall}}
 
-RUN mkdir /u01/extractedjdk \
- && tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01/extractedjdk \
- && test -f /u01/extractedjdk/bin/java
- && mv /u01/extractedjdk {{{java_home}}} \
- || {mv /u01/extractedjdk/jdk* {{{java_home}}} && rm -f {{{java_home}}}/javafx-src.zip {{{java_home}}}/src.zip}
+RUN tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01 \
+ && $(test -d /u01/jdk* && mvn /u01/jdk* {{{java_home}}} || mv /u01/graal* {{{java_home}}}) \
+ && rm -rf {{{tempDir}}} \
+ && rm -f {{{java_home}}}/javafx-src.zip {{{java_home}}}/src.zip
 
 {{#afterJdkInstall}}
     {{{.}}}
