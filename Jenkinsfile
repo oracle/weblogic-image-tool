@@ -90,5 +90,18 @@ pipeline {
                 }
             }
         }
+        stage ('Save Nightly Installer'){
+            when {
+                allOf {
+                    triggeredBy 'TimerTrigger'
+                    branch "master"
+                }
+            }
+            steps {
+                sh '''
+                    oci os object put --namespace=weblogick8s --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/imagetool.zip --name=imagetool-master.zip
+                '''
+            }
+        }
      }
 }

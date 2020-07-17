@@ -30,14 +30,6 @@
         <tag>HEAD</tag>
     </scm>
 
-<!--    <distributionManagement>-->
-<!--        <repository>-->
-<!--            <id>github</id>-->
-<!--            <name>GitHub packages</name>-->
-<!--            <url>https://maven.pkg.github.com/oracle</url>-->
-<!--        </repository>-->
-<!--    </distributionManagement>-->
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -106,14 +98,6 @@
     <build>
         <pluginManagement>
             <plugins>
-<!--                <plugin>-->
-<!--                    <groupId>org.apache.maven.plugins</groupId>-->
-<!--                    <artifactId>maven-deploy-plugin</artifactId>-->
-<!--                    <version>3.0.0-M1</version>-->
-<!--                    <configuration>-->
-<!--                        <skip>true</skip>-->
-<!--                    </configuration>-->
-<!--                </plugin>-->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
