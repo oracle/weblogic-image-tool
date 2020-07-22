@@ -10,6 +10,8 @@ import java.util.List;
  * Supported Fusion Middleware installer sets.
  */
 public enum FmwInstallerType {
+    WLSSLIM(InstallerType.WLSSLIM),
+    WLSDEV(InstallerType.WLSDEV),
     WLS(InstallerType.WLS), //WebLogic Server
     FMW(InstallerType.FMW), //WebLogic Server Infrastructure (JRF)
     OSB(InstallerType.FMW, InstallerType.OSB),  //Service Bus
