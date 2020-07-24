@@ -120,7 +120,7 @@ public class AruUtil {
      */
     static List<String> getRecommendedPatches(AruHttpHelper aruHttpHelper)
         throws Exception {
-        logger.entering(aruHttpHelper);
+        logger.entering(aruHttpHelper.product(), aruHttpHelper.version());
         try {
             logger.info("IMG-0067", aruHttpHelper.product().description());
             aruHttpHelper.release(getReleaseNumber(aruHttpHelper));

@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.util;
 import java.util.List;
 import java.util.logging.Level;
 
+import com.oracle.weblogic.imagetool.installer.AruProduct;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.easymock.EasyMockExtension;
@@ -70,11 +71,12 @@ class AruUtilTest {
     @Test
     void testNoRecommendedPatches() throws Exception {
         expect(mock.release()).andReturn(AruUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.product()).andReturn(AruProduct.WLS).anyTimes();
         expect(mock.version()).andReturn(AruUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
-        expect(mock.createResultDocument(anyObject())).andReturn(mock);
-        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
+        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse());
         expect(mock.release(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
+        expect(mock.success()).andReturn(true);
         expect(mock.success()).andReturn(false);
         expect(mock.errorMessage()).andReturn("No results found").anyTimes();
         replay(mock);
