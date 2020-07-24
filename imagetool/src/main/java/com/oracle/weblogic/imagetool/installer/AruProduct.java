@@ -10,7 +10,7 @@ public enum AruProduct {
     WLS("15991", "Oracle WebLogic Server"),
     COH("13964", "Oracle Coherence"),
     OSB("16011", "Oracle Service Bus"),
-    SOA("11269", "Oracle SOA Suite"),
+    SOA("12745", "Oracle SOA Suite"),
     IDM("18391", "Oracle Identity Manager"),
     OAM("18388", "Oracle Access Manager"),
     OUD("19748", "Oracle Unified Directory"),
