@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -12,6 +13,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.easymock.EasyMockExtension;
 import org.easymock.Mock;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,7 @@ class AruUtilTest {
     static void setUp() {
         oldLevel = logger.getLevel();
         logger.setLevel(Level.SEVERE);
+
     }
 
     @AfterAll
@@ -47,6 +50,13 @@ class AruUtilTest {
         logger.setLevel(oldLevel);
     }
 
+    @AfterEach
+    void clearStatic() throws Exception {
+        Field documentField = AruUtil.class.getDeclaredField("allReleasesDocument");
+        documentField.setAccessible(true);
+        documentField.set(null, null);
+    }
+    
     @Test
     void testRecommendedPatches() throws Exception {
         expect(mock.release()).andReturn(AruUtilTestConstants.ReleaseNumber).anyTimes();
