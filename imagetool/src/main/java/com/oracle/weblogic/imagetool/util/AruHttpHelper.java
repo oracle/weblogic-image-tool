@@ -10,7 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.AruProduct;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -24,7 +24,7 @@ public class AruHttpHelper {
     private boolean success;
     private Document results;
     private String errorMessage;
-    private FmwInstallerType category;
+    private AruProduct product;
     private String version;
     private String userId;
     private String password;
@@ -33,13 +33,13 @@ public class AruHttpHelper {
     /**
      * Constructor encapsulating the information for the ARU search.
      *
-     * @param category of the product
+     * @param product ARU product
      * @param version of the product
      * @param userId ARU user credentials
      * @param password ARU password credentials
      */
-    AruHttpHelper(FmwInstallerType category, String version, String userId, String password) {
-        this.category = category;
+    AruHttpHelper(AruProduct product, String version, String userId, String password) {
+        this.product = product;
         this.version = version;
         this.userId = userId;
         this.password = password;
@@ -84,15 +84,6 @@ public class AruHttpHelper {
     }
 
     /**
-     * Return the FMWInstallerType category for the search.
-     *
-     * @return category
-     */
-    FmwInstallerType category() {
-        return category;
-    }
-
-    /**
      * Return the product version number for the search.
      *
      * @return product version number
@@ -130,12 +121,19 @@ public class AruHttpHelper {
     }
 
     /**
-     * Set the ARU credentials password.
+     * Return the ARU credentials password.
      *
      * @return password
      */
     public String password() {
         return password;
+    }
+
+    /**
+     * Return the ARU product.
+     */
+    public AruProduct product() {
+        return product;
     }
 
     /**

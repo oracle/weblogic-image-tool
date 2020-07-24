@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.xml.xpath.XPathExpressionException;
@@ -26,7 +25,7 @@ public class MiddlewareInstall {
     private static final LoggingFacade logger = LoggingFactory.getLogger(MiddlewareInstall.class);
 
     private List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
-    private final String installerListString;
+    private FmwInstallerType fmwInstallerType;
 
     /**
      * Get the install metadata for a given middleware install type.
@@ -35,12 +34,10 @@ public class MiddlewareInstall {
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles)
         throws FileNotFoundException {
 
-        List<InstallerType> list = type.getInstallerList();
+        logger.info("IMG-0039", type.installerListString(), version);
+        fmwInstallerType = type;
 
-        installerListString = list.stream().map(Object::toString).collect(Collectors.joining(", "));
-        logger.info("IMG-0039", installerListString, version);
-
-        for (InstallerType installer : list) {
+        for (InstallerType installer : type.installerList()) {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
             pkg.type = installer;
             pkg.installer = new CachedFile(installer, version);
@@ -112,7 +109,7 @@ public class MiddlewareInstall {
         if (responseFiles.size() != installerFiles.size()) {
             throw new IllegalArgumentException(
                 Utils.getMessage("IMG-0040",
-                    installerListString,
+                    fmwInstallerType.installerListString(),
                     responseFiles.size(),
                     installerFiles.size()));
         }

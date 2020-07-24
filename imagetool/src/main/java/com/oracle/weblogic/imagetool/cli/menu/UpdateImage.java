@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
+import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -145,8 +146,10 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, "IMG-0055");
             }
 
+            FmwInstallerType installerType = FmwInstallerType.fromValue(
+                baseImageProperties.getProperty("WLS_TYPE", "WLS"));
             // resolve required patches
-            handlePatchFiles(lsinventoryText, psuVersion);
+            handlePatchFiles(installerType, lsinventoryText, psuVersion);
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",

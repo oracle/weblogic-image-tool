@@ -133,7 +133,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 dockerfileOptions.setMiddlewareInstall(install);
 
                 // resolve required patches
-                handlePatchFiles();
+                handlePatchFiles(installerType);
 
                 // If patching, patch OPatch first
                 if (applyingPatches() && shouldUpdateOpatch()) {
