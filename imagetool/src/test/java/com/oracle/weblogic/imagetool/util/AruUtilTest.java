@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -49,18 +48,17 @@ class AruUtilTest {
     }
 
     @Test
-    void testRecommendedPsuPatches() throws Exception {
+    void testRecommendedPatches() throws Exception {
         expect(mock.release()).andReturn(AruUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.product()).andReturn(AruProduct.WLS).anyTimes();
         expect(mock.version()).andReturn(AruUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
-        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
-        expect(mock.createResultDocument(anyObject())).andReturn(mock);
+        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse());
         expect(mock.release(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
         expect(mock.success()).andReturn(true).anyTimes();
         expect(mock.results()).andReturn(AruUtilTestConstants.getPatchesResponse());
         replay(mock);
-        List<String> resultList =
-            AruUtil.getRecommendedPatches(mock);
+        List<String> resultList = AruUtil.getRecommendedPatches(mock);
         verify(mock);
         assertNotNull(resultList);
         String[] resultArray = resultList.toArray(new String[0]);
@@ -80,8 +78,7 @@ class AruUtilTest {
         expect(mock.success()).andReturn(false);
         expect(mock.errorMessage()).andReturn("No results found").anyTimes();
         replay(mock);
-        List<String> resultList =
-            AruUtil.getRecommendedPatches(mock);
+        List<String> resultList = AruUtil.getRecommendedPatches(mock);
         verify(mock);
         assertTrue(resultList.isEmpty());
     }
@@ -89,17 +86,16 @@ class AruUtilTest {
     @Test
     void testRecommendedPsu() throws Exception {
         expect(mock.release()).andReturn(AruUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.product()).andReturn(AruProduct.WLS).anyTimes();
         expect(mock.version()).andReturn(AruUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
         expect(mock.release(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
-        expect(mock.createResultDocument(anyObject())).andReturn(mock);
-        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
+        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse());
         expect(mock.success()).andReturn(true).anyTimes();
         expect(mock.results()).andReturn(AruUtilTestConstants.getPatchesResponse());
         replay(mock);
         String result = AruUtil.getLatestPsuNumber(mock);
         verify(mock);
-        assertNotNull(result);
         assertEquals("30965714", result);
     }
 
