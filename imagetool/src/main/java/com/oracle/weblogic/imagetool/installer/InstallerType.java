@@ -39,18 +39,4 @@ public enum InstallerType {
     public String toString() {
         return value;
     }
-
-    /**
-     * Create the installer type Enum from the String value.
-     * @param value the installer type string, ignoring case.
-     * @return the enum installer type.
-     */
-    public static InstallerType fromValue(String value) {
-        for (InstallerType eachType : InstallerType.values()) {
-            if (eachType.value.equalsIgnoreCase(value)) {
-                return eachType;
-            }
-        }
-        throw new IllegalArgumentException("argument " + value + " does not match any InstallerType");
-    }
 }

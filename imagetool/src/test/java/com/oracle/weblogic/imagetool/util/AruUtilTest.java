@@ -3,10 +3,11 @@
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.logging.Level;
 
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.AruProduct;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.easymock.EasyMockExtension;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -42,6 +42,7 @@ class AruUtilTest {
     static void setUp() {
         oldLevel = logger.getLevel();
         logger.setLevel(Level.SEVERE);
+
     }
 
     @AfterAll
@@ -50,66 +51,62 @@ class AruUtilTest {
     }
 
     @AfterEach
-    void clearMap() {
-        AruUtil.releaseNumbersMap.clear();
+    void clearStatic() throws Exception {
+        Field documentField = AruUtil.class.getDeclaredField("allReleasesDocument");
+        documentField.setAccessible(true);
+        documentField.set(null, null);
     }
-
+    
     @Test
-    void testRecommendedPsuPatches() throws Exception {
-        String[] expected = { "30965714_12.2.1.3.0","28512225_12.2.1.3.0","28278427_12.2.1.3.0" };
-        expect(mock.category()).andReturn(FmwInstallerType.WLS).anyTimes();
+    void testRecommendedPatches() throws Exception {
         expect(mock.release()).andReturn(AruUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.product()).andReturn(AruProduct.WLS).anyTimes();
         expect(mock.version()).andReturn(AruUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
-        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
-        expect(mock.createResultDocument(anyObject())).andReturn(mock);
+        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse());
         expect(mock.release(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
         expect(mock.success()).andReturn(true).anyTimes();
         expect(mock.results()).andReturn(AruUtilTestConstants.getPatchesResponse());
         replay(mock);
-        List<String> resultList =
-            AruUtil.getLatestPsuRecommendedPatches(mock);
+        List<String> resultList = AruUtil.getRecommendedPatches(mock);
         verify(mock);
         assertNotNull(resultList);
-        String[] resultArray = resultList.toArray(new String[resultList.size()]);
+        String[] resultArray = resultList.toArray(new String[0]);
+        String[] expected = { "30965714_12.2.1.3.0","28512225_12.2.1.3.0","28278427_12.2.1.3.0" };
         assertArrayEquals(expected, resultArray);
     }
 
     @Test
     void testNoRecommendedPatches() throws Exception {
-        expect(mock.category()).andReturn(FmwInstallerType.WLS).anyTimes();
         expect(mock.release()).andReturn(AruUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.product()).andReturn(AruProduct.WLS).anyTimes();
         expect(mock.version()).andReturn(AruUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
-        expect(mock.createResultDocument(anyObject())).andReturn(mock);
-        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
+        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse());
         expect(mock.release(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
+        expect(mock.success()).andReturn(true);
         expect(mock.success()).andReturn(false);
         expect(mock.errorMessage()).andReturn("No results found").anyTimes();
         replay(mock);
-        List<String> resultList =
-            AruUtil.getLatestPsuRecommendedPatches(mock);
+        List<String> resultList = AruUtil.getRecommendedPatches(mock);
         verify(mock);
         assertTrue(resultList.isEmpty());
     }
 
     @Test
     void testRecommendedPsu() throws Exception {
-        String expected = "30965714";
-        expect(mock.category()).andReturn(FmwInstallerType.WLS).anyTimes();
         expect(mock.release()).andReturn(AruUtilTestConstants.ReleaseNumber).anyTimes();
+        expect(mock.product()).andReturn(AruProduct.WLS).anyTimes();
         expect(mock.version()).andReturn(AruUtilTestConstants.Version).anyTimes();
         expect(mock.execSearch(anyString())).andReturn(mock).times(2);
         expect(mock.release(AruUtilTestConstants.ReleaseNumber)).andReturn(mock);
-        expect(mock.createResultDocument(anyObject())).andReturn(mock);
-        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse()).times(2);
+        expect(mock.results()).andReturn(AruUtilTestConstants.getReleasesResponse());
         expect(mock.success()).andReturn(true).anyTimes();
         expect(mock.results()).andReturn(AruUtilTestConstants.getPatchesResponse());
         replay(mock);
         String result = AruUtil.getLatestPsuNumber(mock);
         verify(mock);
-        assertNotNull(result);
-        assertEquals(expected, result);
+        assertEquals("30965714", result);
     }
 
 }

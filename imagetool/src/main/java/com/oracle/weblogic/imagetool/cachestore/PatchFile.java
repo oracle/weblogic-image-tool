@@ -151,7 +151,8 @@ public class PatchFile extends CachedFile {
         }
 
         if (checkPsuVersion()) {
-            String patchXpath = String.format("string(/results/patch/release[@name='%s'])", patchSetVersion);
+            String patchXpath = String.format(
+                "string(/results/patch[./platform[@id='2000' or @id='226']]/release[@name='%s'])", patchSetVersion);
             String patch = XPathUtil.applyXPathReturnString(aruInfo, patchXpath);
             // if the patch has a PSU version in ARU, set the patch version to PSU version (download PSU version)
             if (!Utils.isEmptyString(patch)) {
@@ -176,8 +177,10 @@ public class PatchFile extends CachedFile {
      */
     private void getReleaseInfoFromAru() throws IOException, XPathExpressionException {
         // get release number and release name from ARU data
-        String releasePath = String.format("/results/patch/release[@name='%s']/@id", getVersion());
-        String releaseNamePath = String.format("/results/patch/release[@name='%s']/text()", getVersion());
+        String releasePath = String.format(
+            "/results/patch[./platform[@id='2000' or @id='226']]/release[@name='%s']/@id", getVersion());
+        String releaseNamePath = String.format(
+            "/results/patch[./platform[@id='2000' or @id='226']]/release[@name='%s']/text()", getVersion());
 
         logger.finest("Searching for release number with xpath: {0}", releasePath);
         releaseNumber = XPathUtil.applyXPathReturnString(aruInfo, releasePath);
@@ -227,7 +230,8 @@ public class PatchFile extends CachedFile {
      */
     boolean verifyPatchVersion() throws MultiplePatchVersionsException, XPathExpressionException {
         List<String> versionsForPatch =
-            XPathUtil.applyXPathReturnList(getAruInfo(), "/results/patch/release/@name");
+            XPathUtil.applyXPathReturnList(getAruInfo(),
+                "/results/patch[./platform[@id='2000' or @id='226']]/release/@name");
         logger.fine("versions for patch {0} are {1}", getBugNumber(), versionsForPatch);
 
         if (!versionsForPatch.contains(getVersion())) {
@@ -266,7 +270,8 @@ public class PatchFile extends CachedFile {
         }
 
         // select the patch based on the version requested, or default to the installer version, see getVersion()
-        String patchXpath = String.format("string(/results/patch[release[@name='%s']]", getVersion());
+        String patchXpath = String.format(
+            "string(/results/patch[./platform[@id='2000' or @id='226']][release[@name='%s']]", getVersion());
 
         String downloadUrlXpath = patchXpath + "/files/file/download_url";
         String downLoadLink = XPathUtil.applyXPathReturnString(getAruInfo(),downloadUrlXpath + "/text())");

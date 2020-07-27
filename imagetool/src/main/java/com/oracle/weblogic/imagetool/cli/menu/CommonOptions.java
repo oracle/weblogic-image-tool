@@ -221,8 +221,8 @@ public abstract class CommonOptions {
      *
      * @throws Exception in case of error
      */
-    void handlePatchFiles() throws Exception {
-        handlePatchFiles(null, null);
+    void handlePatchFiles(FmwInstallerType installerType) throws Exception {
+        handlePatchFiles(installerType, null, null);
     }
 
     /**
@@ -232,7 +232,8 @@ public abstract class CommonOptions {
      * @param previousInventory existing inventory found in the "from" image
      * @throws Exception in case of error
      */
-    void handlePatchFiles(String previousInventory, String psuVersion) throws Exception {
+    void handlePatchFiles(FmwInstallerType installerType, String previousInventory, String psuVersion)
+        throws Exception {
         logger.entering(psuVersion);
         if (!applyingPatches()) {
             return;
@@ -249,7 +250,7 @@ public abstract class CommonOptions {
         if (recommendedPatches) {
             // Get the latest PSU and its recommended patches
             List<String> patchList =
-                AruUtil.getLatestPsuRecommendedPatches(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
+                AruUtil.getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
 
             if (patchList.isEmpty()) {
                 recommendedPatches = false;
@@ -262,14 +263,16 @@ public abstract class CommonOptions {
             }
         } else if (latestPSU) {
             // PSUs for WLS and JRF installers are considered WLS patches
-            String patchId = AruUtil.getLatestPsuNumber(FmwInstallerType.WLS, getInstallerVersion(), userId, password);
+            List<String> patchIds = AruUtil.getLatestPsuNumber(installerType, getInstallerVersion(), userId, password);
 
-            if (Utils.isEmptyString(patchId)) {
+            if (patchIds.isEmpty()) {
                 latestPSU = false;
                 logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
             } else {
-                logger.fine("Found latest PSU {0}", patchId);
-                patchFiles.add(new PatchFile(patchId, getInstallerVersion(), null, userId, password));
+                logger.fine("Found latest PSU {0}", patchIds);
+                for (String patchId : patchIds) {
+                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), null, userId, password));
+                }
             }
         }
 

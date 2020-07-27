@@ -6,13 +6,11 @@ package com.oracle.weblogic.imagetool.util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
+import com.oracle.weblogic.imagetool.installer.AruProduct;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -25,7 +23,6 @@ import org.w3c.dom.NodeList;
 
 public class AruUtil {
 
-    static final Map<String, String> releaseNumbersMap = new HashMap<>();
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
 
     private AruUtil() {
@@ -33,106 +30,126 @@ public class AruUtil {
     }
 
     /**
-     * Get list of PSU available for given category and release.
+     * Get list of PSU available for given product and version.
      *
-     * @param category wls or fmw
+     * @param type FMW installer type
      * @param version  version number like 12.2.1.3.0
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static String getLatestPsuNumber(FmwInstallerType category, String version, String userId, String password)
+    public static List<String> getLatestPsuNumber(FmwInstallerType type, String version, String userId, String password)
         throws Exception {
-        return getLatestPsuNumber(new AruHttpHelper(category, version, userId, password));
+        List<String> result = new ArrayList<>();
+        for (AruProduct product : type.products()) {
+            String patchNum = getLatestPsuNumber(new AruHttpHelper(product, version, userId, password));
+            if (!Utils.isEmptyString(patchNum)) {
+                String patchAndVersion = patchNum + "_" + version;
+                logger.info("IMG-0020", product.description(), patchAndVersion);
+                result.add(patchAndVersion);
+            } else {
+                logger.info("{0} - there are no recommended PSUs at this time.", product.description());
+            }
+        }
+        if (result.isEmpty()) {
+            logger.warning("IMG-0023", type, version);
+        }
+        return result;
     }
 
     /**
      * Get the Latest PSU patch number for the search information in the helper.
      *
-     * @param aruHttpHelper containing category, version, credentials for the search
+     * @param aruHttpHelper containing product, version, credentials for the search
      * @return PSU patch number
      * @throws Exception if the search or xml parse of result fails
      */
     static String getLatestPsuNumber(AruHttpHelper aruHttpHelper) throws Exception {
-        logger.entering(aruHttpHelper);
+        logger.entering(aruHttpHelper.product());
         try {
-            logger.info("IMG-0019");
+            logger.info("IMG-0019", aruHttpHelper.product().description());
             aruHttpHelper.release(getReleaseNumber(aruHttpHelper));
-            getRecommendedPsuMetadata(aruHttpHelper);
+            getRecommendedPatchesMetadata(aruHttpHelper);
             if (aruHttpHelper.success()) {
                 Document results = aruHttpHelper.results();
-                String result = XPathUtil.applyXPathReturnString(results, "/results/patch[1]/name");
+                String result = XPathUtil.applyXPathReturnString(results, "/results/patch[./psu_bundle]/name");
                 logger.exiting(result);
-                logger.info("IMG-0020", result);
                 return result;
             } else if (!Utils.isEmptyString(aruHttpHelper.errorMessage())) {
-                logger.warning("IMG-0023", aruHttpHelper.category(), aruHttpHelper.version());
                 logger.fine(aruHttpHelper.errorMessage());
             } else {
                 throw new Exception(Utils.getMessage("IMG-0032", 
-                    aruHttpHelper.category(), aruHttpHelper.version()));
+                    aruHttpHelper.product().description(), aruHttpHelper.version()));
             }
         } catch (IOException | XPathExpressionException e) {
             throw new Exception(Utils.getMessage("IMG-0032", 
-                aruHttpHelper.category(), aruHttpHelper.version()), e);
+                aruHttpHelper.product().description(), aruHttpHelper.version()), e);
         }
         logger.exiting();
         return null;
     }
 
     /**
-     * Get list of PSU available for given category and release.
+     * Get list of recommended patches available for a given product and version.
      *
-     * @param category wls or fmw
+     * @param type FMW installer type
      * @param version  version number like 12.2.1.3.0
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static List<String> getLatestPsuRecommendedPatches(FmwInstallerType category, String version,
-                                                        String userId, String password) throws Exception {
-        return getLatestPsuRecommendedPatches(new AruHttpHelper(category, version, userId, password));
+    public static List<String> getRecommendedPatches(FmwInstallerType type, String version,
+                                                     String userId, String password) throws Exception {
+        List<String> result = new ArrayList<>();
+        for (AruProduct product : type.products()) {
+            List<String> patches = getRecommendedPatches(new AruHttpHelper(product, version, userId, password));
+            if (!patches.isEmpty()) {
+                result.addAll(patches);
+            }
+        }
+        if (result.isEmpty()) {
+            logger.warning("IMG-0069", type, version);
+        }
+        return result;
     }
 
     /**
      * Get the latest PSU along with recommended patches for the information in the search helper.
      *
-     * @param aruHttpHelper containing the search category, version and credentials
+     * @param aruHttpHelper containing the search type, version and credentials
      * @return List of recommended patches
      * @throws Exception the search or resulting parse failed
      */
-    static List<String> getLatestPsuRecommendedPatches(AruHttpHelper aruHttpHelper)
+    static List<String> getRecommendedPatches(AruHttpHelper aruHttpHelper)
         throws Exception {
-        logger.entering(aruHttpHelper);
+        logger.entering(aruHttpHelper.product(), aruHttpHelper.version());
         try {
-            logger.info("IMG-0067");
+            logger.info("IMG-0067", aruHttpHelper.product().description());
             aruHttpHelper.release(getReleaseNumber(aruHttpHelper));
             getRecommendedPatchesMetadata(aruHttpHelper);
             if (aruHttpHelper.success()) {
                 Document results = aruHttpHelper.results();
-                NodeList nodeList = XPathUtil.applyXPathReturnNodeList(results, "/results/patch");
+                // xpath - get list of all patches that are platform "generic" or "Linux x86:64"
+                NodeList nodeList = XPathUtil.applyXPathReturnNodeList(results,
+                    "/results/patch[./platform[@id='2000' or @id='226']]/name");
                 List<String> result = new ArrayList<>();
-                for (int i = 1; i <= nodeList.getLength(); i++) {
-                    String patchId = XPathUtil.applyXPathReturnString(results,
-                        String.format("string(/results/patch[%d]/name)", i));
-                    String patchVersion = XPathUtil.applyXPathReturnString(results,
-                        String.format("string(/results/patch[%d]/release/@name)", i));
-                    if (!Utils.isEmptyString(patchVersion)) {
-                        patchId = patchId + '_' + patchVersion;
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                        String patchId = nodeList.item(i).getTextContent();
+                        patchId += "_" + aruHttpHelper.version();
+                        logger.info("IMG-0068", aruHttpHelper.product().description(), patchId);
+                        result.add(patchId);
                     }
-                    logger.info("IMG-0068", patchId);
-                    result.add(patchId);
                 }
                 logger.exiting(result);
                 return result;
             } else if (!Utils.isEmptyString(aruHttpHelper.errorMessage())) {
-                logger.warning("IMG-0069", aruHttpHelper.category(), aruHttpHelper.version());
                 logger.fine(aruHttpHelper.errorMessage());
             } else {
                 throw new Exception(Utils.getMessage("IMG-0070", 
-                    aruHttpHelper.category(), aruHttpHelper.version()));
+                    aruHttpHelper.product().description(), aruHttpHelper.version()));
             }
         } catch (IOException | XPathExpressionException e) {
             throw new Exception(Utils.getMessage("IMG-0070", 
-                aruHttpHelper.category(), aruHttpHelper.version()), e);
+                aruHttpHelper.product().description(), aruHttpHelper.version()), e);
         }
         logger.exiting();
         return Collections.emptyList();
@@ -207,7 +224,7 @@ public class AruUtil {
                     continue;
                 }
 
-                logger.info("IMG-0022", patch.getBugNumber(), patch.getReleaseName(), patch.getReleaseNumber());
+                logger.info("IMG-0022", patch.getBugNumber(), patch.getReleaseName());
 
                 payload.append(String.format("<patch_group rel_id=\"%s\">%s</patch_group>",
                         patch.getReleaseNumber(), patch.getBugNumber()));
@@ -230,83 +247,57 @@ public class AruUtil {
         logger.exiting(aruHttpHelper);
     }
 
-    private static Document getAllReleases(AruHttpHelper aruHttpHelper) throws IOException, XPathExpressionException {
-        logger.entering(aruHttpHelper);
-        aruHttpHelper.execSearch(Constants.REL_URL);
+    private static Document allReleasesDocument = null;
 
-        String expression;
-
-        if (FmwInstallerType.WLS == aruHttpHelper.category()) {
-            expression = "/results/release[starts-with(text(), 'Oracle WebLogic Server')]";
-        } else if (Constants.OPATCH_PATCH_TYPE.equalsIgnoreCase(aruHttpHelper.category().toString())) {
-            expression = "/results/release[starts-with(text(), 'OPatch')]";
-        } else {
-            expression = "/results/release[starts-with(text(), 'Fusion Middleware Upgrade')]";
+    private static Document getAllReleases(AruHttpHelper aruHttpHelper) throws IOException {
+        if (allReleasesDocument == null) {
+            logger.fine("Retrieving product release numbers from Oracle...");
+            aruHttpHelper.execSearch(Constants.REL_URL);
+            if (aruHttpHelper.success()) {
+                allReleasesDocument = aruHttpHelper.results();
+            } else {
+                throw new IOException(Utils.getMessage("IMG-0081"));
+            }
         }
-        NodeList nodeList = XPathUtil.applyXPathReturnNodeList(aruHttpHelper.results(), expression);
-        aruHttpHelper = aruHttpHelper.createResultDocument(nodeList);
-        logger.exiting();
-        return aruHttpHelper.results();
+        return allReleasesDocument;
     }
 
-    private static void getRecommendedPsuMetadata(AruHttpHelper aruHttpHelper) throws IOException {
+    private static void getRecommendedPatchesMetadata(AruHttpHelper helper) throws IOException {
 
         logger.entering();
-        String productId = FmwInstallerType.WLS
-            == aruHttpHelper.category() ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
-        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, aruHttpHelper.release())
-            + Constants.ONLY_GET_RECOMMENDED_PSU;
-        logger.finer("getting PSU info from {0}", url);
-
-        aruHttpHelper.execSearch(url);
-        logger.exiting();
-    }
-
-    private static void getRecommendedPatchesMetadata(AruHttpHelper aruHttpHelper) throws IOException {
-
-        logger.entering();
-        String productId = FmwInstallerType.WLS
-            == aruHttpHelper.category() ? Constants.WLS_PROD_ID : Constants.FMW_PROD_ID;
-        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, productId, aruHttpHelper.release());
+        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, helper.product().productId(), helper.release());
         logger.finer("getting recommended patches info from {0}", url);
 
-        aruHttpHelper.execSearch(url);
+        helper.execSearch(url);
         logger.exiting();
     }
 
     /**
-     * Given a product category (wls, fmw, opatch) and version, determines the release number corresponding to that
-     * in the ARU database.
+     * Get the release number for a given product and version.
      *
      * @param aruHttpHelper helper with information for release search
      * @return release number
      * @throws IOException in case of error
      */
-    private static String getReleaseNumber(AruHttpHelper aruHttpHelper) throws IOException, XPathExpressionException {
-        logger.entering(aruHttpHelper);
-        String key = aruHttpHelper.category() + CacheStore.CACHE_KEY_SEPARATOR + aruHttpHelper.version();
-        String retVal = releaseNumbersMap.getOrDefault(key, null);
-        if (Utils.isEmptyString(retVal)) {
-            logger.fine("Retrieving product release numbers from Oracle...");
-            Document allReleases = getAllReleases(aruHttpHelper);
+    private static String getReleaseNumber(AruHttpHelper aruHttpHelper) throws IOException {
+        logger.entering(aruHttpHelper.product());
 
-            String expression = String.format("string(/results/release[@name = '%s']/@id)", aruHttpHelper.version());
-            try {
-                retVal = XPathUtil.applyXPathReturnString(allReleases, expression);
-                logger.fine("Release number for {0} is {1}", aruHttpHelper.category(), retVal);
-            } catch (XPathExpressionException xpe) {
-                throw new IOException(xpe);
-            }
-            if (!Utils.isEmptyString(retVal)) {
-                releaseNumbersMap.put(aruHttpHelper.category()
-                    + CacheStore.CACHE_KEY_SEPARATOR + aruHttpHelper.version(), retVal);
-            } else {
-                throw new IOException(String.format("Failed to determine release number for category %s, version %s",
-                        aruHttpHelper.category(), aruHttpHelper.version()));
-            }
+        String result;
+        Document allReleases = getAllReleases(aruHttpHelper);
+
+        String expression = String.format("string(/results/release[starts-with(text(), '%s')][@name = '%s']/@id)",
+            aruHttpHelper.product().description(), aruHttpHelper.version());
+        try {
+            result = XPathUtil.applyXPathReturnString(allReleases, expression);
+            logger.fine("Release number for {0} is {1}", aruHttpHelper.product().description(), result);
+        } catch (XPathExpressionException xpe) {
+            throw new IOException(xpe);
         }
-        logger.exiting(retVal);
-        return retVal;
+        if (Utils.isEmptyString(result)) {
+            throw new IOException(Utils.getMessage("IMG-0082", aruHttpHelper.product(), aruHttpHelper.version()));
+        }
+        logger.exiting(result);
+        return result;
     }
 
     /**
