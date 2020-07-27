@@ -12,7 +12,8 @@ ARG ADMIN_PORT
 ARG MANAGED_SERVER_PORT
 
 ENV ADMIN_PORT=${ADMIN_PORT} \
-MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT}
+    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT} \
+    DOMAIN_HOME={{{domain_home}}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 {{/isRebaseToTarget}}
@@ -23,7 +24,9 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     ARG MANAGED_SERVER_PORT
 
     ENV ADMIN_PORT=${ADMIN_PORT} \
-    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT}
+        MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT} \
+        DOMAIN_HOME={{{domain_home}}}
+
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     USER root
 
