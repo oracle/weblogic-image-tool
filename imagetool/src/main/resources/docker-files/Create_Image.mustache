@@ -140,19 +140,19 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
     USER {{userid}}
 
     RUN cd {{{wdt_home}}} \
-    && mkdir models \
+    && mkdir -p {{{wdt_model_home}}} \
     && mkdir -p $(dirname {{{domain_home}}})
 
     {{#wdtModels}}
-        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
     {{/wdtModels}}
 
     {{#wdtArchives}}
-        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
     {{/wdtArchives}}
 
     {{#wdtVariables}}
-        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
     {{/wdtVariables}}
 
     {{#beforeWdtCommand}}
@@ -227,6 +227,8 @@ COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle
 {{#isWdtEnabled}}
     {{#modelOnly}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+        RUN mkdir -p {{{wdt_model_home}}}
+        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
     {{/modelOnly}}
     {{^modelOnly}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/

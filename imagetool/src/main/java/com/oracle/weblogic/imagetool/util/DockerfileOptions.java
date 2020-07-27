@@ -51,6 +51,7 @@ public class DockerfileOptions {
 
     // WDT values
     private String wdtHome;
+    private String wdtModelHome;
     private ArrayList<String> wdtModelList;
     private ArrayList<String> wdtArchiveList;
     private ArrayList<String> wdtVariableList;
@@ -91,6 +92,7 @@ public class DockerfileOptions {
         // WDT values
         useWdt = false;
         wdtHome = "/u01/wdt";
+        wdtModelHome = wdtHome + "/models";
         wdtOperation = WdtOperation.CREATE;
         wdtModelList = new ArrayList<>();
         wdtArchiveList = new ArrayList<>();
@@ -192,6 +194,18 @@ public class DockerfileOptions {
     }
 
     /**
+     * The location where the wdt models will be copied to.
+     *
+     * @return this DockerfileOptions object
+     */
+    public DockerfileOptions setWdtModelHome(String value) {
+        if (value != null) {
+            wdtModelHome = value;
+        }
+        return this;
+    }
+
+    /**
      * Return if the rebase to existing target image.
      * @return true or false
      */
@@ -283,6 +297,10 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public String wdt_home() {
         return wdtHome;
+    }
+
+    public String wdt_model_home() {
+        return wdtModelHome;
     }
 
     /**
@@ -583,7 +601,7 @@ public class DockerfileOptions {
         StringJoiner result = new StringJoiner(",", wdtParameterName,"");
         result.setEmptyValue("");
         for (String name : filenames) {
-            result.add(wdtHome + "/models/" + name);
+            result.add(wdtModelHome + "/" + name);
         }
         return result.toString();
     }

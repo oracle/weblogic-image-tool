@@ -67,6 +67,7 @@ public class WdtOptions {
 
         dockerfileOptions.setWdtEnabled();
         dockerfileOptions.setWdtModelOnly(wdtModelOnly);
+        dockerfileOptions.setWdtModelHome(wdtModelHome);
         if (wdtModelPath != null) {
             List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
             dockerfileOptions.setWdtModels(modelList);
@@ -179,6 +180,13 @@ public class WdtOptions {
     )
     @SuppressWarnings("FieldCanBeLocal")
     private boolean wdtModelOnly = false;
+
+    @Option(
+        names = {"--wdtModelHome"},
+        description = "Copy the models to the location in the image Default: ${DEFAULT-VALUE}.",
+        defaultValue = "/u01/wdt/models"
+    )
+    private String wdtModelHome;
 
     @Option(
         names = {"--wdtStrictValidation"},
