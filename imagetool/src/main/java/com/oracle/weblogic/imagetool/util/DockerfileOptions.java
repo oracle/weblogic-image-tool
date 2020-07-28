@@ -15,6 +15,9 @@ import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
+/**
+ * Provides the data used by the Dockerfile templates (in mustache).
+ */
 public class DockerfileOptions {
 
     private static final String DEFAULT_JAVA_HOME = "/u01/jdk";
@@ -299,8 +302,13 @@ public class DockerfileOptions {
         return wdtHome;
     }
 
+    @SuppressWarnings("unused")
     public String wdt_model_home() {
         return wdtModelHome;
+    }
+
+    public boolean isWdtValidateEnabled() {
+        return isWdtEnabled() && modelOnly() && (!wdtModelList.isEmpty() || !wdtArchiveList.isEmpty());
     }
 
     /**
@@ -360,12 +368,13 @@ public class DockerfileOptions {
      * WDT -domain_home.
      * @param value the full path to the domain directory
      */
-    public void setDomainHome(String value) {
+    public DockerfileOptions setDomainHome(String value) {
         if (value != null) {
             domainHome = value;
         } else {
             domainHome = DEFAULT_DOMAIN_HOME;
         }
+        return this;
     }
 
     /**
@@ -373,12 +382,13 @@ public class DockerfileOptions {
      *
      * @param value the folder where JAVA is or should be installed, aka JAVA_HOME.
      */
-    public void setJavaHome(String value) {
+    public DockerfileOptions setJavaHome(String value) {
         if (value != null) {
             javaHome = value;
         } else {
             javaHome = DEFAULT_JAVA_HOME;
         }
+        return this;
     }
 
     /**

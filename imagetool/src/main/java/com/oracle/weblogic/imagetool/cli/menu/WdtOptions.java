@@ -32,7 +32,7 @@ public class WdtOptions {
      * @return true if WDT was selected by the user
      */
     boolean isUsingWdt() {
-        return wdtModelPath != null || wdtArchivePath != null;
+        return wdtModelOnly || wdtModelPath != null || wdtArchivePath != null;
     }
 
     /**
@@ -65,26 +65,24 @@ public class WdtOptions {
             cmdBuilder.buildArg("WDT_ENCRYPTION_KEY", encryptionKey, true);
         }
 
-        dockerfileOptions.setWdtEnabled();
-        dockerfileOptions.setWdtModelOnly(wdtModelOnly);
-        dockerfileOptions.setWdtModelHome(wdtModelHome);
+        dockerfileOptions.setWdtEnabled()
+            .setDomainHome(wdtDomainHome)
+            .setJavaOptions(wdtJavaOptions)
+            .setWdtDomainType(wdtDomainType)
+            .setRunRcu(runRcu)
+            .setWdtStrictValidation(wdtStrictValidation)
+            .setWdtModelOnly(wdtModelOnly)
+            .setWdtModelHome(wdtModelHome);
+
         if (wdtModelPath != null) {
             List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
             dockerfileOptions.setWdtModels(modelList);
         }
 
-        dockerfileOptions.setWdtDomainType(wdtDomainType);
-        dockerfileOptions.setRunRcu(runRcu);
-
         if (wdtArchivePath != null) {
-
             List<String> archiveList = addWdtFilesAsList(wdtArchivePath, "archive", tmpDir);
-
             dockerfileOptions.setWdtArchives(archiveList);
         }
-        dockerfileOptions.setDomainHome(wdtDomainHome);
-
-        dockerfileOptions.setJavaOptions(wdtJavaOptions);
 
         if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
             String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
@@ -92,8 +90,6 @@ public class WdtOptions {
             //Until WDT supports multiple variable files, take single file argument from CLI and convert to list
             dockerfileOptions.setWdtVariables(Collections.singletonList(wdtVariableFilename));
         }
-
-        dockerfileOptions.setWdtStrictValidation(wdtStrictValidation);
 
         CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
         Path wdtfile = wdtInstaller.copyFile(cache(), tmpDir);
