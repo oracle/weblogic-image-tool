@@ -140,28 +140,28 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
     USER {{userid}}
 
     RUN cd {{{wdt_home}}} \
-    && mkdir models \
+    && mkdir -p {{{wdt_model_home}}} \
     && mkdir -p $(dirname {{{domain_home}}})
 
     {{#wdtModels}}
-        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
     {{/wdtModels}}
 
     {{#wdtArchives}}
-        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
     {{/wdtArchives}}
 
     {{#wdtVariables}}
-        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_home}}}/models/
+        COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
     {{/wdtVariables}}
 
     {{#beforeWdtCommand}}
         {{{.}}}
     {{/beforeWdtCommand}}
 
-    RUN unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}} \
-        && cd {{{wdt_home}}}/weblogic-deploy/bin \
+    RUN unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
     {{^modelOnly}}
+        RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
         && {{#isWdtUseEncryption}}echo $WDT_ENCRYPTION_KEY | {{/isWdtUseEncryption}} ./createDomain.sh \
         -oracle_home {{{oracle_home}}} \
         -domain_home {{{domain_home}}} \
@@ -174,13 +174,14 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
         {{/runRcu}}
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
     {{/modelOnly}}
-    {{#modelOnly}}
+    {{#isWdtValidateEnabled}}
+        RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
         && chmod u+x ./*.sh \
         && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
         -oracle_home {{{oracle_home}}} \
         -domain_type {{domainType}} \
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
-    {{/modelOnly}}
+    {{/isWdtValidateEnabled}}
 
     {{#afterWdtCommand}}
         {{{.}}}
@@ -227,6 +228,8 @@ COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle
 {{#isWdtEnabled}}
     {{#modelOnly}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+        RUN mkdir -p {{{wdt_model_home}}}
+        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
     {{/modelOnly}}
     {{^modelOnly}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
