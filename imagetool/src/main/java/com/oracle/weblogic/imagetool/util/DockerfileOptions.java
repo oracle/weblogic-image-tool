@@ -15,6 +15,9 @@ import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
+/**
+ * Provides the data used by the Dockerfile templates (in mustache).
+ */
 public class DockerfileOptions {
 
     private static final String DEFAULT_JAVA_HOME = "/u01/jdk";
@@ -51,6 +54,7 @@ public class DockerfileOptions {
 
     // WDT values
     private String wdtHome;
+    private String wdtModelHome;
     private ArrayList<String> wdtModelList;
     private ArrayList<String> wdtArchiveList;
     private ArrayList<String> wdtVariableList;
@@ -91,6 +95,7 @@ public class DockerfileOptions {
         // WDT values
         useWdt = false;
         wdtHome = "/u01/wdt";
+        wdtModelHome = wdtHome + "/models";
         wdtOperation = WdtOperation.CREATE;
         wdtModelList = new ArrayList<>();
         wdtArchiveList = new ArrayList<>();
@@ -188,6 +193,18 @@ public class DockerfileOptions {
      */
     public DockerfileOptions setTargetImage(String value) {
         targetImage = value;
+        return this;
+    }
+
+    /**
+     * The location where the wdt models will be copied to.
+     *
+     * @return this DockerfileOptions object
+     */
+    public DockerfileOptions setWdtModelHome(String value) {
+        if (value != null) {
+            wdtModelHome = value;
+        }
         return this;
     }
 
@@ -295,6 +312,15 @@ public class DockerfileOptions {
         return wdtHome;
     }
 
+    @SuppressWarnings("unused")
+    public String wdt_model_home() {
+        return wdtModelHome;
+    }
+
+    public boolean isWdtValidateEnabled() {
+        return isWdtEnabled() && modelOnly() && (!wdtModelList.isEmpty() || !wdtArchiveList.isEmpty());
+    }
+
     /**
      * The directory for the WORKDIR in the Docker build.
      * @return the value for the WORKDIR
@@ -352,12 +378,13 @@ public class DockerfileOptions {
      * WDT -domain_home.
      * @param value the full path to the domain directory
      */
-    public void setDomainHome(String value) {
+    public DockerfileOptions setDomainHome(String value) {
         if (value != null) {
             domainHome = value;
         } else {
             domainHome = DEFAULT_DOMAIN_HOME;
         }
+        return this;
     }
 
     /**
@@ -365,12 +392,13 @@ public class DockerfileOptions {
      *
      * @param value the folder where JAVA is or should be installed, aka JAVA_HOME.
      */
-    public void setJavaHome(String value) {
+    public DockerfileOptions setJavaHome(String value) {
         if (value != null) {
             javaHome = value;
         } else {
             javaHome = DEFAULT_JAVA_HOME;
         }
+        return this;
     }
 
     /**
@@ -593,7 +621,7 @@ public class DockerfileOptions {
         StringJoiner result = new StringJoiner(",", wdtParameterName,"");
         result.setEmptyValue("");
         for (String name : filenames) {
-            result.add(wdtHome + "/models/" + name);
+            result.add(wdtModelHome + "/" + name);
         }
         return result.toString();
     }
