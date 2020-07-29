@@ -19,7 +19,7 @@ RUN dnf -y install gzip tar unzip libaio \
  && dnf clean all
 {{/useDnf}}
 {{#useMicroDnf}}
-RUN microdnf install gzip tar unzip libaio \
+RUN microdnf install gzip tar unzip libaio shadow-utils \
  && microdnf clean all
 {{/useMicroDnf}}
 {{#useAptGet}}
