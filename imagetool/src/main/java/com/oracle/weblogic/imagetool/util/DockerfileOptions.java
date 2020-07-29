@@ -241,6 +241,16 @@ public class DockerfileOptions {
     }
 
     @SuppressWarnings("unused")
+    public boolean useMicroDnf() {
+        return pkgMgr == PackageManagerType.MICRODNF;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean useDnf() {
+        return pkgMgr == PackageManagerType.DNF;
+    }
+
+    @SuppressWarnings("unused")
     public boolean useAptGet() {
         return pkgMgr == PackageManagerType.APTGET;
     }

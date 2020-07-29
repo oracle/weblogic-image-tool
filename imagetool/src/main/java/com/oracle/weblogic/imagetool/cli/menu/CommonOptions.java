@@ -351,16 +351,17 @@ public abstract class CommonOptions {
                 logger.info("IMG-0000", existingJavaHome);
             }
 
-            String osProperty = baseImageProperties.getProperty("ID", "ol");
-            PackageManagerType pkgMgr = PackageManagerType.fromOperatingSystem(osProperty);
-            logger.fine("fromImage is {0}, using package manager {1}", osProperty, pkgMgr);
+            String pkgMgrProp = baseImageProperties.getProperty("PACKAGE_MANAGER", "YUM");
+
+            PackageManagerType pkgMgr = PackageManagerType.valueOf(pkgMgrProp);
+            logger.fine("fromImage package manager {0}", pkgMgr);
             if (packageManager != PackageManagerType.OS_DEFAULT && pkgMgr != packageManager) {
                 logger.info("IMG-0079", pkgMgr, packageManager);
                 pkgMgr = packageManager;
             }
             dockerfileOptions.setPackageInstaller(pkgMgr);
         } else if (packageManager == PackageManagerType.OS_DEFAULT) {
-            // Default OS is Oracle Linux, so default package manager is YUM
+            // Default OS is Oracle Linux 7-slim, so default package manager is YUM
             dockerfileOptions.setPackageInstaller(PackageManagerType.YUM);
         } else {
             dockerfileOptions.setPackageInstaller(packageManager);
