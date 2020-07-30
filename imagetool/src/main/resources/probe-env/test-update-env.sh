@@ -10,6 +10,20 @@ if [[ -f /etc/os-release ]]; then
   cat /etc/os-release | grep -oE '^VERSION_ID=[\"]?[[:digit:]\.]+[\"]?'
 fi
 
+if command -v dnf &> /dev/null; then
+  echo PACKAGE_MANAGER=DNF
+elif command -v yum &> /dev/null; then
+  echo PACKAGE_MANAGER=YUM
+elif command -v microdnf &> /dev/null; then
+  echo PACKAGE_MANAGER=MICRODNF
+elif command -v apt-get &> /dev/null; then
+  echo PACKAGE_MANAGER=APTGET
+elif command -v apk &> /dev/null; then
+  echo PACKAGE_MANAGER=APK
+elif command -v zypper &> /dev/null; then
+  echo PACKAGE_MANAGER=ZYPPER
+fi
+
 if [[ -n "$JAVA_HOME" ]]; then
   echo JAVA_HOME="$JAVA_HOME"
   echo JAVA_PATH="$(readlink -f $JAVA_HOME)"
