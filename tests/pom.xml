@@ -12,13 +12,14 @@
     <parent>
         <artifactId>imagetool-parent</artifactId>
         <groupId>com.oracle.weblogic.lifecycle.imagetool</groupId>
-        <version>1.9.2</version>
+        <version>1.9.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
         <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
         <skipITs>false</skipITs>
+        <test.staging.dir>MUST BE SET TO DIRECTORY WITH PATCHES AND INSTALLERS</test.staging.dir>
     </properties>
 
     <dependencies>
