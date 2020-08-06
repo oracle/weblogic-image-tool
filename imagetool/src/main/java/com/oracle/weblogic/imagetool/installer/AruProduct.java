@@ -16,7 +16,8 @@ public enum AruProduct {
     OUD("19748", "Oracle Unified Directory"),
     WCC("13946", "Oracle WebCenter Content"),
     WCP("15224", "Oracle WebCenter Portal"),
-    WCS("20995", "Oracle WebCenter Sites")
+    WCS("20995", "Oracle WebCenter Sites"),
+    JDEV("11281", "Oracle JDeveloper")
     //FIT("33256", "Fusion Internal Tools") No longer used after July 2020 PSU
     ;
 
