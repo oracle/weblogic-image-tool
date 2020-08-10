@@ -21,8 +21,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
@@ -767,6 +770,20 @@ public class Utils {
             }
         }
         logger.exiting(result);
+        return result;
+    }
+
+    /**
+     * Create a new list from an existing collection and adding additional elements, if desired.
+     * @param start a set of elements to start from
+     * @param elements zero to many additional elements to add to the new list
+     * @param <T> the class of the elements to add
+     * @return a new list of element T
+     */
+    @SafeVarargs
+    public static <T> List<T> list(Collection<? extends T> start, T... elements) {
+        List<T> result = new ArrayList<>(start);
+        Collections.addAll(result, elements);
         return result;
     }
 }

@@ -26,43 +26,43 @@ public enum FmwInstallerType {
     WLS(Arrays.asList(AruProduct.WLS, AruProduct.COH),
         InstallerType.WLS),
     // Oracle WebLogic Server Infrastructure (JRF)
-    FMW(Arrays.asList(AruProduct.WLS, AruProduct.COH),
+    FMW(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.JDEV),
         InstallerType.FMW),
     // Oracle Service Bus
-    OSB(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.OSB),
+    OSB(Utils.list(FMW.products, AruProduct.OSB),
         InstallerType.FMW, InstallerType.OSB),
     // Oracle SOA Suite
-    SOA(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.SOA),
+    SOA(Utils.list(FMW.products, AruProduct.SOA),
         InstallerType.FMW, InstallerType.SOA),
     // Oracle SOA Suite (with Service Bus)
-    SOA_OSB(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.SOA, AruProduct.OSB),
+    SOA_OSB(Utils.list(FMW.products, AruProduct.SOA, AruProduct.OSB),
         InstallerType.FMW, InstallerType.SOA, InstallerType.OSB),
     // Oracle Identity Manager
-    IDM(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.IDM),
+    IDM(Utils.list(FMW.products, AruProduct.IDM),
         InstallerType.FMW, InstallerType.IDM),
     // Oracle Identity Manager
     IDM_WLS(Collections.singletonList(AruProduct.IDM),
         InstallerType.IDM),
     // Oracle Access Manager
-    OAM(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.OAM),
+    OAM(Utils.list(FMW.products, AruProduct.OAM),
         InstallerType.FMW, InstallerType.OAM),
     // Oracle Identity Governance
-    OIG(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.SOA, AruProduct.OSB, AruProduct.IDM),
+    OIG(Utils.list(FMW.products, AruProduct.SOA, AruProduct.OSB, AruProduct.IDM),
         InstallerType.FMW, InstallerType.SOA, InstallerType.OSB, InstallerType.IDM),
     // Oracle Unified Directory
     OUD(Collections.singletonList(AruProduct.OUD),
         InstallerType.OUD),
     // Oracle Unified Directory
-    OUD_WLS(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.OUD),
+    OUD_WLS(Utils.list(FMW.products, AruProduct.OUD),
         InstallerType.FMW, InstallerType.OUD),
     // Oracle WebCenter Content
-    WCC(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.WCC),
+    WCC(Utils.list(FMW.products, AruProduct.WCC),
         InstallerType.FMW, InstallerType.WCC),
     // Oracle WebCenter Portal
-    WCP(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.WCP),
+    WCP(Utils.list(FMW.products, AruProduct.WCP),
         InstallerType.FMW, InstallerType.WCP),
     // Oracle WebCenter Sites
-    WCS(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.WCS),
+    WCS(Utils.list(FMW.products, AruProduct.WCS),
         InstallerType.FMW, InstallerType.WCS)
     ;
 
