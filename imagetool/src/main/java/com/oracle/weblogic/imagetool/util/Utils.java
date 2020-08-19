@@ -233,7 +233,7 @@ public class Utils {
                 MustacheFactory mf = new DefaultMustacheFactory(directory);
                 Mustache mustache;
                 try (FileReader fr = new FileReader(path.toFile())) {
-                    mustache = mf.compile(fr, path.getFileName().toString());
+                    mustache = mf.compile(fr,"tmp");
                 }
 
                 try (FileWriter fw = new FileWriter(path.toFile())) {
