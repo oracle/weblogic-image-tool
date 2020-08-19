@@ -247,7 +247,7 @@ COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle
         && chmod g+w $DOMAIN_PARENT
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
         RUN mkdir -p {{{wdt_model_home}}} \
-        && chmod 775 {{{wdt_model_home}}}
+        && chmod g+w {{{wdt_model_home}}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
     {{/modelOnly}}
     {{^modelOnly}}
