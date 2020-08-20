@@ -184,6 +184,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER {{userid}}
 RUN mkdir -p {{domain_home}}
 COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
+RUN chmod g+w {{{domain_home}}}
 
 EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT
 WORKDIR {{{work_dir}}}

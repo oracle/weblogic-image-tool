@@ -59,15 +59,20 @@
         {{#runRcu}}
             -run_rcu \
         {{/runRcu}}
-        {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
+        {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}} \
+        && chmod -R g+w {{{domain_home}}}
     {{/modelOnly}}
     {{#isWdtValidateEnabled}}
         RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
-        && chmod u+x ./*.sh \
+        && rm ./*.cmd \
+        && chmod ug+x ./*.sh \
+        && chmod -R g+w {{{wdt_home}}}/weblogic-deploy \
         && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
         -oracle_home {{{oracle_home}}} \
         -domain_type {{domainType}} \
-        {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
+        {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}} \
+        && rm -rf {{{wdt_home}}}/weblogic-deploy/logs \
+        && find {{{wdt_home}}}/weblogic-deploy/lib/python -name "*.class" -exec rm  {} \;
     {{/isWdtValidateEnabled}}
 
     {{#afterWdtCommand}}
@@ -112,12 +117,18 @@ USER {{userid}}
 
 {{#isWdtEnabled}}
     {{#modelOnly}}
+        RUN DOMAIN_PARENT=$(dirname {{{domain_home}}}) \
+        && mkdir -p $DOMAIN_PARENT \
+        && chown {{userid}}:{{groupid}} $DOMAIN_PARENT \
+        && chmod g+w $DOMAIN_PARENT
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
-        RUN mkdir -p {{{wdt_model_home}}}
+        RUN mkdir -p {{{wdt_model_home}}} \
+        && chmod g+w {{{wdt_model_home}}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
     {{/modelOnly}}
     {{^modelOnly}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
+        RUN chmod g+w {{{domain_home}}}
     {{/modelOnly}}
 {{/isWdtEnabled}}
 
