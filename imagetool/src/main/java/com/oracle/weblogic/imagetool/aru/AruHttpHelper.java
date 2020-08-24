@@ -1,7 +1,7 @@
 // Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.util;
+package com.oracle.weblogic.imagetool.aru;
 
 import java.io.IOException;
 import javax.xml.XMLConstants;
@@ -10,7 +10,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.installer.AruProduct;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
+import com.oracle.weblogic.imagetool.util.XPathUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

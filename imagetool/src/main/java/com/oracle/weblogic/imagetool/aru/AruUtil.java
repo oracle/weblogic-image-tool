@@ -1,7 +1,7 @@
 // Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.util;
+package com.oracle.weblogic.imagetool.aru;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,16 +10,23 @@ import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
-import com.oracle.weblogic.imagetool.installer.AruProduct;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Utils;
+import com.oracle.weblogic.imagetool.util.XPathUtil;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static com.oracle.weblogic.imagetool.util.Constants.ARU_LANG_URL;
+import static com.oracle.weblogic.imagetool.util.Constants.CONFLICTCHECKER_URL;
+import static com.oracle.weblogic.imagetool.util.Constants.GET_LSINVENTORY_URL;
+import static com.oracle.weblogic.imagetool.util.Constants.RECOMMENDED_PATCHES_URL;
+import static com.oracle.weblogic.imagetool.util.Constants.REL_URL;
 
 public class AruUtil {
 
@@ -193,7 +200,7 @@ public class AruUtil {
             String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent
                     + "</lsinventory_output></inventory_upi_request>";
 
-            AruHttpHelper upiResult = aruHttpHelper.execValidation(Constants.GET_LSINVENTORY_URL, upiPayload);
+            AruHttpHelper upiResult = aruHttpHelper.execValidation(GET_LSINVENTORY_URL, upiPayload);
 
             NodeList upiList = XPathUtil.applyXPathReturnNodeList(upiResult.results(),
                     "/inventory_upi_response/upi");
@@ -234,7 +241,7 @@ public class AruUtil {
         payload.append("</conflict_check_request>");
 
         logger.fine("Posting to ARU conflict check");
-        aruHttpHelper = aruHttpHelper.execValidation(Constants.CONFLICTCHECKER_URL, payload.toString());
+        aruHttpHelper = aruHttpHelper.execValidation(CONFLICTCHECKER_URL, payload.toString());
         aruHttpHelper.validation();
 
         if (aruHttpHelper.success()) {
@@ -252,7 +259,7 @@ public class AruUtil {
     private static Document getAllReleases(AruHttpHelper aruHttpHelper) throws IOException {
         if (allReleasesDocument == null) {
             logger.fine("Retrieving product release numbers from Oracle...");
-            aruHttpHelper.execSearch(Constants.REL_URL);
+            aruHttpHelper.execSearch(REL_URL);
             if (aruHttpHelper.success()) {
                 allReleasesDocument = aruHttpHelper.results();
             } else {
@@ -265,7 +272,7 @@ public class AruUtil {
     private static void getRecommendedPatchesMetadata(AruHttpHelper helper) throws IOException {
 
         logger.entering();
-        String url = String.format(Constants.RECOMMENDED_PATCHES_URL, helper.product().productId(), helper.release());
+        String url = String.format(RECOMMENDED_PATCHES_URL, helper.product().productId(), helper.release());
         logger.finer("getting recommended patches info from {0}", url);
 
         helper.execSearch(url);
@@ -313,7 +320,7 @@ public class AruUtil {
         }
         AruHttpHelper aruHttpHelper = new AruHttpHelper(username, password);
         try {
-            aruHttpHelper.execSearch(Constants.ARU_LANG_URL);
+            aruHttpHelper.execSearch(ARU_LANG_URL);
         } catch (IOException e) {
             Throwable cause = (e.getCause() == null) ? e : e.getCause();
             if (cause.getClass().isAssignableFrom(HttpResponseException.class)

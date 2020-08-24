@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.installer;
 
 import java.util.Arrays;
 
+import com.oracle.weblogic.imagetool.aru.AruProduct;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

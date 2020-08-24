@@ -1,13 +1,12 @@
 // Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.util;
+package com.oracle.weblogic.imagetool.aru;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.logging.Level;
 
-import com.oracle.weblogic.imagetool.installer.AruProduct;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.easymock.EasyMockExtension;
