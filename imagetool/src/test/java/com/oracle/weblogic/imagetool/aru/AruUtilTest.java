@@ -22,7 +22,6 @@ import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -67,12 +66,15 @@ class AruUtilTest {
         expect(mock.success()).andReturn(true).anyTimes();
         expect(mock.results()).andReturn(AruUtilTestConstants.getPatchesResponse());
         replay(mock);
-        List<String> resultList = AruUtil.getRecommendedPatches(mock);
+        List<AruPatch> resultList = AruUtil.getRecommendedPatches(mock);
         verify(mock);
         assertNotNull(resultList);
-        String[] resultArray = resultList.toArray(new String[0]);
-        String[] expected = { "30965714_12.2.1.3.0","28512225_12.2.1.3.0","28278427_12.2.1.3.0" };
-        assertArrayEquals(expected, resultArray);
+        AruPatch[] resultArray = resultList.toArray(new AruPatch[0]);
+        String[] expected = {"30965714","28512225","28278427"};
+        assertEquals(resultArray.length, expected.length);
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], resultArray[i].patchId());
+        }
     }
 
     @Test
@@ -87,7 +89,7 @@ class AruUtilTest {
         expect(mock.success()).andReturn(false);
         expect(mock.errorMessage()).andReturn("No results found").anyTimes();
         replay(mock);
-        List<String> resultList = AruUtil.getRecommendedPatches(mock);
+        List<AruPatch> resultList = AruUtil.getRecommendedPatches(mock);
         verify(mock);
         assertTrue(resultList.isEmpty());
     }
@@ -103,9 +105,9 @@ class AruUtilTest {
         expect(mock.success()).andReturn(true).anyTimes();
         expect(mock.results()).andReturn(AruUtilTestConstants.getPatchesResponse());
         replay(mock);
-        String result = AruUtil.getLatestPsuNumber(mock);
+        List<AruPatch> result = AruUtil.getLatestPsu(mock);
         verify(mock);
-        assertEquals("30965714", result);
+        assertEquals("30965714", result.get(0).patchId());
     }
 
 }

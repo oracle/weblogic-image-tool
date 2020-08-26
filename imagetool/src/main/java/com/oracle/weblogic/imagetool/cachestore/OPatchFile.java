@@ -90,7 +90,7 @@ public class OPatchFile extends PatchFile {
         // if the user did not provide the patch version on the command line, use the latest version from Oracle Support
         if (!isPatchVersionProvided()) {
             // grab the latest version for OPatch from Oracle Support
-            String latestVersion = XPathUtil.applyXPathReturnString(getAruInfo(),
+            String latestVersion = XPathUtil.string(getAruInfo(),
                 "string(/results/patch[access = 'Open access']/release/@name)");
             setPatchVersion(latestVersion);
             logger.fine("From ARU, setting OPatch patch version to {0}", latestVersion);

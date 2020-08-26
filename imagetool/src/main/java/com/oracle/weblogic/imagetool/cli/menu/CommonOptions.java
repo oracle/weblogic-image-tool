@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
@@ -249,29 +250,29 @@ public abstract class CommonOptions {
         }
         if (recommendedPatches) {
             // Get the latest PSU and its recommended patches
-            List<String> patchList =
+            List<AruPatch> patchList =
                 AruUtil.getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
 
             if (patchList.isEmpty()) {
                 recommendedPatches = false;
                 logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
             } else {
-                for (String patchId: patchList) {
-                    logger.fine("Add latest recommended patch {0} to list", patchId);
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
+                for (AruPatch patch: patchList) {
+                    logger.fine("Add latest recommended patch {0} to list", patch.patchId());
+                    patchFiles.add(new PatchFile(patch.patchId(), getInstallerVersion(), psuVersion, userId, password));
                 }
             }
         } else if (latestPSU) {
             // PSUs for WLS and JRF installers are considered WLS patches
-            List<String> patchIds = AruUtil.getLatestPsuNumber(installerType, getInstallerVersion(), userId, password);
+            List<AruPatch> patches = AruUtil.getLatestPsu(installerType, getInstallerVersion(), userId, password);
 
-            if (patchIds.isEmpty()) {
+            if (patches.isEmpty()) {
                 latestPSU = false;
                 logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
             } else {
-                logger.fine("Found latest PSU {0}", patchIds);
-                for (String patchId : patchIds) {
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), null, userId, password));
+                for (AruPatch patch : patches) {
+                    logger.fine("Found latest PSU {0}", patch.patchId());
+                    patchFiles.add(new PatchFile(patch.patchId(), getInstallerVersion(), null, userId, password));
                 }
             }
         }

@@ -44,15 +44,17 @@ public class AruUtil {
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static List<String> getLatestPsuNumber(FmwInstallerType type, String version, String userId, String password)
+    public static List<AruPatch> getLatestPsu(FmwInstallerType type, String version, String userId, String password)
         throws Exception {
-        List<String> result = new ArrayList<>();
+        List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
-            String patchNum = getLatestPsuNumber(new AruHttpHelper(product, version, userId, password));
-            if (!Utils.isEmptyString(patchNum)) {
-                String patchAndVersion = patchNum + "_" + version;
-                logger.info("IMG-0020", product.description(), patchAndVersion);
-                result.add(patchAndVersion);
+            List<AruPatch> psuList = getLatestPsu(new AruHttpHelper(product, version, userId, password));
+            if (!psuList.isEmpty()) {
+                for (AruPatch psu: psuList) {
+                    String patchAndVersion = psu.patchId() + "_" + psu.version();
+                    logger.info("IMG-0020", product.description(), patchAndVersion);
+                    result.add(psu);
+                }
             } else {
                 logger.info("{0} - there are no recommended PSUs at this time.", product.description());
             }
@@ -64,23 +66,20 @@ public class AruUtil {
     }
 
     /**
-     * Get the Latest PSU patch number for the search information in the helper.
+     * Get the Latest PSU for the search information in the helper.
      *
      * @param aruHttpHelper containing product, version, credentials for the search
-     * @return PSU patch number
+     * @return All ARU Patches that are labeled as a PSU bundle for this product
      * @throws Exception if the search or xml parse of result fails
      */
-    static String getLatestPsuNumber(AruHttpHelper aruHttpHelper) throws Exception {
+    static List<AruPatch> getLatestPsu(AruHttpHelper aruHttpHelper) throws Exception {
         logger.entering(aruHttpHelper.product());
         try {
             logger.info("IMG-0019", aruHttpHelper.product().description());
             aruHttpHelper.release(getReleaseNumber(aruHttpHelper));
             getRecommendedPatchesMetadata(aruHttpHelper);
             if (aruHttpHelper.success()) {
-                Document results = aruHttpHelper.results();
-                String result = XPathUtil.applyXPathReturnString(results, "/results/patch[./psu_bundle]/name");
-                logger.exiting(result);
-                return result;
+                return AruPatch.getPatches(aruHttpHelper.results(), "[./psu_bundle]");
             } else if (!Utils.isEmptyString(aruHttpHelper.errorMessage())) {
                 logger.fine(aruHttpHelper.errorMessage());
             } else {
@@ -92,7 +91,7 @@ public class AruUtil {
                 aruHttpHelper.product().description(), aruHttpHelper.version()), e);
         }
         logger.exiting();
-        return null;
+        return Collections.emptyList();
     }
 
     /**
@@ -103,11 +102,11 @@ public class AruUtil {
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static List<String> getRecommendedPatches(FmwInstallerType type, String version,
+    public static List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version,
                                                      String userId, String password) throws Exception {
-        List<String> result = new ArrayList<>();
+        List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
-            List<String> patches = getRecommendedPatches(new AruHttpHelper(product, version, userId, password));
+            List<AruPatch> patches = getRecommendedPatches(new AruHttpHelper(product, version, userId, password));
             if (!patches.isEmpty()) {
                 result.addAll(patches);
             }
@@ -125,7 +124,7 @@ public class AruUtil {
      * @return List of recommended patches
      * @throws Exception the search or resulting parse failed
      */
-    static List<String> getRecommendedPatches(AruHttpHelper aruHttpHelper)
+    static List<AruPatch> getRecommendedPatches(AruHttpHelper aruHttpHelper)
         throws Exception {
         logger.entering(aruHttpHelper.product(), aruHttpHelper.version());
         try {
@@ -134,20 +133,9 @@ public class AruUtil {
             getRecommendedPatchesMetadata(aruHttpHelper);
             if (aruHttpHelper.success()) {
                 Document results = aruHttpHelper.results();
-                // xpath - get list of all patches that are platform "generic" or "Linux x86:64"
-                NodeList nodeList = XPathUtil.applyXPathReturnNodeList(results,
-                    "/results/patch[./platform[@id='2000' or @id='226']]/name");
-                List<String> result = new ArrayList<>();
-                for (int i = 0; i < nodeList.getLength(); i++) {
-                    if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                        String patchId = nodeList.item(i).getTextContent();
-                        patchId += "_" + aruHttpHelper.version();
-                        logger.info("IMG-0068", aruHttpHelper.product().description(), patchId);
-                        result.add(patchId);
-                    }
-                }
-                logger.exiting(result);
-                return result;
+                List<AruPatch> patches = AruPatch.getPatches(results);
+                logger.exiting(patches);
+                return patches;
             } else if (!Utils.isEmptyString(aruHttpHelper.errorMessage())) {
                 logger.fine(aruHttpHelper.errorMessage());
             } else {
@@ -202,7 +190,7 @@ public class AruUtil {
 
             AruHttpHelper upiResult = aruHttpHelper.execValidation(GET_LSINVENTORY_URL, upiPayload);
 
-            NodeList upiList = XPathUtil.applyXPathReturnNodeList(upiResult.results(),
+            NodeList upiList = XPathUtil.nodelist(upiResult.results(),
                     "/inventory_upi_response/upi");
             if (upiList.getLength() > 0) {
                 payload.append("<target_patch_list>");
@@ -295,7 +283,7 @@ public class AruUtil {
         String expression = String.format("string(/results/release[starts-with(text(), '%s')][@name = '%s']/@id)",
             aruHttpHelper.product().description(), aruHttpHelper.version());
         try {
-            result = XPathUtil.applyXPathReturnString(allReleases, expression);
+            result = XPathUtil.string(allReleases, expression);
             logger.fine("Release number for {0} is {1}", aruHttpHelper.product().description(), result);
         } catch (XPathExpressionException xpe) {
             throw new IOException(xpe);

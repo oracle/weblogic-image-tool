@@ -172,7 +172,7 @@ public class AruHttpHelper {
     AruHttpHelper validation() throws IOException {
         NodeList conflictSets;
         try {
-            conflictSets = XPathUtil.applyXPathReturnNodeList(results(),
+            conflictSets = XPathUtil.nodelist(results(),
                 "/conflict_check/conflict_sets/set");
         } catch (XPathExpressionException xee) {
             throw new IOException(xee);
@@ -182,7 +182,7 @@ public class AruHttpHelper {
                 success = false;
                 String expression = "/conflict_check/conflict_sets/set/merge_patches";
 
-                NodeList nodeList = XPathUtil.applyXPathReturnNodeList(results(), expression);
+                NodeList nodeList = XPathUtil.nodelist(results(), expression);
 
                 createResultDocument(nodeList);
 
@@ -243,11 +243,11 @@ public class AruHttpHelper {
         Node conflictsResultNode = results();
         if (conflictsResultNode != null) {
             try {
-                NodeList patchSets = XPathUtil.applyXPathReturnNodeList(conflictsResultNode, "//merge_patches");
+                NodeList patchSets = XPathUtil.nodelist(conflictsResultNode, "//merge_patches");
                 stringBuilder.append("patch conflicts detected: ");
                 for (int i = 0; i < patchSets.getLength(); i++) {
                     stringBuilder.append("[");
-                    NodeList bugNumbers = XPathUtil.applyXPathReturnNodeList(patchSets.item(i), "patch/bug/number"
+                    NodeList bugNumbers = XPathUtil.nodelist(patchSets.item(i), "patch/bug/number"
                         + "/text()");
                     for (int j = 0; j < bugNumbers.getLength(); j++) {
                         stringBuilder.append(bugNumbers.item(j).getNodeValue());
@@ -268,10 +268,10 @@ public class AruHttpHelper {
     private void searchResult(Document result) throws IOException {
         success = true;
         try {
-            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(result, "/results/error");
+            NodeList nodeList = XPathUtil.nodelist(result, "/results/error");
             if (nodeList.getLength() > 0) {
                 success = false;
-                errorMessage = XPathUtil.applyXPathReturnString(result, "/results/error/message");
+                errorMessage = XPathUtil.string(result, "/results/error/message");
             } else {
                 results = result;
             }

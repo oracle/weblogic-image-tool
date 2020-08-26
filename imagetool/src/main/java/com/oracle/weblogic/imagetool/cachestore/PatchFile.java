@@ -153,7 +153,7 @@ public class PatchFile extends CachedFile {
         if (checkPsuVersion()) {
             String patchXpath = String.format(
                 "string(/results/patch[./platform[@id='2000' or @id='226']]/release[@name='%s'])", patchSetVersion);
-            String patch = XPathUtil.applyXPathReturnString(aruInfo, patchXpath);
+            String patch = XPathUtil.string(aruInfo, patchXpath);
             // if the patch has a PSU version in ARU, set the patch version to PSU version (download PSU version)
             if (!Utils.isEmptyString(patch)) {
                 logger.fine("Found PSU version in ARU for patch {0}, version set to {1}",
@@ -183,8 +183,8 @@ public class PatchFile extends CachedFile {
             "/results/patch[./platform[@id='2000' or @id='226']]/release[@name='%s']/text()", getVersion());
 
         logger.finest("Searching for release number with xpath: {0}", releasePath);
-        releaseNumber = XPathUtil.applyXPathReturnString(aruInfo, releasePath);
-        releaseName = XPathUtil.applyXPathReturnString(aruInfo, releaseNamePath);
+        releaseNumber = XPathUtil.string(aruInfo, releasePath);
+        releaseName = XPathUtil.string(aruInfo, releaseNamePath);
 
         if (Utils.isEmptyString(releaseNumber)) {
             String error = Utils.getMessage("IMG-0057", bugNumber);
@@ -274,8 +274,8 @@ public class PatchFile extends CachedFile {
             "string(/results/patch[./platform[@id='2000' or @id='226']][release[@name='%s']]", getVersion());
 
         String downloadUrlXpath = patchXpath + "/files/file/download_url";
-        String downLoadLink = XPathUtil.applyXPathReturnString(getAruInfo(),downloadUrlXpath + "/text())");
-        String downLoadHost = XPathUtil.applyXPathReturnString(getAruInfo(),downloadUrlXpath + "/@host)");
+        String downLoadLink = XPathUtil.string(getAruInfo(),downloadUrlXpath + "/text())");
+        String downLoadHost = XPathUtil.string(getAruInfo(),downloadUrlXpath + "/@host)");
         logger.finer("using download URL xpath = {0}, found link={1}, host={2}",
             downloadUrlXpath, downLoadLink, downLoadHost);
 

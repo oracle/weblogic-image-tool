@@ -1,0 +1,529 @@
+<!-- Copyright (c) 2020, Oracle Corporation and/or its affiliates. -->
+<!-- Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. -->
+
+<results md5_sum="a814ac2fcb8f44d2757c0fcac92d451d">
+    <generated_date in_epoch_ms="1598301753000">2020-08-24 20:42:33</generated_date>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>31544340</number>
+            <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+        </bug>
+        <name>31544340</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23672891]]></patch_readme>
+            <patch_details><![CDATA[/download/31544340.html]]></patch_details>
+        </url>
+        <request_id>23672891</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="197" bugdb_id="197"><![CDATA[HP-UX Itanium]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>31544340</number>
+                <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>106132403</size>
+        <files>
+            <file>
+                <name>p31544340_122130_HPUX-IA64.zip</name>
+                <size>106132403</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p31544340_122130_HPUX-IA64.zip?aru=23672891&patch_file=p31544340_122130_HPUX-IA64.zip]]></download_url>
+                <digest type="SHA-256">A7824B8390BF16D1044438951E69775DE501F75D4CA6B6BF4539732CC8E39883</digest>
+                <digest type="SHA-1">7A7718BAD1BA1B66CB574079572440334CC7369C</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594726048000">2020-07-14 11:27:28</updated_date>
+        <released_date in_epoch_ms="1593735345000">2020-07-03 00:15:45</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>31544340</number>
+            <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+        </bug>
+        <name>31544340</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23673068]]></patch_readme>
+            <patch_details><![CDATA[/download/31544340.html]]></patch_details>
+        </url>
+        <request_id>23673068</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="267" bugdb_id="267"><![CDATA[Oracle Solaris on x86-64 (64-bit)]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>31544340</number>
+                <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>26740330</size>
+        <files>
+            <file>
+                <name>p31544340_122130_Solaris86-64.zip</name>
+                <size>26740330</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p31544340_122130_Solaris86-64.zip?aru=23673068&patch_file=p31544340_122130_Solaris86-64.zip]]></download_url>
+                <digest type="SHA-256">4C11BFC48891CA82FEA2C1CC6082F027401F973DAA791CE743A8C914E90556D6</digest>
+                <digest type="SHA-1">9E25AE0417C34C9980DD422F34CA0DB8C7C5FA76</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594726048000">2020-07-14 11:27:28</updated_date>
+        <released_date in_epoch_ms="1593735345000">2020-07-03 00:15:45</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>31544340</number>
+            <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+        </bug>
+        <name>31544340</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23673067]]></patch_readme>
+            <patch_details><![CDATA[/download/31544340.html]]></patch_details>
+        </url>
+        <request_id>23673067</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="23" bugdb_id="23"><![CDATA[Oracle Solaris on SPARC (64-bit)]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>31544340</number>
+                <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>32061053</size>
+        <files>
+            <file>
+                <name>p31544340_122130_SOLARIS64.zip</name>
+                <size>32061053</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p31544340_122130_SOLARIS64.zip?aru=23673067&patch_file=p31544340_122130_SOLARIS64.zip]]></download_url>
+                <digest type="SHA-256">20F0BD447701CC3558471AB563F92721FE6D5A0969A38F51B7F72BD658F085F8</digest>
+                <digest type="SHA-1">77215F5942147B1F28C15065AC591AD8AFD92B94</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594726048000">2020-07-14 11:27:28</updated_date>
+        <released_date in_epoch_ms="1593735345000">2020-07-03 00:15:45</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>31544340</number>
+            <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+        </bug>
+        <name>31544340</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23673001]]></patch_readme>
+            <patch_details><![CDATA[/download/31544340.html]]></patch_details>
+        </url>
+        <request_id>23673001</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="212" bugdb_id="212"><![CDATA[IBM AIX on POWER Systems (64-bit)]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>31544340</number>
+                <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>53446789</size>
+        <files>
+            <file>
+                <name>p31544340_122130_AIX64-5L.zip</name>
+                <size>53446789</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p31544340_122130_AIX64-5L.zip?aru=23673001&patch_file=p31544340_122130_AIX64-5L.zip]]></download_url>
+                <digest type="SHA-256">75E01F661E6514FB76534D96EFA66CBC6BAC4821249006D2C26BC4D5097C56B0</digest>
+                <digest type="SHA-1">999B9291F1D620A8023F3293F231FD69016076F4</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594726048000">2020-07-14 11:27:28</updated_date>
+        <released_date in_epoch_ms="1593735345000">2020-07-03 00:15:45</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>31544340</number>
+            <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+        </bug>
+        <name>31544340</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23672892]]></patch_readme>
+            <patch_details><![CDATA[/download/31544340.html]]></patch_details>
+        </url>
+        <request_id>23672892</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="226" bugdb_id="226"><![CDATA[Linux x86-64]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>31544340</number>
+                <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>26463960</size>
+        <files>
+            <file>
+                <name>p31544340_122130_Linux-x86-64.zip</name>
+                <size>26463960</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p31544340_122130_Linux-x86-64.zip?aru=23672892&patch_file=p31544340_122130_Linux-x86-64.zip]]></download_url>
+                <digest type="SHA-1">DE5EACA02108D4EA3E7595E026DFDF2831427349</digest>
+                <digest type="SHA-256">77307C0814A2C56619ADDD710829FD46938887B2040EBD87323954F04BC9A936</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594726048000">2020-07-14 11:27:28</updated_date>
+        <released_date in_epoch_ms="1593735345000">2020-07-03 00:15:45</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>31544340</number>
+            <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+        </bug>
+        <name>31544340</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23673113]]></patch_readme>
+            <patch_details><![CDATA[/download/31544340.html]]></patch_details>
+        </url>
+        <request_id>23673113</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="233" bugdb_id="233"><![CDATA[Microsoft Windows x64 (64-bit)]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>31544340</number>
+                <abstract><![CDATA[ADR FOR WEBLOGIC SERVER 12.2.1.3.0 JULY CPU 2020]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>26797569</size>
+        <files>
+            <file>
+                <name>p31544340_122130_MSWIN-x86-64.zip</name>
+                <size>26797569</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p31544340_122130_MSWIN-x86-64.zip?aru=23673113&patch_file=p31544340_122130_MSWIN-x86-64.zip]]></download_url>
+                <digest type="SHA-1">BB51BE14B84C1A5496EFECE748B7D9FD486C486C</digest>
+                <digest type="SHA-256">1DFAA27ABA92DC5326D957977B68BFF7F168F866726334D5C7C03BCA08634561</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594726048000">2020-07-14 11:27:28</updated_date>
+        <released_date in_epoch_ms="1593735345000">2020-07-03 00:15:45</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>31535411</number>
+            <abstract><![CDATA[WLS PATCH SET UPDATE 12.2.1.3.200624]]></abstract>
+        </bug>
+        <name>31535411</name>
+        <type>Patch</type>
+        <psu_bundle>Oracle WebLogic Server 12.2.1.3.200624</psu_bundle>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23654455]]></patch_readme>
+            <patch_details><![CDATA[/download/31535411.html]]></patch_details>
+        </url>
+        <request_id>23654455</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="yes">
+            <bug>
+                <number>10206721</number>
+                <abstract><![CDATA[MISSING USERNAME IN EXTENDED HTTP LOGS]]></abstract>
+            </bug>
+            <bug>
+                <number>23076695</number>
+                <abstract><![CDATA[ENSURE USE OF FACTORY METHODS WHEN INSTANTIATING XMLINPUTFACTORY]]></abstract>
+            </bug>
+            <bug>
+                <number>23103220</number>
+                <abstract><![CDATA[Fix for Bug 23103220]]></abstract>
+            </bug>
+            <bug>
+                <number>24931180</number>
+                <abstract><![CDATA[Fix for Bug 24931180]]></abstract>
+            </bug>
+            <bug>
+                <number>25219796</number>
+                <abstract><![CDATA[WLS 12.2.1 FAILS TO FETCH JAX-WS WEB SERVICES]]></abstract>
+            </bug>
+            <bug>
+                <number>25294832</number>
+                <abstract><![CDATA[WLS 12.2.1.2 DEPLOYMENT ERRORSMETHOD _JSPSERVICE EXCEEDS 65535 BYTES LIMIT]]></abstract>
+            </bug>
+            <bug>
+                <number>25369207</number>
+                <abstract><![CDATA[JAVA.LANG.OUTOFMEMORY ERROR HAPPENS WHEN INITIALIZING AN APPLICATION]]></abstract>
+            </bug>
+            <bug>
+                <number>25387569</number>
+                <abstract><![CDATA[STRESS-OSB- ConcurrentModificationException-transaction failed during testing]]></abstract>
+            </bug>
+            <bug>
+                <number>25488428</number>
+                <abstract><![CDATA[FIXED ADDITION OF WSS USERNAME TOKEN SECURITY HEADER TO JAXWS DISPATCH CLIENT WITH CUSTOM POLICY ID]]></abstract>
+            </bug>
+            <bug>
+                <number>25580220</number>
+                <abstract><![CDATA[FIXED AN ISSUE THAT PREVENTED TARGETING MULTIDATASOURCE TO A PERSISTENT STORE.]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>63854808</size>
+        <files>
+            <file>
+                <name>p31535411_122130_Generic.zip</name>
+                <size>63854808</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p31535411_122130_Generic.zip?aru=23654455&patch_file=p31535411_122130_Generic.zip]]></download_url>
+                <digest type="SHA-1">AE32ECFA96896ACF9D1EB407E5757B3BDD1C2853</digest>
+                <digest type="SHA-256">DC3493A8B7B71420E244B7BCCA0E0AE92665701AB24E5688172A0B27495AEB9F</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594726012000">2020-07-14 11:26:52</updated_date>
+        <released_date in_epoch_ms="1594726011000">2020-07-14 11:26:51</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>31384951</number>
+            <abstract><![CDATA[WEBLOGIC SAMPLES SPU 12.2.1.3.200714]]></abstract>
+        </bug>
+        <name>31384951</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23651120]]></patch_readme>
+            <patch_details><![CDATA[/download/31384951.html]]></patch_details>
+        </url>
+        <request_id>23651120</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="yes">
+            <bug>
+                <number>26844248</number>
+                <abstract><![CDATA[TRACKING BUG FOR CVE-2017-9805 FOR THE 12.2.1.3.0 ONE-OFF PATCH]]></abstract>
+            </bug>
+            <bug>
+                <number>26957406</number>
+                <abstract><![CDATA[Fix for Bug 26957406]]></abstract>
+            </bug>
+            <bug>
+                <number>27228919</number>
+                <abstract><![CDATA[Fix for Bug 27228919]]></abstract>
+            </bug>
+            <bug>
+                <number>27742780</number>
+                <abstract><![CDATA[IDENTITY CERTIFICATE FILES EXPIRED IN SAMPLES/WEBSERVICE/SAML]]></abstract>
+            </bug>
+            <bug>
+                <number>27919425</number>
+                <abstract><![CDATA[Fix for Bug 27919425]]></abstract>
+            </bug>
+            <bug>
+                <number>28321150</number>
+                <abstract><![CDATA[Fix for Bug 28321150]]></abstract>
+            </bug>
+            <bug>
+                <number>28368489</number>
+                <abstract><![CDATA[Fix for Bug 28368489]]></abstract>
+            </bug>
+            <bug>
+                <number>29481999</number>
+                <abstract><![CDATA[Fix for Bug 29481999]]></abstract>
+            </bug>
+            <bug>
+                <number>29774397</number>
+                <abstract><![CDATA[Fix for Bug 29774397]]></abstract>
+            </bug>
+            <bug>
+                <number>29791626</number>
+                <abstract><![CDATA[Fix for Bug 29791626]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>41937192</size>
+        <files>
+            <file>
+                <name>p31384951_122130_Generic.zip</name>
+                <size>41937192</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p31384951_122130_Generic.zip?aru=23651120&patch_file=p31384951_122130_Generic.zip]]></download_url>
+                <digest type="SHA-256">6E6950A9BF78E3E655944E44D2DCA3FFDE5D4A42BFCE2A695AF00DFADE35986D</digest>
+                <digest type="SHA-1">258D50391CD27BC418B99669F8F0658B7291C1A5</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594725820000">2020-07-14 11:23:40</updated_date>
+        <released_date in_epoch_ms="1592948081000">2020-06-23 21:34:41</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>28512225</number>
+            <abstract><![CDATA[TRACKING BUG FOR LATEST XMLBEANS 28341456 - 20180816 ON WLS 12C]]></abstract>
+        </bug>
+        <name>28512225</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=22549078]]></patch_readme>
+            <patch_details><![CDATA[/download/28512225.html]]></patch_details>
+        </url>
+        <request_id>22549078</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="175">Recommended</classification>
+        <patch_classification id="174">General</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>28512225</number>
+                <abstract><![CDATA[TRACKING BUG FOR LATEST XMLBEANS 28341456 - 20180816 ON WLS 12C]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>5009408</size>
+        <files>
+            <file>
+                <name>p28512225_122130_Generic.zip</name>
+                <size>5009408</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28512225_122130_Generic.zip?aru=22549078&patch_file=p28512225_122130_Generic.zip]]></download_url>
+                <digest type="SHA-1">2E3AC078839EE1B1C326D3F1BF01C1A802EA6BE5</digest>
+                <digest type="SHA-256">314BD65BFF369EAC089C67A978D823407EDA7F44225AD3C42A1DE1DEA1DE53F9</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1543337691000">2018-11-27 16:54:51</updated_date>
+        <released_date in_epoch_ms="1541287184000">2018-11-03 23:19:44</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>28278427</number>
+            <abstract><![CDATA[VERSION ADDED TWICE WHEN SAVING A SECURITY POLICY]]></abstract>
+        </bug>
+        <name>28278427</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=22374151]]></patch_readme>
+            <patch_details><![CDATA[/download/28278427.html]]></patch_details>
+        </url>
+        <request_id>22374151</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="175">Recommended</classification>
+        <patch_classification id="174">General</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>28278427</number>
+                <abstract><![CDATA[VERSION ADDED TWICE WHEN SAVING A SECURITY POLICY]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>109129</size>
+        <files>
+            <file>
+                <name>p28278427_122130_Generic.zip</name>
+                <size>109129</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28278427_122130_Generic.zip?aru=22374151&patch_file=p28278427_122130_Generic.zip]]></download_url>
+                <digest type="SHA-256">FAD95E4B0622B30EA425EFCFBA123ABFCE7865401ABD1A7A4B34BAA429BB3CF0</digest>
+                <digest type="SHA-1">AFF13A8D13714673C673EB66D054EEB02F4E0EBE</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1533565968000">2018-08-06 14:32:48</updated_date>
+        <released_date in_epoch_ms="1533565968000">2018-08-06 14:32:48</released_date>
+    </patch>
+</results>

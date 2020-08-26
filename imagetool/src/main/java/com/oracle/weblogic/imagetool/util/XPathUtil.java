@@ -49,7 +49,7 @@ public class XPathUtil {
      * @return nodelist result
      * @throws XPathExpressionException when xpath failed
      */
-    public static NodeList applyXPathReturnNodeList(Node node, String expression) throws XPathExpressionException {
+    public static NodeList nodelist(Node node, String expression) throws XPathExpressionException {
         XPath xpath = factory().newXPath();
         return (NodeList) xpath.evaluate(expression, node, XPathConstants.NODESET);
     }
@@ -62,7 +62,20 @@ public class XPathUtil {
      * @return string result
      * @throws XPathExpressionException when xpath failed
      */
-    public static String applyXPathReturnString(Document doc, String expression) throws XPathExpressionException {
+    public static String string(Document doc, String expression) throws XPathExpressionException {
+        XPath xpath = factory().newXPath();
+        return (String) xpath.evaluate(expression, doc, XPathConstants.STRING);
+    }
+
+    /**
+     * Apply XPath and return the results as string.
+     *
+     * @param doc        node from a nodelist
+     * @param expression xpath expression
+     * @return string result
+     * @throws XPathExpressionException when xpath failed
+     */
+    public static String string(Node doc, String expression) throws XPathExpressionException {
         XPath xpath = factory().newXPath();
         return (String) xpath.evaluate(expression, doc, XPathConstants.STRING);
     }
