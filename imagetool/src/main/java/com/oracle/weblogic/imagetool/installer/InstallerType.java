@@ -9,6 +9,7 @@ package com.oracle.weblogic.imagetool.installer;
  */
 public enum InstallerType {
 
+    WLSLITE("wlslite"),
     WLSDEV("wlsdev"),
     WLSSLIM("wlsslim"),
     WLS("wls"),

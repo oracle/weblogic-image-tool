@@ -257,8 +257,13 @@ public abstract class CommonOptions {
                 logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
             } else {
                 for (String patchId: patchList) {
-                    logger.fine("Add latest recommended patch {0} to list", patchId);
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
+                    if (FmwInstallerType.getWeblogicServerTypes().contains(installerType)
+                        && "31544353".equals(patchId)) {
+                        logger.fine("Skipping ADR patch {0} for WLS installer: {1}", patchId, installerType);
+                    } else {
+                        logger.fine("Add latest recommended patch {0} to list", patchId);
+                        patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
+                    }
                 }
             }
         } else if (latestPSU) {
