@@ -19,8 +19,6 @@ public enum FmwInstallerType {
     // data from https://updates.oracle.com/Orion/Services/metadata?table=aru_products
 
     // Oracle WebLogic Server
-    WLSLITE(Arrays.asList(AruProduct.WLS, AruProduct.COH),
-        InstallerType.WLSLITE),
     WLSSLIM(Arrays.asList(AruProduct.WLS, AruProduct.COH),
         InstallerType.WLSSLIM),
     WLSDEV(Arrays.asList(AruProduct.WLS, AruProduct.COH),
@@ -101,7 +99,7 @@ public enum FmwInstallerType {
         throw new IllegalArgumentException(Utils.getMessage("IMG-0080", value));
     }
 
-    private static final List<FmwInstallerType> weblogicServerTypes = Arrays.asList(WLS, WLSDEV, WLSSLIM, WLSLITE);
+    private static final List<FmwInstallerType> weblogicServerTypes = Arrays.asList(WLS, WLSDEV, WLSSLIM);
 
     /**
      * Return a list of all WebLogic Server types (not JRF types).
