@@ -98,4 +98,14 @@ public enum FmwInstallerType {
         }
         throw new IllegalArgumentException(Utils.getMessage("IMG-0080", value));
     }
+
+    private static final List<FmwInstallerType> weblogicServerTypes = Arrays.asList(WLS, WLSDEV, WLSSLIM);
+
+    /**
+     * Return a list of all WebLogic Server types (not JRF types).
+     * @return list of WLS enum types.
+     */
+    public static List<FmwInstallerType> getWeblogicServerTypes() {
+        return weblogicServerTypes;
+    }
 }
