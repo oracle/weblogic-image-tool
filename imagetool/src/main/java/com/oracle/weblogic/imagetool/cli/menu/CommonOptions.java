@@ -254,13 +254,10 @@ public abstract class CommonOptions {
 
             if (patchList.isEmpty()) {
                 recommendedPatches = false;
-                logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
+                logger.info("IMG-0084", getInstallerVersion());
             } else {
                 for (String patchId: patchList) {
-                    if (FmwInstallerType.getWeblogicServerTypes().contains(installerType)
-                        && "31544353".equals(patchId)) {
-                        logger.fine("Skipping ADR patch {0} for WLS installer: {1}", patchId, installerType);
-                    } else {
+                    if (isOkToApply(installerType, patchId)) {
                         logger.fine("Add latest recommended patch {0} to list", patchId);
                         patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
                     }
@@ -310,6 +307,24 @@ public abstract class CommonOptions {
             dockerfileOptions.setPatchingEnabled();
         }
         logger.exiting();
+    }
+
+    /**
+     * Returns false if the patch ID needs to be omitted/skipped and should not be applied.
+     * @param installerType FMW installer type
+     * @param patchId patch number
+     * @return true if the patch should be applied
+     */
+    static boolean isOkToApply(FmwInstallerType installerType, String patchId) {
+        if (Utils.isEmptyString(patchId)) {
+            return false;
+        }
+        if (FmwInstallerType.getWeblogicServerTypes().contains(installerType)
+            && patchId.startsWith("31544353")) {
+            logger.info("IMG-0083", patchId);
+            return false;
+        }
+        return true;
     }
 
     private Path createPatchesTempDirectory() throws IOException {
