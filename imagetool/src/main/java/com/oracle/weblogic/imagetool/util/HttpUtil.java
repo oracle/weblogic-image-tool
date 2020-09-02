@@ -11,6 +11,7 @@ import javax.net.ssl.SSLException;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -48,6 +49,27 @@ public class HttpUtil {
         // utility class with static methods
     }
 
+    private static DocumentBuilderFactory builderFactory = null;
+
+    /**
+     * Using cached DocumentBuilderFactor, create a new instance of a DocumentBuilder for parsing XML.
+     * @return a new instance of a DocumentBuilder
+     * @throws ParserConfigurationException if the underlying JVM XML parser configuration throws an error
+     */
+    public static DocumentBuilder documentBuilder() throws ParserConfigurationException {
+        if (builderFactory == null) {
+            builderFactory = DocumentBuilderFactory.newInstance();
+            // Prevent XXE attacks
+            builderFactory.setXIncludeAware(false);
+            builderFactory.setExpandEntityReferences(false);
+            builderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            builderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            builderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        }
+        return builderFactory.newDocumentBuilder();
+    }
+
     /**
      * Parse a string into an XML Document.
      * @param xmlString well formatted XML
@@ -56,23 +78,8 @@ public class HttpUtil {
      */
     public static Document parseXmlString(String xmlString) throws ClientProtocolException {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            try {
-                factory.setXIncludeAware(false);
-                factory.setExpandEntityReferences(false);
-            } catch (Exception ex) {
-                logger.warning("Failed to set XML factory feature: {0}", ex.getLocalizedMessage());
-            }
-
-            try {
-                factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            } catch (Exception ex) {
-                logger.warning("Failed to set FEATURE_SECURE_PROCESSING: {0}", ex.getLocalizedMessage());
-            }
-
-            DocumentBuilder builder = factory.newDocumentBuilder();
             InputSource input = new InputSource(new StringReader(xmlString));
-            Document doc = builder.parse(input);
+            Document doc = documentBuilder().parse(input);
             logger.finest(doc);
             return doc;
         } catch (SAXException ex) {

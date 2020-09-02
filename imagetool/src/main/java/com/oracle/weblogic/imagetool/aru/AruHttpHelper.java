@@ -4,9 +4,6 @@
 package com.oracle.weblogic.imagetool.aru;
 
 import java.io.IOException;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -204,15 +201,7 @@ public class AruHttpHelper {
      */
     AruHttpHelper createResultDocument(NodeList nodeList) throws IOException {
         try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-            // Prevent XXE attacks
-            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-            DocumentBuilder builder = dbf.newDocumentBuilder();
-            Document doc = builder.newDocument();
+            Document doc = HttpUtil.documentBuilder().newDocument();
             Element element = doc.createElement("results");
 
             for (int i = 0; i < nodeList.getLength(); i++) {

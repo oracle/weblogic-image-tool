@@ -5,8 +5,7 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -30,13 +29,9 @@ public class XPathUtil {
 
     private static XPathFactory factory = null;
 
-    private static XPathFactory factory() {
+    private static synchronized XPathFactory factory() {
         if (factory == null) {
-            synchronized (XPathUtil.class) {
-                if (factory == null) {
-                    factory = XPathFactory.newInstance();
-                }
-            }
+            factory = XPathFactory.newInstance();
         }
         return factory;
     }
@@ -81,30 +76,18 @@ public class XPathUtil {
     }
 
     /**
-     * Apply XPath and return the results as a list of strings.
-     * @param doc        dom document
-     * @param expression xpath expression
-     * @return list result
-     * @throws XPathExpressionException when xpath fails
-     */
-    public static List<String> applyXPathReturnList(Document doc, String expression) throws XPathExpressionException {
-        List<String> result = new ArrayList<>();
-        NodeList list = (NodeList) XPathFactory.newInstance().newXPath()
-            .evaluate(expression, doc, XPathConstants.NODESET);
-        for (int i = 0; i < list.getLength(); i++) {
-            result.add(list.item(i).getNodeValue());
-        }
-        return result;
-    }
-
-    /**
      * Pretty print the document.
      *
      * @param xml dom document
      */
     public static String prettyPrint(Document xml) {
         try {
-            Transformer tf = TransformerFactory.newInstance().newTransformer();
+            TransformerFactory t = TransformerFactory.newInstance();
+            t.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            t.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            t.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            t.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            Transformer tf = t.newTransformer();
             tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             tf.setOutputProperty(OutputKeys.INDENT, "yes");
             Writer out = new StringWriter();
