@@ -1,7 +1,7 @@
 // Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.api.model;
+package com.oracle.weblogic.imagetool.cachestore;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,10 +10,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
+import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreTestImpl;
-import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -101,10 +100,10 @@ public class CachedFileTest {
     }
 
     @Test
-    void latestOpatchVersion() {
+    void latestOpatchVersion() throws IOException, XPathExpressionException {
         // OPatch file should default to the default OPatch bug number and the latest version found in cache
         OPatchFile patchFile = new OPatchFile(null, null, null, cacheStore);
         assertEquals(DEFAULT_BUG_NUM + "_13.9.4.0.0", patchFile.getKey(),
-            "failed to get correct versoin of the latest OPatch version from cache");
+            "failed to get latest Opatch version from the cache");
     }
 }

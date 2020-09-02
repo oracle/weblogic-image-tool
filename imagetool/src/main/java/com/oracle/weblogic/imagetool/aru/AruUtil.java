@@ -3,20 +3,24 @@
 
 package com.oracle.weblogic.imagetool.aru;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.cachestore.PatchFile;
+import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.XPathUtil;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.fluent.Executor;
+import org.apache.http.client.fluent.Request;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -32,8 +36,23 @@ public class AruUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
 
-    private AruUtil() {
-        // hide constructor, usage of this class is only static utilities
+    private static AruUtil instance;
+
+    private static final String BUG_SEARCH_URL = "https://updates.oracle.com/Orion/Services/search?bug=%s";
+
+    /**
+     * Get ARU HTTP helper instance.
+     * @return ARU helper.
+     */
+    public static AruUtil rest() {
+        if (instance == null) {
+            instance = new AruUtil();
+        }
+        return instance;
+    }
+
+    protected AruUtil() {
+        // hide constructor
     }
 
     /**
@@ -159,7 +178,7 @@ public class AruUtil {
      * @param password         password for support account
      * @throws IOException when failed to access the aru api
      */
-    public static void validatePatches(String inventoryContent, List<PatchFile> patches, String userId, String password)
+    public static void validatePatches(String inventoryContent, List<AruPatch> patches, String userId, String password)
         throws IOException, XPathExpressionException {
         validatePatches(inventoryContent, patches, new AruHttpHelper(userId, password));
     }
@@ -172,7 +191,7 @@ public class AruUtil {
      * @param aruHttpHelper encapsulated account credentials
      * @throws IOException when failed to access the aru api
      */
-    static void validatePatches(String inventoryContent, List<PatchFile> patches,
+    static void validatePatches(String inventoryContent, List<AruPatch> patches,
                                        AruHttpHelper aruHttpHelper) throws IOException, XPathExpressionException {
         logger.entering(patches, aruHttpHelper);
 
@@ -213,16 +232,16 @@ public class AruUtil {
         if (patches != null && !patches.isEmpty()) {
             payload.append("<candidate_patch_list>");
             // add the list of patches to the payload for ARU patch conflict check
-            for (PatchFile patch : patches) {
+            for (AruPatch patch : patches) {
                 if (patch == null) {
                     logger.finer("Skipping null patch");
                     continue;
                 }
 
-                logger.info("IMG-0022", patch.getBugNumber(), patch.getReleaseName());
+                logger.info("IMG-0022", patch.patchId(), patch.releaseName());
 
                 payload.append(String.format("<patch_group rel_id=\"%s\">%s</patch_group>",
-                        patch.getReleaseNumber(), patch.getBugNumber()));
+                        patch.release(), patch.patchId()));
             }
             payload.append("</candidate_patch_list>");
         }
@@ -318,5 +337,114 @@ public class AruUtil {
         }
         return aruHttpHelper.success();
     }
+
+    private void verifyResponse(Document response) throws IOException {
+        try {
+            NodeList nodeList = XPathUtil.nodelist(response, "/results/error");
+            if (nodeList.getLength() > 0) {
+                String errorMessage = XPathUtil.string(response, "/results/error/message");
+                IOException ioe = new IOException(errorMessage);
+                logger.throwing(ioe);
+                throw ioe;
+            }
+        } catch (XPathExpressionException xpe) {
+            throw new IOException(xpe);
+        }
+    }
+
+    /**
+     * Using a bug number, search ARU for a matching patches.
+     * The same bug number can have multiple patches, one for each corresponding WLS version.
+     * @param bugNumber the bug number to query ARU
+     * @param userId user credentials with access to OTN
+     * @param password password for the provided userId
+     * @return an AruPatch
+     * @throws IOException if there is an error retrieving the XML from ARU
+     * @throws XPathExpressionException if AruPatch failed while extracting patch data from the XML
+     */
+    public List<AruPatch> getPatches(String bugNumber, String userId, String password)
+        throws IOException, XPathExpressionException {
+        return getPatches(bugNumber, userId, password, "");
+    }
+
+    private List<AruPatch> getPatches(String bugNumber, String userId, String password, String patchSelector)
+        throws IOException, XPathExpressionException {
+
+        if (userId == null || password == null) {
+            // running in offline mode (no credentials to connect to ARU)
+            return Collections.singletonList(new AruPatch().patchId(bugNumber));
+        }
+
+        String url = String.format(BUG_SEARCH_URL, bugNumber);
+        logger.info("Searching Oracle for patch {0}", bugNumber);
+        Document response = HttpUtil.getXMLContent(url, userId, password);
+        verifyResponse(response);
+        return AruPatch.getPatches(response, patchSelector);
+    }
+
+    /**
+     * Using a bug number, search ARU for a matching patch.
+     * @param bugNumber the bug number to query ARU
+     * @param userId user credentials with access to OTN
+     * @param password password for the provided userId
+     * @return an AruPatch
+     * @throws IOException if there is an error retrieving the XML from ARU
+     * @throws XPathExpressionException if AruPatch failed while extracting patch data from the XML
+     */
+    public AruPatch getPatch(String bugNumber, String userId, String password, String patchSelector)
+        throws IOException, XPathExpressionException {
+
+        List<AruPatch> patches = getPatches(bugNumber, userId, password, patchSelector);
+
+        if (patches.size() == 1) {
+            return patches.get(0);
+        } else {
+            List<String> versionsForPatch = new ArrayList<>();
+            for (AruPatch patch : patches) {
+                versionsForPatch.add(patch.version());
+            }
+            MultiplePatchVersionsException mpe = new MultiplePatchVersionsException(bugNumber, versionsForPatch);
+            logger.throwing(mpe);
+            throw mpe;
+        }
+    }
+
+    /**
+     * Download a patch file from ARU.
+     *
+     * @param aruPatch ARU metadata for the patch
+     * @param username userid for support account
+     * @param password password for support account
+     * @return path of the downloaded file
+     * @throws IOException when it fails to access the url
+     */
+
+    public String downloadAruPatch(AruPatch aruPatch, String targetDir, String username, String password)
+        throws IOException {
+
+        logger.entering(aruPatch);
+
+        // download the remote patch file to the local target directory
+        String filename = targetDir + File.separator + aruPatch.fileName();
+        logger.info("IMG-0018", aruPatch.patchId());
+        try {
+            Executor.newInstance(HttpUtil.getOraClient(username, password))
+                .execute(Request.Get(aruPatch.downloadUrl()).connectTimeout(30000).socketTimeout(30000))
+                .saveContent(new File(filename));
+        } catch (Exception ex) {
+            String message = String.format("Failed to download and save file %s from %s: %s", filename,
+                aruPatch.downloadUrl(), ex.getLocalizedMessage());
+            logger.severe(message);
+            throw new IOException(message, ex);
+        }
+        logger.exiting(filename);
+        return filename;
+    }
+
+    public static String getVersionSelector(String version) {
+        return String.format("[./release[@name='%s']]", version);
+    }
+
+
 }
 

@@ -5,6 +5,8 @@ package com.oracle.weblogic.imagetool.aru;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -26,6 +28,7 @@ public class AruPatch {
     private String psuBundle;
     private String downloadHost;
     private String downloadPath;
+    private String fileName;
 
     public String patchId() {
         return patchId;
@@ -104,6 +107,18 @@ public class AruPatch {
         return this;
     }
 
+    public String downloadUrl() {
+        return downloadHost + downloadPath;
+    }
+
+    public AruPatch fileName(String value) {
+        fileName = value;
+        return this;
+    }
+
+    public String fileName() {
+        return fileName;
+    }
 
     /**
      * Given an XML document with a list of patches, extract each patch into the AruPatch bean and return the list.
@@ -138,15 +153,77 @@ public class AruPatch {
                     .psuBundle(XPathUtil.string(nodeList.item(i), "./psu_bundle"))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"));
-                logger.info("Found patch " + patch.patchId() + "_" + patch.version()
-                    + " - " + patch.description()
-                    + " - " + patch.release() + " : " + patch.releaseName()
-                    + " - " + patch.psuBundle()
-                    + " - " + patch.downloadHost() + patch.downloadPath());
+
+                int index = patch.downloadPath().indexOf("patch_file=");
+                if (index < 0) {
+                    throw new XPathExpressionException(Utils.getMessage("IMG-0059", patch.patchId()));
+                }
+                patch.fileName(patch.downloadPath().substring(index + "patch_file=".length()));
+
+                logger.fine("AruPatch created id:" + patch.patchId()
+                    + "  ver:" + patch.version()
+                    + "  desc:" + patch.description()
+                    + "  rel:" + patch.release()
+                    + "  relName:" + patch.releaseName()
+                    + "  psu:" + patch.psuBundle()
+                    + "  url:" + patch.downloadUrl());
                 result.add(patch);
             }
         }
         return result;
+    }
+
+    /**
+     * Select a an ARU patch from the list based on a version number.
+     * Version preference is: provided version, PSU version, and then installer version.
+     * If there is only one patch in the list, no version checking is done, and that patch is returned.
+     * @param patches list of patches to search
+     * @param providedVersion user specified patch version, like bugnumber_12.2.1.4.0
+     * @param psuVersion version number of the PSU, if applicable
+     * @param installerVersion version of WebLogic installed or to be installed in the Oracle Home
+     * @return the selected patch, or null
+     * @throws Exception if the user requested a version that was not in the list.
+     */
+    public static AruPatch selectPatch(List<AruPatch> patches, String providedVersion, String psuVersion,
+                                       String installerVersion) throws Exception {
+
+        AruPatch selected;
+
+        if (patches.size() == 0) {
+            return null;
+        }
+
+        if (patches.size() == 1) {
+            selected = patches.get(0);
+            if (selected.version() == null) {
+                if (providedVersion != null) {
+                    selected.version(providedVersion);
+                } else if (psuVersion != null) {
+                    selected.version(psuVersion);
+                } else {
+                    selected.version(installerVersion);
+                }
+            }
+            return selected;
+        }
+
+        Map<String, AruPatch> patchMap = patches.stream().collect(Collectors
+            .toMap(AruPatch::version, aruPatch -> aruPatch));
+        // if the user provided a specific version, select the provided version, or fail
+        if (providedVersion != null) {
+            if (patchMap.containsKey(providedVersion)) {
+                selected = patchMap.get(providedVersion);
+            } else {
+                // TODO fix this error messaage and exception type
+                throw new Exception("Could not find version specified: " + providedVersion);
+            }
+        } else if (patchMap.containsKey(psuVersion)) {
+            selected = patchMap.get(psuVersion);
+        } else {
+            selected = patchMap.get(installerVersion);
+        }
+
+        return selected;
     }
 
     @Override

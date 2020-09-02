@@ -55,8 +55,6 @@ public class HttpUtil {
      * @throws ClientProtocolException if the String contains malformed XML
      */
     public static Document parseXmlString(String xmlString) throws ClientProtocolException {
-        logger.entering();
-
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             try {
@@ -76,7 +74,6 @@ public class HttpUtil {
             InputSource input = new InputSource(new StringReader(xmlString));
             Document doc = builder.parse(input);
             logger.finest(doc);
-            logger.exiting();
             return doc;
         } catch (SAXException ex) {
             throw new ClientProtocolException("Malformed XML document", ex);

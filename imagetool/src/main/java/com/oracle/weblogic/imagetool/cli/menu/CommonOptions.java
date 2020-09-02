@@ -200,7 +200,7 @@ public abstract class CommonOptions {
      * @return true if applying patches
      */
     boolean applyingPatches() {
-        return (latestPSU || recommendedPatches) || !patches.isEmpty();
+        return (latestPsu || recommendedPatches) || !patches.isEmpty();
     }
 
     /**
@@ -240,69 +240,74 @@ public abstract class CommonOptions {
             return;
         }
 
-        String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
-
-        List<PatchFile> patchFiles = new ArrayList<>();
-        if (recommendedPatches || latestPSU) {
+        List<AruPatch> aruPatches = new ArrayList<>();
+        if (recommendedPatches || latestPsu) {
             if (userId == null || password == null) {
                 throw new Exception(Utils.getMessage("IMG-0031"));
             }
-        }
-        if (recommendedPatches) {
-            // Get the latest PSU and its recommended patches
-            List<AruPatch> patchList =
-                AruUtil.getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
 
-            if (patchList.isEmpty()) {
-                recommendedPatches = false;
-                logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
+            if (recommendedPatches) {
+                // Get the latest PSU and its recommended patches
+                aruPatches = AruUtil.getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
+
+                if (aruPatches.isEmpty()) {
+                    recommendedPatches = false;
+                    logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
+                }
             } else {
-                for (AruPatch patch: patchList) {
-                    logger.fine("Add latest recommended patch {0} to list", patch.patchId());
-                    patchFiles.add(new PatchFile(patch.patchId(), getInstallerVersion(), psuVersion, userId, password));
+                // PSUs for WLS and JRF installers are considered WLS patches
+                aruPatches = AruUtil.getLatestPsu(installerType, getInstallerVersion(), userId, password);
+
+                if (aruPatches.isEmpty()) {
+                    latestPsu = false;
+                    logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
                 }
             }
-        } else if (latestPSU) {
-            // PSUs for WLS and JRF installers are considered WLS patches
-            List<AruPatch> patches = AruUtil.getLatestPsu(installerType, getInstallerVersion(), userId, password);
+        }
 
-            if (patches.isEmpty()) {
-                latestPSU = false;
-                logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
+        // add user-provided patch list to any patches that were found for latestPsu or recommendedPatches
+        for (String patchId : patches) {
+            // if user mistakenly added the OPatch patch to the WLS patch list, skip it
+            if (OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
+                continue;
+            }
+            // if patch ID was provided as bugnumber_version, split the bugnumber and version strings
+            String providedVersion = null;
+            int split = patchId.indexOf('_');
+            if (split > 0) {
+                patchId = patchId.substring(0, split);
+                providedVersion = patchId.substring(split + 1);
+            }
+            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password);
+            AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, psuVersion,
+                getInstallerVersion());
+
+            if (selectedVersion != null) {
+                aruPatches.add(selectedVersion);
             } else {
-                for (AruPatch patch : patches) {
-                    logger.fine("Found latest PSU {0}", patch.patchId());
-                    patchFiles.add(new PatchFile(patch.patchId(), getInstallerVersion(), null, userId, password));
-                }
+                throw new Exception("Failed to find applicable version of patch " + patchId);
             }
         }
 
-        // add user-provided patch list to full patch list to be applied
-        if (patches != null && !patches.isEmpty()) {
-            for (String patchId : patches) {
-                // if user mistakenly added the OPatch patch to the WLS patch list, skip it
-                if (!OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
-                }
-            }
-        }
+        AruUtil.validatePatches(previousInventory, aruPatches, userId, password);
 
-        AruUtil.validatePatches(previousInventory, patchFiles, userId, password);
-
-        for (PatchFile patch : patchFiles) {
-            String patchLocation = patch.resolve(cache());
+        String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
+        // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
+        for (AruPatch patch : aruPatches) {
+            PatchFile patchFile = new PatchFile(patch, userId, password);
+            String patchLocation = patchFile.resolve(cache());
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
-                File patchFile = new File(patchLocation);
+                File cacheFile = new File(patchLocation);
                 try {
-                    Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+                    Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, cacheFile.getName()));
                 } catch (FileAlreadyExistsException ee) {
-                    logger.warning("IMG-0077", patch.getKey());
+                    logger.warning("IMG-0077", patchFile.getKey());
                 }
             } else {
-                logger.severe("IMG-0024", patch.getKey());
+                logger.severe("IMG-0024", patchFile.getKey());
             }
         }
-        if (!patchFiles.isEmpty()) {
+        if (!aruPatches.isEmpty()) {
             dockerfileOptions.setPatchingEnabled();
         }
         logger.exiting();
@@ -315,12 +320,13 @@ public abstract class CommonOptions {
     }
 
     void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
-        String filePath = new OPatchFile(opatchBugNumber, userId, password, cache())
-            .resolve(cache());
+        logger.entering(opatchBugNumber);
+        String filePath = new OPatchFile(opatchBugNumber, userId, password, cache()).resolve(cache());
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();
         dockerfileOptions.setOPatchFileName(filename);
+        logger.exiting(filename);
     }
 
     /**
@@ -480,7 +486,7 @@ public abstract class CommonOptions {
         names = {"--latestPSU"},
         description = "Whether to apply patches from latest PSU."
     )
-    boolean latestPSU = false;
+    boolean latestPsu = false;
 
     @Option(
         names = {"--recommendedPatches"},
