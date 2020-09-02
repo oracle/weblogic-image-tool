@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
@@ -253,7 +254,15 @@ public abstract class CommonOptions {
 
                 if (aruPatches.isEmpty()) {
                     recommendedPatches = false;
-                    logger.fine("Latest PSU and recommended patches NOT FOUND, ignoring recommendedPatches flag");
+                    logger.info("IMG-0084", getInstallerVersion());
+                } else if (FmwInstallerType.isBaseWeblogicServer(installerType)) {
+                    // find all ADR patches in the recommended patches list
+                    List<AruPatch> discard = aruPatches.stream()
+                        .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
+                        .collect(Collectors.toList());
+                    // let the user know that the ADR patches will be discarded
+                    discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
+                    aruPatches.removeAll(discard);
                 }
             } else {
                 // PSUs for WLS and JRF installers are considered WLS patches
