@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
@@ -52,7 +51,7 @@ public class WdtOptions {
      * @throws IOException in case of error
      */
     void handleWdtArgs(DockerfileOptions dockerfileOptions, DockerBuildCommand cmdBuilder, String tmpDir)
-        throws IOException, XPathExpressionException {
+        throws IOException {
 
         if (!isUsingWdt()) {
             return;

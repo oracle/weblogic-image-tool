@@ -77,16 +77,16 @@ public class PatchFileTest {
      * Intercept calls to the ARU REST API during unit testing.
      */
     public static class MockAruUtil extends AruUtil {
-        private Map<String, Document> cache = new HashMap<>();
+        private Map<String, Document> responseCache = new HashMap<>();
 
         /**
          * Intercept calls to the ARU REST API during unit testing.
          * @throws IOException when XML file cannot be read from the project resources.
          */
         public MockAruUtil() throws IOException {
-            cache.put("1110001", getResource("/patch-1110001.xml"));
-            cache.put("1110002", getResource("/patch-1110002.xml"));
-            cache.put("1110003", getResource("/patch-1110003.xml"));
+            responseCache.put("1110001", getResource("/patch-1110001.xml"));
+            responseCache.put("1110002", getResource("/patch-1110002.xml"));
+            responseCache.put("1110003", getResource("/patch-1110003.xml"));
 
         }
 
@@ -96,7 +96,7 @@ public class PatchFileTest {
             if (userId == null) {
                 return super.getPatches(bugNumber, userId, password);
             } else {
-                return AruPatch.getPatches(cache.get(bugNumber));
+                return AruPatch.getPatches(responseCache.get(bugNumber));
             }
         }
 

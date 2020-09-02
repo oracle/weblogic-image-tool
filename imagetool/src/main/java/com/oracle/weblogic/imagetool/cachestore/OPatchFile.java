@@ -69,7 +69,7 @@ public class OPatchFile extends PatchFile {
     }
 
     @Override
-    public String resolve(CacheStore cacheStore) throws IOException, XPathExpressionException {
+    public String resolve(CacheStore cacheStore) throws IOException {
         try {
             return super.resolve(cacheStore);
         } catch (FileNotFoundException fnfe) {

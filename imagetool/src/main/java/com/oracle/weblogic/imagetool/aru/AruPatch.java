@@ -185,11 +185,11 @@ public class AruPatch {
      * @throws Exception if the user requested a version that was not in the list.
      */
     public static AruPatch selectPatch(List<AruPatch> patches, String providedVersion, String psuVersion,
-                                       String installerVersion) throws Exception {
+                                       String installerVersion) throws VersionNotFoundException {
 
-        AruPatch selected;
+        AruPatch selected = null;
 
-        if (patches.size() == 0) {
+        if (patches.isEmpty()) {
             return null;
         }
 
@@ -214,12 +214,11 @@ public class AruPatch {
             if (patchMap.containsKey(providedVersion)) {
                 selected = patchMap.get(providedVersion);
             } else {
-                // TODO fix this error messaage and exception type
-                throw new Exception("Could not find version specified: " + providedVersion);
+                throw new VersionNotFoundException(patches.get(0).patchId(), providedVersion, patches);
             }
         } else if (patchMap.containsKey(psuVersion)) {
             selected = patchMap.get(psuVersion);
-        } else {
+        } else if (patchMap.containsKey(installerVersion)) {
             selected = patchMap.get(installerVersion);
         }
 

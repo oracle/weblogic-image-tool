@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
@@ -84,7 +83,7 @@ public class CachedFile {
      * @return the Path of the file, if found
      * @throws IOException throws FileNotFoundException, if this cached file (key) could not be located in the cache
      */
-    public String resolve(CacheStore cacheStore) throws IOException, XPathExpressionException {
+    public String resolve(CacheStore cacheStore) throws IOException {
         // check entry exists in cache
         String key = getKey();
         logger.entering(key);
@@ -103,7 +102,7 @@ public class CachedFile {
      * @param buildContextDir directory to copy file to
      * @return the path of the file copied to the Docker build context directory
      */
-    public Path copyFile(CacheStore cacheStore, String buildContextDir) throws IOException, XPathExpressionException {
+    public Path copyFile(CacheStore cacheStore, String buildContextDir) throws IOException {
         logger.entering();
         Path result;
         String sourceFile = resolve(cacheStore);

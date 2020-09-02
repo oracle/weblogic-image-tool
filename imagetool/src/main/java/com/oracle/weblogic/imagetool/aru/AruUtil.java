@@ -399,11 +399,7 @@ public class AruUtil {
         if (patches.size() == 1) {
             return patches.get(0);
         } else {
-            List<String> versionsForPatch = new ArrayList<>();
-            for (AruPatch patch : patches) {
-                versionsForPatch.add(patch.version());
-            }
-            MultiplePatchVersionsException mpe = new MultiplePatchVersionsException(bugNumber, versionsForPatch);
+            MultiplePatchVersionsException mpe = new MultiplePatchVersionsException(bugNumber, patches);
             logger.throwing(mpe);
             throw mpe;
         }

@@ -5,7 +5,6 @@ package com.oracle.weblogic.imagetool.cachestore;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
@@ -54,7 +53,7 @@ public class PatchFile extends CachedFile {
     }
 
     @Override
-    public String resolve(CacheStore cacheStore) throws IOException, XPathExpressionException {
+    public String resolve(CacheStore cacheStore) throws IOException {
         String cacheKey = getKey();
         logger.entering(cacheKey);
 

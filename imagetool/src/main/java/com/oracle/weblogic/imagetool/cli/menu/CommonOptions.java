@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
+import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
@@ -285,7 +286,7 @@ public abstract class CommonOptions {
             if (selectedVersion != null) {
                 aruPatches.add(selectedVersion);
             } else {
-                throw new Exception("Failed to find applicable version of patch " + patchId);
+                throw new MultiplePatchVersionsException(patchId, aruPatches);
             }
         }
 

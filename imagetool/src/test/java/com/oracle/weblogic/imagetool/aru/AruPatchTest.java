@@ -13,19 +13,23 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @Tag("unit")
 class AruPatchTest {
 
     @Test
     void testRecommendedPatches() throws Exception {
+        List<AruPatch> aruPatches;
         try (BufferedReader buffer = new BufferedReader(new InputStreamReader(
             this.getClass().getResourceAsStream("/recommended-patches.xml")))) {
 
             String aruInfo = buffer.lines().collect(Collectors.joining("\n"));
             Document xml = HttpUtil.parseXmlString(aruInfo);
 
-            List<AruPatch> aruPatches = AruPatch.getPatches(xml);
+            aruPatches = AruPatch.getPatches(xml);
         }
+        assertEquals(5, aruPatches.size());
     }
 
 }
