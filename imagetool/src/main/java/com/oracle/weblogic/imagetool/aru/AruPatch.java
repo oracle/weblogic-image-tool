@@ -182,7 +182,7 @@ public class AruPatch {
      * @param psuVersion version number of the PSU, if applicable
      * @param installerVersion version of WebLogic installed or to be installed in the Oracle Home
      * @return the selected patch, or null
-     * @throws Exception if the user requested a version that was not in the list.
+     * @throws VersionNotFoundException if the user requested a version that was not in the list.
      */
     public static AruPatch selectPatch(List<AruPatch> patches, String providedVersion, String psuVersion,
                                        String installerVersion) throws VersionNotFoundException {
@@ -203,6 +203,8 @@ public class AruPatch {
                 } else {
                     selected.version(installerVersion);
                 }
+            } else if (providedVersion != null && !selected.version().equals(providedVersion)) {
+                throw new VersionNotFoundException(selected.patchId(), providedVersion, patches);
             }
             return selected;
         }

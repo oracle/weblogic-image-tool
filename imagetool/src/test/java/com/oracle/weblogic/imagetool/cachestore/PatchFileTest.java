@@ -21,6 +21,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
+import com.oracle.weblogic.imagetool.aru.VersionNotFoundException;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
@@ -127,7 +128,7 @@ public class PatchFileTest {
     }
 
     @Test
-    void resolveFile() throws IOException, XPathExpressionException {
+    void resolveFile() throws IOException {
         // resolve should fail for a PatchFile that is not in the store
         AruPatch aruPatch1 = new AruPatch().patchId("99999").version(SOME_VERSION);
         PatchFile p1 = new PatchFile(aruPatch1, null,null);
@@ -315,5 +316,22 @@ public class PatchFileTest {
         String filePathFromCache = cacheStore.getValueFromCache(patchId + "_12.2.1.3.0");
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
+    }
+
+    @Test
+    void throwsVersionNotFound() throws Exception {
+        /*
+         * Condition:
+         *     Patch number is provided with version.
+         *     The user is updating an image that already has a PSU.
+         *     The provided version number is not found in for the patch ID from ARU.
+         * Expected:
+         *     Throws VersionNotFoundException.
+         */
+
+        String patchId = "1110002";
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x");
+        assertThrows(VersionNotFoundException.class,
+            () -> AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.1"));
     }
 }

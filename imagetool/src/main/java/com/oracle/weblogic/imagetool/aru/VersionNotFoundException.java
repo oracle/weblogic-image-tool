@@ -19,7 +19,7 @@ public class VersionNotFoundException extends Exception {
      * @param patches the patches that ARU returned
      */
     public VersionNotFoundException(String patchId, String version, List<AruPatch> patches) {
-        super(Utils.getMessage("IMG-0083", patchId, version,
+        super(Utils.getMessage("IMG-0083", version, patchId,
             patches.stream()
             .map(s -> s.patchId() + "_" + s.version())
             .collect(Collectors.joining(", "))));
