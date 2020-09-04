@@ -63,9 +63,10 @@ public class AruUtil {
      * @param userId   OTN credential user
      * @param password OTN credential password
      * @return a list of patches from ARU
+     * @throws AruException when an error occurs trying to access ARU metadata
      */
     public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, String userId, String password)
-        throws Exception {
+        throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
             List<AruPatch> psuList = getLatestPsu(product, version, userId, password);
@@ -93,10 +94,10 @@ public class AruUtil {
      * @param userId   OTN credential user
      * @param password OTN credential password
      * @return the latest PSU for the given product and version
-     * @throws IOException when response from ARU has an error or fails
+     * @throws AruException when response from ARU has an error or fails
      */
     List<AruPatch> getLatestPsu(AruProduct product, String version, String userId, String password)
-        throws Exception {
+        throws AruException {
         logger.entering(product, version);
         try {
             logger.info("IMG-0019", product.description());
@@ -108,7 +109,7 @@ public class AruUtil {
             logger.exiting();
             return Collections.emptyList();
         } catch (IOException | XPathExpressionException e) {
-            throw new IOException(Utils.getMessage("IMG-0032", product.description(), version), e);
+            throw new AruException(Utils.getMessage("IMG-0032", product.description(), version), e);
         }
     }
 
@@ -256,7 +257,7 @@ public class AruUtil {
         logger.exiting(aruHttpHelper);
     }
 
-    private static Document allReleasesDocument = null;
+    private Document allReleasesDocument = null;
 
     /**
      * Lookup all Oracle releases metadata from Oracle ARU.
@@ -390,7 +391,7 @@ public class AruUtil {
         }
 
         String url = String.format(BUG_SEARCH_URL, bugNumber);
-        logger.info("Searching Oracle for patch {0}", bugNumber);
+        logger.info("IMG-0063", bugNumber);
         Document response = HttpUtil.getXMLContent(url, userId, password);
         verifyResponse(response);
         return AruPatch.getPatches(response, patchSelector);

@@ -17,8 +17,11 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.xml.xpath.XPathExpressionException;
 
+import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
+import com.oracle.weblogic.imagetool.aru.AruProduct;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
@@ -219,34 +222,34 @@ public abstract class CommonOptions {
         return !skipOpatchUpdate;
     }
 
-    /**
-     * Builds a list of build args to pass on to docker with the required patches.
-     * Also, creates links to patches directory under build context instead of copying over.
-     *
-     * @throws Exception in case of error
-     */
-    void handlePatchFiles(FmwInstallerType installerType) throws Exception {
+    void handlePatchFiles(FmwInstallerType installerType) throws AruException, XPathExpressionException, IOException {
         handlePatchFiles(installerType, null, null);
     }
 
     /**
-     * Builds a list of build args to pass on to docker with the required patches.
-     * Also, creates links to patches directory under build context instead of copying over.
+     * Process all patches requested by the user, if any.
+     * Downloads and copies patch JARs to the build context directory.
      *
-     * @param previousInventory existing inventory found in the "from" image
-     * @throws Exception in case of error
+     * @param installerType     The installer type used to create the Oracle Home
+     * @param previousInventory OPatch lsinventory output (currently applied patches, if any)
+     * @param psuVersion        The PSU version, if any are already applied to the OH.
+     * @throws AruException     if an error occurs trying to read patch metadata from ARU.
+     * @throws IOException      if a transport error occurs trying to access the Oracle REST services.
+     * @throws XPathExpressionException when the payload from the REST service is not formatted as expected
+     *                          or a partial response was returned.
      */
     void handlePatchFiles(FmwInstallerType installerType, String previousInventory, String psuVersion)
-        throws Exception {
+        throws AruException, IOException, XPathExpressionException {
         logger.entering(psuVersion);
         if (!applyingPatches()) {
+            logger.exiting("not applying patches");
             return;
         }
 
         List<AruPatch> aruPatches = new ArrayList<>();
         if (recommendedPatches || latestPsu) {
             if (userId == null || password == null) {
-                throw new Exception(Utils.getMessage("IMG-0031"));
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
             }
 
             if (recommendedPatches) {
@@ -258,7 +261,7 @@ public abstract class CommonOptions {
                     recommendedPatches = false;
                     logger.info("IMG-0084", getInstallerVersion());
                 } else if (FmwInstallerType.isBaseWeblogicServer(installerType)) {
-                    // find all ADR patches in the recommended patches list
+                    // find and remove all ADR patches in the recommended patches list for base WLS installers
                     List<AruPatch> discard = aruPatches.stream()
                         .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
                         .collect(Collectors.toList());
@@ -273,6 +276,18 @@ public abstract class CommonOptions {
                 if (aruPatches.isEmpty()) {
                     latestPsu = false;
                     logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
+                }
+            }
+        }
+
+        if (!aruPatches.isEmpty()) {
+            // when applying a new PSU, use that PSU version to find patches where user did not qualify the patch number
+            for (AruPatch patch : aruPatches) {
+                if (patch.isPsu() && AruProduct.fromProductId(patch.product()) == AruProduct.WLS) {
+                    String psuName = patch.psuBundle();
+                    String psu = psuName.substring(psuName.lastIndexOf(' ') + 1);
+                    logger.fine("Using PSU {0} to set preferred patch version to {1}", patch.patchId(), psu);
+                    psuVersion = psu;
                 }
             }
         }
@@ -331,7 +346,8 @@ public abstract class CommonOptions {
         return tmpPatchesDir;
     }
 
-    void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
+    void installOpatchInstaller(String tmpDir, String opatchBugNumber)
+        throws IOException, XPathExpressionException, AruException {
         logger.entering(opatchBugNumber);
         String filePath = new OPatchFile(opatchBugNumber, userId, password, cache()).resolve(cache());
         String filename = new File(filePath).getName();
@@ -342,13 +358,13 @@ public abstract class CommonOptions {
     }
 
     /**
-     * Set the docker options for build if fromImage parameter is present.
-     * @param fromImage  image tag
-     * @param tmpDir temporary directory
-     * @throws Exception thrown by getBaseImageProperties
+     * Set the docker options (dockerfile template bean) by extracting information from the fromImage.
+     * @param fromImage image tag of the starting image
+     * @param tmpDir    name of the temp directory to use for the build context
+     * @throws IOException when a file operation fails.
+     * @throws InterruptedException if an interrupt is received while trying to run a system command.
      */
-    public void copyOptionsFromImage(String fromImage, String tmpDir)
-        throws Exception {
+    public void copyOptionsFromImage(String fromImage, String tmpDir) throws IOException, InterruptedException {
 
         if (fromImage != null && !fromImage.isEmpty()) {
             logger.finer("IMG-0002", fromImage);

@@ -11,7 +11,7 @@ import com.oracle.weblogic.imagetool.util.Utils;
 /**
  * For a given list of patches returned from ARU, the version requested was not found.
  */
-public class VersionNotFoundException extends Exception {
+public class VersionNotFoundException extends AruException {
     /**
      * For a given list of patches returned from ARU, the version requested was not found.
      * @param patchId patch ID that was used to search

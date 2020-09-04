@@ -15,7 +15,6 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -42,13 +41,6 @@ class AruUtilTest {
     @AfterAll
     static void tearDown() {
         logger.setLevel(oldLevel);
-    }
-
-    @AfterEach
-    void clearStatic() throws Exception {
-        Field documentField = AruUtil.class.getDeclaredField("allReleasesDocument");
-        documentField.setAccessible(true);
-        documentField.set(null, null);
     }
 
     /**

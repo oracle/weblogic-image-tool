@@ -17,12 +17,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * Metadata for a patch, as defined by ARU.
+ * Simple bean for holding metadata obtained from ARU for a given patch ID and version.
+ */
 public class AruPatch {
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruPatch.class);
 
     private String patchId;
     private String version;
     private String description;
+    private String product;
     private String release;
     private String releaseName;
     private String psuBundle;
@@ -54,6 +59,15 @@ public class AruPatch {
 
     public AruPatch description(String value) {
         description = value;
+        return this;
+    }
+
+    public String product() {
+        return product;
+    }
+
+    public AruPatch product(String value) {
+        product = value;
         return this;
     }
 
@@ -150,6 +164,7 @@ public class AruPatch {
                     .release(XPathUtil.string(nodeList.item(i), "./release/@id"))
                     .releaseName(XPathUtil.string(nodeList.item(i), "./release/text()"))
                     .description(XPathUtil.string(nodeList.item(i), "./bug/abstract"))
+                    .product(XPathUtil.string(nodeList.item(i), "./product/@id"))
                     .psuBundle(XPathUtil.string(nodeList.item(i), "./psu_bundle"))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"));
@@ -164,6 +179,7 @@ public class AruPatch {
                     + "  ver:" + patch.version()
                     + "  desc:" + patch.description()
                     + "  rel:" + patch.release()
+                    + "  product:" + patch.product()
                     + "  relName:" + patch.releaseName()
                     + "  psu:" + patch.psuBundle()
                     + "  url:" + patch.downloadUrl());

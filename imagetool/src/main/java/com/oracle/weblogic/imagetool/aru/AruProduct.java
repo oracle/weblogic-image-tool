@@ -35,4 +35,18 @@ public enum AruProduct {
     public String description() {
         return description;
     }
+
+    /**
+     * Find the AruProduct by ARU product ID.
+     * @param value product ID to search for
+     * @return ARU product with matching
+     */
+    public static AruProduct fromProductId(String value) {
+        for (AruProduct product : values()) {
+            if (product.productId().equals(value)) {
+                return product;
+            }
+        }
+        throw new IllegalArgumentException("Invalid ARU data found in patch product ID: " + value);
+    }
 }
