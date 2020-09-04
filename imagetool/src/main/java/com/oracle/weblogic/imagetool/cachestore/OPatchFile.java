@@ -30,7 +30,6 @@ public class OPatchFile extends PatchFile {
      */
     public OPatchFile(String patchId, String userId, String password, CacheStore cache)
         throws IOException, AruException, XPathExpressionException {
-        //
         super(AruUtil.rest().getPatch(getDefaultBugNum(patchId), userId, password, "[access = 'Open access']"),
             userId,
             password);
