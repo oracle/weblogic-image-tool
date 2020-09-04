@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Set;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -28,7 +29,7 @@ public class OPatchFile extends PatchFile {
      * @param password the password to use with the userId to retrieve the patch
      */
     public OPatchFile(String patchId, String userId, String password, CacheStore cache)
-        throws IOException, XPathExpressionException {
+        throws IOException, AruException, XPathExpressionException {
         //
         super(AruUtil.rest().getPatch(getDefaultBugNum(patchId), userId, password, "[access = 'Open access']"),
             userId,

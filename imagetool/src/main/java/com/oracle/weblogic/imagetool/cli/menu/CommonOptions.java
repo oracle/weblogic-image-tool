@@ -39,6 +39,8 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
+    private static final String FILESFOLDER = "files";
+
     DockerfileOptions dockerfileOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
@@ -78,13 +80,12 @@ public abstract class CommonOptions {
         }
 
         if (additionalBuildFiles != null) {
-            final String FILES_DIR = "files";
-            Files.createDirectory(Paths.get(getTempDirectory(), FILES_DIR));
+            Files.createDirectory(Paths.get(getTempDirectory(), FILESFOLDER));
             for (Path additionalFile : additionalBuildFiles) {
                 if (!Files.isReadable(additionalFile)) {
                     throw new FileNotFoundException(Utils.getMessage("IMG-0030", additionalFile));
                 }
-                Path targetFile = Paths.get(getTempDirectory(), FILES_DIR, additionalFile.getFileName().toString());
+                Path targetFile = Paths.get(getTempDirectory(), FILESFOLDER, additionalFile.getFileName().toString());
                 logger.info("IMG-0043", additionalFile);
                 if (Files.isDirectory(additionalFile)) {
                     Utils.copyLocalDirectory(additionalFile, targetFile, false);
@@ -250,7 +251,8 @@ public abstract class CommonOptions {
 
             if (recommendedPatches) {
                 // Get the latest PSU and its recommended patches
-                aruPatches = AruUtil.getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
+                aruPatches = AruUtil.rest()
+                    .getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
 
                 if (aruPatches.isEmpty()) {
                     recommendedPatches = false;
@@ -266,7 +268,7 @@ public abstract class CommonOptions {
                 }
             } else {
                 // PSUs for WLS and JRF installers are considered WLS patches
-                aruPatches = AruUtil.getLatestPsu(installerType, getInstallerVersion(), userId, password);
+                aruPatches = AruUtil.rest().getLatestPsu(installerType, getInstallerVersion(), userId, password);
 
                 if (aruPatches.isEmpty()) {
                     latestPsu = false;
@@ -285,8 +287,8 @@ public abstract class CommonOptions {
             String providedVersion = null;
             int split = patchId.indexOf('_');
             if (split > 0) {
-                patchId = patchId.substring(0, split);
                 providedVersion = patchId.substring(split + 1);
+                patchId = patchId.substring(0, split);
             }
             List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password);
             AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, psuVersion,

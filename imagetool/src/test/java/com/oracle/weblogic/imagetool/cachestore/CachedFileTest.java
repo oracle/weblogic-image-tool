@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
+import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -100,7 +101,7 @@ public class CachedFileTest {
     }
 
     @Test
-    void latestOpatchVersion() throws IOException, XPathExpressionException {
+    void latestOpatchVersion() throws IOException, AruException, XPathExpressionException {
         // OPatch file should default to the default OPatch bug number and the latest version found in cache
         OPatchFile patchFile = new OPatchFile(null, null, null, cacheStore);
         assertEquals(DEFAULT_BUG_NUM + "_13.9.4.0.0", patchFile.getKey(),

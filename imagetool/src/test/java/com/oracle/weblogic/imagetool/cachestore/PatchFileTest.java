@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.VersionNotFoundException;
@@ -68,23 +69,23 @@ public class PatchFileTest {
         originalLogLevel = logger.getLevel();
         logger.setLevel(Level.OFF);
 
-        // insert Mock into AruUtil to intercept REST calls to ARU
+        // insert test class into AruUtil to intercept REST calls to ARU
         Field aruRest = AruUtil.class.getDeclaredField("instance");
         aruRest.setAccessible(true);
-        aruRest.set(aruRest, new MockAruUtil());
+        aruRest.set(aruRest, new TestAruUtil());
     }
 
     /**
      * Intercept calls to the ARU REST API during unit testing.
      */
-    public static class MockAruUtil extends AruUtil {
+    public static class TestAruUtil extends AruUtil {
         private Map<String, Document> responseCache = new HashMap<>();
 
         /**
          * Intercept calls to the ARU REST API during unit testing.
          * @throws IOException when XML file cannot be read from the project resources.
          */
-        public MockAruUtil() throws IOException {
+        public TestAruUtil() throws IOException {
             responseCache.put("1110001", getResource("/patch-1110001.xml"));
             responseCache.put("1110002", getResource("/patch-1110002.xml"));
             responseCache.put("1110003", getResource("/patch-1110003.xml"));
@@ -93,7 +94,7 @@ public class PatchFileTest {
 
         @Override
         public List<AruPatch> getPatches(String bugNumber, String userId, String password)
-            throws XPathExpressionException, IOException {
+            throws XPathExpressionException, AruException, IOException {
             if (userId == null) {
                 return super.getPatches(bugNumber, userId, password);
             } else {

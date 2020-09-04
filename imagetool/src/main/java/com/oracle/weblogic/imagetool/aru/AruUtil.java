@@ -56,18 +56,19 @@ public class AruUtil {
     }
 
     /**
-     * Get list of PSU available for given product and version.
+     * Get list of PSU available for each of the ARU products for the given FMW install type.
      *
      * @param type FMW installer type
      * @param version  version number like 12.2.1.3.0
-     * @param userId   user
-     * @return Document listing of all patches (full details)
+     * @param userId   OTN credential user
+     * @param password OTN credential password
+     * @return a list of patches from ARU
      */
-    public static List<AruPatch> getLatestPsu(FmwInstallerType type, String version, String userId, String password)
+    public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, String userId, String password)
         throws Exception {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
-            List<AruPatch> psuList = getLatestPsu(new AruHttpHelper(product, version, userId, password));
+            List<AruPatch> psuList = getLatestPsu(product, version, userId, password);
             if (!psuList.isEmpty()) {
                 for (AruPatch psu: psuList) {
                     String patchAndVersion = psu.patchId() + "_" + psu.version();
@@ -75,7 +76,7 @@ public class AruUtil {
                     result.add(psu);
                 }
             } else {
-                logger.info("{0} - there are no recommended PSUs at this time.", product.description());
+                logger.info("IMG-0001", product.description(), version);
             }
         }
         if (result.isEmpty()) {
@@ -85,32 +86,30 @@ public class AruUtil {
     }
 
     /**
-     * Get the Latest PSU for the search information in the helper.
+     * Get list of PSU available for given product and version.
      *
-     * @param aruHttpHelper containing product, version, credentials for the search
-     * @return All ARU Patches that are labeled as a PSU bundle for this product
-     * @throws Exception if the search or xml parse of result fails
+     * @param product  ARU product type, like WLS
+     * @param version  version number like 12.2.1.3.0
+     * @param userId   OTN credential user
+     * @param password OTN credential password
+     * @return the latest PSU for the given product and version
+     * @throws IOException when response from ARU has an error or fails
      */
-    static List<AruPatch> getLatestPsu(AruHttpHelper aruHttpHelper) throws Exception {
-        logger.entering(aruHttpHelper.product());
+    List<AruPatch> getLatestPsu(AruProduct product, String version, String userId, String password)
+        throws Exception {
+        logger.entering(product, version);
         try {
-            logger.info("IMG-0019", aruHttpHelper.product().description());
-            aruHttpHelper.release(getReleaseNumber(aruHttpHelper));
-            getRecommendedPatchesMetadata(aruHttpHelper);
-            if (aruHttpHelper.success()) {
-                return AruPatch.getPatches(aruHttpHelper.results(), "[./psu_bundle]");
-            } else if (!Utils.isEmptyString(aruHttpHelper.errorMessage())) {
-                logger.fine(aruHttpHelper.errorMessage());
-            } else {
-                throw new Exception(Utils.getMessage("IMG-0032", 
-                    aruHttpHelper.product().description(), aruHttpHelper.version()));
-            }
+            logger.info("IMG-0019", product.description());
+            String releaseNumber = getReleaseNumber(product, version, userId, password);
+            Document aruRecommendations = getRecommendedPatchesMetadata(product, releaseNumber, userId, password);
+            logger.exiting();
+            return AruPatch.getPatches(aruRecommendations, "[./psu_bundle]");
+        } catch (NoPatchesFoundException npe) {
+            logger.exiting();
+            return Collections.emptyList();
         } catch (IOException | XPathExpressionException e) {
-            throw new Exception(Utils.getMessage("IMG-0032", 
-                aruHttpHelper.product().description(), aruHttpHelper.version()), e);
+            throw new IOException(Utils.getMessage("IMG-0032", product.description(), version), e);
         }
-        logger.exiting();
-        return Collections.emptyList();
     }
 
     /**
@@ -121,11 +120,11 @@ public class AruUtil {
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public static List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version,
-                                                     String userId, String password) throws Exception {
+    public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version,
+                                                     String userId, String password) throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
-            List<AruPatch> patches = getRecommendedPatches(new AruHttpHelper(product, version, userId, password));
+            List<AruPatch> patches = getRecommendedPatches(product, version, userId, password);
             if (!patches.isEmpty()) {
                 result.addAll(patches);
             }
@@ -137,36 +136,32 @@ public class AruUtil {
     }
 
     /**
-     * Get the latest PSU along with recommended patches for the information in the search helper.
+     * Get list of recommended patches available for given product and version.
      *
-     * @param aruHttpHelper containing the search type, version and credentials
-     * @return List of recommended patches
-     * @throws Exception the search or resulting parse failed
+     * @param product  ARU product type, like WLS
+     * @param version  version number like 12.2.1.3.0
+     * @param userId   OTN credential user
+     * @param password OTN credential password
+     * @return the recommended patches for the given product and version
+     * @throws AruException when response from ARU has an error or fails
      */
-    static List<AruPatch> getRecommendedPatches(AruHttpHelper aruHttpHelper)
-        throws Exception {
-        logger.entering(aruHttpHelper.product(), aruHttpHelper.version());
+    List<AruPatch> getRecommendedPatches(AruProduct product, String version, String userId, String password)
+        throws AruException {
+        logger.entering(product, version);
         try {
-            logger.info("IMG-0067", aruHttpHelper.product().description());
-            aruHttpHelper.release(getReleaseNumber(aruHttpHelper));
-            getRecommendedPatchesMetadata(aruHttpHelper);
-            if (aruHttpHelper.success()) {
-                Document results = aruHttpHelper.results();
-                List<AruPatch> patches = AruPatch.getPatches(results);
-                logger.exiting(patches);
-                return patches;
-            } else if (!Utils.isEmptyString(aruHttpHelper.errorMessage())) {
-                logger.fine(aruHttpHelper.errorMessage());
-            } else {
-                throw new Exception(Utils.getMessage("IMG-0070", 
-                    aruHttpHelper.product().description(), aruHttpHelper.version()));
-            }
+            logger.info("IMG-0067", product.description());
+            String releaseNumber = getReleaseNumber(product, version, userId, password);
+            Document aruRecommendations = getRecommendedPatchesMetadata(product, releaseNumber, userId, password);
+            List<AruPatch> patches = AruPatch.getPatches(aruRecommendations);
+            patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
+            logger.exiting(patches);
+            return patches;
+        } catch (NoPatchesFoundException npe) {
+            logger.info("IMG-0069", product.description(), version);
+            return Collections.emptyList();
         } catch (IOException | XPathExpressionException e) {
-            throw new Exception(Utils.getMessage("IMG-0070", 
-                aruHttpHelper.product().description(), aruHttpHelper.version()), e);
+            throw new AruException(Utils.getMessage("IMG-0070", product.description(), version), e);
         }
-        logger.exiting();
-        return Collections.emptyList();
     }
 
     /**
@@ -174,7 +169,7 @@ public class AruUtil {
      *
      * @param inventoryContent opatch lsinventory content (null if non is passed)
      * @param patches          A list of patches number
-     * @param userId           userid for support account
+     * @param userId           userId for support account
      * @param password         password for support account
      * @throws IOException when failed to access the aru api
      */
@@ -263,52 +258,68 @@ public class AruUtil {
 
     private static Document allReleasesDocument = null;
 
-    private static Document getAllReleases(AruHttpHelper aruHttpHelper) throws IOException {
+    /**
+     * Lookup all Oracle releases metadata from Oracle ARU.
+     * Left as protected method to facilitate unit testing.
+     *
+     * @param userId   OTN credential user
+     * @param password OTN credential password
+     * @return the XML document from ARU with releases metadata
+     * @throws AruException when ARU could not be reached or returns an error
+     */
+    Document getAllReleases(String userId, String password) throws AruException {
         if (allReleasesDocument == null) {
-            logger.fine("Retrieving product release numbers from Oracle...");
-            aruHttpHelper.execSearch(REL_URL);
-            if (aruHttpHelper.success()) {
-                allReleasesDocument = aruHttpHelper.results();
-            } else {
-                throw new IOException(Utils.getMessage("IMG-0081"));
+            logger.fine("Getting all releases document from ARU...");
+            try {
+                Document response = HttpUtil.getXMLContent(REL_URL, userId, password);
+                verifyResponse(response);
+                allReleasesDocument = response;
+            } catch (IOException | AruException | XPathExpressionException ex) {
+                throw new AruException(Utils.getMessage("IMG-0081"), ex);
             }
         }
         return allReleasesDocument;
     }
 
-    private static void getRecommendedPatchesMetadata(AruHttpHelper helper) throws IOException {
+    Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber, String userId, String password)
+        throws IOException, AruException, XPathExpressionException {
 
         logger.entering();
-        String url = String.format(RECOMMENDED_PATCHES_URL, helper.product().productId(), helper.release());
+        String url = String.format(RECOMMENDED_PATCHES_URL, product.productId(), releaseNumber);
         logger.finer("getting recommended patches info from {0}", url);
-
-        helper.execSearch(url);
+        Document response = HttpUtil.getXMLContent(url, userId, password);
+        verifyResponse(response);
         logger.exiting();
+        return response;
     }
 
     /**
      * Get the release number for a given product and version.
      *
-     * @param aruHttpHelper helper with information for release search
-     * @return release number
-     * @throws IOException in case of error
+     * @param product  AruProduct type, like WLS
+     * @param version  product version like 12.2.1.3.0
+     * @param userId   OTN credential user
+     * @param password OTN credential password
+     * @return release number for the product and version provided
+     * @throws AruException if the call to ARU fails, or the response from ARU had an error
      */
-    private static String getReleaseNumber(AruHttpHelper aruHttpHelper) throws IOException {
-        logger.entering(aruHttpHelper.product());
+    private String getReleaseNumber(AruProduct product, String version, String userId, String password)
+        throws AruException {
+        logger.entering(product, version);
 
         String result;
-        Document allReleases = getAllReleases(aruHttpHelper);
+        Document allReleases = getAllReleases(userId, password);
 
         String expression = String.format("string(/results/release[starts-with(text(), '%s')][@name = '%s']/@id)",
-            aruHttpHelper.product().description(), aruHttpHelper.version());
+            product.description(), version);
         try {
             result = XPathUtil.string(allReleases, expression);
-            logger.fine("Release number for {0} is {1}", aruHttpHelper.product().description(), result);
+            logger.fine("Release number for {0} is {1}", product.description(), result);
         } catch (XPathExpressionException xpe) {
-            throw new IOException(xpe);
+            throw new AruException("Could not extract release number with XPath", xpe);
         }
         if (Utils.isEmptyString(result)) {
-            throw new IOException(Utils.getMessage("IMG-0082", aruHttpHelper.product(), aruHttpHelper.version()));
+            throw new AruException(Utils.getMessage("IMG-0082", product, version));
         }
         logger.exiting(result);
         return result;
@@ -338,17 +349,20 @@ public class AruUtil {
         return aruHttpHelper.success();
     }
 
-    private void verifyResponse(Document response) throws IOException {
-        try {
-            NodeList nodeList = XPathUtil.nodelist(response, "/results/error");
-            if (nodeList.getLength() > 0) {
-                String errorMessage = XPathUtil.string(response, "/results/error/message");
-                IOException ioe = new IOException(errorMessage);
-                logger.throwing(ioe);
-                throw ioe;
+    private void verifyResponse(Document response) throws AruException, XPathExpressionException {
+        NodeList nodeList = XPathUtil.nodelist(response, "/results/error");
+        if (nodeList.getLength() > 0) {
+            String errorMessage = XPathUtil.string(response, "/results/error/message");
+            logger.fine(errorMessage);
+            String errorId = XPathUtil.string(response, "/results/error/id");
+            AruException error;
+            if ("10-016".equals(errorId)) {
+                error = new NoPatchesFoundException();
+            } else {
+                error = new AruException(errorMessage);
             }
-        } catch (XPathExpressionException xpe) {
-            throw new IOException(xpe);
+            logger.throwing(error);
+            throw error;
         }
     }
 
@@ -363,12 +377,12 @@ public class AruUtil {
      * @throws XPathExpressionException if AruPatch failed while extracting patch data from the XML
      */
     public List<AruPatch> getPatches(String bugNumber, String userId, String password)
-        throws IOException, XPathExpressionException {
+        throws IOException, AruException, XPathExpressionException {
         return getPatches(bugNumber, userId, password, "");
     }
 
     private List<AruPatch> getPatches(String bugNumber, String userId, String password, String patchSelector)
-        throws IOException, XPathExpressionException {
+        throws AruException, IOException, XPathExpressionException {
 
         if (userId == null || password == null) {
             // running in offline mode (no credentials to connect to ARU)
@@ -392,7 +406,7 @@ public class AruUtil {
      * @throws XPathExpressionException if AruPatch failed while extracting patch data from the XML
      */
     public AruPatch getPatch(String bugNumber, String userId, String password, String patchSelector)
-        throws IOException, XPathExpressionException {
+        throws IOException, AruException, XPathExpressionException {
 
         List<AruPatch> patches = getPatches(bugNumber, userId, password, patchSelector);
 
@@ -436,11 +450,5 @@ public class AruUtil {
         logger.exiting(filename);
         return filename;
     }
-
-    public static String getVersionSelector(String version) {
-        return String.format("[./release[@name='%s']]", version);
-    }
-
-
 }
 

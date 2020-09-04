@@ -86,7 +86,6 @@ public class XPathUtil {
             t.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             t.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             t.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-            t.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             Transformer tf = t.newTransformer();
             tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             tf.setOutputProperty(OutputKeys.INDENT, "yes");
