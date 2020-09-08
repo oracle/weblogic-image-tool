@@ -10,16 +10,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
-import org.apache.http.client.fluent.Executor;
-import org.apache.http.client.fluent.Request;
 
 /**
  * Base class to represent either an installer or a patch file.
@@ -69,12 +65,8 @@ public class CachedFile {
         if (id.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
             return id;
         } else {
-            return buildKeyFromVersion(getVersion());
+            return id + CacheStore.CACHE_KEY_SEPARATOR + getVersion();
         }
-    }
-
-    protected String buildKeyFromVersion(String version) {
-        return id + CacheStore.CACHE_KEY_SEPARATOR + version;
     }
 
     /**
@@ -91,7 +83,7 @@ public class CachedFile {
      * @return the Path of the file, if found
      * @throws IOException throws FileNotFoundException, if this cached file (key) could not be located in the cache
      */
-    public String resolve(CacheStore cacheStore) throws IOException, XPathExpressionException {
+    public String resolve(CacheStore cacheStore) throws IOException {
         // check entry exists in cache
         String key = getKey();
         logger.entering(key);
@@ -110,7 +102,7 @@ public class CachedFile {
      * @param buildContextDir directory to copy file to
      * @return the path of the file copied to the Docker build context directory
      */
-    public Path copyFile(CacheStore cacheStore, String buildContextDir) throws IOException, XPathExpressionException {
+    public Path copyFile(CacheStore cacheStore, String buildContextDir) throws IOException {
         logger.entering();
         Path result;
         String sourceFile = resolve(cacheStore);
@@ -126,32 +118,5 @@ public class CachedFile {
         }
         logger.exiting(result);
         return result;
-    }
-
-
-    /**
-     * Download a file from the url.
-     *
-     * @param url      url of the aru server
-     * @param fileName full path to save the file
-     * @param username userid for support account
-     * @param password password for support account
-     * @throws IOException when it fails to access the url
-     */
-
-    public void downloadFile(String url, String fileName, String username, String password)
-        throws IOException {
-        logger.entering(url);
-        try {
-            Executor.newInstance(HttpUtil.getOraClient(username, password))
-                .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
-                .saveContent(new File(fileName));
-        } catch (Exception ex) {
-            String message = String.format("Failed to download and save file %s from %s: %s", fileName, url,
-                ex.getLocalizedMessage());
-            logger.severe(message);
-            throw new IOException(message, ex);
-        }
-        logger.exiting(fileName);
     }
 }

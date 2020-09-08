@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.oracle.weblogic.imagetool.aru.AruProduct;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 /**
@@ -105,7 +106,7 @@ public enum FmwInstallerType {
      * Return a list of all WebLogic Server types (not JRF types).
      * @return list of WLS enum types.
      */
-    public static List<FmwInstallerType> getWeblogicServerTypes() {
-        return weblogicServerTypes;
+    public static boolean isBaseWeblogicServer(FmwInstallerType value) {
+        return weblogicServerTypes.contains(value);
     }
 }

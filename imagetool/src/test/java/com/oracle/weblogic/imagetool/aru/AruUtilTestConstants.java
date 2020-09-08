@@ -1,8 +1,9 @@
 // Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.util;
+package com.oracle.weblogic.imagetool.aru;
 
+import com.oracle.weblogic.imagetool.util.HttpUtil;
 import org.apache.http.client.ClientProtocolException;
 import org.w3c.dom.Document;
 
@@ -364,16 +365,8 @@ class AruUtilTestConstants {
         return HttpUtil.parseXmlString(ReleasesResponse);
     }
 
-    static Document getPsuResponse() throws ClientProtocolException {
-        return HttpUtil.parseXmlString(PSUResponse);
-    }
-
     static Document getPatchesResponse() throws ClientProtocolException {
         return HttpUtil.parseXmlString(PatchesResponse);
-    }
-
-    static Document getValidationResponse() throws ClientProtocolException {
-        return HttpUtil.parseXmlString(ValidationResponse);
     }
 
 }

@@ -16,14 +16,20 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.xml.xpath.XPathExpressionException;
 
+import com.oracle.weblogic.imagetool.aru.AruException;
+import com.oracle.weblogic.imagetool.aru.AruPatch;
+import com.oracle.weblogic.imagetool.aru.AruProduct;
+import com.oracle.weblogic.imagetool.aru.AruUtil;
+import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
-import com.oracle.weblogic.imagetool.util.AruUtil;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
@@ -36,6 +42,8 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
+    private static final String FILESFOLDER = "files";
+
     DockerfileOptions dockerfileOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
@@ -75,13 +83,12 @@ public abstract class CommonOptions {
         }
 
         if (additionalBuildFiles != null) {
-            final String FILES_DIR = "files";
-            Files.createDirectory(Paths.get(getTempDirectory(), FILES_DIR));
+            Files.createDirectory(Paths.get(getTempDirectory(), FILESFOLDER));
             for (Path additionalFile : additionalBuildFiles) {
                 if (!Files.isReadable(additionalFile)) {
                     throw new FileNotFoundException(Utils.getMessage("IMG-0030", additionalFile));
                 }
-                Path targetFile = Paths.get(getTempDirectory(), FILES_DIR, additionalFile.getFileName().toString());
+                Path targetFile = Paths.get(getTempDirectory(), FILESFOLDER, additionalFile.getFileName().toString());
                 logger.info("IMG-0043", additionalFile);
                 if (Files.isDirectory(additionalFile)) {
                     Utils.copyLocalDirectory(additionalFile, targetFile, false);
@@ -199,7 +206,7 @@ public abstract class CommonOptions {
      * @return true if applying patches
      */
     boolean applyingPatches() {
-        return (latestPSU || recommendedPatches) || !patches.isEmpty();
+        return (latestPsu || recommendedPatches) || !patches.isEmpty();
     }
 
     /**
@@ -215,116 +222,122 @@ public abstract class CommonOptions {
         return !skipOpatchUpdate;
     }
 
-    /**
-     * Builds a list of build args to pass on to docker with the required patches.
-     * Also, creates links to patches directory under build context instead of copying over.
-     *
-     * @throws Exception in case of error
-     */
-    void handlePatchFiles(FmwInstallerType installerType) throws Exception {
+    void handlePatchFiles(FmwInstallerType installerType) throws AruException, XPathExpressionException, IOException {
         handlePatchFiles(installerType, null, null);
     }
 
     /**
-     * Builds a list of build args to pass on to docker with the required patches.
-     * Also, creates links to patches directory under build context instead of copying over.
+     * Process all patches requested by the user, if any.
+     * Downloads and copies patch JARs to the build context directory.
      *
-     * @param previousInventory existing inventory found in the "from" image
-     * @throws Exception in case of error
+     * @param installerType     The installer type used to create the Oracle Home
+     * @param previousInventory OPatch lsinventory output (currently applied patches, if any)
+     * @param psuVersion        The PSU version, if any are already applied to the OH.
+     * @throws AruException     if an error occurs trying to read patch metadata from ARU.
+     * @throws IOException      if a transport error occurs trying to access the Oracle REST services.
+     * @throws XPathExpressionException when the payload from the REST service is not formatted as expected
+     *                          or a partial response was returned.
      */
     void handlePatchFiles(FmwInstallerType installerType, String previousInventory, String psuVersion)
-        throws Exception {
+        throws AruException, IOException, XPathExpressionException {
         logger.entering(psuVersion);
         if (!applyingPatches()) {
+            logger.exiting("not applying patches");
             return;
         }
 
-        String toPatchesPath = createPatchesTempDirectory().toAbsolutePath().toString();
-
-        List<PatchFile> patchFiles = new ArrayList<>();
-        if (recommendedPatches || latestPSU) {
+        List<AruPatch> aruPatches = new ArrayList<>();
+        if (recommendedPatches || latestPsu) {
             if (userId == null || password == null) {
-                throw new Exception(Utils.getMessage("IMG-0031"));
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
             }
-        }
-        if (recommendedPatches) {
-            // Get the latest PSU and its recommended patches
-            List<String> patchList =
-                AruUtil.getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
 
-            if (patchList.isEmpty()) {
-                recommendedPatches = false;
-                logger.info("IMG-0084", getInstallerVersion());
+            if (recommendedPatches) {
+                // Get the latest PSU and its recommended patches
+                aruPatches = AruUtil.rest()
+                    .getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
+
+                if (aruPatches.isEmpty()) {
+                    recommendedPatches = false;
+                    logger.info("IMG-0084", getInstallerVersion());
+                } else if (FmwInstallerType.isBaseWeblogicServer(installerType)) {
+                    // find and remove all ADR patches in the recommended patches list for base WLS installers
+                    List<AruPatch> discard = aruPatches.stream()
+                        .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
+                        .collect(Collectors.toList());
+                    // let the user know that the ADR patches will be discarded
+                    discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
+                    aruPatches.removeAll(discard);
+                }
             } else {
-                for (String patchId: patchList) {
-                    if (isOkToApply(installerType, patchId)) {
-                        logger.fine("Add latest recommended patch {0} to list", patchId);
-                        patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
-                    }
+                // PSUs for WLS and JRF installers are considered WLS patches
+                aruPatches = AruUtil.rest().getLatestPsu(installerType, getInstallerVersion(), userId, password);
+
+                if (aruPatches.isEmpty()) {
+                    latestPsu = false;
+                    logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
                 }
             }
-        } else if (latestPSU) {
-            // PSUs for WLS and JRF installers are considered WLS patches
-            List<String> patchIds = AruUtil.getLatestPsuNumber(installerType, getInstallerVersion(), userId, password);
+        }
 
-            if (patchIds.isEmpty()) {
-                latestPSU = false;
-                logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
+        if (!aruPatches.isEmpty()) {
+            // when applying a new PSU, use that PSU version to find patches where user did not qualify the patch number
+            for (AruPatch patch : aruPatches) {
+                if (patch.isPsu() && AruProduct.fromProductId(patch.product()) == AruProduct.WLS) {
+                    String psuName = patch.psuBundle();
+                    String psu = psuName.substring(psuName.lastIndexOf(' ') + 1);
+                    logger.fine("Using PSU {0} to set preferred patch version to {1}", patch.patchId(), psu);
+                    psuVersion = psu;
+                }
+            }
+        }
+
+        // add user-provided patch list to any patches that were found for latestPsu or recommendedPatches
+        for (String patchId : patches) {
+            // if user mistakenly added the OPatch patch to the WLS patch list, skip it
+            if (OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
+                continue;
+            }
+            // if patch ID was provided as bugnumber_version, split the bugnumber and version strings
+            String providedVersion = null;
+            int split = patchId.indexOf('_');
+            if (split > 0) {
+                providedVersion = patchId.substring(split + 1);
+                patchId = patchId.substring(0, split);
+            }
+            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password);
+            AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, psuVersion,
+                getInstallerVersion());
+
+            if (selectedVersion != null) {
+                aruPatches.add(selectedVersion);
             } else {
-                logger.fine("Found latest PSU {0}", patchIds);
-                for (String patchId : patchIds) {
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), null, userId, password));
-                }
+                throw new MultiplePatchVersionsException(patchId, aruPatches);
             }
         }
 
-        // add user-provided patch list to full patch list to be applied
-        if (patches != null && !patches.isEmpty()) {
-            for (String patchId : patches) {
-                // if user mistakenly added the OPatch patch to the WLS patch list, skip it
-                if (!OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
-                    patchFiles.add(new PatchFile(patchId, getInstallerVersion(), psuVersion, userId, password));
-                }
-            }
-        }
+        AruUtil.validatePatches(previousInventory, aruPatches, userId, password);
 
-        AruUtil.validatePatches(previousInventory, patchFiles, userId, password);
-
-        for (PatchFile patch : patchFiles) {
-            String patchLocation = patch.resolve(cache());
+        String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
+        // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
+        for (AruPatch patch : aruPatches) {
+            PatchFile patchFile = new PatchFile(patch, userId, password);
+            String patchLocation = patchFile.resolve(cache());
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
-                File patchFile = new File(patchLocation);
+                File cacheFile = new File(patchLocation);
                 try {
-                    Files.copy(Paths.get(patchLocation), Paths.get(toPatchesPath, patchFile.getName()));
+                    Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, cacheFile.getName()));
                 } catch (FileAlreadyExistsException ee) {
-                    logger.warning("IMG-0077", patch.getKey());
+                    logger.warning("IMG-0077", patchFile.getKey());
                 }
             } else {
-                logger.severe("IMG-0024", patch.getKey());
+                logger.severe("IMG-0024", patchFile.getKey());
             }
         }
-        if (!patchFiles.isEmpty()) {
+        if (!aruPatches.isEmpty()) {
             dockerfileOptions.setPatchingEnabled();
         }
         logger.exiting();
-    }
-
-    /**
-     * Returns false if the patch ID needs to be omitted/skipped and should not be applied.
-     * @param installerType FMW installer type
-     * @param patchId patch number
-     * @return true if the patch should be applied
-     */
-    static boolean isOkToApply(FmwInstallerType installerType, String patchId) {
-        if (Utils.isEmptyString(patchId)) {
-            return false;
-        }
-        if (FmwInstallerType.getWeblogicServerTypes().contains(installerType)
-            && patchId.startsWith("31544353")) {
-            logger.info("IMG-0083", patchId);
-            return false;
-        }
-        return true;
     }
 
     private Path createPatchesTempDirectory() throws IOException {
@@ -333,23 +346,25 @@ public abstract class CommonOptions {
         return tmpPatchesDir;
     }
 
-    void installOpatchInstaller(String tmpDir, String opatchBugNumber) throws Exception {
-        String filePath = new OPatchFile(opatchBugNumber, userId, password, cache())
-            .resolve(cache());
+    void installOpatchInstaller(String tmpDir, String opatchBugNumber)
+        throws IOException, XPathExpressionException, AruException {
+        logger.entering(opatchBugNumber);
+        String filePath = new OPatchFile(opatchBugNumber, userId, password, cache()).resolve(cache());
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();
         dockerfileOptions.setOPatchFileName(filename);
+        logger.exiting(filename);
     }
 
     /**
-     * Set the docker options for build if fromImage parameter is present.
-     * @param fromImage  image tag
-     * @param tmpDir temporary directory
-     * @throws Exception thrown by getBaseImageProperties
+     * Set the docker options (dockerfile template bean) by extracting information from the fromImage.
+     * @param fromImage image tag of the starting image
+     * @param tmpDir    name of the temp directory to use for the build context
+     * @throws IOException when a file operation fails.
+     * @throws InterruptedException if an interrupt is received while trying to run a system command.
      */
-    public void copyOptionsFromImage(String fromImage, String tmpDir)
-        throws Exception {
+    public void copyOptionsFromImage(String fromImage, String tmpDir) throws IOException, InterruptedException {
 
         if (fromImage != null && !fromImage.isEmpty()) {
             logger.finer("IMG-0002", fromImage);
@@ -499,7 +514,7 @@ public abstract class CommonOptions {
         names = {"--latestPSU"},
         description = "Whether to apply patches from latest PSU."
     )
-    boolean latestPSU = false;
+    boolean latestPsu = false;
 
     @Option(
         names = {"--recommendedPatches"},

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 public class MultiplePatchVersionsException extends IOException {
@@ -17,10 +18,10 @@ public class MultiplePatchVersionsException extends IOException {
      * @param bugNumber         the bug number that was searched
      * @param versionsAvailable the list of versions for patches of that bug
      */
-    public MultiplePatchVersionsException(String bugNumber, List<String> versionsAvailable) {
+    public MultiplePatchVersionsException(String bugNumber, List<AruPatch> versionsAvailable) {
         super(Utils.getMessage("IMG-0034", bugNumber,
             versionsAvailable.stream()
-                .map(s -> bugNumber + "_" + s)
+                .map(s -> bugNumber + "_" + s.version())
                 .collect(Collectors.joining(", ")))
         );
     }

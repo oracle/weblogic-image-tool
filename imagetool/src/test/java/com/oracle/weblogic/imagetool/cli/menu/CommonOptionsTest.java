@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -173,14 +171,5 @@ public class CommonOptionsTest {
             }
 
         }
-    }
-
-    @Test
-    void testSkipAdrPatch() {
-        assertFalse(CommonOptions.isOkToApply(FmwInstallerType.WLS, "31544353"));
-        assertFalse(CommonOptions.isOkToApply(FmwInstallerType.WLS, "31544353_12.2.1.4.0"));
-        assertFalse(CommonOptions.isOkToApply(FmwInstallerType.WLSSLIM, "31544353"));
-        assertTrue(CommonOptions.isOkToApply(FmwInstallerType.FMW, "31544353"));
-        assertTrue(CommonOptions.isOkToApply(FmwInstallerType.FMW, "31544353_12.2.1.3.0"));
     }
 }

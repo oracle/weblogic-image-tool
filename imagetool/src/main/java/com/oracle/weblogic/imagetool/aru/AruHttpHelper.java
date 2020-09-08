@@ -1,16 +1,14 @@
 // Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.util;
+package com.oracle.weblogic.imagetool.aru;
 
 import java.io.IOException;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.installer.AruProduct;
+import com.oracle.weblogic.imagetool.util.HttpUtil;
+import com.oracle.weblogic.imagetool.util.XPathUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -171,7 +169,7 @@ public class AruHttpHelper {
     AruHttpHelper validation() throws IOException {
         NodeList conflictSets;
         try {
-            conflictSets = XPathUtil.applyXPathReturnNodeList(results(),
+            conflictSets = XPathUtil.nodelist(results(),
                 "/conflict_check/conflict_sets/set");
         } catch (XPathExpressionException xee) {
             throw new IOException(xee);
@@ -181,7 +179,7 @@ public class AruHttpHelper {
                 success = false;
                 String expression = "/conflict_check/conflict_sets/set/merge_patches";
 
-                NodeList nodeList = XPathUtil.applyXPathReturnNodeList(results(), expression);
+                NodeList nodeList = XPathUtil.nodelist(results(), expression);
 
                 createResultDocument(nodeList);
 
@@ -203,15 +201,7 @@ public class AruHttpHelper {
      */
     AruHttpHelper createResultDocument(NodeList nodeList) throws IOException {
         try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-            // Prevent XXE attacks
-            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-            DocumentBuilder builder = dbf.newDocumentBuilder();
-            Document doc = builder.newDocument();
+            Document doc = HttpUtil.documentBuilder().newDocument();
             Element element = doc.createElement("results");
 
             for (int i = 0; i < nodeList.getLength(); i++) {
@@ -242,11 +232,11 @@ public class AruHttpHelper {
         Node conflictsResultNode = results();
         if (conflictsResultNode != null) {
             try {
-                NodeList patchSets = XPathUtil.applyXPathReturnNodeList(conflictsResultNode, "//merge_patches");
+                NodeList patchSets = XPathUtil.nodelist(conflictsResultNode, "//merge_patches");
                 stringBuilder.append("patch conflicts detected: ");
                 for (int i = 0; i < patchSets.getLength(); i++) {
                     stringBuilder.append("[");
-                    NodeList bugNumbers = XPathUtil.applyXPathReturnNodeList(patchSets.item(i), "patch/bug/number"
+                    NodeList bugNumbers = XPathUtil.nodelist(patchSets.item(i), "patch/bug/number"
                         + "/text()");
                     for (int j = 0; j < bugNumbers.getLength(); j++) {
                         stringBuilder.append(bugNumbers.item(j).getNodeValue());
@@ -267,10 +257,10 @@ public class AruHttpHelper {
     private void searchResult(Document result) throws IOException {
         success = true;
         try {
-            NodeList nodeList = XPathUtil.applyXPathReturnNodeList(result, "/results/error");
+            NodeList nodeList = XPathUtil.nodelist(result, "/results/error");
             if (nodeList.getLength() > 0) {
                 success = false;
-                errorMessage = XPathUtil.applyXPathReturnString(result, "/results/error/message");
+                errorMessage = XPathUtil.string(result, "/results/error/message");
             } else {
                 results = result;
             }

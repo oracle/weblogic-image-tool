@@ -613,7 +613,7 @@ public class Utils {
         }
         if (patches != null && !patches.isEmpty()) {
             for (String patchId : patches) {
-                logger.finer("pattern match id " + patchId);
+                logger.finer("pattern matching patchId: {0}", patchId);
                 Matcher matcher = patchIdPattern.matcher(patchId);
                 if (!matcher.matches()) {
                     String errorFormat;

@@ -106,7 +106,7 @@ public class AdditionalBuildCommands {
                 }
             }
 
-            if (currentSection != null && buffer.size() > 0) {
+            if (currentSection != null && !buffer.isEmpty()) {
                 //finished reading file, store the remaining lines that were read for the section
                 logger.fine("IMG-0015", buffer.size(), currentSection);
                 result.contents.put(currentSection, buffer);
