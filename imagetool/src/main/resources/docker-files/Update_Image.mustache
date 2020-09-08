@@ -100,7 +100,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER {{userid}}
 
 {{#isOpatchPatchingEnabled}}
-    COPY --chown=oracle:oracle {{{opatchFileName}}} {{{tempDir}}}/opatch/
+    COPY --chown={{userid}}:{{groupid}} {{{opatchFileName}}} {{{tempDir}}}/opatch/
     RUN cd {{{tempDir}}}/opatch \
     && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \
     && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}} \
