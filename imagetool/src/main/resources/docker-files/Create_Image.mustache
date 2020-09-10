@@ -115,6 +115,8 @@ RUN {{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.jar" -d {{{tempDir
     -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation
 {{/installPackages}}
 
+RUN chmod -R g+r {{{oracle_home}}}
+
 {{#isOpatchPatchingEnabled}}
 RUN cd {{{tempDir}}}/opatch \
  && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \

@@ -137,6 +137,8 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
       {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
       -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation
     {{/installPackages}}
+    RUN chmod -R g+r {{{oracle_home}}}
+
     {{#isOpatchPatchingEnabled}}
     RUN cd {{{tempDir}}}/opatch \
         && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \
