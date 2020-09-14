@@ -109,13 +109,14 @@ USER {{userid}}
     {{{.}}}
 {{/beforeFmwInstall}}
 
+RUN echo "INSTALLING MIDDLEWARE" \
 {{#installPackages}}
-RUN {{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.jar" -d {{{tempDir}}} &&{{/isZip}} \
- {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation
+ && echo "INSTALLING {{type}}" \
+ && {{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.jar" -d {{{tempDir}}} &&{{/isZip}} \
+    {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
+    -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation \
 {{/installPackages}}
-
-RUN chmod -R g+r {{{oracle_home}}}
+ && chmod -R g+r {{{oracle_home}}}
 
 {{#isOpatchPatchingEnabled}}
 RUN cd {{{tempDir}}}/opatch \
