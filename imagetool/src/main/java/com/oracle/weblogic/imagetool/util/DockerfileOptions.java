@@ -80,7 +80,7 @@ public class DockerfileOptions {
         skipJavaInstall = false;
 
         username = "oracle";
-        groupname = "oracle";
+        groupname = "root";
 
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
