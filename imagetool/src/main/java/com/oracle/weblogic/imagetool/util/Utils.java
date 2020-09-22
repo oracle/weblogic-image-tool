@@ -422,8 +422,11 @@ public class Utils {
     public static Properties getBaseImageProperties(String dockerImage, String tmpDir)
         throws IOException, InterruptedException {
 
+        logger.entering(dockerImage, tmpDir);
         List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, dockerImage, "test-env.sh");
-        return Utils.runDockerCommand(imageEnvCmd);
+        Properties result = Utils.runDockerCommand(imageEnvCmd);
+        logger.exiting(result);
+        return result;
     }
 
     /**
@@ -726,7 +729,11 @@ public class Utils {
         if (bundle.containsKey(key)) {
             message = bundle.getString(key);
         }
-        return MessageFormat.format(message, params);
+        if (params == null || params.length == 0) {
+            return message;
+        } else {
+            return MessageFormat.format(message, params);
+        }
     }
 
     /**
