@@ -487,7 +487,7 @@ public abstract class CommonOptions {
         names = {"--chown"},
         split = ":",
         description = "userid:groupid for JDK/Middleware installs and patches. Default: ${DEFAULT-VALUE}.",
-        defaultValue = "oracle:root"
+        defaultValue = "oracle:oracle"
     )
     private String[] osUserAndGroup;
 
