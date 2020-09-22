@@ -3,6 +3,8 @@
 
 package com.oracle.weblogic.imagetool.tests.utils;
 
+import java.nio.file.Path;
+
 public class CacheCommand extends ImageToolCommand {
     private String version;
     private String type;
@@ -50,8 +52,8 @@ public class CacheCommand extends ImageToolCommand {
         return this;
     }
 
-    public CacheCommand path(String value) {
-        path = value;
+    public CacheCommand path(Path value) {
+        path = value.toString();
         return this;
     }
 
@@ -60,8 +62,8 @@ public class CacheCommand extends ImageToolCommand {
         return this;
     }
 
-    public CacheCommand value(String value) {
-        this.value = value;
+    public CacheCommand value(Path value) {
+        this.value = value.toString();
         return this;
     }
 

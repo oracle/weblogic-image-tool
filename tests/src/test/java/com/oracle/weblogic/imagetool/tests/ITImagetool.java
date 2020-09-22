@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.tests;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -12,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -40,11 +43,23 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @IntegrationTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class ITImagetool extends BaseTest {
+class ITImagetool {
 
     @Logger
     private static final LoggingFacade logger = LoggingFactory.getLogger(ITImagetool.class);
 
+    // STAGING_DIR - directory where JDK and other installers are pre-staged before testing
+    private static final String STAGING_DIR = getEnvironmentProperty("STAGING_DIR");
+    private static final String wlsImgBldDir = getEnvironmentProperty("WLSIMG_BLDDIR");
+    private static final String wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
+
+    // Docker images
+    private static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
+    private static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
+    private static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
+    private static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
+
+    // Staging Dir files
     private static final String JDK_INSTALLER = "jdk-8u202-linux-x64.tar.gz";
     private static final String JDK_INSTALLER_NEWER = "jdk-8u231-linux-x64.tar.gz";
     private static final String WLS_INSTALLER = "fmw_12.2.1.3.0_wls_Disk1_1of1.zip";
@@ -53,6 +68,7 @@ class ITImagetool extends BaseTest {
     private static final String P22987840_INSTALLER = "p22987840_122100_Generic.zip";
     private static final String WDT_INSTALLER = "weblogic-deploy.zip";
     private static final String FMW_INSTALLER = "fmw_12.2.1.3.0_infrastructure_Disk1_1of1.zip";
+
     private static final String TEST_ENTRY_KEY = "mytestEntryKey";
     private static final String P27342434_ID = "27342434";
     private static final String P28186730_ID = "28186730";
@@ -66,10 +82,150 @@ class ITImagetool extends BaseTest {
     private static final Path WDT_RESOURCES = Paths.get("src", "test", "resources", "wdt");
     private static final Path WDT_VARIABLES = WDT_RESOURCES.resolve("domain.properties");
     private static final Path WDT_MODEL = WDT_RESOURCES.resolve("simple-topology.yaml");
+    private static final String WDT_MODEL1 = "simple-topology1.yaml";
     private static final Path WDT_MODEL2 = WDT_RESOURCES.resolve("simple-topology2.yaml");
+    private static String dbContainerName = "";
+    private static String build_tag = "";
     private static String oracleSupportUsername;
     private static boolean wlsImgBuilt = false;
     private static boolean domainImgBuilt = false;
+
+    /**
+     * Get the named property from system environment or Java system property.
+     * If the property is defined in the Environment, that value will take precedence over
+     * Java properties.
+     *
+     * @param name the name of the environment variable, or Java property
+     * @return the value defined in the env or system property
+     */
+    private static String getEnvironmentProperty(String name) {
+        String result = System.getenv(name);
+        if (result == null || result.isEmpty()) {
+            result = System.getProperty(name);
+        }
+        return result;
+    }
+
+    private static void validateEnvironmentSettings() {
+        logger.info("Initializing the tests ...");
+
+        List<String> missingSettings = new ArrayList<>();
+        if (wlsImgBldDir == null || wlsImgBldDir.isEmpty()) {
+            missingSettings.add("WLSIMG_BLDDIR");
+        }
+
+        if (wlsImgCacheDir == null || wlsImgCacheDir.isEmpty()) {
+            missingSettings.add("WLSIMG_CACHEDIR");
+        }
+
+        if (STAGING_DIR == null || STAGING_DIR.isEmpty()) {
+            missingSettings.add("STAGING_DIR");
+        }
+
+        if (missingSettings.size() > 0) {
+            String error = String.join(", ", missingSettings)
+                + " must be set as a system property or ENV variable";
+            throw new IllegalArgumentException(error);
+        }
+
+        // get the build tag from Jenkins build environment variable BUILD_TAG
+        build_tag = System.getenv("BUILD_TAG");
+        if (build_tag != null) {
+            build_tag = build_tag.toLowerCase();
+        } else {
+            build_tag = "imagetool-itest";
+        }
+        dbContainerName = "InfraDB4" + build_tag;
+        logger.info("build_tag = " + build_tag);
+        logger.info("WLSIMG_BLDDIR = " + wlsImgBldDir);
+        logger.info("WLSIMG_CACHEDIR = " + wlsImgCacheDir);
+    }
+
+    private static void verifyStagedFiles(String... installers) {
+        // determine if any of the required installers are missing from the stage directory
+        List<String> missingInstallers = new ArrayList<>();
+        for (String installer : installers) {
+            Path installFile = Paths.get(STAGING_DIR, installer);
+            if (!Files.exists(installFile)) {
+                missingInstallers.add(installer);
+            }
+        }
+        if (missingInstallers.size() > 0) {
+            String error = "Could not find these installers in the staging directory: " + STAGING_DIR + "\n   ";
+            error += String.join("\n   ", missingInstallers);
+            throw new IllegalStateException(error);
+        }
+    }
+
+    private static void executeNoVerify(String command) throws Exception {
+        logger.info("executing command: " + command);
+        Runner.run(command);
+    }
+
+    private static void checkCmdInLoop(String cmd, String matchStr) throws Exception {
+        final int maxIterations = 50;
+
+        int i = 0;
+        while (i < maxIterations) {
+            CommandResult result = Runner.run(cmd);
+
+            // pod might not have been created or if created loop till condition
+            if (result.exitValue() != 0
+                || (result.exitValue() == 0 && !result.stdout().contains(matchStr))) {
+                // check for last iteration
+                if (i == (maxIterations - 1)) {
+                    throw new RuntimeException(
+                        "FAILURE: " + cmd + " does not return the expected string " + matchStr + ", exiting!");
+                }
+                final int waitTime = 5;
+                logger.info(
+                    "Waiting for the expected String " + matchStr
+                        + ": Ite ["
+                        + i
+                        + "/"
+                        + maxIterations
+                        + "], sleeping "
+                        + waitTime
+                        + " seconds more");
+                logger.info("Waiting for the expected String {0}: Iter [{1}/{2}], sleeping {3} seconds more",
+                    matchStr, i, maxIterations, waitTime);
+
+                Thread.sleep(waitTime * 1000);
+                i++;
+            } else {
+                logger.info("get the expected String " + matchStr);
+                break;
+            }
+        }
+    }
+
+    private static void cleanup() throws Exception {
+        logger.info("cleaning up the test environment ...");
+
+        // clean up the db container
+        String command = "docker rm -f -v " + dbContainerName;
+        executeNoVerify(command);
+
+        // clean up the images created in the tests
+        command = "docker rmi -f $(docker images -q '" + build_tag + "' | uniq)";
+        executeNoVerify(command);
+    }
+
+    private static void pullDockerImage(String imagename, String imagetag) throws Exception {
+
+        String pullCommand = "docker pull " + imagename + ":" + imagetag;
+        logger.info(pullCommand);
+        Runner.run(pullCommand);
+
+        // verify the docker image is pulled
+        CommandResult result = Runner.run("docker images | grep " + imagename  + " | grep "
+            + imagetag + "| wc -l");
+        String resultString = result.stdout();
+        if (Integer.parseInt(resultString.trim()) != 1) {
+            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected."
+                + " Expected 1 image, found " + resultString);
+        }
+    }
 
     @BeforeAll
     static void staticPrepare() throws Exception {
@@ -79,7 +235,15 @@ class ITImagetool extends BaseTest {
         // clean up Docker instances leftover from a previous run
         cleanup();
 
-        setup();
+        logger.info("Setting up the test environment ...");
+
+        if (!(new File(wlsImgBldDir)).exists()) {
+            logger.info(wlsImgBldDir + " does not exist, creating it");
+            if (!(new File(wlsImgBldDir)).mkdir()) {
+                throw new IllegalStateException("Unable to create build directory " + wlsImgBldDir);
+            }
+        }
+
         logger.info("Pulling OS base images from OCIR ...");
         pullDockerImage(BASE_OS_IMG, BASE_OS_IMG_TAG);
 
@@ -134,20 +298,45 @@ class ITImagetool extends BaseTest {
 
     }
 
-    private static void pullDockerImage(String imagename, String imagetag) throws Exception {
-
-        String pullCommand = "docker pull " + imagename + ":" + imagetag;
-        logger.info(pullCommand);
-        Runner.run(pullCommand);
-
-        // verify the docker image is pulled
-        CommandResult result = Runner.run("docker images | grep " + imagename  + " | grep "
-            + imagetag + "| wc -l");
-        String resultString = result.stdout();
-        if (Integer.parseInt(resultString.trim()) != 1) {
-            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected."
-                + " Expected 1 image, found " + resultString);
+    private void verifyFileInImage(String imagename, String filename, String expectedContent) throws Exception {
+        logger.info("verifying the file content in image");
+        String command = "docker run --rm " + imagename + " bash -c 'cat " + filename + "'";
+        logger.info("executing command: " + command);
+        CommandResult result = Runner.run(command);
+        if (!result.stdout().contains(expectedContent)) {
+            throw new Exception("The image " + imagename + " does not have the expected file content: "
+                + expectedContent);
         }
+    }
+
+    private CommandResult buildWdtArchive() throws Exception {
+        logger.info("Building WDT archive ...");
+        Path scriptPath = Paths.get("src", "test", "resources", "wdt", "build-archive.sh");
+        String command = "sh " + scriptPath.toString();
+        return executeAndVerify(command);
+    }
+
+    private void createDBContainer() throws Exception {
+        logger.info("Creating an Oracle db docker container ...");
+        String command = "docker rm -f " + dbContainerName;
+        Runner.run(command);
+        command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\""
+            + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":"
+            + ORACLE_DB_IMG_TAG;
+        logger.info("executing command: " + command);
+        Runner.run(command);
+
+        // wait for the db is ready
+        command = "docker ps | grep " + dbContainerName;
+        checkCmdInLoop(command, "healthy");
+    }
+
+    private CommandResult executeAndVerify(String command) throws Exception {
+        logger.info("Executing command: " + command);
+        CommandResult result = Runner.run(command);
+        assertEquals(0, result.exitValue(), "for command: " + command);
+        logger.info(result.stdout());
+        return result;
     }
 
     /**
@@ -161,7 +350,7 @@ class ITImagetool extends BaseTest {
     @Tag("cache")
     @DisplayName("Add JDK installer to cache")
     void cacheAddInstallerJdk(TestInfo testInfo) throws Exception {
-        String jdkPath = STAGING_DIR + FS + JDK_INSTALLER;
+        Path jdkPath = Paths.get(STAGING_DIR, JDK_INSTALLER);
         String command = new CacheCommand()
             .addInstaller(true)
             .type("jdk")
@@ -195,7 +384,7 @@ class ITImagetool extends BaseTest {
     @Tag("cache")
     @DisplayName("Add WLS installer to cache")
     void cacheAddInstallerWls(TestInfo testInfo) throws Exception {
-        String wlsPath = STAGING_DIR + FS + WLS_INSTALLER;
+        Path wlsPath = Paths.get(STAGING_DIR, WLS_INSTALLER);
         String command = new CacheCommand()
             .addInstaller(true)
             .type("wls")
@@ -229,7 +418,7 @@ class ITImagetool extends BaseTest {
     @Tag("cache")
     @DisplayName("Add patch 27342434 to cache")
     void cacheAddPatch(TestInfo testInfo) throws Exception {
-        String patchPath = STAGING_DIR + FS + P27342434_INSTALLER;
+        Path patchPath = Paths.get(STAGING_DIR, P27342434_INSTALLER);
         String command = new CacheCommand()
             .addPatch(true)
             .path(patchPath)
@@ -261,7 +450,7 @@ class ITImagetool extends BaseTest {
     @Tag("gate")
     @DisplayName("Add manual entry to cache")
     void cacheAddTestEntry(TestInfo testInfo) throws Exception {
-        String testEntryValue = STAGING_DIR + FS + P27342434_INSTALLER;
+        Path testEntryValue = Paths.get(STAGING_DIR, P27342434_INSTALLER);
         String command = new CacheCommand()
             .addEntry(true)
             .key(TEST_ENTRY_KEY)
@@ -324,7 +513,7 @@ class ITImagetool extends BaseTest {
     @Tag("cache")
     @DisplayName("Add OPatch patch to cache")
     void cacheOpatch(TestInfo testInfo) throws Exception {
-        String patchPath = STAGING_DIR + FS + P28186730_INSTALLER;
+        Path patchPath = Paths.get(STAGING_DIR, P28186730_INSTALLER);
         String command = new CacheCommand()
             .addPatch(true)
             .path(patchPath)
@@ -411,7 +600,7 @@ class ITImagetool extends BaseTest {
     @DisplayName("Create WLS image with WDT domain")
     void createWlsImgUsingWdt(TestInfo testInfo) throws Exception {
         // add WDT installer to the cache
-        String wdtPath = STAGING_DIR + FS + WDT_INSTALLER;
+        Path wdtPath = Paths.get(STAGING_DIR, WDT_INSTALLER);
         String addCommand = new CacheCommand()
             .addInstaller(true)
             .type("wdt")
@@ -495,7 +684,7 @@ class ITImagetool extends BaseTest {
         String addNewJdkCmd = new CacheCommand().addInstaller(true)
             .type("jdk")
             .version(JDK_VERSION_8u212)
-            .path(STAGING_DIR + FS + JDK_INSTALLER_NEWER)
+            .path(Paths.get(STAGING_DIR, JDK_INSTALLER_NEWER))
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -508,7 +697,7 @@ class ITImagetool extends BaseTest {
                 .addInstaller(true)
                 .type("fmw")
                 .version(WLS_VERSION)
-                .path(STAGING_DIR + FS + FMW_INSTALLER)
+                .path(Paths.get(STAGING_DIR, FMW_INSTALLER))
                 .build();
             CommandResult addResult = Runner.run(addCommand, out, logger);
             // the process return code for addInstaller should be 0
@@ -565,10 +754,23 @@ class ITImagetool extends BaseTest {
         String getDbContainerIp = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "
             + dbContainerName;
 
+        Path patchPath = Paths.get(STAGING_DIR, P22987840_INSTALLER);
+        String addPatchCmd = new CacheCommand()
+            .addPatch(true)
+            .path(patchPath)
+            .patchId(P22987840_ID)
+            .build();
+
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult addPatchResult = Runner.run(addPatchCmd, out, logger);
+            // the process return code for addPatch should be 0
+            assertEquals(0, addPatchResult.exitValue(), "for command: " + addPatchCmd);
+
             String host = Runner.run(getDbContainerIp, out, logger).stdout().trim();
-            logger.info("DEBUG: DB_HOST=" + host);
-            replaceStringInFile(tmpWdtModel.toString(), "%DB_HOST%", host);
+            logger.info("Setting WDT Model DB_HOST to {0}", host);
+            String content = new String(Files.readAllBytes(tmpWdtModel));
+            content = content.replaceAll("%DB_HOST%", host);
+            Files.write(tmpWdtModel, content.getBytes());
 
             String tagName = build_tag + ":" + getMethodName(testInfo);
             String command = new CreateCommand()
@@ -582,6 +784,7 @@ class ITImagetool extends BaseTest {
                 .wdtDomainType("JRF")
                 .wdtRunRcu(true)
                 .type("fmw")
+                .patches(P22987840_ID)
                 .build();
 
             CommandResult result = Runner.run(command, out, logger);
