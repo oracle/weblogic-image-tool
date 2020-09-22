@@ -79,9 +79,6 @@ public class DockerfileOptions {
         updateOpatch = false;
         skipJavaInstall = false;
 
-        username = "oracle";
-        groupname = "root";
-
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
         domainHome = DEFAULT_DOMAIN_HOME;
