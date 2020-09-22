@@ -162,8 +162,9 @@ class ITImagetool {
         Runner.run(command);
     }
 
-    private static void checkCmdInLoop(String cmd, String matchStr) throws Exception {
+    private static void checkCmdInLoop(String cmd) throws Exception {
         final int maxIterations = 50;
+        final String matchStr = "healthy";
 
         int i = 0;
         while (i < maxIterations) {
@@ -309,11 +310,15 @@ class ITImagetool {
         }
     }
 
-    private CommandResult buildWdtArchive() throws Exception {
+    private void buildWdtArchive() throws Exception {
         logger.info("Building WDT archive ...");
         Path scriptPath = Paths.get("src", "test", "resources", "wdt", "build-archive.sh");
         String command = "sh " + scriptPath.toString();
-        return executeAndVerify(command);
+        CommandResult result = executeAndVerify(command);
+        if (result.exitValue() != 0) {
+            logger.severe(result.stdout());
+            throw new IOException("Failed to build WDT Archive");
+        }
     }
 
     private void createDBContainer() throws Exception {
@@ -328,7 +333,7 @@ class ITImagetool {
 
         // wait for the db is ready
         command = "docker ps | grep " + dbContainerName;
-        checkCmdInLoop(command, "healthy");
+        checkCmdInLoop(command);
     }
 
     private CommandResult executeAndVerify(String command) throws Exception {
