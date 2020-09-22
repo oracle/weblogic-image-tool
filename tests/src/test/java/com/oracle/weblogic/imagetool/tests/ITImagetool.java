@@ -3,23 +3,47 @@
 
 package com.oracle.weblogic.imagetool.tests;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import com.oracle.weblogic.imagetool.tests.utils.ExecCommand;
-import com.oracle.weblogic.imagetool.tests.utils.ExecResult;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.tests.annotations.IntegrationTest;
+import com.oracle.weblogic.imagetool.tests.annotations.Logger;
+import com.oracle.weblogic.imagetool.tests.utils.CacheCommand;
+import com.oracle.weblogic.imagetool.tests.utils.CommandResult;
+import com.oracle.weblogic.imagetool.tests.utils.CreateCommand;
+import com.oracle.weblogic.imagetool.tests.utils.RebaseCommand;
+import com.oracle.weblogic.imagetool.tests.utils.Runner;
+import com.oracle.weblogic.imagetool.tests.utils.UpdateCommand;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+@IntegrationTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ITImagetool extends BaseTest {
+
+    @Logger
+    private static final LoggingFacade logger = LoggingFactory.getLogger(ITImagetool.class);
 
     private static final String JDK_INSTALLER = "jdk-8u202-linux-x64.tar.gz";
     private static final String JDK_INSTALLER_NEWER = "jdk-8u231-linux-x64.tar.gz";
@@ -29,22 +53,23 @@ class ITImagetool extends BaseTest {
     private static final String P22987840_INSTALLER = "p22987840_122100_Generic.zip";
     private static final String WDT_INSTALLER = "weblogic-deploy.zip";
     private static final String FMW_INSTALLER = "fmw_12.2.1.3.0_infrastructure_Disk1_1of1.zip";
-    private static final String FMW_INSTALLER_1221 = "fmw_12.2.1.0.0_infrastructure_Disk1_1of1.zip";
     private static final String TEST_ENTRY_KEY = "mytestEntryKey";
     private static final String P27342434_ID = "27342434";
     private static final String P28186730_ID = "28186730";
     private static final String P22987840_ID = "22987840";
     private static final String WLS_VERSION = "12.2.1.3.0";
-    private static final String WLS_VERSION_1221 = "12.2.1.0.0";
     private static final String OPATCH_VERSION = "13.9.4.2.2";
     private static final String JDK_VERSION = "8u202";
     private static final String JDK_VERSION_8u212 = "8u212";
     private static final String WDT_VERSION = "1.1.2";
-    private static final String WDT_ARCHIVE = "archive.zip";
-    private static final String WDT_VARIABLES = "domain.properties";
-    private static final String WDT_MODEL = "simple-topology.yaml";
-    private static final String WDT_MODEL2 = "simple-topology2.yaml";
+    private static final Path WDT_ARCHIVE = Paths.get("target", "wdt", "archive.zip");
+    private static final Path WDT_RESOURCES = Paths.get("src", "test", "resources", "wdt");
+    private static final Path WDT_VARIABLES = WDT_RESOURCES.resolve("domain.properties");
+    private static final Path WDT_MODEL = WDT_RESOURCES.resolve("simple-topology.yaml");
+    private static final Path WDT_MODEL2 = WDT_RESOURCES.resolve("simple-topology2.yaml");
     private static String oracleSupportUsername;
+    private static boolean wlsImgBuilt = false;
+    private static boolean domainImgBuilt = false;
 
     @BeforeAll
     static void staticPrepare() throws Exception {
@@ -55,14 +80,15 @@ class ITImagetool extends BaseTest {
         cleanup();
 
         setup();
-        // pull base OS docker image used for test
-        pullBaseOsDockerImage();
-        // pull oracle db image
-        pullOracleDbDockerImage();
+        logger.info("Pulling OS base images from OCIR ...");
+        pullDockerImage(BASE_OS_IMG, BASE_OS_IMG_TAG);
+
+        logger.info("Pulling Oracle DB image from OCIR ...");
+        pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
 
         // verify that required files/installers are available
         verifyStagedFiles(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER,
-            FMW_INSTALLER, JDK_INSTALLER_NEWER, FMW_INSTALLER_1221, P22987840_INSTALLER);
+            FMW_INSTALLER, JDK_INSTALLER_NEWER, P22987840_INSTALLER);
 
         // get Oracle support credentials
         oracleSupportUsername = System.getenv("ORACLE_SUPPORT_USERNAME");
@@ -80,118 +106,149 @@ class ITImagetool extends BaseTest {
     }
 
     /**
-     * test cache listItems.
+     * Create the log directory in ./target (build folder), and open a new file using the test method's name.
+     * @param testInfo metadata from the test to be logged
+     * @return an output file wrapped in a PrintWriter
+     * @throws IOException if the PrintWriter fails to open the file
+     */
+    private static PrintWriter getTestMethodWriter(TestInfo testInfo) throws IOException {
+        if (testInfo.getTestMethod().isPresent()) {
+            String methodName = testInfo.getTestMethod().get().getName();
+            // create a output file in the build folder with the name {test method name}.stdout
+            Path outputPath = Paths.get("target", "logs", methodName + ".out");
+            Files.createDirectories(outputPath.getParent());
+            logger.info("Test log: {0}", outputPath.toString());
+            return new PrintWriter(
+                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath.toString()))), true);
+        } else {
+            throw new IllegalArgumentException("Method is not present in this context, and this method cannot be used");
+        }
+    }
+
+    private static String getMethodName(TestInfo testInfo) {
+        if (testInfo.getTestMethod().isPresent()) {
+            return testInfo.getTestMethod().get().getName();
+        } else {
+            throw new IllegalArgumentException("Cannot call getMethodName outside of test method");
+        }
+
+    }
+
+    private static void pullDockerImage(String imagename, String imagetag) throws Exception {
+
+        String pullCommand = "docker pull " + imagename + ":" + imagetag;
+        logger.info(pullCommand);
+        Runner.run(pullCommand);
+
+        // verify the docker image is pulled
+        CommandResult result = Runner.run("docker images | grep " + imagename  + " | grep "
+            + imagetag + "| wc -l");
+        String resultString = result.stdout();
+        if (Integer.parseInt(resultString.trim()) != 1) {
+            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected."
+                + " Expected 1 image, found " + resultString);
+        }
+    }
+
+    /**
+     * Test caching of an installer of type JDK.
      *
      * @throws Exception - if any error occurs
      */
     @Test
     @Order(1)
     @Tag("gate")
-    void cacheListItems() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @Tag("cache")
+    @DisplayName("Add JDK installer to cache")
+    void cacheAddInstallerJdk(TestInfo testInfo) throws Exception {
+        String jdkPath = STAGING_DIR + FS + JDK_INSTALLER;
+        String command = new CacheCommand()
+            .addInstaller(true)
+            .type("jdk")
+            .version(JDK_VERSION)
+            .path(jdkPath)
+            .build();
 
-        ExecResult result = listItemsInCache();
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        // verify the test result
-        String expectedString = "cache.dir=" + wlsImgCacheDir;
-        verifyResult(result, expectedString);
-
-        logTestEnd(testMethodName);
+            // verify the result
+            String listCommand = new CacheCommand().listItems(true).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added JDK installer
+            assertTrue(listResult.stdout().contains("jdk_" + JDK_VERSION + "=" + jdkPath));
+        }
     }
 
     /**
-     * add JDK installer to the cache.
+     * Test caching of an installer of type WLS.
      *
      * @throws Exception - if any error occurs
      */
     @Test
     @Order(2)
     @Tag("gate")
-    void cacheAddInstallerJDK() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @Tag("cache")
+    @DisplayName("Add WLS installer to cache")
+    void cacheAddInstallerWls(TestInfo testInfo) throws Exception {
+        String wlsPath = STAGING_DIR + FS + WLS_INSTALLER;
+        String command = new CacheCommand()
+            .addInstaller(true)
+            .type("wls")
+            .version(WLS_VERSION)
+            .path(wlsPath)
+            .build();
 
-        String jdkPath = getStagingDir() + FS + JDK_INSTALLER;
-        deleteEntryFromCache("jdk_" + JDK_VERSION);
-        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        ExecResult result = listItemsInCache();
-        String expectedString = "jdk_" + JDK_VERSION + "=" + jdkPath;
-        verifyResult(result, expectedString);
-
-        logTestEnd(testMethodName);
+            // verify the result
+            String listCommand = new CacheCommand().listItems(true).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added WLS installer
+            assertTrue(listResult.stdout().contains("wls_" + WLS_VERSION + "=" + wlsPath));
+        }
     }
 
     /**
-     * add WLS installer to the cache.
+     * Test manual caching of a patch JAR.
      *
      * @throws Exception - if any error occurs
      */
     @Test
     @Order(3)
     @Tag("gate")
-    void cacheAddInstallerWls() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @Tag("cache")
+    @DisplayName("Add patch 27342434 to cache")
+    void cacheAddPatch(TestInfo testInfo) throws Exception {
+        String patchPath = STAGING_DIR + FS + P27342434_INSTALLER;
+        String command = new CacheCommand()
+            .addPatch(true)
+            .path(patchPath)
+            .patchId(P27342434_ID, WLS_VERSION)
+            .build();
 
-        String wlsPath = getStagingDir() + FS + WLS_INSTALLER;
-        deleteEntryFromCache("wls_" + WLS_VERSION);
-        addInstallerToCache("wls", WLS_VERSION, wlsPath);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        ExecResult result = listItemsInCache();
-        String expectedString = "wls_" + WLS_VERSION + "=" + wlsPath;
-        verifyResult(result, expectedString);
-
-        logTestEnd(testMethodName);
-    }
-
-    /**
-     * create a WLS image with default WLS version.
-     *
-     * @throws Exception - if any error occurs
-     */
-    @Test
-    @Order(4)
-    @Tag("nightly")
-    void createWlsImg() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
-
-        String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag "
-            + build_tag + ":" + testMethodName;
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
-
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
-
-        logTestEnd(testMethodName);
-    }
-
-    /**
-     * add Patch to the cache.
-     *
-     * @throws Exception - if any error occurs
-     */
-    @Test
-    @Order(5)
-    @Tag("gate")
-    void cacheAddPatch() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
-
-        String patchPath = getStagingDir() + FS + P27342434_INSTALLER;
-        deleteEntryFromCache(P27342434_ID + "_" + WLS_VERSION);
-        addPatchToCache(P27342434_ID, WLS_VERSION, patchPath);
-
-        // verify the result
-        ExecResult result = listItemsInCache();
-        String expectedString = P27342434_ID + "_" + WLS_VERSION + "=" + patchPath;
-        verifyResult(result, expectedString);
-
-        logTestEnd(testMethodName);
+            // verify the result
+            String listCommand = new CacheCommand().listItems(true).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added patch
+            assertTrue(listResult.stdout().contains(P27342434_ID + "_" + WLS_VERSION + "=" + patchPath));
+        }
     }
 
     /**
@@ -200,21 +257,31 @@ class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(6)
+    @Order(4)
     @Tag("gate")
-    void cacheAddTestEntry() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @DisplayName("Add manual entry to cache")
+    void cacheAddTestEntry(TestInfo testInfo) throws Exception {
+        String testEntryValue = STAGING_DIR + FS + P27342434_INSTALLER;
+        String command = new CacheCommand()
+            .addEntry(true)
+            .key(TEST_ENTRY_KEY)
+            .value(testEntryValue)
+            .build();
 
-        String mytestEntryValue = getStagingDir() + FS + P27342434_INSTALLER;
-        addEntryToCache(TEST_ENTRY_KEY, mytestEntryValue);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult addEntryResult = Runner.run(command, out, logger);
+            assertEquals(0, addEntryResult.exitValue(), "for command: " + command);
 
-        // verify the result
-        ExecResult result = listItemsInCache();
-        String expectedString = TEST_ENTRY_KEY.toLowerCase() + "=" + mytestEntryValue;
-        verifyResult(result, expectedString);
-
-        logTestEnd(testMethodName);
+            // verify the result
+            String listCommand = new CacheCommand().listItems(true).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added patch
+            assertTrue(listResult.stdout().contains(TEST_ENTRY_KEY.toLowerCase() + "=" + testEntryValue));
+            // cache should also contain the installer that was added in the previous test (persistent cache)
+            assertTrue(listResult.stdout().contains(P27342434_ID + "_" + WLS_VERSION + "="));
+        }
     }
 
     /**
@@ -223,54 +290,84 @@ class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(7)
+    @Order(5)
     @Tag("gate")
-    void cacheDeleteTestEntry() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @DisplayName("Delete cache entry")
+    void cacheDeleteTestEntry(TestInfo testInfo) throws Exception {
+        String command = new CacheCommand()
+            .deleteEntry(true)
+            .key(TEST_ENTRY_KEY)
+            .build();
 
-        deleteEntryFromCache(TEST_ENTRY_KEY);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        // verify the result
-        ExecResult result = listItemsInCache();
-        if (result.exitValue() != 0 || result.stdout().contains(TEST_ENTRY_KEY)) {
-            throw new Exception("The entry key is not deleted from the cache");
+            // verify the result
+            String listCommand = new CacheCommand().listItems(true).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should NOT show deleted patch
+            assertFalse(listResult.stdout().contains(TEST_ENTRY_KEY.toLowerCase()));
         }
-
-        logTestEnd(testMethodName);
     }
 
     /**
-     * create a WLS image without internet connection.
-     * you need to have OCIR credentials to download the base OS docker image
+     * Test manual caching of a patch JAR.
      *
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(8)
+    @Order(6)
     @Tag("gate")
-    void createWLSImgUseCache() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @Tag("cache")
+    @DisplayName("Add OPatch patch to cache")
+    void cacheOpatch(TestInfo testInfo) throws Exception {
+        String patchPath = STAGING_DIR + FS + P28186730_INSTALLER;
+        String command = new CacheCommand()
+            .addPatch(true)
+            .path(patchPath)
+            .patchId(P28186730_ID, OPATCH_VERSION)
+            .build();
 
-        // need to add the required patches 28186730 for Opatch before create wls images
-        String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
-        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
-        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
-        ExecResult resultT = listItemsInCache();
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        String versionTag = "test8img";
-        String command = imagetool + " create --jdkVersion " + JDK_VERSION + " --fromImage "
-            + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + versionTag
-            + " --version " + WLS_VERSION;
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
+            // verify the result
+            String listCommand = new CacheCommand().listItems(true).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added patch
+            assertTrue(listResult.stdout().contains(P28186730_ID + "_" + OPATCH_VERSION + "=" + patchPath));
+        }
+    }
 
-        // verify the docker image is created
-        verifyDockerImages(versionTag);
+    /**
+     * create a WLS image with default WLS version.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(10)
+    @Tag("gate")
+    @DisplayName("Create default WebLogic Server image")
+    void createWlsImg(TestInfo testInfo) throws Exception {
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new CreateCommand().tag(tagName).build();
 
-        logTestEnd(testMethodName);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            wlsImgBuilt = true;
+        }
     }
 
     /**
@@ -279,164 +376,162 @@ class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(9)
-    @Tag("gate")
-    void updateWLSImg() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
-
-        ExecResult resultT = listItemsInCache();
-
-        String command = imagetool + " update --fromImage " + build_tag + ":test8img --tag "
-            + build_tag + ":" + testMethodName + " --patches " + P27342434_ID;
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
-
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
-
-        logTestEnd(testMethodName);
-    }
-
-    /**
-     * create a WLS image using Weblogic Deploying Tool.
-     *
-     * @throws Exception - if any error occurs
-     */
-    @Test
-    @Order(10)
-    @Tag("gate")
-    void createWlsImgUsingWdt() throws Exception {
-
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
-
-        // add WDT installer to the cache
-        // delete the cache entry first
-        deleteEntryFromCache("wdt_" + WDT_VERSION);
-        String wdtPath = getStagingDir() + FS + WDT_INSTALLER;
-        addInstallerToCache("wdt", WDT_VERSION, wdtPath);
-
-        // add WLS installer to the cache
-        // delete the cache entry first
-        deleteEntryFromCache("wls_" + WLS_VERSION);
-        String wlsPath = getStagingDir() + FS + WLS_INSTALLER;
-        addInstallerToCache("wls", WLS_VERSION, wlsPath);
-
-        // add jdk installer to the cache
-        // delete the cache entry first
-        deleteEntryFromCache("jdk_" + JDK_VERSION);
-        String jdkPath = getStagingDir() + FS + JDK_INSTALLER;
-        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
-
-        // need to add the required patches 28186730 for Opatch before create wls images
-        // delete the cache entry first
-        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
-        String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
-        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
-
-        // add the patch to the cache
-        deleteEntryFromCache(P27342434_ID + "_" + WLS_VERSION);
-        patchPath = getStagingDir() + FS + P27342434_INSTALLER;
-        addPatchToCache(P27342434_ID, WLS_VERSION, patchPath);
-
-        // build the wdt archive
-        buildWdtArchive();
-
-        String wdtArchive = getWdtResourcePath() + FS + WDT_ARCHIVE;
-        String wdtModel = getWdtResourcePath() + FS + WDT_MODEL;
-        String wdtVariables = getWdtResourcePath() + FS + WDT_VARIABLES;
-        String command = imagetool + " create --fromImage "
-            + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
-            + " --version " + WLS_VERSION + " --patches " + P27342434_ID + " --wdtVersion " + WDT_VERSION
-            + " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel "
-            + wdtModel + " --wdtVariables " + wdtVariables;
-
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
-
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
-
-        logTestEnd(testMethodName);
-    }
-
-    /**
-     * create a FMW image with full internet access.
-     * You need to provide Oracle Support credentials to download the patches
-     *
-     * @throws Exception - if any error occurs
-     */
-    @Test
     @Order(11)
-    @Tag("nightly")
-    void createFmwImgFullInternetAccess() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @Tag("gate")
+    @DisplayName("Update createWlsImg with patch 27342434")
+    void updateWlsImg(TestInfo testInfo) throws Exception {
+        assumeTrue(wlsImgBuilt);
 
-        // add fmw installer to the cache
-        // delete the cache entry if any
-        deleteEntryFromCache("fmw_" + WLS_VERSION);
-        String fmwPath = getStagingDir() + FS + FMW_INSTALLER;
-        addInstallerToCache("fmw", WLS_VERSION, fmwPath);
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new UpdateCommand()
+            .fromImage(build_tag + ":createWlsImg")
+            .tag(tagName)
+            .patches(P27342434_ID)
+            .build();
 
-        // add jdk installer to the cache
-        // delete the cache entry if any
-        deleteEntryFromCache("jdk_" + JDK_VERSION);
-        String jdkPath = getStagingDir() + FS + JDK_INSTALLER;
-        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        String command = imagetool + " create --version=" + WLS_VERSION + " --tag " + build_tag + ":" + testMethodName
-            + " --latestPSU --user " + oracleSupportUsername + " --passwordEnv ORACLE_SUPPORT_PASSWORD --type fmw";
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
-
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
-        logTestEnd(testMethodName);
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            // TODO should check that patch and OPatch were applied
+        }
     }
 
     /**
-     * create a FMW image with non default JDK, FMW versions.
-     * You need to download the jdk, fmw and patch installers from Oracle first
+     * create a WLS image using WebLogic Deploying Tool.
      *
      * @throws Exception - if any error occurs
      */
     @Test
     @Order(12)
+    @Tag("gate")
+    @DisplayName("Create WLS image with WDT domain")
+    void createWlsImgUsingWdt(TestInfo testInfo) throws Exception {
+        // add WDT installer to the cache
+        String wdtPath = STAGING_DIR + FS + WDT_INSTALLER;
+        String addCommand = new CacheCommand()
+            .addInstaller(true)
+            .type("wdt")
+            .version(WDT_VERSION)
+            .path(wdtPath)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult addResult = Runner.run(addCommand, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
+
+            // build the wdt archive
+            buildWdtArchive();
+
+            String tagName = build_tag + ":" + getMethodName(testInfo);
+            // create a WLS image with a domain
+            String command = new CreateCommand()
+                .fromImage(BASE_OS_IMG, BASE_OS_IMG_TAG)
+                .tag(tagName)
+                .patches(P27342434_ID)
+                .wdtVersion(WDT_VERSION)
+                .wdtModel(WDT_MODEL)
+                .wdtArchive(WDT_ARCHIVE)
+                .wdtDomainHome("/u01/domains/simple_domain")
+                .wdtVariables(WDT_VARIABLES)
+                .build();
+
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            domainImgBuilt = true;
+        }
+    }
+
+    /**
+     * Use the Rebase function to move a domain to a new image.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(13)
+    @Tag("gate")
+    @DisplayName("Rebase the WLS domain")
+    void rebaseWlsImg(TestInfo testInfo) throws Exception {
+        assumeTrue(wlsImgBuilt);
+        assumeTrue(domainImgBuilt);
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new RebaseCommand()
+            .sourceImage(build_tag, "createWlsImgUsingWdt")
+            .targetImage(build_tag, "updateWlsImg")
+            .tag(tagName)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
+    }
+
+    /**
+     * Create a FMW image with internet access to download PSU.
+     * Oracle Support credentials must be provided to download the patches.
+     * Uses different JDK version from the default in the Image Tool.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(20)
     @Tag("nightly")
-    void createFmwImgNonDefault() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @DisplayName("Create FMW 12.2.1.3 image with latest PSU")
+    void createFmwImgFullInternetAccess(TestInfo testInfo) throws Exception {
+        // add jdk 8u212 installer to the cache
+        String addNewJdkCmd = new CacheCommand().addInstaller(true)
+            .type("jdk")
+            .version(JDK_VERSION_8u212)
+            .path(STAGING_DIR + FS + JDK_INSTALLER_NEWER)
+            .build();
 
-        // add fmw installer to the cache
-        String fmwPath = getStagingDir() + FS + FMW_INSTALLER_1221;
-        deleteEntryFromCache("fmw_" + WLS_VERSION_1221);
-        addInstallerToCache("fmw", WLS_VERSION_1221, fmwPath);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult addNewJdkResult = Runner.run(addNewJdkCmd, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, addNewJdkResult.exitValue(), "for command: " + addNewJdkCmd);
 
-        // add jdk installer to the cache
-        String jdkPath = getStagingDir() + FS + JDK_INSTALLER_NEWER;
-        deleteEntryFromCache("jdk_" + JDK_VERSION_8u212);
-        addInstallerToCache("jdk", JDK_VERSION_8u212, jdkPath);
+            // add fmw installer to the cache
+            String addCommand = new CacheCommand()
+                .addInstaller(true)
+                .type("fmw")
+                .version(WLS_VERSION)
+                .path(STAGING_DIR + FS + FMW_INSTALLER)
+                .build();
+            CommandResult addResult = Runner.run(addCommand, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
 
-        // add the patch to the cache
-        String patchPath = getStagingDir() + FS + P22987840_INSTALLER;
-        deleteEntryFromCache(P22987840_ID + "_" + WLS_VERSION_1221);
-        addPatchToCache(P22987840_ID, WLS_VERSION_1221, patchPath);
+            String tagName = build_tag + ":" + getMethodName(testInfo);
+            // create an an image with FMW and the latest PSU using ARU to download the patch
+            String command = new CreateCommand()
+                .tag(tagName)
+                .jdkVersion(JDK_VERSION_8u212)
+                .type("fmw")
+                .user(oracleSupportUsername)
+                .passwordEnv("ORACLE_SUPPORT_PASSWORD")
+                .latestPsu(true)
+                .build();
 
-        String command = imagetool + " create --jdkVersion " + JDK_VERSION_8u212 + " --version=" + WLS_VERSION_1221
-            + " --tag " + build_tag + ":" + testMethodName + " --patches " + P22987840_ID + " --type fmw";
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
-
-        logTestEnd(testMethodName);
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
     }
 
     /**
@@ -446,64 +541,56 @@ class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(13)
+    @Order(22)
     @Tag("nightly")
-    void testDCreateJRFDomainImgUsingWDT() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
-
+    @DisplayName("Create FMW 12.2.1.3 image with WDT domain")
+    void testCreateJrfDomainImgUsingWdt(TestInfo testInfo) throws Exception {
         // create a db container for RCU
         createDBContainer();
 
-        // add WDT installer to the cache
-        // delete the cache entry if any
-        deleteEntryFromCache("wdt_" + WDT_VERSION);
-        String wdtPath = getStagingDir() + FS + WDT_INSTALLER;
-        addInstallerToCache("wdt", WDT_VERSION, wdtPath);
+        // test assumes that WDT installer is already in the cache from previous test
 
-        // add FMW installer to the cache
-        // delete the cache entry if any
-        deleteEntryFromCache("fmw_" + WLS_VERSION);
-        String fmwPath = getStagingDir() + FS + FMW_INSTALLER;
-        addInstallerToCache("fmw", WLS_VERSION, fmwPath);
+        // test assumes that the FMW 12.2.1.3 installer is already in the cache
 
-        // add jdk installer to the cache
-        // delete the cache entry if any
-        deleteEntryFromCache("jdk_" + JDK_VERSION);
-        String jdkPath = getStagingDir() + FS + JDK_INSTALLER;
-        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
+        // test assumes that the default JDK version 8u202 is already in the cache
 
         // build the wdt archive
         buildWdtArchive();
 
-        String wdtArchive = getWdtResourcePath() + FS + WDT_ARCHIVE;
-        String wdtModel = getWdtResourcePath() + FS + WDT_MODEL1;
-        String tmpWdtModel = wlsImgBldDir + FS + WDT_MODEL1;
+        Path tmpWdtModel = Paths.get(wlsImgBldDir, WDT_MODEL1);
 
         // update wdt model file
-        Path source = Paths.get(wdtModel);
-        Path dest = Paths.get(tmpWdtModel);
-        Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "
+        Path source = Paths.get(WDT_MODEL1);
+        Files.copy(source, tmpWdtModel, StandardCopyOption.REPLACE_EXISTING);
+        String getDbContainerIp = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "
             + dbContainerName;
-        String host = ExecCommand.exec(getDBContainerIP).stdout().trim();
-        logger.info("DEBUG: DB_HOST=" + host);
-        replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
-        String command = imagetool + " create --fromImage "
-            + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
-            + " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION
-            + " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel "
-            + tmpWdtModel + " --wdtDomainType JRF --wdtRunRCU --type fmw";
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            String host = Runner.run(getDbContainerIp, out, logger).stdout().trim();
+            logger.info("DEBUG: DB_HOST=" + host);
+            replaceStringInFile(tmpWdtModel.toString(), "%DB_HOST%", host);
 
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
+            String tagName = build_tag + ":" + getMethodName(testInfo);
+            String command = new CreateCommand()
+                .fromImage(BASE_OS_IMG, BASE_OS_IMG_TAG)
+                .tag(tagName)
+                .version(WLS_VERSION)
+                .wdtVersion(WDT_VERSION)
+                .wdtArchive(WDT_ARCHIVE)
+                .wdtDomainHome("/u01/domains/simple_domain")
+                .wdtModel(tmpWdtModel)
+                .wdtDomainType("JRF")
+                .wdtRunRcu(true)
+                .type("fmw")
+                .build();
 
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        logTestEnd(testMethodName);
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
     }
 
     /**
@@ -512,51 +599,42 @@ class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(14)
+    @Order(23)
     @Tag("nightly")
-    void createRestricedJrfDomainImgUsingWdt() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @DisplayName("Create FMW image with WDT domain and latestPSU with new base img")
+    void createRestrictedJrfDomainImgUsingWdt(TestInfo testInfo) throws Exception {
+        // test assumes that the FMW 12.2.1.3 installer is already in the cache
 
-        // add WDT installer to the cache
-        // delete the cache entry if any
-        deleteEntryFromCache("wdt_" + WDT_VERSION);
-        String wdtPath = getStagingDir() + FS + WDT_INSTALLER;
-        addInstallerToCache("wdt", WDT_VERSION, wdtPath);
-
-        // add FMW installer to the cache
-        // delete the cache entry if any
-        deleteEntryFromCache("fmw_" + WLS_VERSION);
-        String fmwPath = getStagingDir() + FS + FMW_INSTALLER;
-        addInstallerToCache("fmw", WLS_VERSION, fmwPath);
-
-        // add jdk installer to the cache
-        // delete the cache entry if any
-        deleteEntryFromCache("jdk_" + JDK_VERSION);
-        String jdkPath = getStagingDir() + FS + JDK_INSTALLER;
-        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
+        // test assumes that the default JDK version 8u202 is already in the cache
 
         // build the wdt archive
         buildWdtArchive();
 
-        String wdtArchive = getWdtResourcePath() + FS + WDT_ARCHIVE;
-        String wdtModel = getWdtResourcePath() + FS + WDT_MODEL;
-        String wdtVariables = getWdtResourcePath() + FS + WDT_VARIABLES;
-        String command = imagetool + " create --fromImage "
-            + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
-            + " --version " + WLS_VERSION + " --latestPSU --user " + oracleSupportUsername
-            + " --passwordEnv ORACLE_SUPPORT_PASSWORD" + " --wdtVersion " + WDT_VERSION
-            + " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel "
-            + wdtModel + " --wdtDomainType RestrictedJRF --type fmw --wdtVariables " + wdtVariables;
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new CreateCommand()
+            .fromImage(BASE_OS_IMG, BASE_OS_IMG_TAG)
+            .tag(tagName)
+            .version(WLS_VERSION)
+            .latestPsu(true)
+            .user(oracleSupportUsername)
+            .passwordEnv("ORACLE_SUPPORT_PASSWORD")
+            .wdtVersion(WDT_VERSION)
+            .wdtModel(WDT_MODEL)
+            .wdtArchive(WDT_ARCHIVE)
+            .wdtVariables(WDT_VARIABLES)
+            .wdtDomainHome("/u01/domains/simple_domain")
+            .wdtDomainType("RestrictedJRF")
+            .type("fmw")
+            .build();
 
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
-
-        logTestEnd(testMethodName);
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
     }
 
     /**
@@ -565,57 +643,39 @@ class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(15)
+    @Order(24)
     @Tag("nightly")
-    void createWlsImgUsingMultiModels() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @DisplayName("Create WLS image with WDT and multiple models")
+    void createWlsImgUsingMultiModels(TestInfo testInfo) throws Exception {
+        // test assumes that the WLS 12.2.1.3 installer is already in the cache
 
-        // add WDT installer to the cache
-        // delete the cache entry first
-        deleteEntryFromCache("wdt_" + WDT_VERSION);
-        String wdtPath = getStagingDir() + FS + WDT_INSTALLER;
-        addInstallerToCache("wdt", WDT_VERSION, wdtPath);
+        // test assumes that the default JDK installer is already in the cache
 
-        // add WLS installer to the cache
-        // delete the cache entry first
-        deleteEntryFromCache("wls_" + WLS_VERSION);
-        String wlsPath = getStagingDir() + FS + WLS_INSTALLER;
-        addInstallerToCache("wls", WLS_VERSION, wlsPath);
-
-        // add jdk installer to the cache
-        // delete the cache entry first
-        deleteEntryFromCache("jdk_" + JDK_VERSION);
-        String jdkPath = getStagingDir() + FS + JDK_INSTALLER;
-        addInstallerToCache("jdk", JDK_VERSION, jdkPath);
-
-        // need to add the required patches 28186730 for Opatch before create wls images
-        // delete the cache entry first
-        deleteEntryFromCache(P28186730_ID + "_" + OPATCH_VERSION);
-        String patchPath = getStagingDir() + FS + P28186730_INSTALLER;
-        addPatchToCache(P28186730_ID, OPATCH_VERSION, patchPath);
+        // test assumes that the WDT installer is already in the cache
 
         // build the wdt archive
         buildWdtArchive();
 
-        String wdtArchive = getWdtResourcePath() + FS + WDT_ARCHIVE;
-        String wdtModel = getWdtResourcePath() + FS + WDT_MODEL;
-        String wdtModel2 = getWdtResourcePath() + FS + WDT_MODEL2;
-        String wdtVariables = getWdtResourcePath() + FS + WDT_VARIABLES;
-        String command = imagetool + " create --fromImage "
-            + BASE_OS_IMG + ":" + BASE_OS_IMG_TAG + " --tag " + build_tag + ":" + testMethodName
-            + " --version " + WLS_VERSION + " --wdtVersion " + WDT_VERSION
-            + " --wdtArchive " + wdtArchive + " --wdtDomainHome /u01/domains/simple_domain --wdtModel "
-            + wdtModel + "," + wdtModel2 + " --wdtVariables " + wdtVariables;
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new CreateCommand()
+            .fromImage(BASE_OS_IMG, BASE_OS_IMG_TAG)
+            .tag(tagName)
+            .version(WLS_VERSION)
+            .wdtVersion(WDT_VERSION)
+            .wdtArchive(WDT_ARCHIVE)
+            .wdtDomainHome("/u01/domains/simple_domain")
+            .wdtModel(WDT_MODEL, WDT_MODEL2)
+            .wdtVariables(WDT_VARIABLES)
+            .build();
 
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
-
-        logTestEnd(testMethodName);
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
     }
 
     /**
@@ -624,34 +684,40 @@ class ITImagetool extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(16)
+    @Order(25)
     @Tag("nightly")
-    void createWLSImgWithAdditionalBuildCommands() throws Exception {
-        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
-        logTestBegin(testMethodName);
+    @DisplayName("Create image with additionalBuildCommands and recommendedPatches")
+    void createWlsImgWithAdditionalBuildCommands(TestInfo testInfo) throws Exception {
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new CreateCommand()
+            .jdkVersion(JDK_VERSION)
+            .tag(tagName)
+            .recommendedPatches(true)
+            .user(oracleSupportUsername)
+            .passwordEnv("ORACLE_SUPPORT_PASSWORD")
+            .additionalBuildCommands(WDT_RESOURCES.resolve("multi-sections.txt"))
+            .build();
 
-        String imagename = build_tag + ":" + testMethodName;
-        String abcPath = getAbcResourcePath() + FS + "multi-sections.txt";
-        String command = imagetool + " create --jdkVersion=" + JDK_VERSION + " --tag "
-            + imagename + " --additionalBuildCommands " + abcPath;
-        logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
 
-        // verify the docker image is created
-        verifyDockerImages(testMethodName);
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
 
         // verify the file created in [before-jdk-install] section
-        verifyFileInImage(imagename, "/u01/jdk/beforeJDKInstall.txt", "before-jdk-install");
+        verifyFileInImage(tagName, "/u01/jdk/beforeJDKInstall.txt", "before-jdk-install");
         // verify the file created in [after-jdk-install] section
-        verifyFileInImage(imagename, "/u01/jdk/afterJDKInstall.txt", "after-jdk-install");
+        verifyFileInImage(tagName, "/u01/jdk/afterJDKInstall.txt", "after-jdk-install");
         // verify the file created in [before-fmw-install] section
-        verifyFileInImage(imagename, "/u01/oracle/beforeFMWInstall.txt", "before-fmw-install");
+        verifyFileInImage(tagName, "/u01/oracle/beforeFMWInstall.txt", "before-fmw-install");
         // verify the file created in [after-fmw-install] section
-        verifyFileInImage(imagename, "/u01/oracle/afterFMWInstall.txt", "after-fmw-install");
+        verifyFileInImage(tagName, "/u01/oracle/afterFMWInstall.txt", "after-fmw-install");
         // verify the label is created as in [final-build-commands] section
-        verifyLabelInImage(imagename, "final-build-commands:finalBuildCommands");
-
-        logTestEnd(testMethodName);
+        CommandResult inspect = Runner.run("docker inspect --format '{{ index .Config.Labels}}' " + tagName);
+        assertTrue(inspect.stdout().contains("final-build-commands:finalBuildCommands"),
+            tagName + " does not contain the expected label");
     }
 }

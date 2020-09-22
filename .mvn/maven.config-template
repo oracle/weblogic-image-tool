@@ -1,1 +1,1 @@
--Dtest.dependency.dir=/some/folder/with/installers
+-Dtest.staging.dir=/some/folder/with/installers

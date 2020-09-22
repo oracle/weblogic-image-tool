@@ -11,12 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.oracle.weblogic.imagetool.tests.utils.ExecCommand;
-import com.oracle.weblogic.imagetool.tests.utils.ExecResult;
+import com.oracle.weblogic.imagetool.tests.utils.CommandResult;
+import com.oracle.weblogic.imagetool.tests.utils.Runner;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BaseTest {
 
-    protected static final Logger logger = Logger.getLogger(ITImagetool.class.getName());
+    private static final Logger logger = Logger.getLogger(ITImagetool.class.getName());
     protected static final String FS = File.separator;
     protected static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
     protected static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
@@ -26,10 +28,8 @@ public class BaseTest {
     private static String projectRoot = "";
     protected static final String wlsImgBldDir = getEnvironmentProperty("WLSIMG_BLDDIR");
     protected static final String wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
-    protected static String imagetool;
-    private static final String IMAGETOOLDIR = "imagetool";
     // STAGING_DIR - directory where JDK and other installers are pre-staged before testing
-    private static final String STAGING_DIR = getEnvironmentProperty("STAGING_DIR");
+    public static final String STAGING_DIR = getEnvironmentProperty("STAGING_DIR");
     protected static String build_tag = "";
     protected static final String WDT_MODEL1 = "simple-topology1.yaml";
 
@@ -73,8 +73,6 @@ public class BaseTest {
             throw new IllegalArgumentException(error);
         }
 
-        imagetool = getImagetoolHome() + FS + "bin" + FS + "imagetool.sh";
-
         // get the build tag from Jenkins build environment variable BUILD_TAG
         build_tag = System.getenv("BUILD_TAG");
         if (build_tag != null) {
@@ -86,7 +84,6 @@ public class BaseTest {
         logger.info("build_tag = " + build_tag);
         logger.info("WLSIMG_BLDDIR = " + wlsImgBldDir);
         logger.info("WLSIMG_CACHEDIR = " + wlsImgCacheDir);
-        logger.info("imagetool script = " + imagetool);
     }
 
     protected static void setup() {
@@ -113,27 +110,17 @@ public class BaseTest {
         executeNoVerify(command);
     }
 
-    protected static void pullBaseOsDockerImage() throws Exception {
-        logger.info("Pulling OS base images from OCIR ...");
-        pullDockerImage(BASE_OS_IMG, BASE_OS_IMG_TAG);
-    }
-
-    protected static void pullOracleDbDockerImage() throws Exception {
-        logger.info("Pulling Oracle DB image from OCIR ...");
-        pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
-    }
-
     static void verifyStagedFiles(String... installers) {
         // determine if any of the required installers are missing from the stage directory
         List<String> missingInstallers = new ArrayList<>();
         for (String installer : installers) {
-            File installFile = new File(getStagingDir() + FS + installer);
+            File installFile = new File(STAGING_DIR + FS + installer);
             if (!installFile.exists()) {
                 missingInstallers.add(installer);
             }
         }
         if (missingInstallers.size() > 0) {
-            String error = "Could not find these installers in the staging directory: " + getStagingDir() + "\n   ";
+            String error = "Could not find these installers in the staging directory: " + STAGING_DIR + "\n   ";
             error += String.join("\n   ", missingInstallers);
             throw new IllegalStateException(error);
         }
@@ -143,123 +130,42 @@ public class BaseTest {
         return projectRoot;
     }
 
-    protected static String getTargetDir() {
-        return getProjectRoot() + FS + "target";
-    }
-
-    protected static String getImagetoolHome() {
-        return getTargetDir() + FS + IMAGETOOLDIR;
-    }
-
-    protected static String getStagingDir() {
-        return STAGING_DIR;
-    }
-
-    protected static String getWdtResourcePath() {
-        return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "wdt";
-    }
-
     protected static String getAbcResourcePath() {
         return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources" + FS + "additionalBuildCommands";
     }
 
     protected static void executeNoVerify(String command) throws Exception {
         logger.info("executing command: " + command);
-        ExecCommand.exec(command);
-    }
-
-    protected void verifyResult(ExecResult result, String matchString) throws Exception {
-        if (result.exitValue() != 0 || !result.stdout().contains(matchString)) {
-            throw new Exception("verifying test result failed.");
-        }
-    }
-
-    protected void verifyExitValue(ExecResult result, String command) throws Exception {
-        if (result.exitValue() != 0) {
-            logger.info("ERROR: result.exitValue=" + result.exitValue());
-            throw new Exception("executing the following command failed: " + command);
-        }
-    }
-
-    protected void verifyDockerImages(String imageTag) throws Exception {
-        // verify the docker image is created
-        ExecResult result = ExecCommand.exec("docker images | grep " + build_tag + " | grep " + imageTag
-            + "| wc -l");
-        if (Integer.parseInt(result.stdout().trim()) != 1) {
-            throw new Exception("wls docker image is not created as expected");
-        }
+        Runner.run(command);
     }
 
     protected void verifyFileInImage(String imagename, String filename, String expectedContent) throws Exception {
         logger.info("verifying the file content in image");
         String command = "docker run --rm " + imagename + " bash -c 'cat " + filename + "'";
         logger.info("executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
+        CommandResult result = Runner.run(command);
         if (!result.stdout().contains(expectedContent)) {
             throw new Exception("The image " + imagename + " does not have the expected file content: "
                 + expectedContent);
         }
     }
 
-    protected void verifyLabelInImage(String imagename, String label) throws Exception {
-        ExecResult result = ExecCommand.exec("docker inspect --format '{{ index .Config.Labels}}' "
-            + imagename);
-        if (!result.stdout().contains(label)) {
-            throw new Exception("The image " + imagename + " does not contain the expected label " + label);
-        }
-    }
-
-    protected void logTestBegin(String testMethodName) {
-        logger.info("=======================================");
-        logger.info("BEGIN test " + testMethodName + " ...");
-    }
-
-    protected void logTestEnd(String testMethodName) {
-        logger.info("SUCCESS - " + testMethodName);
-        logger.info("=======================================");
-    }
-
-    protected ExecResult listItemsInCache() throws Exception {
-        String command = imagetool + " cache listItems";
-        return executeAndVerify(command, true);
-    }
-
-    protected ExecResult addInstallerToCache(String type, String version, String path) throws Exception {
-        String command = imagetool + " cache addInstaller --type " + type + " --version " + version
-            + " --path " + path;
-        return executeAndVerify(command, false);
-    }
-
-    protected ExecResult addPatchToCache(String patchId, String version, String path) throws Exception {
-        String command = imagetool + " cache addPatch --patchId " + patchId + "_" + version + " --path " + path;
-        return executeAndVerify(command, false);
-    }
-
-    protected ExecResult addEntryToCache(String entryKey, String entryValue) throws Exception {
-        String command = imagetool + " cache addEntry --key " + entryKey + " --value " + entryValue;
-        return executeAndVerify(command, false);
-    }
-
-    protected ExecResult deleteEntryFromCache(String entryKey) throws Exception {
-        String command = imagetool + " cache deleteEntry --key " + entryKey;
-        return executeAndVerify(command, false);
-    }
-
-    protected ExecResult buildWdtArchive() throws Exception {
+    protected CommandResult buildWdtArchive() throws Exception {
         logger.info("Building WDT archive ...");
-        String command = "sh " + getWdtResourcePath() + FS + "build-archive.sh";
+        Path scriptPath = Paths.get("src", "test", "resources", "wdt", "build-archive.sh");
+        String command = "sh " + scriptPath.toString();
         return executeAndVerify(command, true);
     }
 
     protected void createDBContainer() throws Exception {
         logger.info("Creating an Oracle db docker container ...");
         String command = "docker rm -f " + dbContainerName;
-        ExecCommand.exec(command);
+        Runner.run(command);
         command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\""
             + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":"
             + ORACLE_DB_IMG_TAG;
         logger.info("executing command: " + command);
-        ExecCommand.exec(command);
+        Runner.run(command);
 
         // wait for the db is ready
         command = "docker ps | grep " + dbContainerName;
@@ -275,28 +181,12 @@ public class BaseTest {
         Files.write(path, content.getBytes());
     }
 
-    private ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {
+    private CommandResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {
         logger.info("Executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        verifyExitValue(result, command);
+        CommandResult result = Runner.run(command);
+        assertEquals(0, result.exitValue(), "for command: " + command);
         logger.info(result.stdout());
         return result;
-    }
-
-    private static void pullDockerImage(String imagename, String imagetag) throws Exception {
-
-        String pullCommand = "docker pull " + imagename + ":" + imagetag;
-        logger.info(pullCommand);
-        ExecResult pullResult = ExecCommand.exec(pullCommand);
-
-        // verify the docker image is pulled
-        ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep "
-            + imagetag + "| wc -l");
-        String resultString = result.stdout();
-        if (Integer.parseInt(resultString.trim()) != 1) {
-            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected."
-                    + " Expected 1 image, found " + resultString);
-        }
     }
 
     private static void checkCmdInLoop(String cmd, String matchStr) throws Exception {
@@ -304,7 +194,7 @@ public class BaseTest {
 
         int i = 0;
         while (i < maxIterations) {
-            ExecResult result = ExecCommand.exec(cmd);
+            CommandResult result = Runner.run(cmd);
 
             // pod might not have been created or if created loop till condition
             if (result.exitValue() != 0

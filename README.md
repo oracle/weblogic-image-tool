@@ -41,6 +41,46 @@ The Image Tool provides three functions within the main script:
 
 Use the [Quick Start](site/quickstart.md) guide to create a Linux based WebLogic Docker image.
 
+## Building From Source
+
+The Image Tool installer is available for download on the [Releases](releases) page.  If you wish
+to build the installer from source instead of downloading it, please follow these instructions:
+- Download and install JDK 8u261+
+- Download and install Maven 3.6.3+
+- Clone this repository to your local environment using one of the options under `Code` near the top of this page.
+- From inside the top-level directory of the cloned project, `weblogic-image-tool`, using Maven, execute one or 
+more of these phases:
+    - `validate` - validate the project is correct and all necessary information is available.
+    - `compile`  - compile the source code.
+    - `test`     - test the compiled source code using the JUnit5 framework.
+    - `package`  - create the installer ZIP, `imagetool.zip`.
+    - `verify`   - run integration tests using the JUnit5 framework.
+    - `clean`    - restore the source by removing any items created by `package` or another phase of the build.
+    
+**Note:** Maven executes build phases sequentially, `validate`, `compile`, `test`, `package`, `verify`, such that 
+running `verify` will run all of these phases from `validate` through `package` before executing `verify`.
+
+Since the `package` phase comes before the `verify` phase, it is not necessary to run the integration tests to create 
+the Image Tool installer.  If you are making changes and want to validate those changes in your environment, you will 
+need to do some additional setup before running the `verify` phase since several of the integration tests require 
+access to the Oracle Technology Network.  To run the integration tests in the 
+`verify` phase, you must specify three environment variables, `ORACLE_SUPPORT_USERNAME`, `ORACLE_SUPPORT_PASSWORD`, 
+and `STAGING_DIR`.  The first two, Oracle Support username and password, are used to connect to Oracle OTN for patches.
+The third, `STAGING_DIR`, should be a local folder where WebLogic Server installers, JDK installers, and pre-downloaded 
+patches can be found.  The files required in the `STAGING_DIR` depend on which tests that you wish to run.  
+
+Example: Run a set of integration tests (available groups are `cache`, `gate`, and `nightly`:
+```shell script
+mvn verify -Dtest.group=cache
+```
+
+Example: Run a single integration test:
+```shell script
+mvn verify -Dit.test=ITImagetool#createWlsImg
+```
+**Note:** In order to run an integration test that builds an image like `createWlsImg`, you must run the `cache` 
+group first in order to populate the cache with the WLS and JDK installers.
+
 ## Samples
 
 * [Create an image with full Internet access](site/create-image-with-internet.md)

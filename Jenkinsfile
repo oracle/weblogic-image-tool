@@ -29,7 +29,7 @@ pipeline {
         }
         stage ('Build') {
             steps {
-                sh 'mvn -B -DskipTests -DskipITs clean install'
+                sh 'mvn -B -DskipTests clean install'
             }
         }
         stage ('Test') {
@@ -58,7 +58,10 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
-                    sh 'mvn verify -Dtest.staging.dir=${STAGING_DIR} -Dtest.groups=gate'
+                    sh '''
+                        cd tests
+                        mvn clean verify -Dtest.staging.dir=${STAGING_DIR} -Dtest.groups=gate
+                    '''
                 }
             }
             post {
@@ -76,7 +79,10 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
-                    sh 'mvn verify -Dtest.staging.dir=${STAGING_DIR} -Dtest.groups=gate,nightly'
+                    sh '''
+                        cd tests
+                        mvn clean verify -Dtest.staging.dir=${STAGING_DIR} -Dtest.groups=gate,nightly
+                    '''
                 }
             }
             post {

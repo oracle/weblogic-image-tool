@@ -5,9 +5,14 @@
 #Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 
-rm -Rf src/test/resources/wdt/archive
-mkdir -p src/test/resources/wdt/archive/wlsdeploy/applications
+MODULE_DIR=$PWD
+ARCHIVE_DIR=target/wdt/archive
+EXPLODED_DIR=$ARCHIVE_DIR/wlsdeploy/applications
+
+rm -Rf $ARCHIVE_DIR
+mkdir -p $EXPLODED_DIR
+
 cd src/test/resources/wdt/simple-app
-jar cvf ../archive/wlsdeploy/applications/simple-app.war *
-cd ../archive
+jar cvf $MODULE_DIR/$EXPLODED_DIR/simple-app.war *
+cd $MODULE_DIR/$ARCHIVE_DIR
 jar cvf ../archive.zip *

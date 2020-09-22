@@ -19,7 +19,6 @@
     <properties>
         <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
         <skipITs>false</skipITs>
-        <test.staging.dir>MUST BE SET TO DIRECTORY WITH PATCHES AND INSTALLERS</test.staging.dir>
     </properties>
 
     <dependencies>
@@ -65,7 +64,7 @@
                                 </requireEnvironmentVariable>
                                 <requireProperty>
                                     <property>test.staging.dir</property>
-                                    <message>For integration tests, you must set the test.staging.dir System property to point to the directory where the installers are staged. Or, set STAGING_DIR environment variable.</message>
+                                    <message>For integration tests, you must define the test.staging.dir System property to point to the directory where the installers are staged. Or, set STAGING_DIR environment variable.</message>
                                 </requireProperty>
                             </rules>
                         </configuration>
