@@ -43,31 +43,31 @@ Use the [Quick Start](site/quickstart.md) guide to create a Linux based WebLogic
 
 ## Building From Source
 
-The Image Tool installer is available for download on the [Releases](releases) page.  If you wish
-to build the installer from source instead of downloading it, please follow these instructions:
+The Image Tool installer is available for download on the [Releases](releases) page.  If you want
+to build the installer from source instead of downloading it, follow these instructions:
 - Download and install JDK 8u261+
 - Download and install Maven 3.6.3+
 - Clone this repository to your local environment using one of the options under `Code` near the top of this page.
 - From inside the top-level directory of the cloned project, `weblogic-image-tool`, using Maven, execute one or 
 more of these phases:
-    - `validate` - validate the project is correct and all necessary information is available.
-    - `compile`  - compile the source code.
-    - `test`     - test the compiled source code using the JUnit5 framework.
-    - `package`  - create the installer ZIP, `imagetool.zip`.
-    - `verify`   - run integration tests using the JUnit5 framework.
-    - `clean`    - restore the source by removing any items created by `package` or another phase of the build.
+    - `validate` - Validate the project is correct and all necessary information is available.
+    - `compile`  - Compile the source code.
+    - `test`     - Test the compiled source code using the JUnit5 framework.
+    - `package`  - Create the installer ZIP file, `imagetool.zip`.
+    - `verify`   - Run integration tests using the JUnit5 framework.
+    - `clean`    - Restore the source by removing any items created by `package` or another phase of the build.
     
 **Note:** Maven executes build phases sequentially, `validate`, `compile`, `test`, `package`, `verify`, such that 
 running `verify` will run all of these phases from `validate` through `package` before executing `verify`.
 
-Since the `package` phase comes before the `verify` phase, it is not necessary to run the integration tests to create 
+Because the `package` phase comes before the `verify` phase, it is not necessary to run the integration tests to create 
 the Image Tool installer.  If you are making changes and want to validate those changes in your environment, you will 
-need to do some additional setup before running the `verify` phase since several of the integration tests require 
+need to do some additional setup before running the `verify` phase because several of the integration tests require 
 access to the Oracle Technology Network.  To run the integration tests in the 
 `verify` phase, you must specify three environment variables, `ORACLE_SUPPORT_USERNAME`, `ORACLE_SUPPORT_PASSWORD`, 
-and `STAGING_DIR`.  The first two, Oracle Support username and password, are used to connect to Oracle OTN for patches.
+and `STAGING_DIR`.  The first two, Oracle Support user name and password, are used to connect to Oracle OTN for patches.
 The third, `STAGING_DIR`, should be a local folder where WebLogic Server installers, JDK installers, and pre-downloaded 
-patches can be found.  The files required in the `STAGING_DIR` depend on which tests that you wish to run.  
+patches can be found.  The files required in the `STAGING_DIR` depend on which tests that you want to run.  
 
 Example: Run a set of integration tests (available groups are `cache`, `gate`, and `nightly`:
 ```shell script
