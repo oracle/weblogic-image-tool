@@ -177,15 +177,6 @@ class ITImagetool {
                         "FAILURE: " + cmd + " does not return the expected string " + matchStr + ", exiting!");
                 }
                 final int waitTime = 5;
-                logger.info(
-                    "Waiting for the expected String " + matchStr
-                        + ": Ite ["
-                        + i
-                        + "/"
-                        + maxIterations
-                        + "], sleeping "
-                        + waitTime
-                        + " seconds more");
                 logger.info("Waiting for the expected String {0}: Iter [{1}/{2}], sleeping {3} seconds more",
                     matchStr, i, maxIterations, waitTime);
 
