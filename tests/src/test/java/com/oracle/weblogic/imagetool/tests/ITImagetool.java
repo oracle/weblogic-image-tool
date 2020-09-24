@@ -738,7 +738,7 @@ class ITImagetool {
     @Order(22)
     @Tag("nightly")
     @DisplayName("Create FMW 12.2.1.3 image with WDT domain")
-    void testCreateJrfDomainImgUsingWdt(TestInfo testInfo) throws Exception {
+    void createJrfDomainImgUsingWdt(TestInfo testInfo) throws Exception {
         // create a db container for RCU
         createDBContainer();
 
@@ -762,7 +762,7 @@ class ITImagetool {
         String addPatchCmd = new CacheCommand()
             .addPatch(true)
             .path(patchPath)
-            .patchId(P22987840_ID)
+            .patchId(P22987840_ID, WLS_VERSION)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
