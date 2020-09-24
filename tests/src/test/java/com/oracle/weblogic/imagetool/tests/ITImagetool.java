@@ -754,8 +754,7 @@ class ITImagetool {
         Path tmpWdtModel = Paths.get(wlsImgBldDir, WDT_MODEL1);
 
         // update wdt model file
-        Path source = Paths.get(WDT_MODEL1);
-        Files.copy(source, tmpWdtModel, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(WDT_RESOURCES.resolve(WDT_MODEL1), tmpWdtModel, StandardCopyOption.REPLACE_EXISTING);
         String getDbContainerIp = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "
             + dbContainerName;
 
