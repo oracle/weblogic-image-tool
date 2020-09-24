@@ -6,11 +6,11 @@ package com.oracle.weblogic.imagetool.tests.utils;
 /**
  * Class that holds the results of using java to exec a command (i.e. exit value, stdout and stderr)
  */
-public class ExecResult {
+public class CommandResult {
     private int exitValue;
     private String stdout;
 
-    public ExecResult(int exitValue, String stdout) {
+    public CommandResult(int exitValue, String stdout) {
         this.exitValue = exitValue;
         this.stdout = stdout;
     }
