@@ -71,12 +71,12 @@ patches can be found.  The files required in the `STAGING_DIR` depend on which t
 
 Example: Run a set of integration tests (available groups are `cache`, `gate`, and `nightly`:
 ```shell script
-mvn verify -Dtest.group=cache
+mvn verify -Dtest.groups=cache
 ```
 
 Example: Run a single integration test:
 ```shell script
-mvn verify -Dit.test=ITImagetool#createWlsImg
+mvn verify -Dtest.groups=gate,nightly -Dit.test=ITImagetool#createWlsImg
 ```
 
 Integration Test groups:

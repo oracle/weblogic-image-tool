@@ -432,7 +432,7 @@ class ITImagetool {
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(command, out, logger);
-            // the process return code for addInstaller should be 0
+            // the process return code for addPatch should be 0
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the result
@@ -527,7 +527,7 @@ class ITImagetool {
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(command, out, logger);
-            // the process return code for addInstaller should be 0
+            // the process return code for addPatch should be 0
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the result
