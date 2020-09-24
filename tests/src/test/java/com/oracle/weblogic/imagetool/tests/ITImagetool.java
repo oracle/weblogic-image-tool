@@ -65,14 +65,12 @@ class ITImagetool {
     private static final String WLS_INSTALLER = "fmw_12.2.1.3.0_wls_Disk1_1of1.zip";
     private static final String P27342434_INSTALLER = "p27342434_122130_Generic.zip";
     private static final String P28186730_INSTALLER = "p28186730_139422_Generic.zip";
-    private static final String P22987840_INSTALLER = "p22987840_122100_Generic.zip";
     private static final String WDT_INSTALLER = "weblogic-deploy.zip";
     private static final String FMW_INSTALLER = "fmw_12.2.1.3.0_infrastructure_Disk1_1of1.zip";
 
     private static final String TEST_ENTRY_KEY = "mytestEntryKey";
     private static final String P27342434_ID = "27342434";
     private static final String P28186730_ID = "28186730";
-    private static final String P22987840_ID = "22987840";
     private static final String WLS_VERSION = "12.2.1.3.0";
     private static final String OPATCH_VERSION = "13.9.4.2.2";
     private static final String JDK_VERSION = "8u202";
@@ -253,7 +251,7 @@ class ITImagetool {
 
         // verify that required files/installers are available
         verifyStagedFiles(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER,
-            FMW_INSTALLER, JDK_INSTALLER_NEWER, P22987840_INSTALLER);
+            FMW_INSTALLER, JDK_INSTALLER_NEWER);
 
         // get Oracle support credentials
         oracleSupportUsername = System.getenv("ORACLE_SUPPORT_USERNAME");
@@ -758,18 +756,7 @@ class ITImagetool {
         String getDbContainerIp = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "
             + dbContainerName;
 
-        Path patchPath = Paths.get(STAGING_DIR, P22987840_INSTALLER);
-        String addPatchCmd = new CacheCommand()
-            .addPatch(true)
-            .path(patchPath)
-            .patchId(P22987840_ID, WLS_VERSION)
-            .build();
-
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
-            CommandResult addPatchResult = Runner.run(addPatchCmd, out, logger);
-            // the process return code for addPatch should be 0
-            assertEquals(0, addPatchResult.exitValue(), "for command: " + addPatchCmd);
-
             String host = Runner.run(getDbContainerIp, out, logger).stdout().trim();
             logger.info("Setting WDT Model DB_HOST to {0}", host);
             String content = new String(Files.readAllBytes(tmpWdtModel));
@@ -788,7 +775,6 @@ class ITImagetool {
                 .wdtDomainType("JRF")
                 .wdtRunRcu(true)
                 .type("fmw")
-                .patches(P22987840_ID)
                 .build();
 
             CommandResult result = Runner.run(command, out, logger);
