@@ -54,7 +54,7 @@ more of these phases:
     - `compile`  - Compile the source code.
     - `test`     - Test the compiled source code using the JUnit5 framework.
     - `package`  - Create the installer ZIP file, `imagetool.zip`.
-    - `verify`   - Run integration tests using the JUnit5 framework.
+    - `verify`   - Run integration tests using the JUnit5 framework (Pre-requisite: Docker installed).
     - `clean`    - Restore the source by removing any items created by `package` or another phase of the build.
     
 **Note:** Maven executes build phases sequentially, `validate`, `compile`, `test`, `package`, `verify`, such that 
@@ -78,6 +78,14 @@ Example: Run a single integration test:
 ```shell script
 mvn verify -Dit.test=ITImagetool#createWlsImg
 ```
+
+Integration Test groups:
+- `cache` - Tests that build and manipulate the Image Tool cache.
+- `gate`  - A basic set of integration tests that are used to validate merge requests, including building several 
+Docker image (~20 minutes)
+- `nightly` - The full set of integration tests building various Docker images including JRF and WLS 
+installations (~2 hours)
+
 **Note:** In order to run an integration test that builds an image like `createWlsImg`, you must run the `cache` 
 group first in order to populate the cache with the WLS and JDK installers.
 

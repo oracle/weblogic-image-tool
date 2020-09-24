@@ -16,7 +16,7 @@ public class LoggingExtension implements BeforeTestExecutionCallback, AfterTestE
 
     @Override
     public void beforeTestExecution(ExtensionContext context) throws Exception {
-        getLogger((context.getRequiredTestClass()))
+        getLogger(context.getRequiredTestClass())
             .info("========== Starting test [{0}] method={1} ==========",
                 context.getDisplayName(),
                 context.getRequiredTestMethod().getName());
