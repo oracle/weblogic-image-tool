@@ -103,7 +103,7 @@ public class HttpUtil {
         String xmlString = Executor.newInstance(getOraClient(username, password))
                 .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
                 .returnContent().asString();
-        logger.exiting();
+        logger.exiting(xmlString);
         return parseXmlString(xmlString);
     }
 

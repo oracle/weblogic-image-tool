@@ -54,10 +54,7 @@ class ITImagetool {
     private static final String wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
 
     // Docker images
-    private static final String BASE_OS_IMG = "phx.ocir.io/weblogick8s/oraclelinux";
-    private static final String BASE_OS_IMG_TAG = "7-4imagetooltest";
-    private static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
-    private static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
+    private static final String ORACLE_DB_IMAGE = "phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim";
 
     // Staging Dir files
     private static final String JDK_INSTALLER = "jdk-8u202-linux-x64.tar.gz";
@@ -201,22 +198,6 @@ class ITImagetool {
         executeNoVerify(command);
     }
 
-    private static void pullDockerImage(String imagename, String imagetag) throws Exception {
-
-        String pullCommand = "docker pull " + imagename + ":" + imagetag;
-        logger.info(pullCommand);
-        Runner.run(pullCommand);
-
-        // verify the docker image is pulled
-        CommandResult result = Runner.run("docker images | grep " + imagename  + " | grep "
-            + imagetag + "| wc -l");
-        String resultString = result.stdout();
-        if (Integer.parseInt(resultString.trim()) != 1) {
-            throw new Exception("docker image " + imagename + ":" + imagetag + " is not pulled as expected."
-                + " Expected 1 image, found " + resultString);
-        }
-    }
-
     @BeforeAll
     static void staticPrepare() throws Exception {
         logger.info("prepare for image tool test ...");
@@ -233,12 +214,6 @@ class ITImagetool {
                 throw new IllegalStateException("Unable to create build directory " + wlsImgBldDir);
             }
         }
-
-        logger.info("Pulling OS base images from OCIR ...");
-        pullDockerImage(BASE_OS_IMG, BASE_OS_IMG_TAG);
-
-        logger.info("Pulling Oracle DB image from OCIR ...");
-        pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
 
         // verify that required files/installers are available
         verifyStagedFiles(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER,
@@ -315,8 +290,7 @@ class ITImagetool {
         String command = "docker rm -f " + dbContainerName;
         Runner.run(command);
         command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\""
-            + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMG + ":"
-            + ORACLE_DB_IMG_TAG;
+            + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMAGE;
         logger.info("executing command: " + command);
         Runner.run(command);
 
@@ -613,7 +587,6 @@ class ITImagetool {
             String tagName = build_tag + ":" + getMethodName(testInfo);
             // create a WLS image with a domain
             String command = new CreateCommand()
-                .fromImage(BASE_OS_IMG, BASE_OS_IMG_TAG)
                 .tag(tagName)
                 .patches(P27342434_ID)
                 .wdtVersion(WDT_VERSION)
@@ -756,7 +729,6 @@ class ITImagetool {
 
             String tagName = build_tag + ":" + getMethodName(testInfo);
             String command = new CreateCommand()
-                .fromImage(BASE_OS_IMG, BASE_OS_IMG_TAG)
                 .tag(tagName)
                 .version(WLS_VERSION)
                 .wdtVersion(WDT_VERSION)
@@ -796,7 +768,6 @@ class ITImagetool {
 
         String tagName = build_tag + ":" + getMethodName(testInfo);
         String command = new CreateCommand()
-            .fromImage(BASE_OS_IMG, BASE_OS_IMG_TAG)
             .tag(tagName)
             .version(WLS_VERSION)
             .latestPsu(true)
@@ -842,7 +813,6 @@ class ITImagetool {
 
         String tagName = build_tag + ":" + getMethodName(testInfo);
         String command = new CreateCommand()
-            .fromImage(BASE_OS_IMG, BASE_OS_IMG_TAG)
             .tag(tagName)
             .version(WLS_VERSION)
             .wdtVersion(WDT_VERSION)

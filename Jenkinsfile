@@ -15,6 +15,7 @@ pipeline {
 
     environment {
         STAGING_DIR = "/scratch/artifacts/imagetool"
+        DB_IMAGE = "phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim"
     }
 
     stages {
@@ -78,6 +79,9 @@ pipeline {
                 }
             }
             steps {
+                script {
+                    docker.image($DB_IMAGE).pull()
+                }
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
                     sh '''
                         cd tests
