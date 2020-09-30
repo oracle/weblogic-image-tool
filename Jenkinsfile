@@ -75,7 +75,7 @@ pipeline {
             when {
                 anyOf {
                     triggeredBy 'TimerTrigger'
-                    tag "release-*"
+                    tag 'release-*'
                     changelog '\\[full-mats\\]'
                 }
             }
