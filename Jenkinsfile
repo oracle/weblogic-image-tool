@@ -76,11 +76,12 @@ pipeline {
                 anyOf {
                     triggeredBy 'TimerTrigger'
                     tag "release-*"
+                    changelog '\\[full-mats\\]'
                 }
             }
             steps {
                 script {
-                    docker.image($DB_IMAGE).pull()
+                    docker.image(${DB_IMAGE}).pull()
                 }
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
                     sh '''
