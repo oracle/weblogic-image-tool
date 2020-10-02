@@ -54,7 +54,7 @@ class ITImagetool {
     private static final String wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
 
     // Docker images
-    private static final String ORACLE_DB_IMAGE = "phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim";
+    private static final String DB_IMAGE = getEnvironmentProperty("DB_IMAGE");
 
     // Staging Dir files
     private static final String JDK_INSTALLER = "jdk-8u202-linux-x64.tar.gz";
@@ -96,6 +96,7 @@ class ITImagetool {
     private static String getEnvironmentProperty(String name) {
         String result = System.getenv(name);
         if (result == null || result.isEmpty()) {
+            logger.info("Environment variable {0} not set, using Java system property", name);
             result = System.getProperty(name);
         }
         return result;
@@ -117,6 +118,10 @@ class ITImagetool {
             missingSettings.add("STAGING_DIR");
         }
 
+        if (DB_IMAGE == null || DB_IMAGE.isEmpty()) {
+            missingSettings.add("DB_IMAGE");
+        }
+
         if (missingSettings.size() > 0) {
             String error = String.join(", ", missingSettings)
                 + " must be set as a system property or ENV variable";
@@ -134,6 +139,8 @@ class ITImagetool {
         logger.info("build_tag = " + build_tag);
         logger.info("WLSIMG_BLDDIR = " + wlsImgBldDir);
         logger.info("WLSIMG_CACHEDIR = " + wlsImgCacheDir);
+        logger.info("STAGING_DIR = " + STAGING_DIR);
+        logger.info("DB_IMAGE = " + DB_IMAGE);
     }
 
     private static void verifyStagedFiles(String... installers) {
@@ -290,7 +297,7 @@ class ITImagetool {
         String command = "docker rm -f " + dbContainerName;
         Runner.run(command);
         command = "docker run -d --name " + dbContainerName + " --env=\"DB_PDB=InfraPDB1\""
-            + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + ORACLE_DB_IMAGE;
+            + " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + DB_IMAGE;
         logger.info("executing command: " + command);
         Runner.run(command);
 
