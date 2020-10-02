@@ -14,6 +14,7 @@ pipeline {
     }
 
     environment {
+        // variables for SystemTest stages (integration tests)
         STAGING_DIR = "/scratch/artifacts/imagetool"
         DB_IMAGE = "phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim"
     }
