@@ -35,9 +35,7 @@ pipeline {
         }
         stage ('Test') {
             when {
-                not {
-                    changelog '\\[skip-ci\\]'
-                }
+                not { changelog '\\[skip-ci\\].*' }
             }
             steps {
                 sh 'mvn test'
@@ -52,9 +50,8 @@ pipeline {
             when {
                 allOf {
                     changeRequest target: 'master'
-                    not {
-                        changelog '\\[skip-ci\\]'
-                    }
+                    not { changelog '\\[skip-ci\\].*' }
+                    not { changelog '\\[full-mats\\].*' }
                 }
             }
             steps {
@@ -76,12 +73,12 @@ pipeline {
                 anyOf {
                     triggeredBy 'TimerTrigger'
                     tag 'release-*'
-                    changelog '\\[full-mats\\]'
+                    changelog '\\[full-mats\\].*'
                 }
             }
             steps {
                 script {
-                    docker.image(${DB_IMAGE}).pull()
+                    docker.image("${env.DB_IMAGE}").pull()
                 }
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
                     sh '''
