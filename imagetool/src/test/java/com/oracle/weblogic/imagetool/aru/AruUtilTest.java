@@ -10,7 +10,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import javax.xml.xpath.XPathExpressionException;
 
+import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
@@ -62,17 +64,20 @@ class AruUtilTest {
 
         @Override
         Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber, String userId,
-                                               String password) {
+                                               String password) throws XPathExpressionException, AruException {
+            Document result;
             try {
                 if (releaseNumber.equals("336")) {
-                    return getResource("/recommended-patches.xml");
+                    result = getResource("/recommended-patches.xml");
                 } else {
-                    return getResource("/no-patches.xml");
+                    result = getResource("/no-patches.xml");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException("failed to load resources XML", e);
             }
+            verifyResponse(result);
+            return result;
         }
 
         private Document getResource(String path) throws IOException {
@@ -95,6 +100,11 @@ class AruUtilTest {
         assertTrue(bugs.contains("31384951"));
         assertTrue(bugs.contains("28512225"));
         assertTrue(bugs.contains("28278427"));
+
+        // if no recommended patches are found, method should return an empty list (test data does not have 12.2.1.4)
+        recommendedPatches =
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, "12.2.1.4.0", "x", "x");
+        assertTrue(recommendedPatches.isEmpty());
     }
 
     @Test

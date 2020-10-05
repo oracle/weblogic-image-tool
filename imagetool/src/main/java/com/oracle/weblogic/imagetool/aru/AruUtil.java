@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import static com.oracle.weblogic.imagetool.util.Constants.ARU_LANG_URL;
+import static com.oracle.weblogic.imagetool.util.Constants.ARU_REST_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.CONFLICTCHECKER_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.GET_LSINVENTORY_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.RECOMMENDED_PATCHES_URL;
@@ -38,7 +39,7 @@ public class AruUtil {
 
     private static AruUtil instance;
 
-    private static final String BUG_SEARCH_URL = "https://updates.oracle.com/Orion/Services/search?bug=%s";
+    private static final String BUG_SEARCH_URL = ARU_REST_URL + "/search?bug=%s";
 
     /**
      * Get ARU HTTP helper instance.
@@ -350,7 +351,7 @@ public class AruUtil {
         return aruHttpHelper.success();
     }
 
-    private void verifyResponse(Document response) throws AruException, XPathExpressionException {
+    void verifyResponse(Document response) throws AruException, XPathExpressionException {
         NodeList nodeList = XPathUtil.nodelist(response, "/results/error");
         if (nodeList.getLength() > 0) {
             String errorMessage = XPathUtil.string(response, "/results/error/message");

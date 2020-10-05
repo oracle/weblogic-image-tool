@@ -14,7 +14,9 @@ pipeline {
     }
 
     environment {
+        // variables for SystemTest stages (integration tests)
         STAGING_DIR = "/scratch/artifacts/imagetool"
+        DB_IMAGE = "phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim"
     }
 
     stages {
@@ -34,9 +36,7 @@ pipeline {
         }
         stage ('Test') {
             when {
-                not {
-                    changelog '\\[skip-ci\\]'
-                }
+                not { changelog '\\[skip-ci\\].*' }
             }
             steps {
                 sh 'mvn test'
@@ -51,9 +51,8 @@ pipeline {
             when {
                 allOf {
                     changeRequest target: 'master'
-                    not {
-                        changelog '\\[skip-ci\\]'
-                    }
+                    not { changelog '\\[skip-ci\\].*' }
+                    not { changelog '\\[full-mats\\].*' }
                 }
             }
             steps {
@@ -74,10 +73,14 @@ pipeline {
             when {
                 anyOf {
                     triggeredBy 'TimerTrigger'
-                    tag "release-*"
+                    tag 'release-*'
+                    changelog '\\[full-mats\\].*'
                 }
             }
             steps {
+                script {
+                    docker.image("${env.DB_IMAGE}").pull()
+                }
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
                     sh '''
                         cd tests
