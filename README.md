@@ -43,8 +43,8 @@ Use the [Quick Start](site/quickstart.md) guide to create a Linux based WebLogic
 
 ## Building From Source
 
-The Image Tool installer is available for download on the [Releases](releases) page.  If you want
-to build the installer from source instead of downloading it, follow these instructions:
+The Image Tool installer is available for download on the [Releases](https://github.com/oracle/weblogic-image-tool/releases) page.  
+If you want to build the installer from source instead of downloading it, follow these instructions:
 - Download and install JDK 8u261+
 - Download and install Maven 3.6.3+
 - Clone this repository to your local environment using one of the options under `Code` near the top of this page.
