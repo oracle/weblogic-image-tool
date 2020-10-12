@@ -359,7 +359,7 @@ public class AruUtil {
             String errorId = XPathUtil.string(response, "/results/error/id");
             AruException error;
             if ("10-016".equals(errorId)) {
-                error = new NoPatchesFoundException();
+                error = new NoPatchesFoundException(errorMessage);
             } else {
                 error = new AruException(errorMessage);
             }
@@ -394,7 +394,11 @@ public class AruUtil {
         String url = String.format(BUG_SEARCH_URL, bugNumber);
         logger.info("IMG-0063", bugNumber);
         Document response = HttpUtil.getXMLContent(url, userId, password);
-        verifyResponse(response);
+        try {
+            verifyResponse(response);
+        } catch (NoPatchesFoundException patchEx) {
+            throw new NoPatchesFoundException(Utils.getMessage("IMG-0086", bugNumber));
+        }
         return AruPatch.getPatches(response, patchSelector);
     }
 

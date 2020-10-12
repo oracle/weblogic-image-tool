@@ -4,7 +4,7 @@
 package com.oracle.weblogic.imagetool.aru;
 
 public class NoPatchesFoundException extends AruException {
-    public NoPatchesFoundException() {
-        super();
+    public NoPatchesFoundException(String msg) {
+        super(msg);
     }
 }
