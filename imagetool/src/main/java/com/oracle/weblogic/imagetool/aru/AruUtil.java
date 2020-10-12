@@ -397,7 +397,7 @@ public class AruUtil {
         try {
             verifyResponse(response);
         } catch (NoPatchesFoundException patchEx) {
-            throw new NoPatchesFoundException(Utils.getMessage("IMG-0086", bugNumber));
+            throw new NoPatchesFoundException(Utils.getMessage("IMG-0086", bugNumber), patchEx);
         }
         return AruPatch.getPatches(response, patchSelector);
     }

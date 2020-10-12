@@ -7,4 +7,8 @@ public class NoPatchesFoundException extends AruException {
     public NoPatchesFoundException(String msg) {
         super(msg);
     }
+
+    public NoPatchesFoundException(String msg, Throwable throwable) {
+        super(msg, throwable);
+    }
 }
