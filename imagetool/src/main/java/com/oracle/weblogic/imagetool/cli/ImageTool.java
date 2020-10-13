@@ -58,9 +58,7 @@ public class ImageTool implements Callable<CommandResponse> {
 
         if (response != null) {
             if (response.getStatus() != 0) {
-                String message = String.format("Response code: %d, message: %s", response.getStatus(),
-                    response.getMessage());
-                logger.severe(message);
+                logger.severe(response.getMessage());
             } else if (!response.getMessage().isEmpty()) {
                 logger.info(response.getMessage());
             }

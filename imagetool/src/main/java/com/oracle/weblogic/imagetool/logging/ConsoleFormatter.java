@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class ConsoleFormatter extends Formatter {
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    private static final Pattern colorPattern = Pattern.compile("\\[\\[([a-z]+): (.+?)]]");
+    public static final Pattern colorPattern = Pattern.compile("\\[\\[([a-z]+): (.+?)]]");
 
     static {
         // if user is redirecting output, do not print color codes

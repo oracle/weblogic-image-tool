@@ -36,7 +36,11 @@ public class OPatchFile extends PatchFile {
 
         // when offline, use the local cache to determine newest version available for OPatch
         if (userId == null && password == null) {
-            setVersion(getLatestCachedVersion(cache, getDefaultBugNum(patchId)));
+            if (patchId != null && patchId.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
+                setVersion(patchId.substring(patchId.indexOf(CacheStore.CACHE_KEY_SEPARATOR) + 1));
+            } else {
+                setVersion(getLatestCachedVersion(cache, getDefaultBugNum(patchId)));
+            }
         }
     }
 
@@ -44,7 +48,11 @@ public class OPatchFile extends PatchFile {
         if (patchId == null) {
             return DEFAULT_BUG_NUM;
         } else {
-            return patchId;
+            if (patchId.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
+                return patchId.substring(0, patchId.indexOf(CacheStore.CACHE_KEY_SEPARATOR));
+            } else {
+                return patchId;
+            }
         }
     }
 

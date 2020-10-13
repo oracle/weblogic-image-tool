@@ -726,7 +726,7 @@ public class Utils {
      */
     public static String getMessage(@PropertyKey(resourceBundle = "ImageTool") String key, Object... params) {
         String message = key;
-        if (bundle.containsKey(key)) {
+        if (bundle != null && bundle.containsKey(key)) {
             message = bundle.getString(key);
         }
         if (params == null || params.length == 0) {

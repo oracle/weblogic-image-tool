@@ -9,6 +9,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -32,6 +33,31 @@ public class FileFormatter extends Formatter {
         this.date = new Date();
         this.args = new Object[1];
         this.formatter = new MessageFormat(DATE_FORMAT_STRING);
+    }
+
+    /**
+     * Remove ANSI color tokens from messages to be logged to a file.
+     * @param text message to be logged
+     * @return message with color tokens removed
+     */
+    private String replaceColorTokens(String text) {
+        Matcher matcher = ConsoleFormatter.colorPattern.matcher(text);
+
+        StringBuilder builder = new StringBuilder();
+        int i = 0;
+        while (matcher.find()) {
+            AnsiColor replacement = AnsiColor.fromValue(matcher.group(1));
+            builder.append(text, i, matcher.start());
+            if (replacement == null) {
+                builder.append(matcher.group(0));
+            } else {
+                // remove color flags from messages logged to file
+                builder.append(matcher.group(2));
+            }
+            i = matcher.end();
+        }
+        builder.append(text.substring(i));
+        return builder.toString();
     }
 
     /**
@@ -74,7 +100,7 @@ public class FileFormatter extends Formatter {
         sb.append(">");
 
         String messageKey = record.getMessage();
-        String message = formatMessage(record);
+        String message = replaceColorTokens(formatMessage(record));
 
         if (messageKey != null) {
             sb.append(" <");
