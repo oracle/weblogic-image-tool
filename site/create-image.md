@@ -53,7 +53,21 @@ Usage: imagetool create [OPTIONS]
 #### `--additionalBuildCommands`
 
 This is an advanced option that let's you provide additional commands to the Docker build step.  
-The input for this parameter is a simple text file that contains one or more of the valid sections: `before-jdk-install`, `after-jdk-install`, `before-fmw-install`, `after-fmw-install`, `before-wdt-command`, `after-wdt-command`, `final-build-commands`.
+The input for this parameter is a simple text file that contains one or more of the valid sections. Valid sections for create:
+
+| Section | Build Stage | Timing |
+| --- | --- | --- |
+| `before-jdk-install` | Intermediate (JDK_BUILD) | Before the JDK is installed. |
+| `after-jdk-install` | Intermediate (JDK_BUILD) | After the JDK is installed. |
+| `before-fmw-install` | Intermediate (WLS_BUILD) | Before the Oracle Home is created. |
+| `after-fmw-install` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
+| `before-wdt-command` | Intermediate (WDT_BUILD) | Before WDT is installed. |
+| `after-wdt-command` | Intermediate (WDT_BUILD) | After WDT domain creation/update is complete. |
+| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
+
+NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
+The Image Tool will copy the Java Home, Oracle Home, domain home, and WDT home directories to the final image.  
+Changes fully contained within these directories do not need an additional `COPY` command in the `final-build-commands` section.
 
 Each section can contain one or more valid Dockerfile commands and would look like the following:
 
