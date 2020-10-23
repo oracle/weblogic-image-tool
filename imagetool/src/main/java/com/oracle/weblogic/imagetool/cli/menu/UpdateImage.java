@@ -81,6 +81,12 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
 
+            String baseImageUsr = baseImageProperties.getProperty("ORACLE_HOME_USER");
+            String baseImageGrp = baseImageProperties.getProperty("ORACLE_HOME_GROUP");
+            if (!dockerfileOptions.userid().equals(baseImageUsr) || !dockerfileOptions.groupid().equals(baseImageGrp)) {
+                return new CommandResponse(-1, "IMG-0087", fromImage, baseImageUsr, baseImageGrp);
+            }
+
             String lsinventoryText = null;
 
             if (applyingPatches()) {

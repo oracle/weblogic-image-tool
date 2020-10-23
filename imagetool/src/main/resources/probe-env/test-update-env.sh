@@ -43,6 +43,9 @@ if [[ -n "$ORACLE_HOME" ]]; then
   echo OPATCH_VERSION="$("$ORACLE_HOME"/OPatch/opatch version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)')"
   "$ORACLE_HOME"/OPatch/opatch lsinventory > /tmp/lsout 2> /dev/null
 
+  echo ORACLE_HOME_USER="$(stat -c '%U' "$ORACLE_HOME")"
+  echo ORACLE_HOME_GROUP="$(stat -c '%G' "$ORACLE_HOME")"
+
   if [[  -f "/tmp/lsout" ]]; then
     echo LSINV_TEXT="$(base64 -w 0 /tmp/lsout)"
   fi
