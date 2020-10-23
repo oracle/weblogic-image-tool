@@ -897,7 +897,7 @@ class ITImagetool {
         String tagName = build_tag + ":" + getMethodName(testInfo);
         String command = new CreateCommand()
             .tag(tagName)
-            .fromImage("container-registry.oracle.com/java/serverjre:8u271")
+            .fromImage("container-registry.oracle.com/java/serverjre:8")
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
