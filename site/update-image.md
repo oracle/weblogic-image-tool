@@ -57,20 +57,24 @@ Update WebLogic Docker image with selected patches
 | `--wdtVersion` | WDT tool version to use.  |   |
 
 ## Additional information
-This section provides additional information for command-line parameters requiring more details or clarification.
 
 #### `--additionalBuildCommands`
 
 This is an advanced option that let's you provide additional commands to the Docker build step.  
-The input for this parameter is a simple text file that contains one or more of the valid sections: `before-jdk-install`, `after-jdk-install`, `before-fmw-install`, `after-fmw-install`, `before-wdt-command`, `after-wdt-command`, `final-build-commands`.
+The input for this parameter is a simple text file that contains one or more of the valid sections. Valid sections for update:
+
+| Section | Build Stage | Timing |
+| --- | --- | --- |
+| `before-wdt-command` | Intermediate (WDT_BUILD) | Before WDT is installed. |
+| `after-wdt-command` | Intermediate (WDT_BUILD) | After WDT domain creation/update is complete. |
+| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
+
+NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
+The Image Tool will copy the domain home and the WDT home directories to the final image.  
+Changes fully contained within these directories do not need an additional `COPY` command in the `final-build-commands` section.
+
 
 Each section can contain one or more valid Dockerfile commands and would look like the following:
-
-#### `--latestPSU`
-
-The `latestPSU` option will continue to be supported for the CREATE option, but has been deprecated for use in the 
-UPDATE option.  Because of the number of patches and their size, using `latestPSU` as an update to an existing image can 
-increase the size of the image significantly, and is not recommended. 
 
 ```dockerfile
 [after-fmw-install]
@@ -97,6 +101,12 @@ on when the build needs access to the file.  For example, if the file is needed 
 installation or domain creation steps, use the `final-build-commands` section so that the `COPY` command occurs in the 
 final stage of the image build.  Or, if the file needs to change the Oracle Home prior to domain creation, use 
 the `after-fmw-install` or `before-wdt-command` sections.
+
+#### `--latestPSU`
+
+The `latestPSU` option will continue to be supported for the CREATE option, but has been deprecated for use in the 
+UPDATE option.  Because of the number of patches and their size, using `latestPSU` as an update to an existing image can 
+increase the size of the image significantly, and is not recommended. 
 
 #### Use an argument file
 
