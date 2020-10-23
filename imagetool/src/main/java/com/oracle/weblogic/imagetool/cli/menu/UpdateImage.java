@@ -62,6 +62,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
 
+            dockerfileOptions.setJavaHome(baseImageProperties.getProperty("JAVA_HOME", null));
+
             String oracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
             if (oracleHome == null) {
                 return new CommandResponse(-1, "IMG-0072", fromImage);
