@@ -243,6 +243,7 @@ class ITImagetool {
 
     /**
      * Create the log directory in ./target (build folder), and open a new file using the test method's name.
+     *
      * @param testInfo metadata from the test to be logged
      * @return an output file wrapped in a PrintWriter
      * @throws IOException if the PrintWriter fails to open the file
@@ -880,5 +881,60 @@ class ITImagetool {
         CommandResult inspect = Runner.run("docker inspect --format '{{ index .Config.Labels}}' " + tagName);
         assertTrue(inspect.stdout().contains("final-build-commands:finalBuildCommands"),
             tagName + " does not contain the expected label");
+    }
+
+    /**
+     * Create a WLS image using Java Server JRE image as a base.
+     * This tests that the JAVA_HOME is correctly identified and applied in the CREATE.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(26)
+    @Tag("nightly")
+    @DisplayName("Create image with WLS using Java ServerJRE")
+    void createImageWithServerJRE(TestInfo testInfo) throws Exception {
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new CreateCommand()
+            .tag(tagName)
+            .fromImage("store/oracle/serverjre:8")
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
+    }
+
+    /**
+     * Update the WLS image created in the previous test.
+     * This tests that the JAVA_HOME is correctly identified and applied in the UPDATE.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(27)
+    @Tag("nightly")
+    @DisplayName("Update image with WLS using Java ServerJRE")
+    void updateImageWithServerJRE(TestInfo testInfo) throws Exception {
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new UpdateCommand()
+            .fromImage(build_tag + ":createImageWithServerJRE")
+            .tag(tagName)
+            .patches(P27342434_ID)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
     }
 }
