@@ -787,6 +787,16 @@ public class DockerfileOptions {
     }
 
     /**
+     * Referenced by Dockerfile template, provides additional OS packages supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
+    public List<String> osPackages() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.PACKAGES);
+    }
+
+    /**
      * Referenced by Dockerfile template, provides additional build commands supplied by the user.
      *
      * @return list of commands as Strings.
