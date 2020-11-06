@@ -21,6 +21,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 public class AdditionalBuildCommands {
     private static final LoggingFacade logger = LoggingFactory.getLogger(AdditionalBuildCommands.class);
 
+    public static final String PACKAGES = "package-manager-packages";
     public static final String BEFORE_JDK = "before-jdk-install";
     public static final String AFTER_JDK = "after-jdk-install";
     public static final String BEFORE_FMW = "before-fmw-install";
@@ -34,6 +35,7 @@ public class AdditionalBuildCommands {
 
     private AdditionalBuildCommands() {
         sections = new ArrayList<>();
+        sections.add(getPattern(PACKAGES));
         sections.add(getPattern(BEFORE_JDK));
         sections.add(getPattern(AFTER_JDK));
         sections.add(getPattern(BEFORE_FMW));
