@@ -314,6 +314,14 @@ public class DockerfileOptions {
         return wdtModelHome;
     }
 
+    /**
+     * Check to see if WDT model home is not under WDT home.
+     * @return true|false
+     */
+    public boolean isWdtModelHomeUnderWdtHome() {
+        return !wdtModelHome.startsWith(wdtHome + "/");
+    }
+
     public boolean isWdtValidateEnabled() {
         return isWdtEnabled() && modelOnly() && (!wdtModelList.isEmpty() || !wdtArchiveList.isEmpty());
     }
