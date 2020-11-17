@@ -124,9 +124,9 @@ USER {{userid}}
         && mkdir -p {{{wdt_model_home}}} \
         && chmod g+w {{{wdt_model_home}}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
-        {{#isWdtModelHomeUnderWdtHome}}
+        {{#isNotWdtModelHomeUnderWdtHome}}
             COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
-        {{/isWdtModelHomeUnderWdtHome}}
+        {{/isNotWdtModelHomeUnderWdtHome}}
     {{/modelOnly}}
     {{^modelOnly}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/

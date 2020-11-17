@@ -318,7 +318,7 @@ public class DockerfileOptions {
      * Check to see if WDT model home is not under WDT home.
      * @return true|false
      */
-    public boolean isWdtModelHomeUnderWdtHome() {
+    public boolean isNotWdtModelHomeUnderWdtHome() {
         return !wdtModelHome.startsWith(wdtHome + "/");
     }
 
