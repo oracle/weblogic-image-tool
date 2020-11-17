@@ -6,8 +6,8 @@
 #
 
 {{#isRebaseToTarget}}
-FROM {{sourceImage}} as SOURCE_IMAGE
-FROM {{targetImage}} as FINAL_BUILD
+FROM {{sourceImage}} as source_image
+FROM {{targetImage}} as final_build
 ARG ADMIN_PORT
 ARG MANAGED_SERVER_PORT
 
@@ -18,8 +18,8 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 {{/isRebaseToTarget}}
 {{#isRebaseToNew}}
-    FROM {{sourceImage}} as SOURCE_IMAGE
-    FROM {{baseImage}} as OS_UPDATE
+    FROM {{sourceImage}} as source_image
+    FROM {{baseImage}} as os_update
     ARG ADMIN_PORT
     ARG MANAGED_SERVER_PORT
 
@@ -70,7 +70,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     {{#installJava}}
         # Install Java
-        FROM OS_UPDATE as JDK_BUILD
+        FROM os_update as jdk_build
         LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
         ENV JAVA_HOME={{{java_home}}}
@@ -93,7 +93,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
         {{/afterJdkInstall}}
     {{/installJava}}
 
-    FROM OS_UPDATE as WLS_BUILD
+    FROM os_update as wls_build
     # Install middleware
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
@@ -111,7 +111,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     && chown {{userid}}:{{groupid}} {{{oracle_home}}}
 
     {{#installJava}}
-        COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+        COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
     {{/installJava}}
 
     {{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installerFilename}} {{responseFile.name}} {{{tempDir}}}/
@@ -156,7 +156,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     {{/afterFmwInstall}}
 
 
-    FROM OS_UPDATE as FINAL_BUILD
+    FROM os_update as final_build
 
     ARG ADMIN_NAME
     ARG ADMIN_HOST
@@ -173,21 +173,21 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     {{#installJava}}
-        COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+        COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
     {{/installJava}}
 
-    COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
+    COPY --from=wls_build --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
     {{#copyOraInst}}
-        COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{inv_loc}}/oraInst.loc  {{inv_loc}}/oraInst.loc
+        COPY --from=wls_build --chown={{userid}}:{{groupid}} {{inv_loc}}/oraInst.loc  {{inv_loc}}/oraInst.loc
     {{/copyOraInst}}
     {{#copyOraInventoryDir}}
-        COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
+        COPY --from=wls_build --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
     {{/copyOraInventoryDir}}
 {{/isRebaseToNew}}
 
 USER {{userid}}
 RUN mkdir -p {{domain_home}}
-COPY --from=SOURCE_IMAGE --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
+COPY --from=source_image --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
 RUN chmod g+w {{{domain_home}}}
 
 EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT

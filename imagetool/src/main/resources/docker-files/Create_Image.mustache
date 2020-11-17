@@ -4,7 +4,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #
-FROM {{baseImage}} as OS_UPDATE
+FROM {{baseImage}} as os_update
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER root
 
@@ -48,7 +48,7 @@ RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && 
 
 {{#installJava}}
 # Install Java
-FROM OS_UPDATE as JDK_BUILD
+FROM os_update as jdk_build
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 ENV JAVA_HOME={{{java_home}}}
@@ -72,7 +72,7 @@ RUN tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01 \
 {{/installJava}}
 
 # Install Middleware
-FROM OS_UPDATE as WLS_BUILD
+FROM os_update as wls_build
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 ENV JAVA_HOME={{{java_home}}} \
@@ -88,7 +88,7 @@ RUN mkdir -p {{{oracle_home}}} \
  && chown {{userid}}:{{groupid}} {{orainv_dir}} \
  && chown {{userid}}:{{groupid}} {{{oracle_home}}}
 
-{{#installJava}}COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+{{#installJava}}COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
 {{/installJava}}
 
 {{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installerFilename}} {{responseFile.name}} {{{tempDir}}}/
@@ -136,7 +136,7 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
 {{/afterFmwInstall}}
 
 {{#isWdtEnabled}}
-    FROM WLS_BUILD as WDT_BUILD
+    FROM wls_build as wdt_build
     ARG WDT_ENCRYPTION_KEY
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
@@ -206,7 +206,7 @@ RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBase
 
 {{/isWdtEnabled}}
 
-FROM OS_UPDATE as FINAL_BUILD
+FROM os_update as final_build
 
 ARG ADMIN_NAME
 ARG ADMIN_HOST
@@ -231,15 +231,15 @@ ENV ORACLE_HOME={{{oracle_home}}} \
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 {{#installJava}}
-    COPY --from=JDK_BUILD --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+    COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
 {{/installJava}}
 
-COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
+COPY --from=wls_build --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
 {{#copyOraInst}}
-    COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{inv_loc}}/oraInst.loc  {{inv_loc}}/oraInst.loc
+    COPY --from=wls_build --chown={{userid}}:{{groupid}} {{inv_loc}}/oraInst.loc  {{inv_loc}}/oraInst.loc
 {{/copyOraInst}}
 {{#copyOraInventoryDir}}
-    COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
+    COPY --from=wls_build --chown={{userid}}:{{groupid}} {{orainv_dir}} {{orainv_dir}}/
 {{/copyOraInventoryDir}}
 
 {{#isWdtEnabled}}
@@ -250,13 +250,13 @@ COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle
         && chmod g+w $DOMAIN_PARENT \
         && mkdir -p {{{wdt_model_home}}} \
         && chmod g+w {{{wdt_model_home}}}
-        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+        COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
         {{#isWdtModelHomeOutsideWdtHome}}
-            COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
+            COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
         {{/isWdtModelHomeOutsideWdtHome}}
     {{/modelOnly}}
     {{^modelOnly}}
-        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
+        COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
         RUN chmod g+w {{{domain_home}}}
     {{/modelOnly}}
 {{/isWdtEnabled}}

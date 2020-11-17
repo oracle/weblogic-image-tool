@@ -57,12 +57,12 @@ The input for this parameter is a simple text file that contains one or more of 
 
 | Section | Build Stage | Timing |
 | --- | --- | --- |
-| `before-jdk-install` | Intermediate (JDK_BUILD) | Before the JDK is installed. |
-| `after-jdk-install` | Intermediate (JDK_BUILD) | After the JDK is installed. |
-| `before-fmw-install` | Intermediate (WLS_BUILD) | Before the Oracle Home is created. |
-| `after-fmw-install` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
-| `before-wdt-command` | Intermediate (WDT_BUILD) | Before WDT is installed. |
-| `after-wdt-command` | Intermediate (WDT_BUILD) | After WDT domain creation/update is complete. |
+| `before-jdk-install` | Intermediate (jdk_build) | Before the JDK is installed. |
+| `after-jdk-install` | Intermediate (jdk_build) | After the JDK is installed. |
+| `before-fmw-install` | Intermediate (wls_build) | Before the Oracle Home is created. |
+| `after-fmw-install` | Intermediate (wls_build) | After all of the Oracle middleware installers are finished. |
+| `before-wdt-command` | Intermediate (wdt_build) | Before WDT is installed. |
+| `after-wdt-command` | Intermediate (wdt_build) | After WDT domain creation/update is complete. |
 | `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
 
 NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  

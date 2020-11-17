@@ -21,5 +21,5 @@ LABEL after-wdt-command="afterWDTCommand"
 
 [final-build-commands]
 LABEL final-build-commands="finalBuildCommands"
-COPY --from=JDK_BUILD --chown=oracle:oracle /u01/beforeJDKInstall.txt /u01/afterJDKInstall.txt /u01/jdk/
-COPY --from=WLS_BUILD --chown=oracle:oracle /u01/beforeFMWInstall.txt /u01/afterFMWInstall.txt /u01/oracle/
+COPY --from=jdk_build --chown=oracle:oracle /u01/beforeJDKInstall.txt /u01/afterJDKInstall.txt /u01/jdk/
+COPY --from=wls_build --chown=oracle:oracle /u01/beforeFMWInstall.txt /u01/afterFMWInstall.txt /u01/oracle/
