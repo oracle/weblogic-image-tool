@@ -76,6 +76,19 @@ public class OPatchFile extends PatchFile {
         return latestVersion;
     }
 
+    /**
+     * Return true if the patchId matches any known OPatch bug numbers.
+     *
+     * @param patchId the patch ID to test
+     * @return true if and only if the patchId matches an OPatch bug number.
+     */
+    public static boolean isOPatchPatch(String patchId) {
+        if (DEFAULT_BUG_NUM.equals(patchId)) {
+            return true;
+        }
+        return patchId != null && patchId.startsWith(DEFAULT_BUG_NUM + CacheStore.CACHE_KEY_SEPARATOR);
+    }
+
     @Override
     public String resolve(CacheStore cacheStore) throws IOException {
         try {

@@ -295,7 +295,7 @@ public abstract class CommonOptions {
         // add user-provided patch list to any patches that were found for latestPsu or recommendedPatches
         for (String patchId : patches) {
             // if user mistakenly added the OPatch patch to the WLS patch list, skip it
-            if (OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
+            if (OPatchFile.isOPatchPatch(patchId)) {
                 continue;
             }
             // if patch ID was provided as bugnumber_version, split the bugnumber and version strings
