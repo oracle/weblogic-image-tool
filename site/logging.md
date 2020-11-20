@@ -4,8 +4,8 @@ The Image Tool uses standard Java logging. To alter the default logging settings
 file under the `bin` directory where you installed the Image Tool.
 
 ### To enable debug logging
-In `logging.properties`, comment the existing `handlers` property and uncomment the `handlers` line below the first that 
-contains the FileHandler.
+In `logging.properties`, comment the existing `handlers` property and uncomment the second `handlers` line below the first 
+line that you just commented.  This should make the `logging.properties` file look something like this:
 ```properties
 #handlers=java.util.logging.ConsoleHandler
 handlers=java.util.logging.FileHandler, java.util.logging.ConsoleHandler
