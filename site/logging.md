@@ -21,10 +21,10 @@ Logging levels from highest to lowest:
 | Level | Description |
 | --- | --- |
 | `SEVERE` | Only error messages are written to the log file. |
-| `WARNING` | Warning messages and above are written to the log file. |
-| `INFO` | (Default) Informational messages and above are written to the log file. |
-| `FINE` | First level debug messages and above are written to the log file. |
-| `FINER` | Detailed debug messages and above are written to the log file. |
+| `WARNING` | Warning messages and higher are written to the log file. |
+| `INFO` | (Default) Informational messages and higher are written to the log file. |
+| `FINE` | First level debug messages and higher are written to the log file. |
+| `FINER` | Detailed debug messages and higher are written to the log file. |
 | `FINEST` | In addition to FINER level debug messages, all HTTP responses are written to the log file. |
 
 ### Copyright
