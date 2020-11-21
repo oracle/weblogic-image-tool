@@ -16,7 +16,7 @@ Then, change level to `FINE` or `FINER`.
 com.oracle.weblogic.imagetool.level=FINER
 ```
 
-Logging levels from highest to lowest:
+Logging severity levels from highest to lowest:
 
 | Level | Description |
 | --- | --- |
