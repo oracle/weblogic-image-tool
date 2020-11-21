@@ -56,11 +56,6 @@ pipeline {
                 }
             }
             steps {
-                step {
-                    sh '''
-                        oci os object get -ns weblogick8s -bn wko-system-test-files --config-file=/dev/null --auth=instance_principal --file ./imagetool.zip --name imagetool-master.zip
-                    '''
-                }
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'otn-cred', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
                     sh '''
                         cd tests
