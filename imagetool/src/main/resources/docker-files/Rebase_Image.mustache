@@ -147,8 +147,20 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
         && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}}
     {{/isOpatchPatchingEnabled}}
     {{#isPatchingEnabled}}
-    RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
-        && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
+        {{^strictPatchOrdering}}
+            # Apply all patches provided at the same time
+            RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
+            && test $? -eq 0 \
+            && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
+            || (cat {{{oracle_home}}}/cfgtoollogs/opatch/opatch*.log && exit 1)
+        {{/strictPatchOrdering}}
+        {{#strictPatchOrdering}}
+            # Apply one patch at a time in the order they were specified
+            {{#patches}}
+                RUN {{{oracle_home}}}/OPatch/opatch apply -silent -oh {{{oracle_home}}} {{{tempDir}}}/patches/{{{.}}}
+            {{/patches}}
+            RUN {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
+        {{/strictPatchOrdering}}
     {{/isPatchingEnabled}}
 
     {{#afterFmwInstall}}

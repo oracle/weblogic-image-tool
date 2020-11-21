@@ -326,6 +326,9 @@ public abstract class CommonOptions {
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File cacheFile = new File(patchLocation);
                 try {
+                    if (patch.fileName() == null) {
+                        patch.fileName(cacheFile.getName());
+                    }
                     Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, cacheFile.getName()));
                 } catch (FileAlreadyExistsException ee) {
                     logger.warning("IMG-0077", patchFile.getKey());
@@ -335,7 +338,10 @@ public abstract class CommonOptions {
             }
         }
         if (!aruPatches.isEmpty()) {
-            dockerfileOptions.setPatchingEnabled();
+            dockerfileOptions
+                .setPatchingEnabled()
+                .setStrictPatchOrdering(strictPatchOrdering)
+                .setPatchList(aruPatches);
         }
         logger.exiting();
     }
@@ -521,6 +527,12 @@ public abstract class CommonOptions {
         description = "Whether to apply recommended patches from latest PSU."
     )
     boolean recommendedPatches = false;
+
+    @Option(
+        names = {"--strictPatchOrdering"},
+        description = "Use OPatch to apply patches one at a time."
+    )
+    boolean strictPatchOrdering = false;
 
     @Option(
         names = {"--patches"},
