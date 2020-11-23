@@ -125,10 +125,20 @@ RUN cd {{{tempDir}}}/opatch \
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
- && test $? -eq 0 \
- && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
- || (cat {{{oracle_home}}}/cfgtoollogs/opatch/opatch*.log && exit 1)
+    {{^strictPatchOrdering}}
+        # Apply all patches provided at the same time
+        RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
+        && test $? -eq 0 \
+        && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
+        || (cat {{{oracle_home}}}/cfgtoollogs/opatch/opatch*.log && exit 1)
+    {{/strictPatchOrdering}}
+    {{#strictPatchOrdering}}
+        # Apply one patch at a time in the order they were specified
+        {{#patches}}
+            RUN {{{oracle_home}}}/OPatch/opatch apply -silent -oh {{{oracle_home}}} {{{tempDir}}}/patches/{{{.}}}
+        {{/patches}}
+        RUN {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
+    {{/strictPatchOrdering}}
 {{/isPatchingEnabled}}
 
 {{#afterFmwInstall}}
@@ -247,11 +257,13 @@ COPY --from=WLS_BUILD --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle
         RUN DOMAIN_PARENT=$(dirname {{{domain_home}}}) \
         && mkdir -p $DOMAIN_PARENT \
         && chown {{userid}}:{{groupid}} $DOMAIN_PARENT \
-        && chmod g+w $DOMAIN_PARENT
-        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
-        RUN mkdir -p {{{wdt_model_home}}} \
+        && chmod g+w $DOMAIN_PARENT \
+        && mkdir -p {{{wdt_model_home}}} \
         && chmod g+w {{{wdt_model_home}}}
-        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
+        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+        {{#isWdtModelHomeOutsideWdtHome}}
+            COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
+        {{/isWdtModelHomeOutsideWdtHome}}
     {{/modelOnly}}
     {{^modelOnly}}
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/

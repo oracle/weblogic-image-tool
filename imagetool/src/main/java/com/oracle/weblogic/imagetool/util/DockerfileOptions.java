@@ -9,7 +9,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
+import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.cli.menu.PackageManagerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
@@ -36,6 +38,7 @@ public class DockerfileOptions {
     private boolean skipJavaInstall;
     private boolean isRebaseToTarget;
     private boolean isRebaseToNew;
+    private boolean strictPatchOrdering;
 
     private String javaInstaller;
     private String username;
@@ -51,6 +54,7 @@ public class DockerfileOptions {
     private String sourceImage;
     private String targetImage;
     private PackageManagerType pkgMgr;
+    private List<String> patchFilenames;
 
     // WDT values
     private String wdtHome;
@@ -312,6 +316,14 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public String wdt_model_home() {
         return wdtModelHome;
+    }
+
+    /**
+     * Check to see if WDT model home is not under WDT home.
+     * @return true|false
+     */
+    public boolean isWdtModelHomeOutsideWdtHome() {
+        return !wdtModelHome.startsWith(wdtHome + File.separator);
     }
 
     public boolean isWdtValidateEnabled() {
@@ -784,6 +796,44 @@ public class DockerfileOptions {
             return Collections.emptyList();
         }
         return additionalBuildCommands.get(sectionName);
+    }
+
+    @SuppressWarnings("unused")
+    public boolean strictPatchOrdering() {
+        return strictPatchOrdering;
+    }
+
+    /**
+     * Set strict patch ordering to apply each patch one at a time, instead of
+     * in a single pass with OPatch.  This will slow down the patching process but
+     * is necessary for some patches.
+     *
+     * @param value true to enable strict ordering
+     * @return this
+     */
+    public DockerfileOptions setStrictPatchOrdering(boolean value) {
+        strictPatchOrdering = value;
+        return this;
+    }
+
+    /**
+     * Set patch file names to be used for OPatch.
+     * This list is only used when using strictPatchOrdering.
+     *
+     * @param patchList list of ARU Patches
+     * @return this
+     */
+    public DockerfileOptions setPatchList(List<AruPatch> patchList) {
+        patchFilenames = patchList.stream()
+            .map(AruPatch::fileName)
+            .collect(Collectors.toList());
+
+        return this;
+    }
+
+    @SuppressWarnings("unused")
+    public List<String> patches() {
+        return patchFilenames;
     }
 
     /**

@@ -295,7 +295,7 @@ public abstract class CommonOptions {
         // add user-provided patch list to any patches that were found for latestPsu or recommendedPatches
         for (String patchId : patches) {
             // if user mistakenly added the OPatch patch to the WLS patch list, skip it
-            if (OPatchFile.DEFAULT_BUG_NUM.equals(patchId)) {
+            if (OPatchFile.isOPatchPatch(patchId)) {
                 continue;
             }
             // if patch ID was provided as bugnumber_version, split the bugnumber and version strings
@@ -326,6 +326,9 @@ public abstract class CommonOptions {
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File cacheFile = new File(patchLocation);
                 try {
+                    if (patch.fileName() == null) {
+                        patch.fileName(cacheFile.getName());
+                    }
                     Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, cacheFile.getName()));
                 } catch (FileAlreadyExistsException ee) {
                     logger.warning("IMG-0077", patchFile.getKey());
@@ -335,7 +338,10 @@ public abstract class CommonOptions {
             }
         }
         if (!aruPatches.isEmpty()) {
-            dockerfileOptions.setPatchingEnabled();
+            dockerfileOptions
+                .setPatchingEnabled()
+                .setStrictPatchOrdering(strictPatchOrdering)
+                .setPatchList(aruPatches);
         }
         logger.exiting();
     }
@@ -521,6 +527,12 @@ public abstract class CommonOptions {
         description = "Whether to apply recommended patches from latest PSU."
     )
     boolean recommendedPatches = false;
+
+    @Option(
+        names = {"--strictPatchOrdering"},
+        description = "Use OPatch to apply patches one at a time."
+    )
+    boolean strictPatchOrdering = false;
 
     @Option(
         names = {"--patches"},
