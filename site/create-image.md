@@ -57,6 +57,7 @@ The input for this parameter is a simple text file that contains one or more of 
 
 | Section | Build Stage | Timing |
 | --- | --- | --- |
+| `package-manager-packages` | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
 | `before-jdk-install` | Intermediate (JDK_BUILD) | Before the JDK is installed. |
 | `after-jdk-install` | Intermediate (JDK_BUILD) | After the JDK is installed. |
 | `before-fmw-install` | Intermediate (WLS_BUILD) | Before the Oracle Home is created. |
