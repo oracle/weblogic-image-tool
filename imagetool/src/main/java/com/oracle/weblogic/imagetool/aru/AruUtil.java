@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
