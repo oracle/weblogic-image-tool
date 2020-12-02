@@ -5,10 +5,14 @@ package com.oracle.weblogic.imagetool.cachestore;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.aru.AruException;
+import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -21,39 +25,66 @@ public class OPatchFile extends PatchFile {
     public static final String DEFAULT_BUG_NUM = "28186730";
 
     /**
-     * An abstract OPatch file to help resolve the local file, and determine local patch version.
-     * Default patch number for OPatch is 28186730.
+     * Create an abstract OPatch file to help resolve the local file or download the remote patch.
      *
-     * @param patchId  the ID of the patch
-     * @param userId   the username to use for retrieving the patch
+     * @param patchId  bug number and optional version
+     * @param userid   the username to use for retrieving the patch
      * @param password the password to use with the userId to retrieve the patch
+     * @param cache    the local cache used for patch storage
+     * @return an abstract OPatch file
      */
-    public OPatchFile(String patchId, String userId, String password, CacheStore cache)
-        throws IOException, AruException, XPathExpressionException {
-        super(AruUtil.rest().getPatch(getDefaultBugNum(patchId), userId, password, "[access = 'Open access']"),
-            userId,
-            password);
+    public static OPatchFile getInstance(String patchId, String userid, String password, CacheStore cache)
+        throws AruException, XPathExpressionException, IOException {
 
-        // when offline, use the local cache to determine newest version available for OPatch
-        if (userId == null && password == null) {
-            if (patchId != null && patchId.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
-                setVersion(patchId.substring(patchId.indexOf(CacheStore.CACHE_KEY_SEPARATOR) + 1));
-            } else {
-                setVersion(getLatestCachedVersion(cache, getDefaultBugNum(patchId)));
+        String patchNumber = patchId;
+        String providedVersion = null;
+        if (patchId == null) {
+            // if the user did not provide a patch number, assume the default OPatch bug number
+            patchNumber = DEFAULT_BUG_NUM;
+        } else if (patchId.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
+            // if the user provides a specific version, use that version or fail.  like 28186730_13.9.4.2.4
+            int separator = patchId.indexOf(CacheStore.CACHE_KEY_SEPARATOR);
+            patchNumber = patchId.substring(0, separator);
+            providedVersion = patchId.substring(separator + 1);
+        }
+
+        List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password);
+        if (!isOffline(userid, password)) {
+            // if working online with ARU metadata, filter results based on availability and ARU recommendation
+            Stream<AruPatch> filteredList = patches.stream().filter(AruPatch::isOpenAccess);
+            if (providedVersion == null) {
+                filteredList = filteredList.filter(AruPatch::isRecommended);
             }
+            patches = filteredList.collect(Collectors.toList());
+        }
+
+        AruPatch selectedPatch = AruPatch.selectPatch(patches, providedVersion, null, null);
+
+        if (selectedPatch != null) {
+            // if offline, find the latest OPatch version available in the cache
+            if (isOffline(userid, password) && providedVersion == null) {
+                selectedPatch.version(getLatestCachedVersion(cache, patchNumber));
+            }
+            return new OPatchFile(selectedPatch, userid, password);
+        } else {
+            throw new MultiplePatchVersionsException(patchNumber, patches);
         }
     }
 
-    private static String getDefaultBugNum(String patchId) {
-        if (patchId == null) {
-            return DEFAULT_BUG_NUM;
-        } else {
-            if (patchId.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
-                return patchId.substring(0, patchId.indexOf(CacheStore.CACHE_KEY_SEPARATOR));
-            } else {
-                return patchId;
-            }
-        }
+    private static boolean isOffline(String userid, String password) {
+        return userid == null || password == null;
+    }
+
+    /**
+     * An abstract OPatch file to help resolve the local file, and determine local patch version.
+     * Default patch number for OPatch is 28186730.
+     *
+     * @param patch    the OPatch ARU patch
+     * @param userId   the username to use for retrieving the patch
+     * @param password the password to use with the userId to retrieve the patch
+     */
+    private OPatchFile(AruPatch patch, String userId, String password) {
+        super(patch, userId, password);
     }
 
     private static String getLatestCachedVersion(CacheStore cache, String patchId) {

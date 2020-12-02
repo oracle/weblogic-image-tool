@@ -103,7 +103,7 @@ public class CachedFileTest {
     @Test
     void latestOpatchVersion() throws IOException, AruException, XPathExpressionException {
         // OPatch file should default to the default OPatch bug number and the latest version found in cache
-        OPatchFile patchFile = new OPatchFile(null, null, null, cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(null, null, null, cacheStore);
         assertEquals(DEFAULT_BUG_NUM + "_13.9.4.0.0", patchFile.getKey(),
             "failed to get latest Opatch version from the cache");
     }
@@ -111,7 +111,7 @@ public class CachedFileTest {
     @Test
     void specificOpatchVersion() throws IOException, AruException, XPathExpressionException {
         // OPatch file should default to the default OPatch bug number and the latest version found in cache
-        OPatchFile patchFile = new OPatchFile(DEFAULT_BUG_NUM + "_13.9.2.2.2", null, null, cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(DEFAULT_BUG_NUM + "_13.9.2.2.2", null, null, cacheStore);
         assertEquals(DEFAULT_BUG_NUM + "_13.9.2.2.2", patchFile.getKey(),
             "failed to get specific Opatch version from the cache");
     }

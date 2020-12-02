@@ -89,7 +89,7 @@ public class PatchFileTest {
             responseCache.put("1110001", getResource("/patch-1110001.xml"));
             responseCache.put("1110002", getResource("/patch-1110002.xml"));
             responseCache.put("1110003", getResource("/patch-1110003.xml"));
-
+            responseCache.put("28186730", getResource("/patch-28186730.xml"));
         }
 
         @Override
@@ -334,5 +334,61 @@ public class PatchFileTest {
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x");
         assertThrows(VersionNotFoundException.class,
             () -> AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.1"));
+    }
+
+    @Test
+    void opatchDefaultTest() throws Exception {
+        /*
+         * Condition:
+         *     There are 5 versions of the OPatch patch.
+         *     The user does not specify a version.
+         * Expected:
+         *     The recommended patch from ARU should be selected.
+         */
+
+        // 28186730 has multiple patches available, but none are specified
+        String patchId = "28186730";
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+
+        String filePath = patchFile.resolve(cacheStore);
+
+        assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
+        assertEquals("13.9.4.2.4", patchFile.getVersion(), "wrong version selected");
+        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_13.9.4.2.4");
+        assertNotNull(filePathFromCache, "Could not find new patch in cache");
+        assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
+    }
+
+    @Test
+    void opatchProvidedVersionTest() throws Exception {
+        /*
+         * Condition:
+         *     There are 5 versions of the OPatch patch.
+         *     The user specifies a specific version.
+         * Expected:
+         *     The provided version of the patch is selected.
+         */
+
+        // 28186730 has multiple patches available, but none are specified
+        String patchId = "28186730_13.9.4.2.5";
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+
+        assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
+    }
+
+    @Test
+    void opatchProvidedWrongVersionTest() {
+        /*
+         * Condition:
+         *     There are 5 versions of the OPatch patch.
+         *     The user specifies a specific version.
+         * Expected:
+         *     The provided version of the patch is selected.
+         */
+
+        // 28186730 has multiple patches available, but none are specified
+        String patchId = "28186730_13.9.4.2.2";
+        assertThrows(VersionNotFoundException.class, () ->
+            OPatchFile.getInstance(patchId, "x", "x", cacheStore));
     }
 }
