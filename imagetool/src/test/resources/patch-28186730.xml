@@ -1,0 +1,248 @@
+
+<!-- Copyright (c) 2020, Oracle Corporation and/or its affiliates. -->
+<!-- Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. -->
+
+
+<results md5_sum="8ae88f8847e373ca6cc44516717e9e07">
+    <generated_date in_epoch_ms="1606849997000">2020-12-01 19:13:17</generated_date>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>28186730</number>
+            <abstract><![CDATA[OPATCH 13.9.4.2.5 FOR EM 13.4, FMW/WLS 12.2.1.3.0, 12.2.1.4.0 AND 14.1.1.0.0]]></abstract>
+        </bug>
+        <name>28186730</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23901536]]></patch_readme>
+            <patch_details><![CDATA[/download/28186730.html]]></patch_details>
+        </url>
+        <request_id>23901536</request_id>
+        <urm_components>
+            <qparts ctype_id="201">
+                <qpart cid="468882" version="Q12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></qpart>
+            </qparts>
+            <urm_releases ctype_id="5">
+                <urm_release cid="1007556" version="13.9.4.2.5"><![CDATA[OPatch]]></urm_release>
+            </urm_releases>
+        </urm_components>
+        <product id="31944" bugdb_id="12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></product>
+        <release id="600000000159823" name="13.9.4.2.5" platform_patch_not_required="Y" cc="Y"><![CDATA[OPatch 13.9.4.2.5]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="174">General</classification>
+        <patch_classification id="174">General</patch_classification>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <size>45855234</size>
+        <files>
+            <file>
+                <name>p28186730_139425_Generic.zip</name>
+                <size>45855234</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139425_Generic.zip?aru=23901536&patch_file=p28186730_139425_Generic.zip]]></download_url>
+                <digest type="SHA-256">8BFC99E439DA1D1663F88D6859EC19E9926A473C96B95889ABE5F45C055E1BB3</digest>
+                <digest type="SHA-1">41E3536305E6A71776717D700FA41B1A1AB0A493</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1604594811000">2020-11-05 16:46:51</updated_date>
+        <released_date in_epoch_ms="1604592571000">2020-11-05 16:09:31</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>28186730</number>
+            <abstract><![CDATA[OPATCH 13.9.4.2.4 FOR FMW/WLS 12.2.1.3.0, 12.2.1.4.0 AND 14.1.1.0.0]]></abstract>
+        </bug>
+        <name>28186730</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23574493]]></patch_readme>
+            <patch_details><![CDATA[/download/28186730.html]]></patch_details>
+        </url>
+        <request_id>23574493</request_id>
+        <urm_components>
+            <qparts ctype_id="201">
+                <qpart cid="468882" version="Q12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></qpart>
+            </qparts>
+            <urm_releases ctype_id="5">
+                <urm_release cid="962999" version="13.9.4.2.4"><![CDATA[OPatch]]></urm_release>
+            </urm_releases>
+        </urm_components>
+        <product id="31944" bugdb_id="12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></product>
+        <release id="600000000154942" name="13.9.4.2.4" platform_patch_not_required="Y" cc="Y"><![CDATA[OPatch 13.9.4.2.4]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <target_types>
+            <target_type>
+                <aru_target><![CDATA[FMW_CORE]]></aru_target>
+                <em_tag><![CDATA[oracle_ias]]></em_tag>
+            </target_type>
+        </target_types>
+        <size>45731967</size>
+        <files>
+            <file>
+                <name>p28186730_139424_Generic.zip</name>
+                <size>45731967</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139424_Generic.zip?aru=23574493&patch_file=p28186730_139424_Generic.zip]]></download_url>
+                <digest type="SHA-1">1C03A8D8C54236E52FB1F4B6C49C9D161DA17D84</digest>
+                <digest type="SHA-256">0CB78A061B47B3466656BBB08EF850EF1206ECF4A350BD7E116D77E439081664</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1594458862000">2020-07-11 09:14:22</updated_date>
+        <released_date in_epoch_ms="1589781020000">2020-05-18 05:50:20</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>28186730</number>
+            <abstract><![CDATA[OPATCH 13.9.4.2.0 FOR FMW/WLS 12.2.1.3.0]]></abstract>
+        </bug>
+        <name>28186730</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="s">Password protected</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23342012]]></patch_readme>
+            <patch_details><![CDATA[/download/28186730.html]]></patch_details>
+        </url>
+        <request_id>23342012</request_id>
+        <urm_components>
+            <qparts ctype_id="201">
+                <qpart cid="468882" version="Q12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></qpart>
+            </qparts>
+            <urm_releases ctype_id="5">
+                <urm_release cid="887894" version="13.9.4.2.0"><![CDATA[OPatch]]></urm_release>
+            </urm_releases>
+        </urm_components>
+        <product id="31944" bugdb_id="12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></product>
+        <release id="600000000116251" name="13.9.4.2.0" platform_patch_not_required="Y" cc="Y"><![CDATA[OPatch 13.9.4.2.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="173">Controlled</classification>
+        <patch_classification id="173">Controlled</patch_classification>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <comments><![CDATA[A password is required to download this patch.  Please contact Oracle Support Services to verify the suitability of this patch and obtain the password.]]></comments>
+        <size>46242780</size>
+        <files>
+            <file>
+                <name>p28186730_139420_Generic.zip</name>
+                <size>46242780</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139420_Generic.zip?aru=23342012&patch_file=p28186730_139420_Generic.zip]]></download_url>
+                <digest type="SHA-256">514233AA5C7B392798B787416F75B339E3C0FA60430C5D962DC30C7BAB68A6F3</digest>
+                <digest type="SHA-1">8D0F09675D4D7531BDB691D9DCAB5DA4387E5E8C</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1579845987000">2020-01-24 06:06:27</updated_date>
+        <released_date in_epoch_ms="1579845284000">2020-01-24 05:54:44</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>28186730</number>
+            <abstract><![CDATA[OPATCH 13.9.4.2.2 FOR FMW/WLS 12.2.1.3.0 AND 12.2.1.4.0]]></abstract>
+        </bug>
+        <name>28186730</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="d">Password protected</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23332459&patch_password=]]></patch_readme>
+            <patch_details><![CDATA[/download/28186730.html]]></patch_details>
+        </url>
+        <request_id>23332459</request_id>
+        <urm_components>
+            <qparts ctype_id="201">
+                <qpart cid="468882" version="Q12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></qpart>
+            </qparts>
+            <urm_releases ctype_id="5">
+                <urm_release cid="921250" version="13.9.4.2.2"><![CDATA[OPatch]]></urm_release>
+            </urm_releases>
+        </urm_components>
+        <product id="31944" bugdb_id="12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></product>
+        <release id="600000000134119" name="13.9.4.2.2" platform_patch_not_required="Y" cc="N"><![CDATA[OPatch 13.9.4.2.2]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="173">Controlled</classification>
+        <patch_classification id="173">Controlled</patch_classification>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <comments><![CDATA[A password is required to download this patch.  Please contact Oracle Support Services to verify the suitability of this patch and obtain the password.]]></comments>
+        <size>46620588</size>
+        <files>
+            <file>
+                <name>p28186730_139422_Generic.zip</name>
+                <size>46620588</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139422_Generic.zip?aru=23332459&patch_file=p28186730_139422_Generic.zip]]></download_url>
+                <digest type="SHA-256">6167A23A45A89D48A7F638AD6E5919E24BB9202D2D821216D7E41AF3ACBA0376</digest>
+                <digest type="SHA-1">724F228313383CCD84885CB057A5E2B5E80E7132</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1579671890000">2020-01-22 05:44:50</updated_date>
+        <released_date in_epoch_ms="1579583401000">2020-01-21 05:10:01</released_date>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>28186730</number>
+            <abstract><![CDATA[OPATCH 13.9.4.2.1 FOR FMW/WLS 12.2.1.3.0]]></abstract>
+        </bug>
+        <name>28186730</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="s">Password protected</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=23332538]]></patch_readme>
+            <patch_details><![CDATA[/download/28186730.html]]></patch_details>
+        </url>
+        <request_id>23332538</request_id>
+        <urm_components>
+            <qparts ctype_id="201">
+                <qpart cid="468882" version="Q12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></qpart>
+            </qparts>
+            <urm_releases ctype_id="5">
+                <urm_release cid="918383" version="13.9.4.2.1"><![CDATA[OPatch]]></urm_release>
+            </urm_releases>
+        </urm_components>
+        <product id="31944" bugdb_id="12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></product>
+        <release id="600000000132403" name="13.9.4.2.1" platform_patch_not_required="Y" cc="N"><![CDATA[OPatch 13.9.4.2.1]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="173">Controlled</classification>
+        <patch_classification id="173">Controlled</patch_classification>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <comments><![CDATA[A password is required to download this patch.  Please contact Oracle Support Services to verify the suitability of this patch and obtain the password.]]></comments>
+        <size>46518865</size>
+        <files>
+            <file>
+                <name>p28186730_139421_Generic.zip</name>
+                <size>46518865</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139421_Generic.zip?aru=23332538&patch_file=p28186730_139421_Generic.zip]]></download_url>
+                <digest type="SHA-1">F7D2E3C781A6E73B3359B9246253CDBA956F29B6</digest>
+                <digest type="SHA-256">E092400E722E52627E143B6D4CB055C49815D4C987642C183DCE9F2DAFD82B2A</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1579592219000">2020-01-21 07:36:59</updated_date>
+        <released_date in_epoch_ms="1579587955000">2020-01-21 06:25:55</released_date>
+    </patch>
+</results>

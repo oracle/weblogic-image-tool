@@ -355,7 +355,7 @@ public abstract class CommonOptions {
     void installOpatchInstaller(String tmpDir, String opatchBugNumber)
         throws IOException, XPathExpressionException, AruException {
         logger.entering(opatchBugNumber);
-        String filePath = new OPatchFile(opatchBugNumber, userId, password, cache()).resolve(cache());
+        String filePath = OPatchFile.getInstance(opatchBugNumber, userId, password, cache()).resolve(cache());
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();

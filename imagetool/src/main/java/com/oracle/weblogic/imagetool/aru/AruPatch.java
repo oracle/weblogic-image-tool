@@ -34,6 +34,8 @@ public class AruPatch {
     private String downloadHost;
     private String downloadPath;
     private String fileName;
+    private String access;
+    private String lifecycle;
 
     public String patchId() {
         return patchId;
@@ -103,10 +105,6 @@ public class AruPatch {
         return !Utils.isEmptyString(psuBundle);
     }
 
-    public String downloadHost() {
-        return downloadHost;
-    }
-
     public AruPatch downloadHost(String value) {
         downloadHost = value;
         return this;
@@ -132,6 +130,28 @@ public class AruPatch {
 
     public String fileName() {
         return fileName;
+    }
+
+    public AruPatch access(String value) {
+        access = value;
+        return this;
+    }
+
+    public String access() {
+        return access;
+    }
+
+    public boolean isOpenAccess() {
+        return "Open access".equals(access);
+    }
+
+    public AruPatch lifecycle(String value) {
+        lifecycle = value;
+        return this;
+    }
+
+    public boolean isRecommended() {
+        return "Recommended".equals(lifecycle);
     }
 
     /**
@@ -166,6 +186,8 @@ public class AruPatch {
                     .description(XPathUtil.string(nodeList.item(i), "./bug/abstract"))
                     .product(XPathUtil.string(nodeList.item(i), "./product/@id"))
                     .psuBundle(XPathUtil.string(nodeList.item(i), "./psu_bundle"))
+                    .access(XPathUtil.string(nodeList.item(i), "./access"))
+                    .lifecycle(XPathUtil.string(nodeList.item(i), "./life_cycle"))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"));
 

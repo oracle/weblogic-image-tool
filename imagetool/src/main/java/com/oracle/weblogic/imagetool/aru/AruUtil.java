@@ -379,11 +379,6 @@ public class AruUtil {
      * @throws XPathExpressionException if AruPatch failed while extracting patch data from the XML
      */
     public List<AruPatch> getPatches(String bugNumber, String userId, String password)
-        throws IOException, AruException, XPathExpressionException {
-        return getPatches(bugNumber, userId, password, "");
-    }
-
-    private List<AruPatch> getPatches(String bugNumber, String userId, String password, String patchSelector)
         throws AruException, IOException, XPathExpressionException {
 
         if (userId == null || password == null) {
@@ -399,30 +394,7 @@ public class AruUtil {
         } catch (NoPatchesFoundException patchEx) {
             throw new NoPatchesFoundException(Utils.getMessage("IMG-0086", bugNumber), patchEx);
         }
-        return AruPatch.getPatches(response, patchSelector);
-    }
-
-    /**
-     * Using a bug number, search ARU for a matching patch.
-     * @param bugNumber the bug number to query ARU
-     * @param userId user credentials with access to OTN
-     * @param password password for the provided userId
-     * @return an AruPatch
-     * @throws IOException if there is an error retrieving the XML from ARU
-     * @throws XPathExpressionException if AruPatch failed while extracting patch data from the XML
-     */
-    public AruPatch getPatch(String bugNumber, String userId, String password, String patchSelector)
-        throws IOException, AruException, XPathExpressionException {
-
-        List<AruPatch> patches = getPatches(bugNumber, userId, password, patchSelector);
-
-        if (patches.size() == 1) {
-            return patches.get(0);
-        } else {
-            MultiplePatchVersionsException mpe = new MultiplePatchVersionsException(bugNumber, patches);
-            logger.throwing(mpe);
-            throw mpe;
-        }
+        return AruPatch.getPatches(response, "");
     }
 
     /**
