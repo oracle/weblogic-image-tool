@@ -29,6 +29,7 @@ public class CreateCommand extends ImageToolCommand {
     private String wdtDomainHome;
     private String wdtDomainType;
     private boolean wdtRunRcu;
+    private boolean wdtModelOnly;
 
     public CreateCommand() {
         super("create");
@@ -129,6 +130,11 @@ public class CreateCommand extends ImageToolCommand {
         return this;
     }
 
+    public CreateCommand wdtModelOnly(boolean value) {
+        wdtModelOnly = value;
+        return this;
+    }
+
     /**
      * Generate the command using the provided command line options.
      * @return the imagetool command as a string suitable for running in ProcessBuilder
@@ -152,6 +158,7 @@ public class CreateCommand extends ImageToolCommand {
             + field("--wdtVariables", wdtVariables)
             + field("--wdtDomainHome", wdtDomainHome)
             + field("--wdtDomainType", wdtDomainType)
-            + field("--wdtRunRCU", wdtRunRcu);
+            + field("--wdtRunRCU", wdtRunRcu)
+            + field("--wdtModelOnly", wdtModelOnly);
     }
 }
