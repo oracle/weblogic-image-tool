@@ -937,4 +937,49 @@ class ITImagetool {
             assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
         }
     }
+
+    /**
+     * Create an image with WDT Model only on OL 8-slim
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(28)
+    @Tag("nightly")
+    @DisplayName("Create Model in Image with OL 8-slim")
+    void createMiiOl8slim(TestInfo testInfo) throws Exception {
+        // test assumes that WDT installer is already in the cache from previous test
+
+        // test assumes that the WLS 12.2.1.3 installer is already in the cache
+
+        // test assumes that the default JDK version 8u202 is already in the cache
+
+        // test assumes that the WDT archive was already constructed
+
+        Path tmpWdtModel = Paths.get(wlsImgBldDir, WDT_MODEL1);
+
+        // update wdt model file
+        Files.copy(WDT_RESOURCES.resolve(WDT_MODEL1), tmpWdtModel, StandardCopyOption.REPLACE_EXISTING);
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            String tagName = build_tag + ":" + getMethodName(testInfo);
+            String command = new CreateCommand()
+                .tag(tagName)
+                .fromImage(" oraclelinux", "8-slim")
+                .version(WLS_VERSION)
+                .wdtVersion(WDT_VERSION)
+                .wdtArchive(WDT_ARCHIVE)
+                .wdtModel(tmpWdtModel)
+                .wdtModelOnly(true)
+                .type("wls")
+                .build();
+
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
+            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+        }
+    }
 }

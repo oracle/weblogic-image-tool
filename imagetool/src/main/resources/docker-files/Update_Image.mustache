@@ -72,7 +72,7 @@
         -domain_type {{domainType}} \
         {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}} \
         && rm -rf {{{wdt_home}}}/weblogic-deploy/logs \
-        && find {{{wdt_home}}}/weblogic-deploy/lib/python -name "*.class" -exec rm  {} \;
+        && shopt -s globstar && rm -f {{{wdt_home}}}/weblogic-deploy/lib/python/**/*.class
     {{/isWdtValidateEnabled}}
 
     {{#afterWdtCommand}}
