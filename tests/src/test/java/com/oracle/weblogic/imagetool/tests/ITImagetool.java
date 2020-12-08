@@ -939,15 +939,15 @@ class ITImagetool {
     }
 
     /**
-     * Create an image with WDT Model only on OEL 8-slim
+     * Create an image with WDT Model only on OL 8-slim
      *
      * @throws Exception - if any error occurs
      */
     @Test
     @Order(28)
     @Tag("nightly")
-    @DisplayName("Create Model in Image with OEL 8-slim")
-    void createMiiOel8slim(TestInfo testInfo) throws Exception {
+    @DisplayName("Create Model in Image with OL 8-slim")
+    void createMiiOl8slim(TestInfo testInfo) throws Exception {
         // test assumes that WDT installer is already in the cache from previous test
 
         // test assumes that the WLS 12.2.1.3 installer is already in the cache
