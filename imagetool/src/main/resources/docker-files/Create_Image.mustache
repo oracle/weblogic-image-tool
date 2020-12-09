@@ -151,7 +151,7 @@ RUN cd {{{tempDir}}}/opatch \
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     ENV WLSDEPLOY_PROPERTIES="{{{wlsdeploy_properties}}} -Djava.security.egd=file:/dev/./urandom" \
-    DOMAIN_HOME={{{domain_home}}}
+        DOMAIN_HOME={{{domain_home}}}
 
     COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
 
