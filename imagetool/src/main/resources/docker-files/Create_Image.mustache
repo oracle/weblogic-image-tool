@@ -151,8 +151,7 @@ RUN cd {{{tempDir}}}/opatch \
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     ENV WLSDEPLOY_PROPERTIES="{{{wlsdeploy_properties}}} -Djava.security.egd=file:/dev/./urandom" \
-        LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
-        DOMAIN_HOME={{{domain_home}}}
+    DOMAIN_HOME={{{domain_home}}}
 
     COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
 
@@ -235,7 +234,6 @@ ENV ORACLE_HOME={{{oracle_home}}} \
     MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
     DOMAIN_HOME={{{domain_home}}} \
 {{/isWdtEnabled}}
-    LC_ALL=${DEFAULT_LOCALE:-en_US.UTF-8} \
     PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}{{#isWdtEnabled}}:${{{domain_home}}}/bin{{/isWdtEnabled}}
 
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
