@@ -154,6 +154,17 @@ public class AruUtil {
             String releaseNumber = getReleaseNumber(product, version, userId, password);
             Document aruRecommendations = getRecommendedPatchesMetadata(product, releaseNumber, userId, password);
             List<AruPatch> patches = AruPatch.getPatches(aruRecommendations);
+            String psuVersion = getPsuVersion(patches);
+            if (!Utils.isEmptyString(psuVersion)) {
+                patches.forEach(p -> logger.fine("Discarding recommended patch {1} {2}", p.patchId(), p.description()));
+                logger.fine("Recommended patch list contains a PSU, getting recommendations for PSU version {0}",
+                    psuVersion);
+                // get release number for PSU
+                String psuReleaseNumber = getReleaseNumber(product, psuVersion, userId, password);
+                // get recommended patches for PSU release (Overlay patches are only recommended on the PSU release)
+                Document psuRecommendation = getRecommendedPatchesMetadata(product, psuReleaseNumber, userId, password);
+                patches = AruPatch.getPatches(psuRecommendation);
+            }
             patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
             logger.exiting(patches);
             return patches;
@@ -163,6 +174,17 @@ public class AruUtil {
         } catch (IOException | XPathExpressionException e) {
             throw new AruException(Utils.getMessage("IMG-0070", product.description(), version), e);
         }
+    }
+
+    private String getPsuVersion(List<AruPatch> patches) {
+        for (AruPatch patch: patches) {
+            if (patch.isPsu()) {
+                // expected pattern "Oracle WebLogic Server 12.2.1.x.xxxxxx"
+                String[] strings = patch.psuBundle().split(" ");
+                return strings[strings.length - 1];
+            }
+        }
+        return null;
     }
 
     /**

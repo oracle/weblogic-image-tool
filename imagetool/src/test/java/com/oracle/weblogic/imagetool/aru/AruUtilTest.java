@@ -67,7 +67,8 @@ class AruUtilTest {
                                                String password) throws XPathExpressionException, AruException {
             Document result;
             try {
-                if (releaseNumber.equals("336")) {
+                // these release numbers are fake test data from the fake releases.xml found in test/resources
+                if (releaseNumber.equals("336") || releaseNumber.equals("304")) {
                     result = getResource("/recommended-patches.xml");
                 } else {
                     result = getResource("/no-patches.xml");
