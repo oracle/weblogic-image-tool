@@ -13,7 +13,7 @@
     <parent>
         <artifactId>imagetool-parent</artifactId>
         <groupId>com.oracle.weblogic.lifecycle.imagetool</groupId>
-        <version>1.9.7</version>
+        <version>1.9.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
