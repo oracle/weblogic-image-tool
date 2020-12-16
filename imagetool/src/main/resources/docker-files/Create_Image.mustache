@@ -42,7 +42,7 @@ RUN zypper -nq update \
 ## Create user and group
 RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd {{groupid}} || exit -1 ; fi \
  && if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -g {{groupid}} {{userid}} || exit -1; fi \
- && mkdir /u01 \
+ && mkdir -p /u01 \
  && chown {{userid}}:{{groupid}} /u01 \
  && chmod 775 /u01
 
