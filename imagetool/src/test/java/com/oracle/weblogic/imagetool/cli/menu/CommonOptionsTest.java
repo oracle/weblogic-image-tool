@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("unit")
@@ -135,45 +134,46 @@ public class CommonOptionsTest {
     @Test
     void testResolveOptions() throws Exception {
         final String IMG_NAME = "mydomain:latest";
-        final String DOMAIN_HOME = "/u01/domains/base_domain";
+        final String DOMAIN_HOME = "/u01/domains/xxxx";
         final String DOMAIN_SOURCE = "PersistentVolume";
 
-        CreateImage createImage = new CreateImage();
+        WdtOptions wdtOptions = new WdtOptions();
 
         // accessing private fields normally set by the command line
-        Field optionsField = CommonOptions.class.getDeclaredField("dockerfileOptions");
-        optionsField.setAccessible(true);
-        DockerfileOptions dockerfile = new DockerfileOptions("testbuildid");
-        optionsField.set(createImage, dockerfile);
-
-        Field imageTagField = CommonOptions.class.getDeclaredField("imageTag");
-        imageTagField.setAccessible(true);
-        imageTagField.set(createImage, IMG_NAME);
-
-        Field resourceTemplatesField = CommonOptions.class.getDeclaredField("resourceTemplates");
+        Field resourceTemplatesField = WdtOptions.class.getDeclaredField("resourceTemplates");
         resourceTemplatesField.setAccessible(true);
         List<Path> resolveFiles =
             Arrays.asList(new File("target/test-classes/templates/resolver.yml").toPath(),
             new File("target/test-classes/templates/verrazzano.yml").toPath());
-        resourceTemplatesField.set(createImage, resolveFiles);
+        resourceTemplatesField.set(wdtOptions, resolveFiles);
 
-        createImage.handleResourceTemplates();
+        Field imageTagField = WdtOptions.class.getDeclaredField("wdtDomainHome");
+        imageTagField.setAccessible(true);
+        imageTagField.set(wdtOptions, DOMAIN_HOME);
+
+        wdtOptions.handleResourceTemplates(IMG_NAME);
 
         List<String> linesRead =
             Files.readAllLines(new File("target/test-classes/templates/resolver.yml").toPath());
         assertEquals(3, linesRead.size(), "Number of lines read from the file was unexpected");
         for (String line : linesRead) {
-            line = line.trim();
-            if (line.startsWith("domainHome:")) {
-                assertTrue(line.endsWith(DOMAIN_HOME), "Invalid domain home value " + line);
-            } else if (line.startsWith("image:")) {
-                assertTrue(line.endsWith(IMG_NAME), "Invalid tag name " + line);
-            } else if (line.startsWith("domainHomeSourceType:")) {
-                assertTrue(line.endsWith(DOMAIN_SOURCE), "Invalid tag name " + line);
-            } else {
-                fail("Unexpected line read " + line);
+            String[] linePart = line.split(" ");
+            if (linePart.length != 2) {
+                fail("Resolving template file, resolver.yml, failed to resolve line: " + line);
             }
-
+            switch (linePart[0]) {
+                case "domainHome:":
+                    assertEquals(DOMAIN_HOME, linePart[1], "Invalid domain home value: " + line);
+                    break;
+                case "image:":
+                    assertEquals(IMG_NAME, linePart[1], "Invalid image name value: " + line);
+                    break;
+                case "domainHomeSourceType:":
+                    assertEquals(DOMAIN_SOURCE, linePart[1], "Invalid domain home source type: " + line);
+                    break;
+                default:
+                    fail("Unexpected line in resolver.yml: " + line);
+            }
         }
     }
 }

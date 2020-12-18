@@ -17,6 +17,8 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.DomainHomeSourceType;
+import com.oracle.weblogic.imagetool.util.ResourceTemplateOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
@@ -115,6 +117,28 @@ public class WdtOptions {
         return fileList;
     }
 
+    /**
+     * Resolve variables in the provided list of resource template files.
+     * See --resourceTemplates.  For example, WDT -target vz is used to generate a custom resource.
+     * In the generated file(s), WDT will not know what the image name is and will leave a placeholder.
+     * This function provides the values for variables that are known during image build.
+     */
+    public void handleResourceTemplates(String imageName) throws IOException {
+        DomainHomeSourceType domainType = DomainHomeSourceType.PV;
+        if (modelOnly()) {
+            domainType = DomainHomeSourceType.MODEL;
+        } else if (isUsingWdt()) {
+            domainType = DomainHomeSourceType.IMAGE;
+        }
+
+        ResourceTemplateOptions options = new ResourceTemplateOptions()
+            .domainHome(wdtDomainHome)
+            .imageName(imageName)
+            .domainHomeSourceType(domainType);
+
+        // resolve parameters in the list of mustache templates returned by gatherFiles()
+        Utils.writeResolvedFiles(resourceTemplates, options);
+    }
 
     @Option(
         names = {"--wdtModel"},
@@ -213,4 +237,11 @@ public class WdtOptions {
         description = "path to file the passphrase to decrypt the WDT model"
     )
     private Path encryptionKeyFile;
+
+    @Option(
+        names = {"--resourceTemplates"},
+        split = ",",
+        description = "Resolve variables in the resource template(s) with information from the image tool build."
+    )
+    List<Path> resourceTemplates;
 }
