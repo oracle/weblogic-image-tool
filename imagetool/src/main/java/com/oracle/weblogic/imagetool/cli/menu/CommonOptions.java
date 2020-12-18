@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -33,8 +32,8 @@ import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.ResourceTemplateOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
-import com.oracle.weblogic.imagetool.util.VerrazzanoModel;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
 
@@ -47,9 +46,6 @@ public abstract class CommonOptions {
     DockerfileOptions dockerfileOptions;
     private String tempDirectory = null;
     private String nonProxyHosts = null;
-
-    private List<Object> resolveOptions = null;
-    private List<Path> resolveFiles = null;
 
     abstract String getInstallerVersion();
 
@@ -182,21 +178,19 @@ public abstract class CommonOptions {
         logger.exiting();
     }
 
-    List<Path> gatherFiles() {
-        if (resolveFiles == null) {
-            resolveFiles = new ArrayList<>();
-        }
-        if (verrazzanoModel != null) {
-            resolveFiles.add(verrazzanoModel);
-        }
-        return resolveFiles;
-    }
+    /**
+     * Resolve variables in the provided list of resource template files.
+     * See --resourceTemplates.  For example, WDT -target vz is used to generate a custom resource.
+     * In the generated file(s), WDT will not know what the image name is and will leave a placeholder.
+     * This function provides the values for variables that are known during image build.
+     */
+    public void handleResourceTemplates() throws IOException {
+        ResourceTemplateOptions options = new ResourceTemplateOptions()
+            .domainHome(dockerfileOptions.domain_home())
+            .imageName(imageTag);
 
-    List<Object> resolveOptions() {
-        if (resolveFiles != null && !resolveFiles.isEmpty()) {
-            resolveOptions = Collections.singletonList(new VerrazzanoModel(imageTag, dockerfileOptions.domain_home()));
-        }
-        return resolveOptions;
+        // resolve parameters in the list of mustache templates returned by gatherFiles()
+        Utils.writeResolvedFiles(resourceTemplates, options);
     }
 
     /**
@@ -567,10 +561,11 @@ public abstract class CommonOptions {
     private boolean skipOpatchUpdate = false;
 
     @Option(
-        names = {"--vzModel"},
-        description = "For verrazzano, resolve parameters in the verrazzano model with information from the image tool."
+        names = {"--resourceTemplates"},
+        split = ",",
+        description = "Resolve variables in the resource template(s) with information from the image tool build."
     )
-    Path verrazzanoModel;
+    List<Path> resourceTemplates;
 
     @Option(
         names = {"--packageManager"},
