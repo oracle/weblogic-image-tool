@@ -219,7 +219,7 @@ public class Utils {
      * @param options list of option files to resolve the mustache parameters
      * @throws IOException if a file in the fileNames is invalid
      */
-    public static void writeResolvedFiles(List<Path> paths, List<Object> options)
+    public static void writeResolvedFiles(List<Path> paths, ResourceTemplateOptions options)
         throws IOException {
         if (paths != null) {
             for (Path path : paths) {

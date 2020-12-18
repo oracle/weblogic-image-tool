@@ -12,6 +12,7 @@ spec:
       domainCRValues:
         domainUID: todo
         domainHome: {{{domainHome}}}
+        domainHomeSourceType: {{{domainHomeSourceType}}}
         image: {{{imageName}}}
         includeServerOutInPodLog: true
         replicas: 1

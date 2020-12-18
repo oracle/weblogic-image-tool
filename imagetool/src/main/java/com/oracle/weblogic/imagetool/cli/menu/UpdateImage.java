@@ -163,10 +163,10 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
                 "Update_Image.mustache", dockerfileOptions, dryRun);
 
-            // resolve parameters in the list of mustache templates returned by gatherFiles()
-            Utils.writeResolvedFiles(gatherFiles(), resolveOptions());
-
             runDockerCommand(dockerfile, cmdBuilder);
+            if (!dryRun) {
+                wdtOptions.handleResourceTemplates(imageTag);
+            }
         } catch (Exception ex) {
             return new CommandResponse(-1, ex.getMessage());
         } finally {
