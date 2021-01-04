@@ -103,4 +103,4 @@ group first in order to populate the cache with the WLS and JDK installers.
 
 
 ## Copyright
-Copyright (c) 2019, 2020, Oracle and/or its affiliates.
+Copyright (c) 2019, 2021, Oracle and/or its affiliates.

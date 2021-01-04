@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
+// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -42,8 +42,6 @@ class AdditionalBuildCommandsTest {
     @Test
     void loadBadSectionFile() throws IOException {
         String filename = "bad-section.txt";
-        assertThrows(IllegalArgumentException.class, () -> {
-            AdditionalBuildCommands.load(getPath(filename));
-        });
+        assertThrows(IllegalArgumentException.class, () -> AdditionalBuildCommands.load(getPath(filename)));
     }
 }

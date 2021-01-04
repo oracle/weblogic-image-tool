@@ -28,4 +28,4 @@ Logging severity levels from highest to lowest:
 | `FINEST` | In addition to FINER level debug messages, all HTTP responses are written to the log file. |
 
 ### Copyright
-Copyright (c) 2019, 2020, Oracle and/or its affiliates.
+Copyright (c) 2019, 2021, Oracle and/or its affiliates.
