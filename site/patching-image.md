@@ -24,4 +24,4 @@ You can download patches using the Image Tool or by manually downloading them.
   ```
 
 ## Copyright
-Copyright (c) 2019, 2020, Oracle and/or its affiliates.
+Copyright (c) 2019, 2021, Oracle and/or its affiliates.

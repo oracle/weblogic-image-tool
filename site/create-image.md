@@ -149,4 +149,4 @@ The commands below assume that all the required JDK, WLS, or FMW (WebLogic infra
     The patch numbers may or may not start with '`p`'.
 
 ## Copyright
-Copyright (c) 2019, 2020, Oracle and/or its affiliates.
+Copyright (c) 2019, 2021, Oracle and/or its affiliates.
