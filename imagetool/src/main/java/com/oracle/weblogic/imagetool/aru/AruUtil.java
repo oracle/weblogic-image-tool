@@ -333,7 +333,7 @@ public class AruUtil {
         String result;
         Document allReleases = getAllReleases(userId, password);
 
-        String expression = String.format("string(/results/release[starts-with(text(), '%s')][@name = '%s']/@id)",
+        String expression = String.format("string(/results/release[starts-with(text(), '%s %s')]/@id)",
             product.description(), version);
         try {
             result = XPathUtil.string(allReleases, expression);
