@@ -127,6 +127,7 @@ USER {{userid}}
 
 {{#isWdtEnabled}}
     {{#modelOnly}}
+        USER root
         RUN DOMAIN_PARENT=$(dirname {{{domain_home}}}) \
         && mkdir -p $DOMAIN_PARENT \
         && chown {{userid}}:{{groupid}} $DOMAIN_PARENT \
@@ -137,10 +138,13 @@ USER {{userid}}
         {{#isWdtModelHomeOutsideWdtHome}}
             COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
         {{/isWdtModelHomeOutsideWdtHome}}
+        USER {{userid}
     {{/modelOnly}}
     {{^modelOnly}}
+        USER root
         COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
         RUN chmod g+w {{{domain_home}}}
+        USER {{userid}
     {{/modelOnly}}
 {{/isWdtEnabled}}
 
