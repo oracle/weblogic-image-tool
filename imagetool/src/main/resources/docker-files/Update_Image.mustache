@@ -5,7 +5,7 @@
 #
 #
 {{#isWdtEnabled}}
-    FROM {{baseImage}} as WDT_BUILD
+    FROM {{baseImage}} as wdt_build
     ARG WDT_ENCRYPTION_KEY
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
@@ -79,7 +79,7 @@
     {{/afterWdtCommand}}
 {{/isWdtEnabled}}
 
-FROM {{baseImage}} as FINAL_BUILD
+FROM {{baseImage}} as final_build
 USER root
 
 ENV OPATCH_NO_FUSER=true
@@ -133,13 +133,13 @@ USER {{userid}}
         && chmod g+w $DOMAIN_PARENT \
         && mkdir -p {{{wdt_model_home}}} \
         && chmod g+w {{{wdt_model_home}}}
-        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+        COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
         {{#isWdtModelHomeOutsideWdtHome}}
-            COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
+            COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
         {{/isWdtModelHomeOutsideWdtHome}}
     {{/modelOnly}}
     {{^modelOnly}}
-        COPY --from=WDT_BUILD --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
+        COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
         RUN chmod g+w {{{domain_home}}}
     {{/modelOnly}}
 {{/isWdtEnabled}}
