@@ -39,6 +39,7 @@ Update WebLogic Docker image with selected patches
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
+| `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool, such as {{{imageName}}}. See [Resource Template Files](#resource-template-files). |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--user` | Oracle support email ID.  |   |
@@ -108,6 +109,19 @@ the `after-fmw-install` or `before-wdt-command` sections.
 The `latestPSU` option will continue to be supported for the CREATE option, but has been deprecated for use in the 
 UPDATE option.  Because of the number of patches and their size, using `latestPSU` as an update to an existing image can 
 increase the size of the image significantly, and is not recommended. 
+
+#### Resource Template Files
+
+If provided, the file or files provided with `--resourceTemplates` will be overwritten. For known tokens, 
+the placeholders will be replaced with values according to the table below.  **Note:** Placeholders must follow
+the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
+
+| Token Name | Value Description | 
+| --- | --- |
+| `domainHome` | The value provided to the Image Tool with `--wdtDomainHome`. |
+| `domainHomeSourceType` | `PersistentVolume` (default), `FromModel` if `wdtModelOnly`, or Image if the domain is created in the image with WDT. |
+| `imageName` | The value provided to the Image Tool with `--tag`. |
+| `modelHome` | The value provided to the Image Tool with `--wdtModelHome`. |
 
 #### Use an argument file
 

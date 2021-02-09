@@ -36,6 +36,7 @@ public class OPatchFile extends PatchFile {
     public static OPatchFile getInstance(String patchId, String userid, String password, CacheStore cache)
         throws AruException, XPathExpressionException, IOException {
 
+        logger.entering(patchId);
         String patchNumber = patchId;
         String providedVersion = null;
         if (patchId == null) {
@@ -46,6 +47,7 @@ public class OPatchFile extends PatchFile {
             int separator = patchId.indexOf(CacheStore.CACHE_KEY_SEPARATOR);
             patchNumber = patchId.substring(0, separator);
             providedVersion = patchId.substring(separator + 1);
+            logger.fine("User provided OPatch version {0} {1}", patchNumber, providedVersion);
         }
 
         List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password);
@@ -53,6 +55,8 @@ public class OPatchFile extends PatchFile {
             // if working online with ARU metadata, filter results based on availability and ARU recommendation
             Stream<AruPatch> filteredList = patches.stream().filter(AruPatch::isOpenAccess);
             if (providedVersion == null) {
+                // When the user did not provide a specific version, try to reduce the patch list to one patch.
+                // There should only be ONE recommended patch/install for OPatch
                 filteredList = filteredList.filter(AruPatch::isRecommended);
             }
             patches = filteredList.collect(Collectors.toList());
@@ -65,6 +69,7 @@ public class OPatchFile extends PatchFile {
             if (isOffline(userid, password) && providedVersion == null) {
                 selectedPatch.version(getLatestCachedVersion(cache, patchNumber));
             }
+            logger.exiting(selectedPatch);
             return new OPatchFile(selectedPatch, userid, password);
         } else {
             throw new MultiplePatchVersionsException(patchNumber, patches);
