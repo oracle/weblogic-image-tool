@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.cachestore;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,6 +63,8 @@ public class OPatchFile extends PatchFile {
             patches = filteredList.collect(Collectors.toList());
         }
 
+        // For the OPatch use case, only the provided version (--opatchBugNumber) is used to "select" a patch.
+        // selectPatch will return null if there is more than one patch in the patches list.
         AruPatch selectedPatch = AruPatch.selectPatch(patches, providedVersion, null, null);
 
         if (selectedPatch != null) {
@@ -69,11 +72,16 @@ public class OPatchFile extends PatchFile {
             if (isOffline(userid, password) && providedVersion == null) {
                 selectedPatch.version(getLatestCachedVersion(cache, patchNumber));
             }
-            logger.exiting(selectedPatch);
-            return new OPatchFile(selectedPatch, userid, password);
         } else {
-            throw new MultiplePatchVersionsException(patchNumber, patches);
+            // select first recommended patch
+            List<AruPatch> sortedList = patches.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+            selectedPatch = sortedList.get(0);
+            logger.warning("IMG-0057", selectedPatch.version(), sortedList.stream()
+                .map(s -> s.patchId() + "_" + s.version())
+                .collect(Collectors.joining(", ")));
         }
+        logger.exiting(selectedPatch);
+        return new OPatchFile(selectedPatch, userid, password);
     }
 
     private static boolean isOffline(String userid, String password) {
