@@ -34,6 +34,7 @@
         <translations_available>No</translations_available>
         <classification id="174">General</classification>
         <patch_classification id="174">General</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
         <support_level id="G">General Support</support_level>
         <entitlements>
             <entitlement code="SW"/>

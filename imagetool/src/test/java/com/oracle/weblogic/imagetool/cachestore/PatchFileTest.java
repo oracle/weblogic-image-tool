@@ -353,8 +353,8 @@ public class PatchFileTest {
         String filePath = patchFile.resolve(cacheStore);
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        assertEquals("13.9.4.2.4", patchFile.getVersion(), "wrong version selected");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_13.9.4.2.4");
+        assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
+        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_13.9.4.2.5");
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }

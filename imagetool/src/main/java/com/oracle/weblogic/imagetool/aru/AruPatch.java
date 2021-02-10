@@ -21,7 +21,7 @@ import org.w3c.dom.NodeList;
  * Metadata for a patch, as defined by ARU.
  * Simple bean for holding metadata obtained from ARU for a given patch ID and version.
  */
-public class AruPatch {
+public class AruPatch implements Comparable<AruPatch> {
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruPatch.class);
 
     private String patchId;
@@ -268,6 +268,9 @@ public class AruPatch {
     @Override
     public String toString() {
         return patchId + " - " + description;
+    }
 
+    public int compareTo(AruPatch obj) {
+        return version.compareTo(obj.version);
     }
 }
