@@ -9,6 +9,7 @@ package com.oracle.weblogic.imagetool.util;
 public class ResourceTemplateOptions {
     private String imageName;
     private String domainHome;
+    private String modelHome;
     private DomainHomeSourceType domainHomeSourceType = DomainHomeSourceType.PV;
 
 
@@ -17,6 +18,7 @@ public class ResourceTemplateOptions {
      *
      * @return image tag name
      */
+    @SuppressWarnings("unused")
     public String imageName() {
         return imageName;
     }
@@ -37,6 +39,7 @@ public class ResourceTemplateOptions {
      *
      * @return domain home value
      */
+    @SuppressWarnings("unused")
     public String domainHome() {
         return domainHome;
     }
@@ -60,6 +63,7 @@ public class ResourceTemplateOptions {
      *
      * @return domain home source type
      */
+    @SuppressWarnings("unused")
     public String domainHomeSourceType() {
         return domainHomeSourceType.toString();
     }
@@ -72,6 +76,27 @@ public class ResourceTemplateOptions {
      */
     public ResourceTemplateOptions domainHomeSourceType(DomainHomeSourceType value) {
         domainHomeSourceType = value;
+        return this;
+    }
+
+    /**
+     * Return the model home passed in the --wdtModelHome argument or the default if not provided.
+     *
+     * @return the location where the models will be written in the image, for --modelOnly
+     */
+    @SuppressWarnings("unused")
+    public String modelHome() {
+        return modelHome;
+    }
+
+    /**
+     * Set the model home.
+     *
+     * @param value the model home from the --wdtModelHome argument
+     * @return builder/this
+     */
+    public ResourceTemplateOptions modelHome(String value) {
+        modelHome = value;
         return this;
     }
 }

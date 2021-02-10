@@ -134,6 +134,7 @@ public class WdtOptions {
         ResourceTemplateOptions options = new ResourceTemplateOptions()
             .domainHome(wdtDomainHome)
             .imageName(imageName)
+            .modelHome(wdtModelHome)
             .domainHomeSourceType(domainType);
 
         // resolve parameters in the list of mustache templates returned by gatherFiles()
