@@ -103,7 +103,7 @@ the `after-fmw-install` or `before-wdt-command` sections.
 #### Resource Template Files
 
 If provided, the file or files provided with `--resourceTemplates` will be overwritten. For known tokens, 
-the placeholders will be replaced with values according to the table below.  **Note:** Placeholders must follow
+the placeholders will be replaced with values according to the following table.  **Note:** Placeholders must follow
 the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
 
 | Token Name | Value Description | 
