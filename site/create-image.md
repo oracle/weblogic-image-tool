@@ -14,7 +14,7 @@ Usage: imagetool create [OPTIONS]
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | Path to the Docker executable.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:7-slim`  |
+| `--fromImage` | Docker image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:8-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
