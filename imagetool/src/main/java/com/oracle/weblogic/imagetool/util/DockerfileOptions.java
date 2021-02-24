@@ -91,7 +91,7 @@ public class DockerfileOptions {
 
         tempDirectory = "/tmp/imagetool";
 
-        baseImageName = "oraclelinux:7-slim";
+        baseImageName = "ghcr.io/oracle/oraclelinux:7-slim";
 
         // WDT values
         useWdt = false;
