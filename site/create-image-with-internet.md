@@ -4,7 +4,7 @@ The Image Tool supports creating Linux based WebLogic Docker images, applying We
 
 In this use case, the Image Tool will:
 
-1. Start with a base-level operating system image (`ghcr.io/oracle/oraclelinux:8-slim`).
+1. Start with a base-level operating system image (`ghcr.io/oracle/oraclelinux:7-slim`).
 2. Update the image with the necessary packages for installing WebLogic Server.
 3. Install Java and WebLogic Server.
 
@@ -55,7 +55,7 @@ https_proxy=http://company-proxy.com:80 --build-arg WLS_PKG=fmw_12.2.1.3.0_wls_D
 JAVA_PKG=jdk-8u201-linux-x64.tar.gz --build-arg PATCHDIR=patches /home/acmeuser/wlsimgbuilder_temp8791654163579491583
 Sending build context to Docker daemon   1.08GB
 
-Step 1/46 : ARG BASE_IMAGE=ghcr.io/oracle/oraclelinux:8-slim
+Step 1/46 : ARG BASE_IMAGE=ghcr.io/oracle/oraclelinux:7-slim
 ...
 Removing intermediate container 57ccb9fff56b
  ---> 18d366fc3da4
@@ -70,7 +70,7 @@ docker images
 
 REPOSITORY                    TAG                 IMAGE ID            CREATED              SIZE
 wls                           12.2.1.3.0          18d366fc3da4        About a minute ago   1.41GB
-ghcr.io/oracle/oraclelinux    8-slim              f7512ac13c1b        6 weeks ago          118MB
+ghcr.io/oracle/oraclelinux    7-slim              f7512ac13c1b        6 weeks ago          118MB
 
 ```
 ## Copyright
