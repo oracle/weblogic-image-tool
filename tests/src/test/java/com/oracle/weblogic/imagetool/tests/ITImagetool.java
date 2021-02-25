@@ -965,7 +965,7 @@ class ITImagetool {
             String tagName = build_tag + ":" + getMethodName(testInfo);
             String command = new CreateCommand()
                 .tag(tagName)
-                .fromImage("ghcr.io/oracle/oraclelinux", "7-slim")
+                .fromImage("ghcr.io/oracle/oraclelinux", "8-slim")
                 .version(WLS_VERSION)
                 .wdtVersion(WDT_VERSION)
                 .wdtArchive(WDT_ARCHIVE)
