@@ -132,6 +132,7 @@ public class HttpUtil {
         HttpClient result = HttpClientBuilder.create()
             .setDefaultRequestConfig(config.build())
             .setRetryHandler(retryHandler())
+            .setUserAgent("Wget/1.10")
             .setDefaultCookieStore(cookieStore).useSystemProperties()
             .setDefaultCredentialsProvider(credentialsProvider).build();
         logger.exiting();
