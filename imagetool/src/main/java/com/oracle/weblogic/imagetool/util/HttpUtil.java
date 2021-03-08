@@ -198,7 +198,9 @@ public class HttpUtil {
         CookieStore cookieStore = new BasicCookieStore();
 
         CloseableHttpClient client =
-                HttpClientBuilder.create().setDefaultRequestConfig(config.build()).useSystemProperties().build();
+                HttpClientBuilder.create().setDefaultRequestConfig(config.build())
+                    .setUserAgent("Wget/1.10")
+                    .useSystemProperties().build();
 
         Executor httpExecutor = Executor.newInstance(client).auth(username, password);
         httpExecutor.use(cookieStore);
