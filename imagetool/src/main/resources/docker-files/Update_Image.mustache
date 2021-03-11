@@ -43,11 +43,14 @@
     {{/beforeWdtCommand}}
 
     RUN cd {{{wdt_home}}} \
-    && jar xf {{{tempDir}}}/{{{wdtInstaller}}}
+    && jar xf {{{tempDir}}}/{{{wdtInstaller}}} \
+    && cd weblogic-deploy/bin \
+    && rm ./*.cmd \
+    && chmod -R g+w {{{wdt_home}}}/weblogic-deploy \
+    && chmod ug+x ./*.sh
 
     {{^modelOnly}}
         RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
-        && chmod u+x ./*.sh \
         && {{#isWdtUseEncryption}}echo $WDT_ENCRYPTION_KEY | {{/isWdtUseEncryption}} ./{{wdtCommand}} \
         -oracle_home {{{oracle_home}}} \
         -domain_home {{{domain_home}}} \
@@ -63,9 +66,6 @@
     {{/modelOnly}}
     {{#isWdtValidateEnabled}}
         RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
-        && rm ./*.cmd \
-        && chmod ug+x ./*.sh \
-        && chmod -R g+w {{{wdt_home}}}/weblogic-deploy \
         && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
         -oracle_home {{{oracle_home}}} \
         -domain_type {{domainType}} \
