@@ -1,5 +1,8 @@
 # Oracle WebLogic Image Tool
 
+**NOTE: Due to changes in Oracle's security, older versions of the Image Tool will no longer be able to download patches.  
+Please use WebLogic Image Tool 1.9.10 or newer.**
+
 Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into
 the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker
 and Kubernetes, WebLogic now runs in a cloud neutral infrastructure.  To help simplify and automate the creation of
