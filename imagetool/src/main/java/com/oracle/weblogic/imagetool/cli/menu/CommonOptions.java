@@ -22,6 +22,7 @@ import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruProduct;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
+import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
@@ -30,7 +31,6 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
@@ -94,8 +94,8 @@ public abstract class CommonOptions {
         }
     }
 
-    void runDockerCommand(String dockerfile, DockerBuildCommand command) throws IOException, InterruptedException {
-        logger.info("docker cmd = " + command.toString());
+    void runDockerCommand(String dockerfile, BuildCommand command) throws IOException, InterruptedException {
+        logger.info("Starting build: " + command.toString());
 
         if (dryRun) {
             System.out.println("########## BEGIN DOCKERFILE ##########");
@@ -112,9 +112,9 @@ public abstract class CommonOptions {
      *
      * @return list of options
      */
-    DockerBuildCommand getInitialBuildCmd(String contextFolder) {
+    BuildCommand getInitialBuildCmd(String contextFolder) {
         logger.entering();
-        DockerBuildCommand cmdBuilder = new DockerBuildCommand(contextFolder);
+        BuildCommand cmdBuilder = new BuildCommand(buildEngine, contextFolder);
 
         cmdBuilder.forceRm(!skipcleanup)
             .tag(imageTag)
@@ -125,6 +125,8 @@ public abstract class CommonOptions {
             .buildArg("no_proxy", nonProxyHosts);
 
         if (dockerPath != null && Files.isExecutable(dockerPath)) {
+            // remove this IF block after the deprecation period
+            logger.warning("--dockerPath is deprecated, use --builder");
             cmdBuilder.dockerPath(dockerPath.toAbsolutePath().toString());
         }
         logger.exiting();
@@ -447,11 +449,16 @@ public abstract class CommonOptions {
     )
     private String httpsProxyUrl;
 
+    /**
+     * Set the Docker build executable when "docker" is not on the path.
+     * @deprecated use --builder instead
+     */
     @Option(
         names = {"--docker"},
         description = "path to docker executable. Default: ${DEFAULT-VALUE}",
         defaultValue = "docker"
     )
+    @Deprecated
     private Path dockerPath;
 
     @Option(
@@ -463,7 +470,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--skipcleanup"},
-        description = "Do no delete Docker context folder, intermediate images, and failed build container."
+        description = "Do no delete build context folder, intermediate images, and failed build container."
     )
     boolean skipcleanup = false;
 
@@ -490,7 +497,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--dryRun"},
-        description = "Skip Docker build execution and print Dockerfile to stdout"
+        description = "Skip image build execution and print Dockerfile to stdout"
     )
     boolean dryRun = false;
 
@@ -550,7 +557,14 @@ public abstract class CommonOptions {
     )
     PackageManagerType packageManager = PackageManagerType.OS_DEFAULT;
 
+    @Option(
+        names = {"--builder", "-b"},
+        description = "Executable to process the Dockerfile. Default: ${DEFAULT-VALUE}"
+    )
+    String buildEngine = "docker";
+
     @SuppressWarnings("unused")
     @Unmatched
+
     List<String> unmatchedOptions;
 }

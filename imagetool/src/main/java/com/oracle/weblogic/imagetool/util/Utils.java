@@ -277,7 +277,7 @@ public class Utils {
      * @param process the Docker process
      * @throws IOException if an error occurs while reading standard error (stderr) from the Docker build.
      */
-    static void processError(Process process) throws IOException {
+    public static void processError(Process process) throws IOException {
         try (
             BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()))
         ) {

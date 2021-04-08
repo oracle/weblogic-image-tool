@@ -15,13 +15,13 @@ import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
@@ -114,7 +114,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, Utils.getMessage("IMG-0025"));
             }
 
-            DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
+            BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
 
             cmdBuilder.buildArg("ADMIN_PORT", adminPort)
                 .buildArg("MANAGED_SERVER_PORT", managedServerPort);

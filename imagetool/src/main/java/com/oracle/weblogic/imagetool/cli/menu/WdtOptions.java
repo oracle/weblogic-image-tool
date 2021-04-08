@@ -12,10 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
+import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.DomainHomeSourceType;
 import com.oracle.weblogic.imagetool.util.ResourceTemplateOptions;
@@ -52,7 +52,7 @@ public class WdtOptions {
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @throws IOException in case of error
      */
-    void handleWdtArgs(DockerfileOptions dockerfileOptions, DockerBuildCommand cmdBuilder, String tmpDir)
+    void handleWdtArgs(DockerfileOptions dockerfileOptions, BuildCommand cmdBuilder, String tmpDir)
         throws IOException {
 
         if (!isUsingWdt()) {

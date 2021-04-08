@@ -1,7 +1,7 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-package com.oracle.weblogic.imagetool.util;
+package com.oracle.weblogic.imagetool.builder;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
@@ -22,24 +22,33 @@ import java.util.stream.Stream;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.CloseableList;
+import com.oracle.weblogic.imagetool.util.Utils;
 
-public class DockerBuildCommand {
-    private static final LoggingFacade logger = LoggingFactory.getLogger(DockerBuildCommand.class);
+public class BuildCommand {
+    private static final LoggingFacade logger = LoggingFactory.getLogger(BuildCommand.class);
 
-    private List<String> command;
-    private List<BuildArg> buildArgs;
-    private String context;
+    private final List<String> command;
+    private final List<BuildArg> buildArgs;
+    private final String context;
 
     /**
-     * Create a Docker build command for creating an image.
+     * Create a build command for creating an image.  At some point, it might
+     * be beneficial to subclass this with separate classes for each builder (docker, podman, ...).
+     * For now, the differences do not justify the extra complexity.
      */
-    public DockerBuildCommand(String contextFolder) {
+    public BuildCommand(String buildEngine, String contextFolder) {
         Objects.requireNonNull(contextFolder);
         buildArgs = new ArrayList<>();
-        command = Stream.of("docker", "build", "--no-cache").collect(Collectors.toList());
+        command = Stream.of(buildEngine, "build", "--no-cache").collect(Collectors.toList());
         context = contextFolder;
     }
 
+    /**
+     * If Docker is not on the user's path, set the full path to the executable.
+     * @param value full path to Docker
+     * @deprecated use --builder instead
+     */
     public void dockerPath(String value) {
         command.set(0, value);
     }
@@ -49,7 +58,7 @@ public class DockerBuildCommand {
      * @param value name to be used as the image tag.
      * @return this
      */
-    public DockerBuildCommand tag(String value) {
+    public BuildCommand tag(String value) {
         if (Utils.isEmptyString(value)) {
             return this;
         }
@@ -64,7 +73,7 @@ public class DockerBuildCommand {
      * @param value true to enable --force-rm on docker build.
      * @return this
      */
-    public DockerBuildCommand forceRm(boolean value) {
+    public BuildCommand forceRm(boolean value) {
         if (value) {
             command.add("--force-rm");
         }
@@ -77,7 +86,7 @@ public class DockerBuildCommand {
      * @param key the ARG
      * @param value the value to be used in the Dockerfile for this ARG
      */
-    public DockerBuildCommand buildArg(String key, String value) {
+    public BuildCommand buildArg(String key, String value) {
         return buildArg(key, value, false);
     }
 
@@ -87,7 +96,7 @@ public class DockerBuildCommand {
      * @param value the value to be used in the Dockerfile for this ARG
      * @param conceal true for passwords so the value is not logged
      */
-    public DockerBuildCommand buildArg(String key, String value, boolean conceal) {
+    public BuildCommand buildArg(String key, String value, boolean conceal) {
         if (Utils.isEmptyString(value)) {
             return this;
         }
@@ -103,7 +112,7 @@ public class DockerBuildCommand {
      * Add a --network to the Docker build command.
      * @param value the Docker network to use
      */
-    public DockerBuildCommand network(String value) {
+    public BuildCommand network(String value) {
         if (Utils.isEmptyString(value)) {
             return this;
         }
@@ -116,7 +125,7 @@ public class DockerBuildCommand {
      * Add a --pull to the Docker build command.  If value is false, return without adding the --pull.
      * @param value true to add the pull
      */
-    public DockerBuildCommand pull(boolean value) {
+    public BuildCommand pull(boolean value) {
         if (value) {
             command.add("--pull");
         }
@@ -130,7 +139,7 @@ public class DockerBuildCommand {
      * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
-    public DockerBuildCommand run(Path dockerLog)
+    public BuildCommand run(Path dockerLog)
         throws IOException, InterruptedException {
         // process builder
         logger.entering(getCommand(false), dockerLog);
@@ -180,7 +189,7 @@ public class DockerBuildCommand {
                     }
                 }
             } catch (IOException e) {
-                logger.fine("Failed to create Docker log file", e);
+                logger.fine("Failed to create log file for the build command", e);
                 logFilePath = null;
             }
         }
