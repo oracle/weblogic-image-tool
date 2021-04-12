@@ -287,7 +287,7 @@ public class Utils {
                 stringBuilder.append(line);
                 stringBuilder.append(System.lineSeparator());
             }
-            throw new IOException(Utils.getMessage("IMG-0089", stringBuilder));
+            throw new IOException(Utils.getMessage("IMG-0088", stringBuilder));
         }
     }
 
