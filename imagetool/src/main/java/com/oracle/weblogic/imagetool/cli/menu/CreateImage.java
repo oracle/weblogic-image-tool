@@ -105,7 +105,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
-                Utils.removeIntermediateDockerImages(buildId);
+                Utils.removeIntermediateDockerImages(buildEngine, buildId);
             }
         }
         Instant endTime = Instant.now();

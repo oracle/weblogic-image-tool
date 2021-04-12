@@ -69,7 +69,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
 
-                Properties baseImageProperties = Utils.getBaseImageProperties(sourceImage, tmpDir);
+                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage, tmpDir);
 
                 oldOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 oldJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
@@ -91,7 +91,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
 
-                Properties baseImageProperties = Utils.getBaseImageProperties(targetImage, tmpDir);
+                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, targetImage, tmpDir);
 
                 newOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 newJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
@@ -165,7 +165,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
-                Utils.removeIntermediateDockerImages(buildId);
+                Utils.removeIntermediateDockerImages(buildEngine, buildId);
             }
         }
         Instant endTime = Instant.now();

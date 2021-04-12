@@ -60,7 +60,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                 tmpDir + File.separator + "test-env.sh", true);
 
-            Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
+            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage, tmpDir);
 
             dockerfileOptions.setJavaHome(baseImageProperties.getProperty("JAVA_HOME", null));
 
@@ -172,7 +172,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
-                Utils.removeIntermediateDockerImages(buildId);
+                Utils.removeIntermediateDockerImages(buildEngine, buildId);
             }
         }
         Instant endTime = Instant.now();

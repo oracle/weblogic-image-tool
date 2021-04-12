@@ -95,7 +95,7 @@ public abstract class CommonOptions {
     }
 
     void runDockerCommand(String dockerfile, BuildCommand command) throws IOException, InterruptedException {
-        logger.info("Starting build: " + command.toString());
+        logger.info("IMG-0078", command.toString());
 
         if (dryRun) {
             System.out.println("########## BEGIN DOCKERFILE ##########");
@@ -359,7 +359,7 @@ public abstract class CommonOptions {
             Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
                 tmpDir + File.separator + "test-env.sh", true);
 
-            Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
+            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage, tmpDir);
 
             if (baseImageProperties.getProperty("WLS_VERSION", null) != null) {
                 throw new IllegalArgumentException(Utils.getMessage("IMG-0038", fromImage,

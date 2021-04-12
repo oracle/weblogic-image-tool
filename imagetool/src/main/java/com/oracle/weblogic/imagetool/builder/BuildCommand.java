@@ -34,7 +34,7 @@ public class BuildCommand {
 
     /**
      * Create a build command for creating an image.  At some point, it might
-     * be beneficial to subclass this with separate classes for each builder (docker, podman, ...).
+     * be beneficial to subclass this with separate classes for each builder (docker or podman).
      * For now, the differences do not justify the extra complexity.
      */
     public BuildCommand(String buildEngine, String contextFolder) {
