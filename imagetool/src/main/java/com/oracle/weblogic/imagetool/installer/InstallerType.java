@@ -15,6 +15,7 @@ public enum InstallerType {
     FMW("fmw"),
     SOA("soa"),
     OSB("osb"),
+    B2B("b2b"),
     IDM("idm"),
     OAM("oam"),
     OUD("oud"),
