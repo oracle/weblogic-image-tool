@@ -62,8 +62,7 @@ public class WdtOptions {
         logger.entering(tmpDir);
         String encryptionKey = Utils.getPasswordFromInputs(encryptionKeyStr, encryptionKeyFile, encryptionKeyEnv);
         if (encryptionKey != null) {
-            dockerfileOptions.setWdtUseEncryption(true);
-            cmdBuilder.buildArg("WDT_ENCRYPTION_KEY", encryptionKey, true);
+            dockerfileOptions.setWdtEncryptionKey(encryptionKey);
         }
 
         dockerfileOptions.setWdtEnabled()

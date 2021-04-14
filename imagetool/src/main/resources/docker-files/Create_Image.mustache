@@ -147,7 +147,6 @@ RUN cd {{{tempDir}}}/opatch \
 
 {{#isWdtEnabled}}
     FROM wls_build as wdt_build
-    ARG WDT_ENCRYPTION_KEY
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     ENV WLSDEPLOY_PROPERTIES="{{{wlsdeploy_properties}}} -Djava.security.egd=file:/dev/./urandom" \
@@ -183,7 +182,7 @@ RUN cd {{{tempDir}}}/opatch \
     RUN unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
     {{^modelOnly}}
         RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
-        && {{#isWdtUseEncryption}}echo $WDT_ENCRYPTION_KEY | {{/isWdtUseEncryption}} ./createDomain.sh \
+        && {{#isWdtUseEncryption}}echo {{{wdtEncryptionKey}}} | {{/isWdtUseEncryption}} ./createDomain.sh \
         -oracle_home {{{oracle_home}}} \
         -domain_home {{{domain_home}}} \
         -domain_type {{domainType}} \
