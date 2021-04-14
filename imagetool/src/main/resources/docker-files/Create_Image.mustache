@@ -9,13 +9,13 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER root
 
 {{#useYum}}
-RUN yum -y --downloaddir={{{tempDir}}} install gzip tar unzip libaio jq {{#osPackages}}{{{.}}} {{/osPackages}}\
+RUN yum -y --downloaddir={{{tempDir}}} install gzip tar unzip libaio jq findutils {{#osPackages}}{{{.}}} {{/osPackages}}\
  && yum -y --downloaddir={{{tempDir}}} clean all \
  && rm -rf /var/cache/yum/* \
  && rm -rf {{{tempDir}}}
 {{/useYum}}
 {{#useDnf}}
-RUN dnf -y install gzip tar unzip libaio jq {{#osPackages}}{{{.}}} {{/osPackages}}\
+RUN dnf -y install gzip tar unzip libaio jq findutils {{#osPackages}}{{{.}}} {{/osPackages}}\
  && dnf clean all
 {{/useDnf}}
 {{#useMicroDnf}}
@@ -25,7 +25,7 @@ RUN microdnf install gzip tar unzip libaio jq findutils diffutils shadow-utils {
 {{#useAptGet}}
 RUN apt-get -y update \
  && apt-get -y upgrade \
- && apt-get -y install gzip tar unzip libaio jq {{#osPackages}}{{{.}}} {{/osPackages}}\
+ && apt-get -y install gzip tar unzip libaio jq findutils {{#osPackages}}{{{.}}} {{/osPackages}}\
  && apt-get -y clean all
 {{/useAptGet}}
 {{#useApk}}
