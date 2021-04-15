@@ -42,7 +42,8 @@
         {{{.}}}
     {{/beforeWdtCommand}}
 
-    RUN cd {{{wdt_home}}} \
+    RUN rm -rf {{{wdt_home}}}/weblogic-deploy \
+    && cd {{{wdt_home}}} \
     && jar xf {{{tempDir}}}/{{{wdtInstaller}}} \
     && cd weblogic-deploy/bin \
     && rm ./*.cmd \
