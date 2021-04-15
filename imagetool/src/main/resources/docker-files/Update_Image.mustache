@@ -86,12 +86,7 @@ USER root
 ENV OPATCH_NO_FUSER=true
 
 {{#isWdtEnabled}}
-ENV ADMIN_NAME=${ADMIN_NAME:-admin-server} \
-    ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
-    ADMIN_PORT=${ADMIN_PORT:-7001} \
-    MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
-    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
-    DOMAIN_HOME={{{domain_home}}} \
+ENV DOMAIN_HOME={{{domain_home}}} \
     PATH=${PATH}:{{{domain_home}}}/bin
 {{/isWdtEnabled}}
 

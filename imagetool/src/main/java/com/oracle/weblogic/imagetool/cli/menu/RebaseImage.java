@@ -52,8 +52,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         String newOracleHome = null;
         String newJavaHome = null;
         String domainHome;
-        String adminPort;
-        String managedServerPort;
 
         try {
 
@@ -74,9 +72,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 oldOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 oldJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
                 domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
-                adminPort = baseImageProperties.getProperty("ADMIN_PORT", null);
-                managedServerPort = baseImageProperties.getProperty("MANAGED_SERVER_PORT", null);
-
 
             } else {
                 return new CommandResponse(-1, "Source Image not set");
@@ -115,9 +110,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
             }
 
             BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
-
-            cmdBuilder.buildArg("ADMIN_PORT", adminPort)
-                .buildArg("MANAGED_SERVER_PORT", managedServerPort);
 
             if (dockerfileOptions.isRebaseToNew()) {
 
