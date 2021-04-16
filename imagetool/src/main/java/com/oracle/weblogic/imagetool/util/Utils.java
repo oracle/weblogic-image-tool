@@ -631,7 +631,6 @@ public class Utils {
                     return false;
                 }
             }
-
         }
 
         return true;
@@ -645,7 +644,7 @@ public class Utils {
      * @param options           Dockerfile options to use for the build (holds the Oracle Home argument)
      */
     public static void setOracleHome(List<Path> responseFiles, DockerfileOptions options) throws IOException {
-        if (responseFiles == null || responseFiles.size() < 1) {
+        if (responseFiles == null || responseFiles.isEmpty()) {
             return;
         }
         Path installerResponseFile = responseFiles.get(0);

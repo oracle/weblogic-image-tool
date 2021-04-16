@@ -68,7 +68,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
 
             BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
             // build wdt args if user passes --wdtModelPath
-            wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
+            wdtOptions.handleWdtArgs(dockerfileOptions, tmpDir);
 
             // resolve required patches
             handlePatchFiles(installerType);

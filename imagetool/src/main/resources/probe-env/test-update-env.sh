@@ -51,4 +51,11 @@ fi
 
 if [[ -n "$DOMAIN_HOME" ]]; then
   echo DOMAIN_HOME="$DOMAIN_HOME"
+  if [[ ! -d "$DOMAIN_HOME" ]] || [[ -z "$(ls -A $DOMAIN_HOME)" ]]; then
+    echo WDT_MODEL_ONLY=TRUE
+  fi
+fi
+
+if [[ -n "$WDT_MODEL_HOME" ]]; then
+  echo WDT_MODEL_HOME="$WDT_MODEL_HOME"
 fi

@@ -86,7 +86,10 @@ USER root
 ENV OPATCH_NO_FUSER=true
 
 {{#isWdtEnabled}}
-ENV DOMAIN_HOME={{{domain_home}}} \
+ENV  DOMAIN_HOME={{{domain_home}}} \
+    {{#modelOnly}}
+        WDT_MODEL_HOME={{{wdt_model_home}}} \
+    {{/modelOnly}}
     PATH=${PATH}:{{{domain_home}}}/bin
 {{/isWdtEnabled}}
 
@@ -107,7 +110,7 @@ USER {{userid}}
 
     {{^strictPatchOrdering}}
         # Apply all patches provided at the same time
-        RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -phBaseDir {{{tempDir}}}/patches \
+        RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -nonrollbackable -phBaseDir {{{tempDir}}}/patches \
         && test $? -eq 0 \
         && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
         || (cat {{{oracle_home}}}/cfgtoollogs/opatch/opatch*.log && exit 1)
@@ -115,7 +118,7 @@ USER {{userid}}
     {{#strictPatchOrdering}}
         # Apply one patch at a time in the order they were specified
         {{#patches}}
-            RUN {{{oracle_home}}}/OPatch/opatch apply -silent -oh {{{oracle_home}}} {{{tempDir}}}/patches/{{{.}}}
+            RUN {{{oracle_home}}}/OPatch/opatch apply -silent -oh {{{oracle_home}}} -nonrollbackable {{{tempDir}}}/patches/{{{.}}}
         {{/patches}}
         RUN {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
     {{/strictPatchOrdering}}
