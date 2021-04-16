@@ -14,12 +14,12 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 import picocli.CommandLine.ArgGroup;
@@ -60,7 +60,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                 tmpDir + File.separator + "test-env.sh", true);
 
-            Properties baseImageProperties = Utils.getBaseImageProperties(fromImage, tmpDir);
+            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage, tmpDir);
 
             dockerfileOptions.setJavaHome(baseImageProperties.getProperty("JAVA_HOME", null));
 
@@ -144,7 +144,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 }
             }
 
-            DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
+            BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
 
             // build wdt args if user passes --wdtModelPath
             wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
@@ -172,7 +172,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
-                Utils.removeIntermediateDockerImages(buildId);
+                Utils.removeIntermediateDockerImages(buildEngine, buildId);
             }
         }
         Instant endTime = Instant.now();

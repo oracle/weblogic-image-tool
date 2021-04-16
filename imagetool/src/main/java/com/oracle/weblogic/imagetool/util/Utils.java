@@ -277,7 +277,7 @@ public class Utils {
      * @param process the Docker process
      * @throws IOException if an error occurs while reading standard error (stderr) from the Docker build.
      */
-    static void processError(Process process) throws IOException {
+    public static void processError(Process process) throws IOException {
         try (
             BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()))
         ) {
@@ -287,7 +287,7 @@ public class Utils {
                 stringBuilder.append(line);
                 stringBuilder.append(System.lineSeparator());
             }
-            throw new IOException("docker command failed with error: " + stringBuilder.toString());
+            throw new IOException(Utils.getMessage("IMG-0088", stringBuilder));
         }
     }
 
@@ -419,11 +419,11 @@ public class Utils {
      * @throws IOException          when the Docker command fails
      * @throws InterruptedException when the Docker command is interrupted
      */
-    public static Properties getBaseImageProperties(String dockerImage, String tmpDir)
+    public static Properties getBaseImageProperties(String builder, String dockerImage, String tmpDir)
         throws IOException, InterruptedException {
 
         logger.entering(dockerImage, tmpDir);
-        List<String> imageEnvCmd = Utils.getDockerRunCmd(tmpDir, dockerImage, "test-env.sh");
+        List<String> imageEnvCmd = Utils.getDockerRunCmd(builder, tmpDir, dockerImage, "test-env.sh");
         Properties result = Utils.runDockerCommand(imageEnvCmd);
         logger.exiting(result);
         return result;
@@ -432,14 +432,15 @@ public class Utils {
     /**
      * Constructs a docker command to run a script in the container with a volume mount.
      *
+     * @param builder        docker/podman executable
      * @param hostDirToMount host dir
      * @param dockerImage    docker image tag
      * @param scriptToRun    script to execute on the container
      * @param args           args to the script
      * @return command
      */
-    private static List<String> getDockerRunCmd(String hostDirToMount, String dockerImage, String scriptToRun,
-                                               String... args) throws IOException {
+    private static List<String> getDockerRunCmd(String builder, String hostDirToMount, String dockerImage,
+                                                String scriptToRun, String... args) throws IOException {
 
         // We are removing the volume mount option, -v won't work in remote docker daemon and also
         // problematic if the mounted volume source is on a nfs volume as we have no idea what the docker volume
@@ -453,7 +454,7 @@ public class Utils {
         String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
         logger.finer("ONE COMMAND [" + oneCommand + "]");
         final List<String> retVal = Stream.of(
-            "docker", "run", "--rm",
+            builder, "run", "--rm",
             dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
         if (args != null && args.length > 0) {
             retVal.addAll(Arrays.asList(args));
@@ -738,14 +739,16 @@ public class Utils {
 
     /**
      * Remove the intermediate images created by the multi-stage Docker build.
+     * @param builder docker/podman executable
      * @param buildId the build ID used to identify the images created during this build.
      * @throws IOException if the external Docker command fails.
      * @throws InterruptedException if this program was interrupted waiting on the Docker command.
      */
-    public static void removeIntermediateDockerImages(String buildId) throws IOException, InterruptedException {
+    public static void removeIntermediateDockerImages(String builder, String buildId)
+        throws IOException, InterruptedException {
         logger.entering();
         final List<String> command = Stream.of(
-            "docker", "image", "prune", "-f", "--filter", "label=com.oracle.weblogic.imagetool.buildid=" + buildId)
+            builder, "image", "prune", "-f", "--filter", "label=com.oracle.weblogic.imagetool.buildid=" + buildId)
             .collect(Collectors.toList());
         Properties result = runDockerCommand(command);
         logger.fine("Intermediate images removed: {0}", result.get("Total"));

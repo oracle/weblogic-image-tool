@@ -147,7 +147,6 @@ RUN cd {{{tempDir}}}/opatch \
 
 {{#isWdtEnabled}}
     FROM wls_build as wdt_build
-    ARG WDT_ENCRYPTION_KEY
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     ENV WLSDEPLOY_PROPERTIES="{{{wlsdeploy_properties}}} -Djava.security.egd=file:/dev/./urandom" \
@@ -183,7 +182,7 @@ RUN cd {{{tempDir}}}/opatch \
     RUN unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
     {{^modelOnly}}
         RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
-        && {{#isWdtUseEncryption}}echo $WDT_ENCRYPTION_KEY | {{/isWdtUseEncryption}} ./createDomain.sh \
+        && {{#isWdtUseEncryption}}echo {{{wdtEncryptionKey}}} | {{/isWdtUseEncryption}} ./createDomain.sh \
         -oracle_home {{{oracle_home}}} \
         -domain_home {{{domain_home}}} \
         -domain_type {{domainType}} \
@@ -217,21 +216,11 @@ RUN cd {{{tempDir}}}/opatch \
 
 FROM os_update as final_build
 
-ARG ADMIN_NAME
-ARG ADMIN_HOST
-ARG ADMIN_PORT
-ARG MANAGED_SERVER_PORT
-
 ENV ORACLE_HOME={{{oracle_home}}} \
 {{#installJava}}
     JAVA_HOME={{{java_home}}} \
 {{/installJava}}
 {{#isWdtEnabled}}
-    ADMIN_NAME=${ADMIN_NAME:-admin-server} \
-    ADMIN_HOST=${ADMIN_HOST:-wlsadmin} \
-    ADMIN_PORT=${ADMIN_PORT:-7001} \
-    MANAGED_SERVER_NAME=${MANAGED_SERVER_NAME:-} \
-    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT:-8001} \
     DOMAIN_HOME={{{domain_home}}} \
 {{/isWdtEnabled}}
     PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}{{#isWdtEnabled}}:${{{domain_home}}}/bin{{/isWdtEnabled}}
@@ -267,11 +256,6 @@ COPY --from=wls_build --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle
         COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
         RUN chmod g+w {{{domain_home}}}
     {{/modelOnly}}
-{{/isWdtEnabled}}
-
-{{#isWdtEnabled}}
-    # Expose admin server, managed server port
-    EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT
 {{/isWdtEnabled}}
 
 USER {{userid}}
