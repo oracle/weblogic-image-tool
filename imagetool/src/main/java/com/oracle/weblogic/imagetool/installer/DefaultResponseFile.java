@@ -20,6 +20,7 @@ public class DefaultResponseFile implements ResponseFile {
     private static final String R_FMW = "Fusion Middleware Infrastructure";
     private static final String R_SOA = "SOA Suite";
     private static final String R_OSB = "Service Bus";
+    private static final String R_B2B = "B2B";
     private static final String R_IDM =
         "Standalone Oracle Identity and Access Manager(Managed independently of WebLogic server)";
     private static final String R_IDM_WLS =
@@ -55,6 +56,9 @@ public class DefaultResponseFile implements ResponseFile {
                 break;
             case OSB:
                 response = R_OSB;
+                break;
+            case B2B:
+                response = R_B2B;
                 break;
             case IDM:
                 if (FmwInstallerType.IDM == fmwInstallerType) {
