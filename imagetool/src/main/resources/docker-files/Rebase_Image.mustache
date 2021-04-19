@@ -8,24 +8,16 @@
 {{#isRebaseToTarget}}
 FROM {{sourceImage}} as source_image
 FROM {{targetImage}} as final_build
-ARG ADMIN_PORT
-ARG MANAGED_SERVER_PORT
 
-ENV ADMIN_PORT=${ADMIN_PORT} \
-    MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT} \
-    DOMAIN_HOME={{{domain_home}}}
+ENV DOMAIN_HOME={{{domain_home}}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 {{/isRebaseToTarget}}
 {{#isRebaseToNew}}
     FROM {{sourceImage}} as source_image
     FROM {{baseImage}} as os_update
-    ARG ADMIN_PORT
-    ARG MANAGED_SERVER_PORT
 
-    ENV ADMIN_PORT=${ADMIN_PORT} \
-        MANAGED_SERVER_PORT=${MANAGED_SERVER_PORT} \
-        DOMAIN_HOME={{{domain_home}}}
+    ENV DOMAIN_HOME={{{domain_home}}}
 
     LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     USER root
@@ -170,11 +162,6 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
     FROM os_update as final_build
 
-    ARG ADMIN_NAME
-    ARG ADMIN_HOST
-    ARG ADMIN_PORT
-    ARG MANAGED_SERVER_PORT
-
     ENV ORACLE_HOME={{{oracle_home}}} \
     {{#installJava}}
         JAVA_HOME={{{java_home}}} \
@@ -201,7 +188,6 @@ RUN mkdir -p {{domain_home}}
 COPY --from=source_image --chown={{userid}}:{{groupid}} {{domain_home}} {{domain_home}}/
 RUN chmod g+w {{{domain_home}}}
 
-EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT
 WORKDIR {{{work_dir}}}
 
 {{#finalBuildCommands}}

@@ -14,13 +14,13 @@ import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -66,7 +66,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             install.copyFiles(cache(), tmpDir);
             dockerfileOptions.setMiddlewareInstall(install);
 
-            DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
+            BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
             // build wdt args if user passes --wdtModelPath
             wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
 
@@ -105,7 +105,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
-                Utils.removeIntermediateDockerImages(buildId);
+                Utils.removeIntermediateDockerImages(buildEngine, buildId);
             }
         }
         Instant endTime = Instant.now();

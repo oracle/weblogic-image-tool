@@ -55,6 +55,7 @@ public class DockerfileOptions {
     private String targetImage;
     private PackageManagerType pkgMgr;
     private List<String> patchFilenames;
+    private MiddlewareInstall mwInstallers;
 
     // WDT values
     private String wdtHome;
@@ -69,10 +70,10 @@ public class DockerfileOptions {
     private boolean wdtRunRcu;
     private boolean wdtStrictValidation;
     private String wdtInstallerFilename;
-    private boolean wdtUseEncryption;
+    private String wdtEncryptionKey;
 
     // Additional Build Commands
-    private Map<String,List<String>> additionalBuildCommands;
+    private Map<String, List<String>> additionalBuildCommands;
 
     /**
      * Options to be used with the Mustache template.
@@ -103,7 +104,25 @@ public class DockerfileOptions {
         wdtVariableList = new ArrayList<>();
         wdtRunRcu = false;
         wdtStrictValidation = false;
-        wdtUseEncryption = false;
+    }
+
+    /**
+     * Compare if the child is a subdirectory of the parent (non java.io implementation).
+     *
+     * @param child  child directory name
+     * @param parent parent directory name
+     * @return true if child is NOT a subdirectory of parent
+     */
+
+    private static boolean isNotSubDirectory(String child, String parent) {
+        boolean result = false;
+        child = child.endsWith(File.separator) ? child.substring(0, child.length() - 1) : child;
+        parent = parent.endsWith(File.separator) ? parent.substring(0, parent.length() - 1) : parent;
+        if (!child.equals(parent)) {
+            // if the child is not the same as the parent, and the child starts with the same path as parent
+            result = !child.startsWith(parent);
+        }
+        return result;
     }
 
     /**
@@ -157,7 +176,6 @@ public class DockerfileOptions {
         return this;
     }
 
-
     /**
      * The source Docker image that contain the domain to copy from.
      *
@@ -176,7 +194,6 @@ public class DockerfileOptions {
         sourceImage = value;
         return this;
     }
-
 
     /**
      * The target Docker image that contain the domain to copy to.
@@ -211,6 +228,7 @@ public class DockerfileOptions {
 
     /**
      * Return if the rebase to existing target image.
+     *
      * @return true or false
      */
     public boolean isRebaseToTarget() {
@@ -219,6 +237,7 @@ public class DockerfileOptions {
 
     /**
      * set the value of rebase to existing target.
+     *
      * @param rebaseToTarget true or false
      */
     public void setRebaseToTarget(boolean rebaseToTarget) {
@@ -236,6 +255,7 @@ public class DockerfileOptions {
 
     /**
      * set the value of rebase to new target.
+     *
      * @param rebaseToNew true or false
      */
     public void setRebaseToNew(boolean rebaseToNew) {
@@ -293,15 +313,15 @@ public class DockerfileOptions {
         return oracleHome;
     }
 
-
+    @SuppressWarnings("unused")
     public String inv_loc() {
         return invLoc;
     }
 
+    @SuppressWarnings("unused")
     public String orainv_dir() {
         return oraInvDir;
     }
-
 
     @SuppressWarnings("unused")
     public String domain_home() {
@@ -320,18 +340,22 @@ public class DockerfileOptions {
 
     /**
      * Check to see if WDT model home is not under WDT home.
+     *
      * @return true|false
      */
+    @SuppressWarnings("unused")
     public boolean isWdtModelHomeOutsideWdtHome() {
         return !wdtModelHome.startsWith(wdtHome + File.separator);
     }
 
+    @SuppressWarnings("unused")
     public boolean isWdtValidateEnabled() {
         return isWdtEnabled() && modelOnly() && (!wdtModelList.isEmpty() || !wdtArchiveList.isEmpty());
     }
 
     /**
      * The directory for the WORKDIR in the Docker build.
+     *
      * @return the value for the WORKDIR
      */
     @SuppressWarnings("unused")
@@ -356,7 +380,6 @@ public class DockerfileOptions {
         }
     }
 
-
     /**
      * Set the INV_LOC environment variable for the Dockerfile to be written.
      *
@@ -372,6 +395,7 @@ public class DockerfileOptions {
 
     /**
      * Set the value for the Oracle Inventory directory.
+     *
      * @param value the value for inventory file (directory)
      */
     public void setOraInvDir(String value) {
@@ -385,6 +409,7 @@ public class DockerfileOptions {
     /**
      * Set the Domain directory to be used by WDT domain creation.
      * WDT -domain_home.
+     *
      * @param value the full path to the domain directory
      */
     public DockerfileOptions setDomainHome(String value) {
@@ -494,48 +519,34 @@ public class DockerfileOptions {
      *
      * @return true if WDT domain create should be performed.
      */
+    @SuppressWarnings("unused")
     public boolean isWdtEnabled() {
         return useWdt;
     }
 
-
     /**
      * copyOraInst check if it needs to copy the oraInst.loc file.
+     *
      * @return true if it needs to copy
      */
-
+    @SuppressWarnings("unused")
     public boolean copyOraInst() {
-        return !isSubDirectoryOrSame(invLoc, oracleHome);
+        return isNotSubDirectory(invLoc, oracleHome);
     }
 
     /**
      * copyOraInventoryDir check if it needs to copy the oraInventory Directory.
+     *
      * @return true if it needs to copy
      */
-
+    @SuppressWarnings("unused")
     public boolean copyOraInventoryDir() {
-        return !isSubDirectoryOrSame(oraInvDir, oracleHome);
-    }
-
-    /**
-     * isSubDirectoryOrSame compare if the child is a subdirectory of parent (non java.io implementation).
-     * @param child  child directory name
-     * @param parent parent directory name
-     * @return true if child is a subdirectory of parent otherwise false
-     */
-
-    private static boolean isSubDirectoryOrSame(String child, String parent) {
-        boolean result = true;
-        child = child.endsWith(File.separator) ? child.substring(0, child.length() - 1) : child;
-        parent = parent.endsWith(File.separator) ? parent.substring(0, parent.length() - 1) : parent;
-        if (!child.equals(parent)) {
-            result = child.startsWith(parent);
-        }
-        return result;
+        return isNotSubDirectory(oraInvDir, oracleHome);
     }
 
     /**
      * If WDT is enabled, and the model is not in the archive, the model file argument must be set.
+     *
      * @param value a model filename, or comma-separated model filenames.
      * @return this
      */
@@ -577,6 +588,7 @@ public class DockerfileOptions {
 
     /**
      * Set the path to the archive file to be used with WDT.
+     *
      * @param value an archive filename, or comma-separated archive filenames.
      * @return this
      */
@@ -612,6 +624,7 @@ public class DockerfileOptions {
      *
      * @return a list of Strings with the archive filenames.
      */
+    @SuppressWarnings("unused")
     public List<String> wdtVariables() {
         return wdtVariableList;
     }
@@ -627,7 +640,7 @@ public class DockerfileOptions {
     }
 
     private String wdtGetFileArgument(String wdtParameterName, List<String> filenames) {
-        StringJoiner result = new StringJoiner(",", wdtParameterName,"");
+        StringJoiner result = new StringJoiner(",", wdtParameterName, "");
         result.setEmptyValue("");
         for (String name : filenames) {
             result.add(wdtModelHome + "/" + name);
@@ -637,6 +650,7 @@ public class DockerfileOptions {
 
     /**
      * Set the path to the variable file to be used with WDT.
+     *
      * @param value an variable filename, or comma-separated variable filenames.
      * @return this
      */
@@ -670,7 +684,7 @@ public class DockerfileOptions {
     /**
      * The location where installers should write their temporary files.
      *
-     * @param value  the full path to the temporary directory that should be used.
+     * @param value the full path to the temporary directory that should be used.
      */
     public void setTempDirectory(String value) {
 
@@ -690,7 +704,7 @@ public class DockerfileOptions {
     /**
      * Set the desired WDT Operation to use during update.
      *
-     * @param value  CREATE, DEPLOY, or UPDATE.
+     * @param value CREATE, DEPLOY, or UPDATE.
      */
     public DockerfileOptions setWdtCommand(WdtOperation value) {
         wdtOperation = value;
@@ -699,17 +713,28 @@ public class DockerfileOptions {
 
     /**
      * Enable WDT -use_encryption flag.
-     * @param value true to enable use_encryption
+     *
+     * @param value encryption key to use for WDT decryption
      * @return this (builder)
      */
-    public DockerfileOptions setWdtUseEncryption(boolean value) {
-        wdtUseEncryption = value;
+    public DockerfileOptions setWdtEncryptionKey(String value) {
+        wdtEncryptionKey = value;
         return this;
     }
 
     @SuppressWarnings("unused")
     public boolean isWdtUseEncryption() {
-        return wdtUseEncryption;
+        return wdtEncryptionKey != null;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides the encryption key for WDT decryption.
+     *
+     * @return the encryption key.
+     */
+    @SuppressWarnings("unused")
+    public String wdtEncryptionKey() {
+        return wdtEncryptionKey;
     }
 
     /**
@@ -725,7 +750,7 @@ public class DockerfileOptions {
     /**
      * Set the desired WDT domain type parameter.
      *
-     * @param value  WLS, JRF, ...
+     * @param value WLS, JRF, ...
      */
     public DockerfileOptions setWdtDomainType(String value) {
         wdtDomainType = value;
@@ -765,7 +790,6 @@ public class DockerfileOptions {
         return this;
     }
 
-
     @SuppressWarnings("unused")
     public boolean strictValidation() {
         return wdtStrictValidation;
@@ -786,7 +810,7 @@ public class DockerfileOptions {
      *
      * @param commands Additional build commands grouped by section.
      */
-    public DockerfileOptions setAdditionalBuildCommands(Map<String,List<String>> commands) {
+    public DockerfileOptions setAdditionalBuildCommands(Map<String, List<String>> commands) {
         additionalBuildCommands = commands;
         return this;
     }
@@ -916,13 +940,12 @@ public class DockerfileOptions {
         return getAdditionalCommandsForSection(AdditionalBuildCommands.FINAL_BLD);
     }
 
-    private MiddlewareInstall mwInstallers;
-
     public DockerfileOptions setMiddlewareInstall(MiddlewareInstall install) {
         mwInstallers = install;
         return this;
     }
 
+    @SuppressWarnings("unused")
     public List<MiddlewareInstallPackage> installPackages() {
         return mwInstallers.getInstallers();
     }
@@ -931,6 +954,7 @@ public class DockerfileOptions {
         javaInstaller = value;
     }
 
+    @SuppressWarnings("unused")
     public String java_pkg() {
         return javaInstaller;
     }

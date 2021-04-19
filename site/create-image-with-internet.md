@@ -49,7 +49,7 @@ You will see the Docker command output as the tool runs:
 ```bash
 [2019-05-28 10:37:02] [com.oracle.weblogic.imagetool.cli.menu.CreateImage] [INFO   ] tmp directory used for build
 context: /home/acmeuser/wlsimgbuilder_temp8791654163579491583
-[2019-05-28 10:37:09] [com.oracle.weblogic.imagetool.cli.menu.CreateImage] [INFO   ] docker cmd = docker build
+[2019-05-28 10:37:09] [com.oracle.weblogic.imagetool.cli.menu.CreateImage] [INFO   ] Starting build: docker build
 --force-rm --rm=true --no-cache --tag wls:12.2.1.3.0 --build-arg http_proxy=http://company-proxy.com:80 --build-arg
 https_proxy=http://company-proxy.com:80 --build-arg WLS_PKG=fmw_12.2.1.3.0_wls_Disk1_1of1.zip --build-arg
 JAVA_PKG=jdk-8u201-linux-x64.tar.gz --build-arg PATCHDIR=patches /home/acmeuser/wlsimgbuilder_temp8791654163579491583

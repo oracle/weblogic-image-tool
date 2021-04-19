@@ -15,13 +15,13 @@ import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Constants;
-import com.oracle.weblogic.imagetool.util.DockerBuildCommand;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
@@ -52,8 +52,6 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         String newOracleHome = null;
         String newJavaHome = null;
         String domainHome;
-        String adminPort;
-        String managedServerPort;
 
         try {
 
@@ -69,14 +67,11 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
 
-                Properties baseImageProperties = Utils.getBaseImageProperties(sourceImage, tmpDir);
+                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage, tmpDir);
 
                 oldOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 oldJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
                 domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
-                adminPort = baseImageProperties.getProperty("ADMIN_PORT", null);
-                managedServerPort = baseImageProperties.getProperty("MANAGED_SERVER_PORT", null);
-
 
             } else {
                 return new CommandResponse(-1, "Source Image not set");
@@ -91,7 +86,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
 
-                Properties baseImageProperties = Utils.getBaseImageProperties(targetImage, tmpDir);
+                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, targetImage, tmpDir);
 
                 newOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 newJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
@@ -114,10 +109,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, Utils.getMessage("IMG-0025"));
             }
 
-            DockerBuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
-
-            cmdBuilder.buildArg("ADMIN_PORT", adminPort)
-                .buildArg("MANAGED_SERVER_PORT", managedServerPort);
+            BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
 
             if (dockerfileOptions.isRebaseToNew()) {
 
@@ -165,7 +157,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
-                Utils.removeIntermediateDockerImages(buildId);
+                Utils.removeIntermediateDockerImages(buildEngine, buildId);
             }
         }
         Instant endTime = Instant.now();

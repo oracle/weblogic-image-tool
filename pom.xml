@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <name>WebLogic Image Tool</name>
-    <description>Build Docker images with a specific WebLogic install and Java version.</description>
+    <description>Build images with a specific WebLogic install and Java version.</description>
     <url>https://github.com/oracle/weblogic-image-tool</url>
     <inceptionYear>2019</inceptionYear>
     <licenses>
