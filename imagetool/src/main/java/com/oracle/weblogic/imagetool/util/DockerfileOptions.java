@@ -86,7 +86,6 @@ public class DockerfileOptions {
 
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
-        domainHome = DEFAULT_DOMAIN_HOME;
         invLoc = DEFAULT_INV_LOC;
         oraInvDir = DEFAULT_ORAINV_DIR;
 
@@ -162,6 +161,7 @@ public class DockerfileOptions {
      *
      * @return the image name
      */
+    @SuppressWarnings("unused")
     public String baseImage() {
         return baseImageName;
     }
@@ -171,6 +171,7 @@ public class DockerfileOptions {
      *
      * @return this DockerfileOptions object
      */
+    @SuppressWarnings("unused")
     public DockerfileOptions setBaseImage(String value) {
         baseImageName = value;
         return this;
@@ -181,6 +182,7 @@ public class DockerfileOptions {
      *
      * @return the image name
      */
+    @SuppressWarnings("unused")
     public String sourceImage() {
         return sourceImage;
     }
@@ -200,6 +202,7 @@ public class DockerfileOptions {
      *
      * @return the image name
      */
+    @SuppressWarnings("unused")
     public String targetImage() {
         return targetImage;
     }
@@ -220,7 +223,7 @@ public class DockerfileOptions {
      * @return this DockerfileOptions object
      */
     public DockerfileOptions setWdtModelHome(String value) {
-        if (value != null) {
+        if (!Utils.isEmptyString(value)) {
             wdtModelHome = value;
         }
         return this;
@@ -231,6 +234,7 @@ public class DockerfileOptions {
      *
      * @return true or false
      */
+    @SuppressWarnings("unused")
     public boolean isRebaseToTarget() {
         return isRebaseToTarget;
     }
@@ -249,6 +253,7 @@ public class DockerfileOptions {
      *
      * @return true of false
      */
+    @SuppressWarnings("unused")
     public boolean isRebaseToNew() {
         return isRebaseToNew;
     }
@@ -323,9 +328,17 @@ public class DockerfileOptions {
         return oraInvDir;
     }
 
+    /**
+     * Used by Dockerfile template to get the domain home directory.
+     * @return the string value of the domain home path
+     */
     @SuppressWarnings("unused")
     public String domain_home() {
-        return domainHome;
+        if (domainHome != null) {
+            return domainHome;
+        } else {
+            return DEFAULT_DOMAIN_HOME;
+        }
     }
 
     @SuppressWarnings("unused")
@@ -413,11 +426,7 @@ public class DockerfileOptions {
      * @param value the full path to the domain directory
      */
     public DockerfileOptions setDomainHome(String value) {
-        if (value != null) {
-            domainHome = value;
-        } else {
-            domainHome = DEFAULT_DOMAIN_HOME;
-        }
+        domainHome = value;
         return this;
     }
 
@@ -450,6 +459,7 @@ public class DockerfileOptions {
      *
      * @return true if Java should be installed.
      */
+    @SuppressWarnings("unused")
     public boolean installJava() {
         return !skipJavaInstall;
     }
@@ -562,6 +572,7 @@ public class DockerfileOptions {
      *
      * @return true if invLoc is not equal to the default location
      */
+    @SuppressWarnings("unused")
     public boolean isCustomInventoryLoc() {
         return !invLoc.equals(DEFAULT_INV_LOC);
     }
@@ -672,23 +683,13 @@ public class DockerfileOptions {
     }
 
     /**
-     * Referenced by Dockerfile template, provides location where installers should write their temporary files.
+     * Referenced by Dockerfile template, location in the image where the builder should write temporary files.
      *
      * @return the full path to the temporary directory that should be used.
      */
     @SuppressWarnings("unused")
     public String tempDir() {
         return tempDirectory;
-    }
-
-    /**
-     * The location where installers should write their temporary files.
-     *
-     * @param value the full path to the temporary directory that should be used.
-     */
-    public void setTempDirectory(String value) {
-
-        tempDirectory = value;
     }
 
     /**

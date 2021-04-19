@@ -52,6 +52,8 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
         String newOracleHome = null;
         String newJavaHome = null;
         String domainHome;
+        String modelHome;
+        boolean modelOnly;
 
         try {
 
@@ -67,18 +69,19 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
                     tmpDir + File.separator + "test-env.sh", true);
 
+                logger.info("IMG-0091", sourceImage);
                 Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage, tmpDir);
 
                 oldOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 oldJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
                 domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
-
+                modelHome = baseImageProperties.getProperty("WDT_MODEL_HOME", null);
+                modelOnly = Boolean.parseBoolean(baseImageProperties.getProperty("WDT_MODEL_ONLY", null));
             } else {
                 return new CommandResponse(-1, "Source Image not set");
             }
 
-
-            if (targetImage != null && !targetImage.isEmpty()) {
+            if (!Utils.isEmptyString(targetImage)) {
                 logger.finer("IMG-0002", targetImage);
                 dockerfileOptions.setTargetImage(targetImage);
                 dockerfileOptions.setRebaseToTarget(true);
@@ -103,11 +106,21 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, Utils.getMessage("IMG-0021"));
             }
 
-            if (domainHome != null && !domainHome.isEmpty()) {
-                dockerfileOptions.setDomainHome(domainHome);
-            } else {
+            if (Utils.isEmptyString(domainHome)) {
                 return new CommandResponse(-1, Utils.getMessage("IMG-0025"));
             }
+
+            if (modelOnly) {
+                logger.info("IMG-0090", domainHome);
+                if (Utils.isEmptyString(modelHome)) {
+                    logger.info("IMG-0089", dockerfileOptions.wdt_model_home());
+                }
+            }
+
+            dockerfileOptions
+                .setDomainHome(domainHome)
+                .setWdtModelHome(modelHome)
+                .setWdtModelOnly(modelOnly);
 
             BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
 
