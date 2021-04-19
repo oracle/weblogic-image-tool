@@ -49,6 +49,7 @@ public class BuildCommand {
      * @param value full path to Docker
      * @deprecated use --builder instead
      */
+    @Deprecated
     public void dockerPath(String value) {
         command.set(0, value);
     }
