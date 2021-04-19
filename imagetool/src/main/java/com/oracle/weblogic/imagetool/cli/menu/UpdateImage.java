@@ -147,7 +147,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
 
             // build wdt args if user passes --wdtModelPath
-            wdtOptions.handleWdtArgs(dockerfileOptions, cmdBuilder, tmpDir);
+            wdtOptions.handleWdtArgs(dockerfileOptions, tmpDir);
             dockerfileOptions.setWdtCommand(wdtOperation);
             if (dockerfileOptions.runRcu()
                 && (wdtOperation == WdtOperation.UPDATE || wdtOperation == WdtOperation.DEPLOY)) {
