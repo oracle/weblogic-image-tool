@@ -7,44 +7,9 @@
 FROM {{baseImage}} as os_update
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER root
+{{> package-managers}}
 
-{{#useYum}}
-RUN yum -y --downloaddir={{{tempDir}}} install gzip tar unzip libaio jq findutils {{#osPackages}}{{{.}}} {{/osPackages}}\
- && yum -y --downloaddir={{{tempDir}}} clean all \
- && rm -rf /var/cache/yum/* \
- && rm -rf {{{tempDir}}}
-{{/useYum}}
-{{#useDnf}}
-RUN dnf -y install gzip tar unzip libaio jq findutils {{#osPackages}}{{{.}}} {{/osPackages}}\
- && dnf clean all
-{{/useDnf}}
-{{#useMicroDnf}}
-RUN microdnf install gzip tar unzip libaio jq findutils diffutils shadow-utils {{#osPackages}}{{{.}}} {{/osPackages}}\
- && microdnf clean all
-{{/useMicroDnf}}
-{{#useAptGet}}
-RUN apt-get -y update \
- && apt-get -y upgrade \
- && apt-get -y install gzip tar unzip libaio jq findutils {{#osPackages}}{{{.}}} {{/osPackages}}\
- && apt-get -y clean all
-{{/useAptGet}}
-{{#useApk}}
-RUN apk update \
- && apk upgrade \
- && rm -rf /var/cache/apk/*
-{{/useApk}}
-{{#useZypper}}
-RUN zypper -nq update \
- && zypper -nq clean \
- && rm -rf /var/cache/zypp/*
-{{/useZypper}}
-
-## Create user and group
-RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd {{groupid}} || exit -1 ; fi \
- && if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -g {{groupid}} {{userid}} || exit -1; fi \
- && mkdir -p /u01 \
- && chown {{userid}}:{{groupid}} /u01 \
- && chmod 775 /u01
+{{> create-user-group}}
 
 {{#installJava}}
 # Install Java
@@ -95,14 +60,6 @@ RUN mkdir -p {{{oracle_home}}} \
 {{/installPackages}}
 COPY --chown={{userid}}:{{groupid}} oraInst.loc {{inv_loc}}/
 
-{{#isOpatchPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} {{{opatchFileName}}} {{{tempDir}}}/opatch/
-{{/isOpatchPatchingEnabled}}
-
-{{#isPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} patches/* {{{tempDir}}}/patches/
-{{/isPatchingEnabled}}
-
 USER {{userid}}
 
 {{#beforeFmwInstall}}
@@ -118,27 +75,7 @@ RUN echo "INSTALLING MIDDLEWARE" \
 {{/installPackages}}
  && chmod -R g+r {{{oracle_home}}}
 
-{{#isOpatchPatchingEnabled}}
-RUN cd {{{tempDir}}}/opatch \
- && {{{java_home}}}/bin/jar -xf {{{tempDir}}}/opatch/{{{opatchFileName}}} \
- && {{{java_home}}}/bin/java -jar {{{tempDir}}}/opatch/6880880/opatch_generic.jar -silent -ignoreSysPrereqs -force -novalidation oracle_home={{{oracle_home}}}
-{{/isOpatchPatchingEnabled}}
-
-{{#isPatchingEnabled}}
-    {{^strictPatchOrdering}}
-        # Apply all patches provided at the same time
-        RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -nonrollbackable -phBaseDir {{{tempDir}}}/patches \
-        && test $? -eq 0 \
-        && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
-    {{/strictPatchOrdering}}
-    {{#strictPatchOrdering}}
-        # Apply one patch at a time in the order they were specified
-        {{#patches}}
-            RUN {{{oracle_home}}}/OPatch/opatch apply -silent -oh {{{oracle_home}}} -nonrollbackable {{{tempDir}}}/patches/{{{.}}}
-        {{/patches}}
-        RUN {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
-    {{/strictPatchOrdering}}
-{{/isPatchingEnabled}}
+{{> fmw-patching}}
 
 {{#afterFmwInstall}}
     {{{.}}}
