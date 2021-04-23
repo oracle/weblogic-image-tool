@@ -57,10 +57,8 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             tmpDir = getTempDirectory();
 
-            Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
-                tmpDir + File.separator + "test-env.sh", true);
-
-            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage, tmpDir);
+            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
+                "/probe-env/test-update-env.sh", tmpDir);
 
             dockerfileOptions.setJavaHome(baseImageProperties.getProperty("JAVA_HOME", null));
 
