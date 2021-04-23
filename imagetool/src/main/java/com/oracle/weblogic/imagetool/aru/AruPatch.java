@@ -191,6 +191,11 @@ public class AruPatch implements Comparable<AruPatch> {
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"));
 
+                // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
+                if (patch.description.contains("STACK PATCH BUNDLE")) {
+                    logger.info("Discarded Stack Patch Bundle: {0}", patch.description);
+                    continue;
+                }
                 int index = patch.downloadPath().indexOf("patch_file=");
                 if (index < 0) {
                     throw new XPathExpressionException(Utils.getMessage("IMG-0059", patch.patchId()));
