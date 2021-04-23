@@ -193,7 +193,7 @@ public class AruPatch implements Comparable<AruPatch> {
 
                 // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
                 if (patch.description.contains("STACK PATCH BUNDLE")) {
-                    logger.info("Discarded Stack Patch Bundle: {0}", patch.description);
+                    logger.fine("Discarded Stack Patch Bundle: {0}", patch.description);
                     continue;
                 }
                 int index = patch.downloadPath().indexOf("patch_file=");
