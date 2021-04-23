@@ -356,10 +356,8 @@ public abstract class CommonOptions {
             logger.finer("IMG-0002", fromImage);
             dockerfileOptions.setBaseImage(fromImage);
 
-            Utils.copyResourceAsFile("/probe-env/test-create-env.sh",
-                tmpDir + File.separator + "test-env.sh", true);
-
-            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage, tmpDir);
+            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
+                "/probe-env/test-create-env.sh", tmpDir);
 
             if (baseImageProperties.getProperty("WLS_VERSION", null) != null) {
                 throw new IllegalArgumentException(Utils.getMessage("IMG-0038", fromImage,
