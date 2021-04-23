@@ -2,7 +2,52 @@
 <!-- Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. -->
 
 <results md5_sum="a814ac2fcb8f44d2757c0fcac92d451d">
-    <generated_date in_epoch_ms="1598301753000">2020-08-24 20:42:33</generated_date>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>32755791</number>
+            <abstract><![CDATA[WLS STACK PATCH BUNDLE 12.2.1.3.200624]]></abstract>
+        </bug>
+        <name>32755791</name>
+        <type>Patch</type>
+        <psu_bundle>Oracle WebLogic Server 12.2.1.3.200624</psu_bundle>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/blah/blah]]></patch_readme>
+            <patch_details><![CDATA[/download/32755791.html]]></patch_details>
+        </url>
+        <request_id>24172184</request_id>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>32755791</number>
+                <abstract><![CDATA[WLS STACK PATCH BUNDLE 12.2.1.3.200624]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>417431395</size>
+        <files>
+            <file>
+                <name>p32755791_122140_Generic.zip</name>
+                <size>417431395</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/blah/blah/Generic.zip]]></download_url>
+                <digest type="SHA-256">1111</digest>
+                <digest type="SHA-1">22222</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1618932313000">2021-04-20 15:25:13</updated_date>
+        <released_date in_epoch_ms="1618932312000">2021-04-20 15:25:12</released_date>
+    </patch>
     <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
         <bug>
             <number>31544340</number>
