@@ -229,8 +229,15 @@ public class HttpUtil {
             } catch (IOException ioe) {
                 if (++count > 10) {
                     complete = true;
+                } else {
+                    logger.warning("Network connection failed, retrying in 10 seconds, attempts={0} ", count);
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
-                logger.warning("Network connection failed, retrying, attempts={0} ", count);
+
             }
         }
         logger.exiting();
