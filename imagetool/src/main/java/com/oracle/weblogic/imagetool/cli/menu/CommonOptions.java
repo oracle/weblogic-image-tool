@@ -26,6 +26,7 @@ import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
+import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -160,6 +161,7 @@ public abstract class CommonOptions {
 
     void init(String buildId) throws Exception {
         logger.entering(buildId);
+        logger.info(HelpVersionProvider.versionString());
         dockerfileOptions = new DockerfileOptions(buildId);
         logger.info("IMG-0016", buildId);
 
