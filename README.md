@@ -1,7 +1,7 @@
 # Oracle WebLogic Image Tool
 
 **NOTE: The upcoming change to Oracle Support's recommended patches list will require  
-Image Tool 1.9.11 in order to use `--recommendedPatches` or `--latestPSU`. **
+Image Tool 1.9.11 in order to use `--recommendedPatches` or `--latestPSU`.**
 
 Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into
 the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker
