@@ -27,7 +27,7 @@ public enum FmwInstallerType {
     WLS(Arrays.asList(AruProduct.WLS, AruProduct.COH),
         InstallerType.WLS),
     // Oracle WebLogic Server Infrastructure (JRF)
-    FMW(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.JDEV),
+    FMW(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.JRF, AruProduct.FMWPLAT, AruProduct.JDEV),
         InstallerType.FMW),
     // Oracle Service Bus
     OSB(Utils.list(FMW.products, AruProduct.OSB),
@@ -70,8 +70,8 @@ public enum FmwInstallerType {
         InstallerType.FMW, InstallerType.WCS)
     ;
 
-    private InstallerType[] installers;
-    private List<AruProduct> products;
+    private final InstallerType[] installers;
+    private final List<AruProduct> products;
     FmwInstallerType(List<AruProduct> products, InstallerType... installers) {
         this.installers = installers;
         this.products = products;
