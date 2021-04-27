@@ -24,7 +24,7 @@ public enum FmwInstallerType {
         InstallerType.WLSSLIM),
     WLSDEV(Arrays.asList(AruProduct.WLS, AruProduct.COH),
         InstallerType.WLSDEV),
-    WLS(Arrays.asList(AruProduct.WLS, AruProduct.COH),
+    WLS(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT),
         InstallerType.WLS),
     // Oracle WebLogic Server Infrastructure (JRF)
     FMW(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.JRF, AruProduct.FMWPLAT, AruProduct.JDEV),
