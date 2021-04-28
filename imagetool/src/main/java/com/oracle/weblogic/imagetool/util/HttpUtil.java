@@ -142,7 +142,7 @@ public class HttpUtil {
     private static HttpRequestRetryHandler retryHandler() {
         return (exception, executionCount, context) -> {
 
-            if (executionCount > 3) {
+            if (executionCount > 10) {
                 // Do not retry if over max retries
                 return false;
             }
@@ -209,17 +209,37 @@ public class HttpUtil {
         // MUST use the same httpExecutor to maintain session
 
 
-        httpExecutor
-                .execute(Request.Get(Constants.REL_URL).connectTimeout(30000).socketTimeout(30000))
-                .returnContent().asString();
+        boolean complete = false;
+        int count = 0;
+        String xmlString = null;
+        while (!complete) {
+            try {
+                httpExecutor
+                    .execute(Request.Get(Constants.REL_URL).connectTimeout(30000).socketTimeout(30000))
+                    .returnContent().asString();
 
-        HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-                .addTextBody("request_xml", payload)
-                .build();
+                HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                    .addTextBody("request_xml", payload)
+                    .build();
 
-        String xmlString =
-                httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
+                xmlString =
+                    httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
                         .returnContent().asString();
+                complete = true;
+            } catch (IOException ioe) {
+                if (++count > 10) {
+                    complete = true;
+                } else {
+                    logger.warning("Network connection failed, retrying in 10 seconds, attempts={0} ", count);
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
+            }
+        }
         logger.exiting();
         return parseXmlString(xmlString);
 
