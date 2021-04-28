@@ -20,14 +20,15 @@ public enum FmwInstallerType {
     // data from https://updates.oracle.com/Orion/Services/metadata?table=aru_products
 
     // Oracle WebLogic Server
-    WLSSLIM(Arrays.asList(AruProduct.WLS, AruProduct.COH),
-        InstallerType.WLSSLIM),
-    WLSDEV(Arrays.asList(AruProduct.WLS, AruProduct.COH),
-        InstallerType.WLSDEV),
-    WLS(Arrays.asList(AruProduct.WLS, AruProduct.COH),
+    WLS(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT),
         InstallerType.WLS),
+    WLSSLIM(Utils.list(WLS.products),
+        InstallerType.WLSSLIM),
+    WLSDEV(Utils.list(WLS.products),
+        InstallerType.WLSDEV),
+
     // Oracle WebLogic Server Infrastructure (JRF)
-    FMW(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.JDEV),
+    FMW(Utils.list(WLS.products, AruProduct.JRF, AruProduct.JDEV),
         InstallerType.FMW),
     // Oracle Service Bus
     OSB(Utils.list(FMW.products, AruProduct.OSB),
@@ -38,6 +39,9 @@ public enum FmwInstallerType {
     // Oracle SOA Suite (with Service Bus)
     SOA_OSB(Utils.list(FMW.products, AruProduct.SOA, AruProduct.OSB),
         InstallerType.FMW, InstallerType.SOA, InstallerType.OSB),
+    // Oracle SOA Suite (with Service Bus and B2B)
+    SOA_OSB_B2B(Utils.list(FMW.products, AruProduct.SOA, AruProduct.OSB, AruProduct.B2B),
+        InstallerType.FMW, InstallerType.SOA, InstallerType.OSB, InstallerType.B2B),
     // Oracle Identity Manager
     IDM(Utils.list(FMW.products, AruProduct.IDM),
         InstallerType.FMW, InstallerType.IDM),
@@ -67,8 +71,8 @@ public enum FmwInstallerType {
         InstallerType.FMW, InstallerType.WCS)
     ;
 
-    private InstallerType[] installers;
-    private List<AruProduct> products;
+    private final InstallerType[] installers;
+    private final List<AruProduct> products;
     FmwInstallerType(List<AruProduct> products, InstallerType... installers) {
         this.installers = installers;
         this.products = products;

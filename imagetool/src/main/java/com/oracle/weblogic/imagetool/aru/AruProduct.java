@@ -9,8 +9,11 @@ package com.oracle.weblogic.imagetool.aru;
 public enum AruProduct {
     WLS("15991", "Oracle WebLogic Server"),
     COH("13964", "Oracle Coherence"),
+    JRF("10120", "Oracle Java Required Files"),
+    FMWPLAT("27638", "FMW Platform"),
     OSB("16011", "Oracle Service Bus"),
     SOA("12745", "Oracle SOA Suite"),
+    B2B("12745", "Oracle B2B"),
     IDM("18391", "Oracle Identity Manager"),
     OAM("18388", "Oracle Access Manager"),
     OUD("19748", "Oracle Unified Directory"),
@@ -21,8 +24,8 @@ public enum AruProduct {
     //FIT("33256", "Fusion Internal Tools") No longer used after July 2020 PSU
     ;
 
-    private String productId;
-    private String description;
+    private final String productId;
+    private final String description;
     AruProduct(String productId, String description) {
         this.productId = productId;
         this.description = description;
