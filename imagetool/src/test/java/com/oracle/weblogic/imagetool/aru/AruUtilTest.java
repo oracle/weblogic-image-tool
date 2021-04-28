@@ -104,7 +104,7 @@ class AruUtilTest {
 
         // if no recommended patches are found, method should return an empty list (test data does not have 12.2.1.4)
         recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLSDEV, "12.2.1.4.0", "x", "x");
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, "12.2.1.4.0", "x", "x");
         assertTrue(recommendedPatches.isEmpty());
     }
 
