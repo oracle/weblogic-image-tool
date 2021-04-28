@@ -77,4 +77,6 @@
     <release id="606" name="12.1.0.1.0"><![CDATA[OSB 12.1.0.1.0]]></release>
     <release id="701" name="12.2.1.4.0"><![CDATA[Oracle Coherence 12.2.1.4.0]]></release>
     <release id="702" name="12.2.1.3.0"><![CDATA[Oracle Coherence 12.2.1.3.0]]></release>
+    <release id="801" name="12.2.1.3.0"><![CDATA[FMW Platform 12.2.1.3.0]]></release>
+    <release id="802" name="12.2.1.4.0"><![CDATA[FMW Platform 12.2.1.4.0]]></release>
 </results>

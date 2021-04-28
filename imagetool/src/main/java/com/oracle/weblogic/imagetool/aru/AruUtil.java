@@ -156,7 +156,7 @@ public class AruUtil {
             List<AruPatch> patches = AruPatch.getPatches(aruRecommendations);
             String psuVersion = getPsuVersion(patches);
             if (!Utils.isEmptyString(psuVersion)) {
-                patches.forEach(p -> logger.fine("Discarding recommended patch {1} {2}", p.patchId(), p.description()));
+                patches.forEach(p -> logger.fine("Discarding recommended patch {0} {1}", p.patchId(), p.description()));
                 logger.fine("Recommended patch list contains a PSU, getting recommendations for PSU version {0}",
                     psuVersion);
                 // get release number for PSU
