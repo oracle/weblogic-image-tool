@@ -1,4 +1,4 @@
-# Oracle WebLogic Image Tool
+# WebLogic Image Tool
 
 **NOTE: The upcoming change to Oracle Support's recommended patches list will require  
 Image Tool 1.9.11 in order to use `--recommendedPatches` or `--latestPSU`.**
@@ -7,7 +7,7 @@ Oracle is finding ways for organizations using WebLogic Server to run important 
 the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker
 and Kubernetes, WebLogic now runs in a cloud neutral infrastructure.  To help simplify and automate the creation of
 Docker images for WebLogic Server, we are providing this open source
-Oracle WebLogic Image Tool.  This tool let's you create a new Linux based image, with installations of a JDK and WebLogic Server,
+WebLogic Image Tool.  This tool let's you create a new Linux based image, with installations of a JDK and WebLogic Server,
 and optionally, configure a WebLogic domain with your applications, apply WebLogic Server patches, or update an existing
 image.
 
@@ -16,8 +16,8 @@ image.
 The Image Tool provides three functions within the main script:
   - [Create Image](site/create-image.md) - The `create` command creates a new Docker image and installs the requested
   Java and WebLogic software.  Additionally, you can create a WebLogic domain in the image at the same time.
-  - [Rebase Image](site/rebase-image.md) - The `rebase` command creates a new Docker image using an existing WebLogic 
-  domain from an existing image. The new Docker image can start from an existing image with a JDK and Oracle 
+  - [Rebase Image](site/rebase-image.md) - The `rebase` command creates a new Docker image using an existing WebLogic
+  domain from an existing image. The new Docker image can start from an existing image with a JDK and Oracle
   middleware installation, or can install the JDK and Oracle Home as part of moving the domain.
   - [Update Image](site/update-image.md) - The `update` command creates a new Docker image by applying WebLogic patches
   to an existing image.  Additionally, you can create a WebLogic domain if one did not exist previously, update an
@@ -51,7 +51,7 @@ If you want to build the installer from source instead of downloading it, follow
 - Download and install JDK 8u261+
 - Download and install Maven 3.6.3+
 - Clone this repository to your local environment using one of the options under `Code` near the top of this page.
-- From inside the top-level directory of the cloned project, `weblogic-image-tool`, using Maven, execute one or 
+- From inside the top-level directory of the cloned project, `weblogic-image-tool`, using Maven, execute one or
 more of these phases:
     - `validate` - Validate the project is correct and all necessary information is available.
     - `compile`  - Compile the source code.
@@ -59,17 +59,17 @@ more of these phases:
     - `package`  - Create the installer ZIP file, `imagetool.zip`.
     - `verify`   - Run integration tests using the JUnit5 framework (Pre-requisite: Docker installed).
     - `clean`    - Restore the source by removing any items created by `package` or another phase of the build.
-    
-**Note:** Maven executes build phases sequentially, `validate`, `compile`, `test`, `package`, `verify`, such that 
+
+**Note:** Maven executes build phases sequentially, `validate`, `compile`, `test`, `package`, `verify`, such that
 running `verify` will run all of these phases from `validate` through `package` before executing `verify`.
 
-Because the `package` phase comes before the `verify` phase, it is not necessary to run the integration tests to create 
-the Image Tool installer.  If you are making changes and want to validate those changes in your environment, you will 
-need to do some additional setup before running the `verify` phase because several of the integration tests require 
-access to the Oracle Technology Network.  To run the integration tests in the 
-`verify` phase, you must specify three environment variables, `ORACLE_SUPPORT_USERNAME`, `ORACLE_SUPPORT_PASSWORD`, 
+Because the `package` phase comes before the `verify` phase, it is not necessary to run the integration tests to create
+the Image Tool installer.  If you are making changes and want to validate those changes in your environment, you will
+need to do some additional setup before running the `verify` phase because several of the integration tests require
+access to the Oracle Technology Network.  To run the integration tests in the
+`verify` phase, you must specify three environment variables, `ORACLE_SUPPORT_USERNAME`, `ORACLE_SUPPORT_PASSWORD`,
 and `STAGING_DIR`.  The first two, Oracle Support user name and password, are used to connect to Oracle OTN for patches.
-The third, `STAGING_DIR`, should be a local folder where WebLogic Server installers, JDK installers, and pre-downloaded 
+The third, `STAGING_DIR`, should be a local folder where WebLogic Server installers, JDK installers, and pre-downloaded
 patches can be found.  The files required in the `STAGING_DIR` depend on which tests that you want to run.  
 
 Example: Run a set of integration tests (available groups are `cache`, `gate`, and `nightly`:
@@ -84,12 +84,12 @@ mvn verify -Dtest.groups=gate,nightly -Dit.test=ITImagetool#createWlsImg
 
 Integration Test groups:
 - `cache` - Tests that build and manipulate the Image Tool cache.
-- `gate`  - A basic set of integration tests that are used to validate merge requests, including building several 
+- `gate`  - A basic set of integration tests that are used to validate merge requests, including building several
 Docker image (~20 minutes)
-- `nightly` - The full set of integration tests building various Docker images including JRF and WLS 
+- `nightly` - The full set of integration tests building various Docker images including JRF and WLS
 installations (~2 hours)
 
-**Note:** In order to run an integration test that builds an image like `createWlsImg`, you must run the `cache` 
+**Note:** In order to run an integration test that builds an image like `createWlsImg`, you must run the `cache`
 group first in order to populate the cache with the WLS and JDK installers.
 
 ## Samples
