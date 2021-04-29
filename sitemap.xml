@@ -2,6 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://oracle.github.io/weblogic-image-tool/</loc>
+    <priority>0</priority>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/argument-file/</loc>
     <priority>0</priority>
   </url><url>
@@ -41,7 +44,5 @@
     <loc>https://oracle.github.io/weblogic-image-tool/categories/</loc>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/tags/</loc>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-image-tool/</loc>
   </url>
 </urlset>

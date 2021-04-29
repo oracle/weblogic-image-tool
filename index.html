@@ -9,23 +9,23 @@
 
     <link rel="icon" href="/weblogic-image-tool/images/favicon.png" type="image/png">
 
-    <title>WebLogic Image Tool :: WebLogic Image Tool</title>
+    <title> :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1619703723" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1619703723" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1619704048" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1619704048" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1619703723"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1619704048"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -48,7 +48,7 @@
     <div id="header">
       <a id="logo" href="https://oracle.github.io/weblogic-image-tool">
   <img src="https://oracle.github.io/weblogic-image-tool/images/logo.png" height="60"><br/>
-  Kubernetes Operator
+  Image Tool
 </a>
 
     </div>
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1619703723"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1619703723"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1619704048"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1619704048"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1619703723"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1619704048"></script>
 
     
   </div>
@@ -114,17 +114,105 @@
 <a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
 </span>
 
-           
-	
-		<h1>Customize your own home page</h1>
-		<p>
-		  The site is working. Don't forget to customize this homepage with your own. You typically have 3 choices :
-		</p>
-		<ul>
-			<li><b>1. </b> Create an _index.md document in <b>content</b> folder and fill it with Markdown content</li>
-			<li><b>2. </b> Create an <b>index.html</b> file in the <b>static</b> folder and fill the file with HTML content</li>
-		  <li><b>3. </b> Configure your server to automatically redirect home page to one your documentation page</li>
-		</ul>
+ 
+<h1 id="weblogic-image-tool">WebLogic Image Tool</h1>
+<p><strong>NOTE: The upcoming change to Oracle Support&rsquo;s recommended patches list will require<br>
+Image Tool 1.9.11 in order to use <code>--recommendedPatches</code> or <code>--latestPSU</code>.</strong></p>
+<p>Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into
+the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker
+and Kubernetes, WebLogic now runs in a cloud neutral infrastructure.  To help simplify and automate the creation of
+Docker images for WebLogic Server, we are providing this open source
+WebLogic Image Tool.  This tool let&rsquo;s you create a new Linux based image, with installations of a JDK and WebLogic Server,
+and optionally, configure a WebLogic domain with your applications, apply WebLogic Server patches, or update an existing
+image.</p>
+<h2 id="features">Features</h2>
+<p>The Image Tool provides three functions within the main script:</p>
+<ul>
+<li><a href="/weblogic-image-tool/create-image/">Create Image</a> - The <code>create</code> command creates a new Docker image and installs the requested
+Java and WebLogic software.  Additionally, you can create a WebLogic domain in the image at the same time.</li>
+<li><a href="/weblogic-image-tool/rebase-image/">Rebase Image</a> - The <code>rebase</code> command creates a new Docker image using an existing WebLogic
+domain from an existing image. The new Docker image can start from an existing image with a JDK and Oracle
+middleware installation, or can install the JDK and Oracle Home as part of moving the domain.</li>
+<li><a href="/weblogic-image-tool/update-image/">Update Image</a> - The <code>update</code> command creates a new Docker image by applying WebLogic patches
+to an existing image.  Additionally, you can create a WebLogic domain if one did not exist previously, update an
+an existing domain, or deploy an application.</li>
+<li><a href="/weblogic-image-tool/cache/">Cache</a> - The Image Tool maintains metadata on the local file system for patches and installers.<br>
+The <code>cache</code> command can be used to manipulate the local metadata.</li>
+</ul>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Docker client and daemon on the build machine, with minimum Docker version 18.03.1.ce.</li>
+<li>Installers for WebLogic Server and JDK from the <a href="https://edelivery.oracle.com">Oracle Software Delivery Cloud</a>.</li>
+<li>For patches, <a href="https://www.oracle.com/technical-resources/">Oracle Support</a> credentials.</li>
+<li>Bash version 4.0 or later, to enable the <code>&lt;tab&gt;</code> command complete feature.</li>
+</ul>
+<h2 id="setup">Setup</h2>
+<ul>
+<li>Build the project (<code>mvn clean package</code>) to create the ZIP installer in <code>./imagetool/target</code>.</li>
+<li>Unzip the release ZIP file to a desired location.</li>
+<li>For Linux environment, <code>cd your_unzipped_location/bin</code> and <code>source setup.sh</code>.</li>
+<li>For Windows environment, <code>cd your_unzipped_location\bin</code> and <code>.\imagetool.cmd</code>.</li>
+<li>Run <code>imagetool help</code> to show the help text.</li>
+</ul>
+<h2 id="quick-start">Quick Start</h2>
+<p>Use the <a href="/weblogic-image-tool/quickstart/">Quick Start</a> guide to create a Linux based WebLogic Docker image.</p>
+<h2 id="building-from-source">Building From Source</h2>
+<p>The Image Tool installer is available for download on the <a href="https://github.com/oracle/weblogic-image-tool/releases">Releases</a> page.<br>
+If you want to build the installer from source instead of downloading it, follow these instructions:</p>
+<ul>
+<li>Download and install JDK 8u261+</li>
+<li>Download and install Maven 3.6.3+</li>
+<li>Clone this repository to your local environment using one of the options under <code>Code</code> near the top of this page.</li>
+<li>From inside the top-level directory of the cloned project, <code>weblogic-image-tool</code>, using Maven, execute one or
+more of these phases:
+<ul>
+<li><code>validate</code> - Validate the project is correct and all necessary information is available.</li>
+<li><code>compile</code>  - Compile the source code.</li>
+<li><code>test</code>     - Test the compiled source code using the JUnit5 framework.</li>
+<li><code>package</code>  - Create the installer ZIP file, <code>imagetool.zip</code>.</li>
+<li><code>verify</code>   - Run integration tests using the JUnit5 framework (Pre-requisite: Docker installed).</li>
+<li><code>clean</code>    - Restore the source by removing any items created by <code>package</code> or another phase of the build.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Note:</strong> Maven executes build phases sequentially, <code>validate</code>, <code>compile</code>, <code>test</code>, <code>package</code>, <code>verify</code>, such that
+running <code>verify</code> will run all of these phases from <code>validate</code> through <code>package</code> before executing <code>verify</code>.</p>
+<p>Because the <code>package</code> phase comes before the <code>verify</code> phase, it is not necessary to run the integration tests to create
+the Image Tool installer.  If you are making changes and want to validate those changes in your environment, you will
+need to do some additional setup before running the <code>verify</code> phase because several of the integration tests require
+access to the Oracle Technology Network.  To run the integration tests in the
+<code>verify</code> phase, you must specify three environment variables, <code>ORACLE_SUPPORT_USERNAME</code>, <code>ORACLE_SUPPORT_PASSWORD</code>,
+and <code>STAGING_DIR</code>.  The first two, Oracle Support user name and password, are used to connect to Oracle OTN for patches.
+The third, <code>STAGING_DIR</code>, should be a local folder where WebLogic Server installers, JDK installers, and pre-downloaded
+patches can be found.  The files required in the <code>STAGING_DIR</code> depend on which tests that you want to run.</p>
+<p>Example: Run a set of integration tests (available groups are <code>cache</code>, <code>gate</code>, and <code>nightly</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mvn verify -Dtest.groups<span style="color:#f92672">=</span>cache
+</code></pre></div><p>Example: Run a single integration test:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mvn verify -Dtest.groups<span style="color:#f92672">=</span>gate,nightly -Dit.test<span style="color:#f92672">=</span>ITImagetool#createWlsImg
+</code></pre></div><p>Integration Test groups:</p>
+<ul>
+<li><code>cache</code> - Tests that build and manipulate the Image Tool cache.</li>
+<li><code>gate</code>  - A basic set of integration tests that are used to validate merge requests, including building several
+Docker image (~20 minutes)</li>
+<li><code>nightly</code> - The full set of integration tests building various Docker images including JRF and WLS
+installations (~2 hours)</li>
+</ul>
+<p><strong>Note:</strong> In order to run an integration test that builds an image like <code>createWlsImg</code>, you must run the <code>cache</code>
+group first in order to populate the cache with the WLS and JDK installers.</p>
+<h2 id="samples">Samples</h2>
+<ul>
+<li><a href="/weblogic-image-tool/create-image-with-internet/">Create an image with full Internet access</a></li>
+<li><a href="/weblogic-image-tool/create-image-no-internet/">Create an image with no Internet access</a></li>
+<li><a href="/weblogic-image-tool/patching-image/">Patch an existing image</a></li>
+<li><a href="/weblogic-image-tool/create-image-wdt/">Create an image with a WebLogic domain using the WebLogic Deploy Tool</a></li>
+</ul>
+<h2 id="additional-tasks">Additional tasks</h2>
+<ul>
+<li><a href="/weblogic-image-tool/cleanup/">Cleanup</a></li>
+<li><a href="/weblogic-image-tool/logging/">Logging</a></li>
+</ul>
+<h2 id="copyright">Copyright</h2>
+<p>Copyright (c) 2019, 2021, Oracle and/or its affiliates.</p>
 	
   
         
@@ -171,19 +259,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1619703723"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1619703723"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1619703723"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1619703723"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1619703723"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1619703723"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1619704048"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1619704048"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1619704048"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1619704048"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1619704048"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1619704048"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1619703723"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1619703723"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1619703723"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1619704048"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1619704048"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1619704048"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1619703723"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1619704048"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
