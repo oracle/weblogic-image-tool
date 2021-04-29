@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/weblogic-image-tool/images/favicon.png" type="image/png">
+
+    <title> :: WebLogic Image Tool</title>
+
+    
+    <link href="/weblogic-image-tool/css/nucleus.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1619703562" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1619703562" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1619703562"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-image-tool/update-image/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://oracle.github.io/weblogic-image-tool">
+  <img src="https://oracle.github.io/weblogic-image-tool/images/logo.png" height="60"><br/>
+  Kubernetes Operator
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1619703562"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1619703562"></script>
+<script type="text/javascript">
+    
+        var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
+    
+</script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1619703562"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-image-tool">Home</a></li>
+        
+          
+        
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-image-tool/release-notes">Release Notes</a></li>
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-image-tool"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://weblogic-slack-inviter.herokuapp.com/"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-image-tool/'>WebLogic Image Tool</a> > 
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#additional-information">Additional information</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#usage-scenarios">Usage scenarios</a></li>
+    <li><a href="#copyright">Copyright</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              
+            </h1>
+          
+
+        
+
+
+<h1 id="update-image">Update Image</h1>
+<p>After you have created a Docker image with the Image Tool, you may want to change it from time to time.  Use the <code>update</code>
+command to update the existing Docker images created with the Image Tool.  For example, you may want to:</p>
+<ul>
+<li>Apply a WebLogic patch</li>
+<li>Apply the latest PSU from Oracle</li>
+<li>Create a new WebLogic domain (if one did not already exist)</li>
+<li>Deploy a new application to an existing domain</li>
+<li>Modify the domain configuration (add a data source, change a port number, and such)</li>
+</ul>
+<p>The required options for the <code>update</code> command are marked.</p>
+<p><strong>NOTE</strong>: You can provide the password in one of the three ways:</p>
+<ul>
+<li>Plain text</li>
+<li>Environment variable</li>
+<li>File containing the password</li>
+</ul>
+<pre><code>Usage: imagetool update [OPTIONS]
+Update WebLogic Docker image with selected patches
+
+</code></pre><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Definition</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--additionalBuildCommands</code></td>
+<td>Path to a file with additional build commands. For more details, see <a href="#additional-information">Additional information</a>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--additionalBuildFiles</code></td>
+<td>Additional files that are required by your <code>additionalBuildCommands</code>.  A comma separated list of files that should be copied to the build context.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--buildNetwork</code></td>
+<td>Networking mode for the RUN instructions during the image build.  See <code>--network</code> for Docker <code>build</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--chown</code></td>
+<td><code>userid:groupid</code> for JDK/Middleware installs and patches.</td>
+<td><code>oracle:oracle</code></td>
+</tr>
+<tr>
+<td><code>--docker</code></td>
+<td>Path to the Docker executable.</td>
+<td><code>docker</code></td>
+</tr>
+<tr>
+<td><code>--dryRun</code></td>
+<td>Skip Docker build execution and print the Dockerfile to stdout.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--fromImage</code></td>
+<td>Docker image to be updated. The <code>fromImage</code> option serves as a starting point for the new image to be created.</td>
+<td><code>weblogic:12.2.1.3.0</code></td>
+</tr>
+<tr>
+<td><code>--httpProxyUrl</code></td>
+<td>Proxy for the HTTP protocol. Example: <code>http://myproxy:80</code> or <code>http:user:passwd@myproxy:8080</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--httpsProxyUrl</code></td>
+<td>Proxy for the HTTPS protocol. Example: <code>https://myproxy:80</code> or <code>https:user:passwd@myproxy:8080</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--latestPSU</code></td>
+<td>(DEPRECATED) Find and apply the latest PatchSet Update, see <a href="#additional-information">Additional information</a>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--opatchBugNumber</code></td>
+<td>The patch number for OPatch (patching OPatch).</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--password</code></td>
+<td>Request password for the Oracle Support <code>--user</code> on STDIN, see <code>--user</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--passwordEnv</code></td>
+<td>Environment variable containing the Oracle Support password, see <code>--user</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--passwordFile</code></td>
+<td>Path to a file containing just the Oracle Support password, see <code>--user</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--patches</code></td>
+<td>Comma separated list of patch IDs. Example: <code>12345678,87654321</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--pull</code></td>
+<td>Always attempt to pull a newer version of base images during the build.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--resourceTemplates</code></td>
+<td>One or more files containing placeholders that need to be resolved by the Image Tool. See <a href="#resource-template-files">Resource Template Files</a>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--strictPatchOrdering</code></td>
+<td>Instruct OPatch to apply patches one at a time (uses <code>apply</code> instead of <code>napply</code>).</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--tag</code></td>
+<td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:12.2.1.3.0</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--user</code></td>
+<td>Oracle support email ID.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtArchive</code></td>
+<td>Path to the WDT archive file used by the WDT model.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtDomainHome</code></td>
+<td>Path to the <code>-domain_home</code> for WDT.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtDomainType</code></td>
+<td>WDT domain type. Supported values: <code>WLS</code>, <code>JRF</code>, <code>RestrictedJRF</code></td>
+<td><code>WLS</code></td>
+</tr>
+<tr>
+<td><code>--wdtEncryptionKey</code></td>
+<td>Passphrase for WDT -use_encryption that will be requested on STDIN.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtEncryptionKeyEnv</code></td>
+<td>Passphrase for WDT -use_encryption that is provided as an environment variable.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtEncryptionKeyFile</code></td>
+<td>Passphrase for WDT -use_encryption that is provided as a file.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtJavaOptions</code></td>
+<td>Java command-line options for WDT.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtModel</code></td>
+<td>Path to the WDT model file that defines the domain to create.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtModelOnly</code></td>
+<td>Install WDT and copy the models to the image, but do not create the domain.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--wdtOperation</code></td>
+<td>Create a new domain, or update an existing domain. Supported values: <code>CREATE</code>, <code>UPDATE</code>, <code>DEPLOY</code></td>
+<td><code>CREATE</code></td>
+</tr>
+<tr>
+<td><code>--wdtRunRCU</code></td>
+<td>Instruct WDT to run RCU when creating the domain.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtStrictValidation</code></td>
+<td>Use strict validation for the WDT validation method. Only applies when using model only.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--wdtVariables</code></td>
+<td>Path to the WDT variables file for use with the WDT model.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--wdtVersion</code></td>
+<td>WDT tool version to use.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="additional-information">Additional information</h2>
+<h4 id="--additionalbuildcommands"><code>--additionalBuildCommands</code></h4>
+<p>This is an advanced option that let&rsquo;s you provide additional commands to the Docker build step.<br>
+The input for this parameter is a simple text file that contains one or more of the valid sections. Valid sections for update:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Build Stage</th>
+<th>Timing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>before-wdt-command</code></td>
+<td>Intermediate (WDT_BUILD)</td>
+<td>Before WDT is installed.</td>
+</tr>
+<tr>
+<td><code>after-wdt-command</code></td>
+<td>Intermediate (WDT_BUILD)</td>
+<td>After WDT domain creation/update is complete.</td>
+</tr>
+<tr>
+<td><code>final-build-commands</code></td>
+<td>Final image</td>
+<td>After all Image Tool actions are complete, and just before the Docker image is finalized.</td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.<br>
+The Image Tool will copy the domain home and the WDT home directories to the final image.<br>
+Changes fully contained within these directories do not need an additional <code>COPY</code> command in the <code>final-build-commands</code> section.</p>
+<p>Each section can contain one or more valid Dockerfile commands and would look like the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#f92672">[</span>after-fmw-install<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> rm /some/dir/unnecessary-file<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /u01<span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
+<p>This option provides a way to supply additional files to the image build command.
+All provided files and directories are copied directly under the <code>files</code> subfolder of the build context.<br>
+To get those files into the image, additional build commands must be provided using the <code>additionalBuildCommands</code> options.
+Access to these files using a build command, such as <code>COPY</code> or <code>ADD</code>, should use the original filename
+with the folder prefix, <code>files/</code>.  For example, if the
+original file was provided as <code>--additionalBuildFiles /scratch/test1/convenience.sh</code>, the Docker build command <code>COPY</code>
+provided in <code>--additionalBuildCommands</code> should look like
+<code>COPY --chown=oracle:oracle files/convenience.sh /my/internal/image/location</code>.<br>
+Because Image Tool uses multi-stage
+builds, it is important to place the build command (like <code>COPY</code>) in the appropriate section of the <code>Dockerfile</code> based
+on when the build needs access to the file.  For example, if the file is needed in the final image and not for
+installation or domain creation steps, use the <code>final-build-commands</code> section so that the <code>COPY</code> command occurs in the
+final stage of the image build.  Or, if the file needs to change the Oracle Home prior to domain creation, use
+the <code>after-fmw-install</code> or <code>before-wdt-command</code> sections.</p>
+<h4 id="--latestpsu"><code>--latestPSU</code></h4>
+<p>The <code>latestPSU</code> option will continue to be supported for the CREATE option, but has been deprecated for use in the
+UPDATE option.  Because of the number of patches and their size, using <code>latestPSU</code> as an update to an existing image can
+increase the size of the image significantly, and is not recommended.</p>
+<h4 id="resource-template-files">Resource Template Files</h4>
+<p>If provided, the file or files provided with <code>--resourceTemplates</code> will be overwritten. For known tokens,
+the placeholders will be replaced with values according to the following table.  <strong>Note:</strong> Placeholders must follow
+the Mustache syntax, like <code>{{imageName}}</code> or <code>{{{imageName}}}</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Token Name</th>
+<th>Value Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>domainHome</code></td>
+<td>The value provided to the Image Tool with <code>--wdtDomainHome</code>.</td>
+</tr>
+<tr>
+<td><code>domainHomeSourceType</code></td>
+<td><code>PersistentVolume</code> (default), <code>FromModel</code> if <code>--wdtModelOnly</code>, or <code>Image</code> if the domain is created in the image with WDT.</td>
+</tr>
+<tr>
+<td><code>imageName</code></td>
+<td>The value provided to the Image Tool with <code>--tag</code>.</td>
+</tr>
+<tr>
+<td><code>modelHome</code></td>
+<td>The value provided to the Image Tool with <code>--wdtModelHome</code>.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="use-an-argument-file">Use an argument file</h4>
+<p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
+<p>For example, create a file called <code>build_args</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">update
+--fromImage weblogic:12.2.1.3.0
+--tag wls:122130-patched
+--patches <span style="color:#ae81ff">123456</span>
+--user acmeuser@mycompany.com
+--passwordEnv MYPWD
+
+</code></pre></div><p>Use it on the command line, as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">imagetool @/path/to/build_args
+</code></pre></div><h2 id="usage-scenarios">Usage scenarios</h2>
+<p><strong>Note</strong>: Use <code>--passwordEnv</code> or <code>--passwordFile</code> instead of <code>--password</code>.</p>
+<ul>
+<li>
+<p>Update an image named <code>sample:1.0</code> by applying the latest PSU and tag it as <code>sample:1.1</code>.</p>
+<pre><code>imagetool update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
+</code></pre></li>
+<li>
+<p>Update an image named <code>sample:1.0</code> with the selected patches applied and tag it as <code>sample:1.1</code>.</p>
+<pre><code>imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,87654321
+</code></pre></li>
+<li>
+<p>Update an image named <code>wls:12.2.1.3.0</code> by creating a new WebLogic domain using WDT and tag it as <code>mydomain:1</code>.  The WDT
+installer is accessed from the cache with key wdt_1.1.1.  The model and archive to use are located in a subfolder named <code>wdt</code>.</p>
+<pre><code>imagetool update --fromImage wls:12.2.1.3.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
+</code></pre></li>
+<li>
+<p>Use <code>deployApps</code> from WDT to deploy a new application, the WLS Metrics Exporter.  The model and archive to use are
+located in a subfolder named <code>wdt</code>.</p>
+<pre><code>imagetool update --tag mydomain:2 --fromImage mydomain:1 --wdtOperation deploy --wdtArchive ./wdt/exporter_archive.zip --wdtModel ./wdt/exporter_model.yaml --wdtVersion 1.1.1   
+</code></pre></li>
+</ul>
+<h2 id="copyright">Copyright</h2>
+<p>Copyright (c) 2019, 2021, Oracle and/or its affiliates.</p>
+
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1619703562"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1619703562"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1619703562"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1619703562"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1619703562"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1619703562"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1619703562"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1619703562"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1619703562"></script>
+    
+        
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1619703562"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+
