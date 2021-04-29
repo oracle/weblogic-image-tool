@@ -4,7 +4,7 @@ Use this Quick Start guide to create a Linux based WebLogic Docker image.
 
 ## Before you begin
 
-Make sure that you have fulfilled the [Prerequisites](../README.md#prerequisites) and [Setup](../README.md#setup) requirements listed in the [README](../README.md).
+Make sure that you have fulfilled the [Prerequisites]({{< relref "/_index.md#prerequisites" >}}) and [Setup]({{< relref "/_index.md#setup" >}}) requirements listed for the [Image Tool]({{< relref "/_index.md" >}}).
 
 ## Overview
 
