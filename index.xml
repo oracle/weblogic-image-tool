@@ -112,7 +112,7 @@ For example, to download patch number 27342434 for WebLogic Server version 12.</
       
       <guid>https://oracle.github.io/weblogic-image-tool/quickstart/</guid>
       <description>Quick Start Use this Quick Start guide to create a Linux based WebLogic Docker image.
-Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements listed in the README.
+Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements listed for the Image Tool.
 Overview The high level steps for creating an image are:
  Download the Java and WebLogic installers from the Oracle Software Delivery Cloud. Add the installers to the cache store. Run the imagetool command to create the image.</description>
     </item>
