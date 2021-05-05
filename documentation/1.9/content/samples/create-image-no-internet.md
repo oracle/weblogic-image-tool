@@ -1,4 +1,9 @@
-# Create an image without Internet access
+---
+title: "Create an image without Internet access"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 2
+---
 
 
 In this use case, because there is no Internet access, you will need to download all the installers and
@@ -10,7 +15,7 @@ tar
 unzip
 ```
 
-## Steps
+### Steps
 
 1. Download these Java and WebLogic installers from the [Oracle Software Delivery Cloud](https://edelivery.oracle.com)
 and save them in a directory of your choice, for example, `/home/acmeuser/wls-installers`:
@@ -19,7 +24,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
      `jdk-8u202-linux-x64.tar.gz`
 
 
-2. Use the [Cache Tool](cache.md) to add the installers:
+2. Use the [Cache Tool]({{< relref "/userguide/tools/cache.md" >}}) to add the installers:
 
     ```bash
     imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
@@ -52,6 +57,3 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
   ```bash
   imagetool cache addPatch --patchId 28186730_13.9.4.0.0 --path /home/acmeuser/cache/p28186730_139400_Generic.zip
   ```
-
-## Copyright
-Copyright (c) 2019, 2021, Oracle and/or its affiliates.

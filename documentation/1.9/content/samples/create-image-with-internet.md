@@ -1,4 +1,10 @@
-# Create an image with full Internet access
+---
+title: "Create an image with full Internet access"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 1
+---
+
 
 The Image Tool supports creating Linux based WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains.  It can be used with or without Internet access.
 
@@ -8,7 +14,7 @@ In this use case, the Image Tool will:
 2. Update the image with the necessary packages for installing WebLogic Server.
 3. Install Java and WebLogic Server.
 
-## Steps
+### Steps
 
 1. Download these Java and WebLogic installers from the [Oracle Software Delivery Cloud](https://edelivery.oracle.com)
 and save them in a directory of your choice, for example, `/home/acmeuser/wls-installers`:
@@ -17,7 +23,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
      `jdk-8u202-linux-x64.tar.gz`
 
 
-2. Use the [Cache Tool](cache.md) to add the installers:
+2. Use the [Cache Tool]({{< relref "/userguide/tools/cache.md" >}}) to add the installers:
 
     ```bash
     imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
@@ -73,5 +79,3 @@ wls                           12.2.1.3.0          18d366fc3da4        About a mi
 ghcr.io/oracle/oraclelinux    7-slim              f7512ac13c1b        6 weeks ago          118MB
 
 ```
-## Copyright
-Copyright (c) 2019, 2021, Oracle and/or its affiliates.

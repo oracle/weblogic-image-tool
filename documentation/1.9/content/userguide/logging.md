@@ -1,10 +1,15 @@
-# Logging
+---
+title: "Logging"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 5
+---
 
-The Image Tool uses standard Java logging. To alter the default logging settings, you can modify the `logging.properties` 
+The Image Tool uses standard Java logging. To alter the default logging settings, you can modify the `logging.properties`
 file under the `bin` directory where you installed the Image Tool.
 
 ### To enable debug logging
-In `logging.properties`, comment the existing `handlers` property and uncomment the second `handlers` line below the first 
+In `logging.properties`, comment the existing `handlers` property and uncomment the second `handlers` line below the first
 line that you just commented.  This should make the `logging.properties` file look something like this:
 ```properties
 #handlers=java.util.logging.ConsoleHandler
@@ -26,6 +31,3 @@ Logging severity levels from highest to lowest:
 | `FINE` | First level debug messages and higher are written to the log file. |
 | `FINER` | Detailed debug messages and higher are written to the log file. |
 | `FINEST` | In addition to FINER level debug messages, all HTTP responses are written to the log file. |
-
-### Copyright
-Copyright (c) 2019, 2021, Oracle and/or its affiliates.

@@ -1,12 +1,16 @@
-# Quick Start
+---
+title: "Steps"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 1
+---
 
-Use this Quick Start guide to create a Linux based WebLogic Docker image.
 
-## Before you begin
+#### Before you begin
 
-Make sure that you have fulfilled the [Prerequisites]({{< relref "/_index.md#prerequisites" >}}) and [Setup]({{< relref "/_index.md#setup" >}}) requirements listed for the [Image Tool]({{< relref "/_index.md" >}}).
+Make sure that you have fulfilled the [Prerequisites]({{< relref "/userguide/prerequisites.md" >}}) and [Setup]({{< relref "/userguide/setup.md" >}}) requirements.
 
-## Overview
+#### Overview
 
 The high level steps for creating an image are:
 
@@ -14,7 +18,7 @@ The high level steps for creating an image are:
 2. Add the installers to the cache store.
 3. Run the ```imagetool``` command to create the image.
 
-## Steps
+#### Do this
 
 1. Download these Java and WebLogic installers from the [Oracle Software Delivery Cloud](https://edelivery.oracle.com)
 and save them in a directory of your choice, for example, `/home/acmeuser/wls-installers`:
@@ -23,7 +27,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
      `jdk-8u202-linux-x64.tar.gz`
 
 
-2. Use the [Cache Tool](cache.md) to add the installers:
+2. Use the [Cache Tool]({{< relref "/userguide/tools/cache.md" >}}) to add the installers:
 
     ```bash
     imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
@@ -61,8 +65,3 @@ drwxr-xr-x 11 oracle oracle 4096 May 28 23:40 oracle
 drwxr-xr-x  5 oracle oracle 4096 May 28 23:40 .
 drwxr-xr-x 18 root   root   4096 May 29 01:31 ..
 ```
-
-
-
-## Copyright
-Copyright (c) 2019, 2021, Oracle and/or its affiliates.

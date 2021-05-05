@@ -1,10 +1,15 @@
-# Create an image with a WebLogic domain using the WebLogic Deploy Tool
+---
+title: "Create an image with a WebLogic domain using WDT"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 4
+---
 
-The Image Tool lets you create a customized WebLogic domain in the image using the [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling).
+The Image Tool lets you create a customized WebLogic domain in the image using the [WebLogic Deploy Tool](https://oracle.github.io/weblogic-deploy-tooling/).
 
-## Steps
+### Steps
 
-1. Create the image, as directed in the [Quick Start](quickstart.md) guide.
+1. Create the image, as directed in the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide.
 
 2. Download the [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling/releases), and then add it to the cache store:
 
@@ -35,6 +40,3 @@ The parameter mappings between the Image Tool and the WebLogic Deploy Tool are:
 **Note**: If you are creating a JRF domain and want WebLogic Deploy Tool to create the RCU schemas for you, you can
 specify the connection information in the model. See [Specifying RCU
 information in the model](https://github.com/oracle/weblogic-deploy-tooling/blob/master/site/rcuinfo.md).
-
-## Copyright
-Copyright (c) 2019, 2021, Oracle and/or its affiliates.

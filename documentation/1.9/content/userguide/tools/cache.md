@@ -1,4 +1,9 @@
-# Cache
+---
+title: "Cache"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 4
+---
 
 The Image Tool maintains a local file cache store. This store is used to look up where the Java, WebLogic Server installers, and WebLogic Server patches reside in the local file system.
 
@@ -26,7 +31,7 @@ List and set cache options
 | `help` | Display help information for the specified command.|
 
 
-## Usage scenarios
+### Usage scenarios
 
 - `listItems`: Display the contents of the cache. Displays key value pairs of the installers and patches.
     ```
@@ -46,7 +51,7 @@ List and set cache options
     imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
     ```
 
-- `addPatch`: Add a patch to the cache. 
+- `addPatch`: Add a patch to the cache.
     ```
     imagetool cache addPatch --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
     ```
@@ -71,6 +76,3 @@ If you downloaded the release version ```12.2.1.3.190416``` of the patch, then y
     ```
     imagetool cache deleteEntry --key xyz_123
     ```
-
-## Copyright
-Copyright (c) 2019, 2021, Oracle and/or its affiliates.
