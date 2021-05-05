@@ -5,8 +5,6 @@ draft: false
 weight: 2
 ---
 
-- Build the project (`mvn clean package`) to create the ZIP installer in `./imagetool/target`.
-- Unzip the release ZIP file to a desired location.
-- For Linux environment, `cd your_unzipped_location/bin` and `source setup.sh`.
-- For Windows environment, `cd your_unzipped_location\bin` and `.\imagetool.cmd`.
-- Run `imagetool help` to show the help text.
+- Download and unzip the release ZIP file to a desired location.
+- OPTIONALLY: You may build the project (`mvn clean package`) to create the ZIP installer in `./imagetool/target`.
+- Set the JAVA_HOME environment variable to the location of the Java install (see [Prerequisites]({{< relref "/userguide/prerequisites.md" >}})).   
