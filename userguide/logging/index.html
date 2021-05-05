@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-image-tool/images/favicon.png" type="image/png">
 
-    <title> :: WebLogic Image Tool</title>
+    <title>Logging :: WebLogic Image Tool</title>
 
     
     <link href="/weblogic-image-tool/css/nucleus.css?1620251339" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-image-tool/">
+  <body class="" data-url="/weblogic-image-tool/userguide/logging/">
     <nav id="sidebar" class="">
 
 
@@ -140,7 +140,7 @@
   
     
     <li data-nav-id="/weblogic-image-tool/userguide/" title="User Guide" class="dd-item
-        
+        parent
         
         
         ">
@@ -351,7 +351,7 @@
  
   
     
-      <li data-nav-id="/weblogic-image-tool/userguide/logging/" title="Logging" class="dd-item ">
+      <li data-nav-id="/weblogic-image-tool/userguide/logging/" title="Logging" class="dd-item active">
         <a href="/weblogic-image-tool/userguide/logging/">
         Logging
         
@@ -569,68 +569,128 @@
         <div id="overlay"></div>
         <div class="padding highlightable">
               
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-image-tool/'></a> > <a href='/weblogic-image-tool/userguide/'>User Guide</a> > Logging
+          
+        
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#to-enable-debug-logging">To enable debug logging</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
         <div id="head-tags">
         
         </div>
         
         <div id="body-inner">
           
+            <h1>
+              
+              Logging
+            </h1>
+          
 
         
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
 
- 
-<h1 id="weblogic-image-tool">WebLogic Image Tool</h1>
-<p>Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into
-the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker
-and Kubernetes, WebLogic now runs in a cloud neutral infrastructure.  To help simplify and automate the creation of
-container images for WebLogic Server, we are providing this open source WebLogic Image Tool (WIT).</p>
-<p>WIT let&rsquo;s you create a new Linux based image, with installations of a JDK and WebLogic Server, and optionally,
-configure a WebLogic domain with your applications, apply WebLogic Server patches, or update an existing image.</p>
-<p>With the Image Tool you can:</p>
-<ul>
-<li>Create a Docker image and install the requested Java and WebLogic software. And, you can create a
-WebLogic domain in the image, at the same time.</li>
-<li>Create a new Docker image using an existing WebLogic domain from an existing image. The new Docker
-image can start from an existing image with a JDK and Oracle middleware installation, or can install
-the JDK and Oracle Home as part of moving the domain.</li>
-<li>Create a new Docker image by applying WebLogic patches to an existing image. In addition, you can
-create a WebLogic domain if one did not exist previously, update an existing domain, or deploy an application.</li>
-</ul>
-<p>For detailed information, see <a href="/weblogic-image-tool/userguide/tools/">Image Tool</a>.</p>
-<hr>
-<h3 id="current-production-release">Current production release</h3>
-<p>WebLogic Image Tool version and release information can be found <a href="https://github.com/oracle/weblogic-image-tool/releases">here</a>.</p>
-<hr>
-<h3 id="recent-changes-and-known-issues">Recent changes and known issues</h3>
-<p>See the <a href="/weblogic-image-tool/release-notes/">Release Notes</a> for known issues and workarounds.</p>
-<h3 id="about-this-documentation">About this documentation</h3>
-<ul>
-<li>Use the <a href="/weblogic-image-tool/quickstart/quickstart/">Quick Start</a> guide to create a Linux based WebLogic Docker image.</li>
-<li>The <a href="/weblogic-image-tool/userguide/">User Guide</a> contains installation prerequisites, setup information, command options, and detailed usage information.</li>
-<li>The <a href="/weblogic-image-tool/samples/">Samples</a> provide informative use case scenarios.</li>
-<li>The <a href="/weblogic-image-tool/developer/">Developer Guide</a> provides details for people who want to understand how WIT is built.</li>
-</ul>
-<h3 id="related-projects">Related projects</h3>
-<ul>
-<li><a href="https://oracle.github.io/weblogic-kubernetes-operator/">WebLogic Kubernetes Operator</a></li>
-<li><a href="https://oracle.github.io/weblogic-deploy-tooling/">WebLogic Deploy Tooling</a></li>
-<li><a href="https://github.com/oracle/weblogic-monitoring-exporter">WebLogic Monitoring Exporter</a></li>
-<li><a href="https://github.com/oracle/weblogic-logging-exporter">WebLogic Logging Exporter</a></li>
-<li><a href="https://github.com/oracle/weblogic-remote-console">WebLogic Remote Console</a></li>
-</ul>
-<h3 id="contributing">Contributing</h3>
-<p>Those who wish to contribute to the WebLogic Image Tool code will find useful information <a href="https://github.com/oracle/weblogic-image-tool/blob/main/CONTRIBUTING.md">here</a>.</p>
-<h2 id="additional-tasks">Additional tasks</h2>
-<ul>
-<li><a href="/weblogic-image-tool/userguide/cleanup/">Cleanup</a></li>
-<li><a href="/weblogic-image-tool/userguide/logging/">Logging</a></li>
-</ul>
+<p>The Image Tool uses standard Java logging. To alter the default logging settings, you can modify the <code>logging.properties</code>
+file under the <code>bin</code> directory where you installed the Image Tool.</p>
+<h3 id="to-enable-debug-logging">To enable debug logging</h3>
+<p>In <code>logging.properties</code>, comment the existing <code>handlers</code> property and uncomment the second <code>handlers</code> line below the first
+line that you just commented.  This should make the <code>logging.properties</code> file look something like this:</p>
+<pre><code class="language-properties" data-lang="properties">#handlers=java.util.logging.ConsoleHandler
+handlers=java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+</code></pre><p>Then, change level to <code>FINE</code> or <code>FINER</code>.</p>
+<pre><code class="language-properties" data-lang="properties">#com.oracle.weblogic.imagetool.level=INFO
+com.oracle.weblogic.imagetool.level=FINER
+</code></pre><p>Logging severity levels from highest to lowest:</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SEVERE</code></td>
+<td>Only error messages are written to the log file.</td>
+</tr>
+<tr>
+<td><code>WARNING</code></td>
+<td>Warning messages and higher are written to the log file.</td>
+</tr>
+<tr>
+<td><code>INFO</code></td>
+<td>(Default) Informational messages and higher are written to the log file.</td>
+</tr>
+<tr>
+<td><code>FINE</code></td>
+<td>First level debug messages and higher are written to the log file.</td>
+</tr>
+<tr>
+<td><code>FINER</code></td>
+<td>Detailed debug messages and higher are written to the log file.</td>
+</tr>
+<tr>
+<td><code>FINEST</code></td>
+<td>In addition to FINER level debug messages, all HTTP responses are written to the log file.</td>
+</tr>
+</tbody>
+</table>
+
+
+<footer class="footline">
 	
-  
+</footer>
+
         
         </div>
         
@@ -697,6 +757,7 @@ create a WebLogic domain if one did not exist previously, update an existing dom
             
                 
                     
+                    
                 
                 
 
@@ -711,6 +772,9 @@ create a WebLogic domain if one did not exist previously, update an existing dom
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -840,6 +904,7 @@ create a WebLogic domain if one did not exist previously, update an existing dom
             
                 
                     
+                    
                 
                 
 
@@ -858,6 +923,9 @@ create a WebLogic domain if one did not exist previously, update an existing dom
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -975,8 +1043,10 @@ create a WebLogic domain if one did not exist previously, update an existing dom
 	 
 	 
 		
+			<a class="nav nav-prev" href="/weblogic-image-tool/userguide/cleanup/" title="Cleanup"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/weblogic-image-tool/quickstart/" title="Quick Start" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/weblogic-image-tool/samples/" title="Samples" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

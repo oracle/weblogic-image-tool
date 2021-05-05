@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Quick Start on WebLogic Image Tool</title>
+    <link>https://oracle.github.io/weblogic-image-tool/quickstart/</link>
+    <description>Recent content in Quick Start on WebLogic Image Tool</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/quickstart/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Steps</title>
+      <link>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</guid>
+      <description>Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements.
+Overview The high level steps for creating an image are:
+ Download the Java and WebLogic installers from the Oracle Software Delivery Cloud. Add the installers to the cache store. Run the imagetool command to create the image.  Do this   Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
+    </item>
+    
+  </channel>
+</rss>

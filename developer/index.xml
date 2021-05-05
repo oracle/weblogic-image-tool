@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Developer Guide on WebLogic Image Tool</title>
+    <link>https://oracle.github.io/weblogic-image-tool/developer/</link>
+    <description>Recent content in Developer Guide on WebLogic Image Tool</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/developer/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Build From Source</title>
+      <link>https://oracle.github.io/weblogic-image-tool/developer/build/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/developer/build/</guid>
+      <description>The Image Tool installer is available for download on the Releases page. If you want to build the installer from source instead of downloading it, follow these instructions:
+ Download and install JDK 8u261+ Download and install Maven 3.6.3+ Clone this repository to your local environment using one of the options under Code near the top of this page. From inside the top-level directory of the cloned project, weblogic-image-tool, using Maven, execute one or more of these phases:  validate - Validate the project is correct and all necessary information is available.</description>
+    </item>
+    
+  </channel>
+</rss>
