@@ -44,7 +44,7 @@ Usage: imagetool create [OPTIONS]    Parameter Definition Default     --addition
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/</guid>
-      <description> Docker client and daemon on the build machine, with minimum Docker version 18.03.1.ce. Installers for WebLogic Server and JDK from the Oracle Software Delivery Cloud. For patches, Oracle Support credentials. Bash version 4.0 or later, to enable the &amp;lt;tab&amp;gt; command complete feature.  </description>
+      <description>Docker client and daemon on the build machine, with minimum Docker version 18.03.1.ce. OPTIONALLY: Podman 3.x may be used in place of Docker. Installers for WebLogic Server and JDK from the Oracle Software Delivery Cloud. When using any of the patching options, --patches, --recommendedPatches, or --latestPSU, you will need to provide Oracle Support credentials. When using the imagetool alias from setup.sh instead of the shell script (imagetool.sh), Bash version 4.</description>
     </item>
     
     <item>
@@ -85,7 +85,7 @@ Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --addition
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/setup/</guid>
-      <description> Build the project (mvn clean package) to create the ZIP installer in ./imagetool/target. Unzip the release ZIP file to a desired location. For Linux environment, cd your_unzipped_location/bin and source setup.sh. For Windows environment, cd your_unzipped_location\bin and .\imagetool.cmd. Run imagetool help to show the help text.  </description>
+      <description> Download and unzip the release ZIP file to a desired location. OPTIONALLY: You may build the project (mvn clean package) to create the ZIP installer in ./imagetool/target. Set the JAVA_HOME environment variable to the location of the Java install (see Prerequisites).  </description>
     </item>
     
     <item>
