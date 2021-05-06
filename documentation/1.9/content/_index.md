@@ -50,10 +50,3 @@ See the [Release Notes]({{< relref "/release-notes.md" >}}) for known issues and
 
 ### Contributing
 Those who wish to contribute to the WebLogic Image Tool code will find useful information [here](https://github.com/oracle/weblogic-image-tool/blob/main/CONTRIBUTING.md).
-
-
-
-## Additional tasks
-
-* [Cleanup]({{< relref "/cleanup.md" >}})
-* [Logging]({{< relref "/logging.md" >}})
