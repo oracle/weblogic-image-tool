@@ -1,5 +1,5 @@
 ---
-title: "Build From Source"
+title: "Build from source"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 1
