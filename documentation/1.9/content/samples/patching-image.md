@@ -16,14 +16,14 @@ You can download patches using the Image Tool or by manually downloading them.
 
     For example, to download patch number `27342434` for WebLogic Server version 12.2.1.3.0:
 
-  ```bash
-  imagetool cache addPatch --patchId 27342434_12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip
-  ```
+   ```bash
+   imagetool cache addPatch --patchId 27342434_12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip
+   ```
 
-  **Note**: Refer to the [Cache](cache.md) commands for the format of ```patchId```.
+   **Note**: Refer to the [Cache]({{< relref "/userguide/tools/cache.md" >}}) commands for the format of ```patchId```.
 
 3. Use the [`imagetool update`]({{< relref "/userguide/tools/update-image.md" >}}) command to update the image:
 
-  ```bash
-  imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434
-  ```
+   ```bash
+   imagetool update --fromImage wls:12.2.1.3.0 --tag wls:12.2.1.3.4 --patches 27342434
+   ```

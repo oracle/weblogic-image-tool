@@ -35,7 +35,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 
     **Note**:  The value of the version must be a valid WebLogic Server version number. This version number is used to verify and find the correct patch file to download from Oracle Support.  The format of the version is a 5 digits tuple, separated by period.  For example,  ```12.2.1.3.0``` ```12.1.3.0.0```
 
-3. Create the image using the [Create Tool](create-image.md) commands. For example:
+3. Create the image using the [Create Tool]({{< relref "/userguide/tools/create-image.md" >}}) commands. For example:
 
   ```bash
   imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user  username@mycompany.com --passwordEnv MYPWD  
@@ -45,9 +45,9 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 
  **NOTE**: You can provide the password in one of three ways:
 
- * Read from STDIN --password
- * Environment variable --passwordEnv
- * File containing the password --passwordFile
+ * Read from STDIN `--password`
+ * Environment variable `--passwordEnv`
+ * File containing the password `--passwordFile`
 
 
 You will see the Docker command output as the tool runs:

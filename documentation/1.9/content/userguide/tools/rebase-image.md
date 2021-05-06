@@ -3,6 +3,7 @@ title: "Rebase Image"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 2
+description: "The rebase command creates a new Docker image using an existing WebLogic domain from an existing image."
 ---
 
 
@@ -61,7 +62,7 @@ The input for this parameter is a simple text file that contains one or more of 
 | `after-fmw-install` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
 | `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
 
-NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
+**NOTE**: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
 The Image Tool will copy the Java Home and the Oracle Home directories to the final image.  
 Changes fully contained within these directories do not need an additional `COPY` command in the `final-build-commands` section.
 Each section can contain one or more valid Dockerfile commands and would look like the following:
@@ -117,8 +118,8 @@ imagetool @/path/to/build_args
 
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure installers) have been downloaded
- to the cache directory. Use the [cache](cache.md) command to set it up.
+The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
+ to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
 
 - Update the JDK for an existing domain.  Copy the existing domain from `sample:v1` where the JDK was 8u202 to a new

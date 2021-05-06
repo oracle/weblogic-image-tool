@@ -3,6 +3,7 @@ title: "Update Image"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 3
+description: "The update command creates a new Docker image by applying WebLogic patches to an existing image."
 ---
 
 After you have created a Docker image with the Image Tool, you may want to change it from time to time.  Use the `update`
@@ -118,8 +119,9 @@ increase the size of the image significantly, and is not recommended.
 #### Resource Template Files
 
 If provided, the file or files provided with `--resourceTemplates` will be overwritten. For known tokens,
-the placeholders will be replaced with values according to the following table.  **Note:** Placeholders must follow
-the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
+the placeholders will be replaced with values according to the following table.  
+
+**Note:** Placeholders must follow the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
 
 | Token Name | Value Description |
 | --- | --- |

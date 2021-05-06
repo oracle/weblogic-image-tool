@@ -13,11 +13,11 @@ With the Image Tool you can:
 
 * Create a Docker image and install the requested Java and WebLogic software. And, you can create a
 WebLogic domain in the image, at the same time.
-* Create a new Docker image using an existing WebLogic domain from an existing image. The new Docker
+* Create a new Docker image using an existing WebLogic domain from an existing image. The Docker
 image can start from an existing image with a JDK and Oracle middleware installation, or can install
 the JDK and Oracle Home as part of moving the domain.
-* Create a new Docker image by applying WebLogic patches to an existing image. In addition, you can
-create a WebLogic domain if one did not exist previously, update an existing domain, or deploy an application.
+* Create a new Docker image by applying WebLogic patches to an existing image. In addition,
+ if one did not exist previously, you can create a WebLogic domain, update an existing domain, or deploy an application.
 
 For detailed information, see [Image Tool]({{< relref "/userguide/tools/_index.md" >}}).
 

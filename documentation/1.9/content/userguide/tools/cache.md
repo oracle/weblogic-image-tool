@@ -3,6 +3,7 @@ title: "Cache"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 4
+description: "The Image Tool maintains metadata on the local file system for patches and installers.  You can use the cache command to manipulate the local metadata."
 ---
 
 The Image Tool maintains a local file cache store. This store is used to look up where the Java, WebLogic Server installers, and WebLogic Server patches reside in the local file system.

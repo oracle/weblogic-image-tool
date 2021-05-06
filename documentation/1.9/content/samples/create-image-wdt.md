@@ -1,5 +1,5 @@
 ---
-title: "Create an image with a WebLogic domain using WDT"
+title: "Create an image with a WLS domain using WDT"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 4
