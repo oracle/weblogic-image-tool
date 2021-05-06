@@ -12,20 +12,20 @@
     <title>Create an image with full Internet access :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1620253517" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1620253517" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1620327331" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1620327331" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1620253517"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1620327331"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1620253517"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1620253517"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1620327331"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1620327331"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1620253517"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1620327331"></script>
 
     
   </div>
@@ -469,9 +469,9 @@
  
   
     
-      <li data-nav-id="/weblogic-image-tool/samples/create-image-wdt/" title="Create an image with a WebLogic domain using WDT" class="dd-item ">
+      <li data-nav-id="/weblogic-image-tool/samples/create-image-wdt/" title="Create an image with a WLS domain using WDT" class="dd-item ">
         <a href="/weblogic-image-tool/samples/create-image-wdt/">
-        Create an image with a WebLogic domain using WDT
+        Create an image with a WLS domain using WDT
         
         </a>
     </li>
@@ -662,16 +662,16 @@ and save them in a directory of your choice, for example, <code>/home/acmeuser/w
 </code></pre></div><p><strong>Note</strong>:  The value of the version must be a valid WebLogic Server version number. This version number is used to verify and find the correct patch file to download from Oracle Support.  The format of the version is a 5 digits tuple, separated by period.  For example,  <code>12.2.1.3.0</code> <code>12.1.3.0.0</code></p>
 </li>
 <li>
-<p>Create the image using the <a href="create-image.md">Create Tool</a> commands. For example:</p>
+<p>Create the image using the <a href="/weblogic-image-tool/userguide/tools/create-image/">Create Tool</a> commands. For example:</p>
 </li>
 </ol>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user  username@mycompany.com --passwordEnv MYPWD  
 </code></pre></div><p>Where <code>--user --passwordEnv</code> provides the credentials for a user who is entitled to download patches from Oracle Support.</p>
 <p><strong>NOTE</strong>: You can provide the password in one of three ways:</p>
 <ul>
-<li>Read from STDIN &ndash;password</li>
-<li>Environment variable &ndash;passwordEnv</li>
-<li>File containing the password &ndash;passwordFile</li>
+<li>Read from STDIN <code>--password</code></li>
+<li>Environment variable <code>--passwordEnv</code></li>
+<li>File containing the password <code>--passwordFile</code></li>
 </ul>
 <p>You will see the Docker command output as the tool runs:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>2019-05-28 10:37:02<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>com.oracle.weblogic.imagetool.cli.menu.CreateImage<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>INFO   <span style="color:#f92672">]</span> tmp directory used <span style="color:#66d9ef">for</span> build
@@ -1065,19 +1065,19 @@ ghcr.io/oracle/oraclelinux    7-slim              f7512ac13c1b        <span styl
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1620253517"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1620253517"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1620253517"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1620253517"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1620253517"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1620253517"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1620327331"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1620327331"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1620327331"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1620327331"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1620327331"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1620327331"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1620253517"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1620253517"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1620253517"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1620327331"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1620327331"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1620327331"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1620253517"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1620327331"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

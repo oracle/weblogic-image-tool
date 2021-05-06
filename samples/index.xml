@@ -24,8 +24,8 @@ In this use case, the Image Tool will:
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/samples/create-image-no-internet/</guid>
-      <description>In this use case, because there is no Internet access, you will need to download all the installers and patches, plus set up the cache. Also, you must provide a base operating system image that has the following packages installed.
-gzip tar unzip Steps   Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
+      <description>In this use case, because there is no Internet access, you will need to download all the installers and patches, plus set up the cache. Also, you must provide a base operating system image that has the following packages installed:
+ gzip tar unzip  Steps   Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
     </item>
     
     <item>
@@ -38,11 +38,11 @@ gzip tar unzip Steps   Download these Java and WebLogic installers from the Orac
 Steps   Create the image, as directed in the Quick Start guide.
   For each WebLogic patch, download it from Oracle Support and set up the cache.
 For example, to download patch number 27342434 for WebLogic Server version 12.2.1.3.0:
-  imagetool cache addPatch --patchId 27342434_12.</description>
+imagetool cache addPatch --patchId 27342434_12.</description>
     </item>
     
     <item>
-      <title>Create an image with a WebLogic domain using WDT</title>
+      <title>Create an image with a WLS domain using WDT</title>
       <link>https://oracle.github.io/weblogic-image-tool/samples/create-image-wdt/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
