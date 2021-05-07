@@ -13,7 +13,7 @@ In `logging.properties`, comment the existing `handlers` property and uncomment 
 line that you just commented.  This should make the `logging.properties` file look something like this:
 ```properties
 #handlers=java.util.logging.ConsoleHandler
-handlers=java.util.logging.FileHandler, java.util.logging.ConsoleHandler
+$ handlers=java.util.logging.FileHandler, java.util.logging.ConsoleHandler
 ```
 Then, change level to `FINE` or `FINER`.
 ```properties

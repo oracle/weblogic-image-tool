@@ -14,7 +14,7 @@ By default, the Image Tool creates the Docker context directory under the user's
 If you prefer to use a different directory for the temporary context, set the environment variable `WLSIMG_BLDDIR`.
 
  ```bash
-export WLSIMG_BLDDIR="/path/to/dir"
+$ export WLSIMG_BLDDIR="/path/to/dir"
 ```
 
 
@@ -22,7 +22,7 @@ The Image Tool will try to prune intermediate images from the Docker multi-stage
 If you see dangling images after the build (images labeled as `<none>`), use the following command to remove them:
 
 ```bash
-docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
+$ docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
 ```
 
 If you wish to keep the Docker context directory and/or the intermediate images, using the `--skipcleanup` flag will
