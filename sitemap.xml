@@ -11,10 +11,7 @@
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/</loc>
-    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</loc>
+    <loc>https://oracle.github.io/weblogic-image-tool/quickstart/prerequisites/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/quickstart/</loc>
@@ -26,13 +23,16 @@
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-image-tool/userguide/setup/</loc>
+    <loc>https://oracle.github.io/weblogic-image-tool/quickstart/setup/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/</loc>
     <lastmod>2019-02-22T15:27:54-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/samples/patching-image/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</loc>

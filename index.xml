@@ -40,22 +40,11 @@ Usage: imagetool create [OPTIONS]    Parameter Definition Default     --addition
     
     <item>
       <title>Prerequisites</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/quickstart/prerequisites/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/</guid>
+      <guid>https://oracle.github.io/weblogic-image-tool/quickstart/prerequisites/</guid>
       <description>Docker client and daemon on the build machine, with a minimum Docker version 18.03.1.ce. OPTIONALLY: Podman 3.x may be used in place of Docker. Installers for WebLogic Server and JDK from the Oracle Software Delivery Cloud. When using any of the patching options, --patches, --recommendedPatches, or --latestPSU, you will need to provide Oracle Support credentials. When using the imagetool alias from setup.sh instead of the shell script (imagetool.sh), Bash version 4.</description>
-    </item>
-    
-    <item>
-      <title>Steps</title>
-      <link>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</link>
-      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</guid>
-      <description>Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements.
-Overview The high level steps for creating an image are:
- Download the Java and WebLogic installers from the Oracle Software Delivery Cloud. Add the installers to the cache store. Run the imagetool command to create the image.  Do this   Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
     </item>
     
     <item>
@@ -81,10 +70,10 @@ Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --addition
     
     <item>
       <title>Setup</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/setup/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/quickstart/setup/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/setup/</guid>
+      <guid>https://oracle.github.io/weblogic-image-tool/quickstart/setup/</guid>
       <description> Download and unzip the WIT release ZIP file to a desired location. OPTIONALLY: You may build the project (mvn clean package) to create the ZIP installer in ./imagetool/target. Set the JAVA_HOME environment variable to the location of the Java install (see Prerequisites).  </description>
     </item>
     
@@ -99,6 +88,17 @@ Steps   Create the image, as directed in the Quick Start guide.
   For each WebLogic patch, download it from Oracle Support and set up the cache.
 For example, to download patch number 27342434 for WebLogic Server version 12.2.1.3.0:
 imagetool cache addPatch --patchId 27342434_12.</description>
+    </item>
+    
+    <item>
+      <title>Steps</title>
+      <link>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</guid>
+      <description>Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements.
+Overview The high level steps for creating an image are:
+ Download the Java and WebLogic installers from the Oracle Software Delivery Cloud. Add the installers to the cache store. Run the imagetool command to create the image.  Do this   Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
     </item>
     
     <item>
@@ -173,7 +173,7 @@ imagetool @/path/to/build_args Copyright Copyright (c) 2019, 2021, Oracle and/or
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/release-notes/</guid>
-      <description>Release Notes  The upcoming change to Oracle Support&amp;rsquo;s recommended patches list will require WebLogic Image Tool 1.9.11 in order to use the --recommendedPatches or --latestPSU flags.  </description>
+      <description>Release Notes  The upcoming change to Oracle Support&amp;rsquo;s recommended patches list will require WebLogic Image Tool 1.9.11 in order to use the --recommendedPatches or --latestPSU flags. Due to changes in Oracle’s security, older versions of the Image Tool will no longer be able to download patches. Please use WebLogic Image Tool 1.9.10 or later.  </description>
     </item>
     
   </channel>
