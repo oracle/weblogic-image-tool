@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="The rebase command creates a new Docker image using an existing WebLogic domain from an existing image.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-image-tool/images/favicon.png" type="image/png">
 
-    <title>Rebase Image :: WebLogic Image Tool</title>
+    <title>Build from source :: WebLogic Image Tool</title>
 
     
     <link href="/weblogic-image-tool/css/nucleus.css?1620392796" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-image-tool/userguide/tools/rebase-image/">
+  <body class="" data-url="/weblogic-image-tool/developer/source/">
     <nav id="sidebar" class="">
 
 
@@ -140,7 +140,7 @@
   
     
     <li data-nav-id="/weblogic-image-tool/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -211,7 +211,7 @@
   
     
     <li data-nav-id="/weblogic-image-tool/userguide/tools/" title="Image Tool" class="dd-item
-        parent
+        
         
         
         ">
@@ -258,7 +258,7 @@
  
   
     
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/rebase-image/" title="Rebase Image" class="dd-item active">
+      <li data-nav-id="/weblogic-image-tool/userguide/tools/rebase-image/" title="Rebase Image" class="dd-item ">
         <a href="/weblogic-image-tool/userguide/tools/rebase-image/">
         Rebase Image
         
@@ -498,7 +498,7 @@
   
     
     <li data-nav-id="/weblogic-image-tool/developer/" title="Developer Guide" class="dd-item
-        
+        parent
         
         
         ">
@@ -524,7 +524,7 @@
  
   
     
-      <li data-nav-id="/weblogic-image-tool/developer/source/" title="Build from source" class="dd-item ">
+      <li data-nav-id="/weblogic-image-tool/developer/source/" title="Build from source" class="dd-item active">
         <a href="/weblogic-image-tool/developer/source/">
         Build from source
         
@@ -596,13 +596,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-image-tool/'></a> > <a href='/weblogic-image-tool/userguide/'>User Guide</a> > <a href='/weblogic-image-tool/userguide/tools/'>Image Tool</a> > Rebase Image
-          
-        
+            <a href='/weblogic-image-tool/'></a> > <a href='/weblogic-image-tool/developer/'>Developer Guide</a> > Build from source
           
         
           
@@ -615,16 +609,7 @@
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li><a href="#additional-information">Additional information</a></li>
-        <li><a href="#usage-scenarios">Usage scenarios</a></li>
-      </ul>
-    </li>
-  </ul>
-</nav>
+<nav id="TableOfContents"></nav>
     </div>
 </div>
 
@@ -640,271 +625,55 @@
           
             <h1>
               
-              Rebase Image
+              Build from source
             </h1>
           
 
         
 
 
-<p>The <code>rebase</code> command creates a new Docker image and copies an existing WebLogic domain to that new image.<br>
-The new Docker image can be based on an existing image in the repository or created as part of the rebase operation
-similar to the <code>create</code> command.</p>
-<pre><code>Usage: imagetool rebase [OPTIONS]
-</code></pre><table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Definition</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--additionalBuildCommands</code></td>
-<td>Path to a file with additional build commands. For more details, see <a href="#additional-information">Additional information</a>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--additionalBuildFiles</code></td>
-<td>Additional files that are required by your <code>additionalBuildCommands</code>.  A comma separated list of files that should be copied to the build context.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--buildNetwork</code></td>
-<td>Networking mode for the RUN instructions during the image build.  See <code>--network</code> for Docker <code>build</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--chown</code></td>
-<td><code>userid:groupid</code> for JDK/Middleware installs and patches.</td>
-<td><code>oracle:oracle</code></td>
-</tr>
-<tr>
-<td><code>--docker</code></td>
-<td>Path to the Docker executable.</td>
-<td><code>docker</code></td>
-</tr>
-<tr>
-<td><code>--dryRun</code></td>
-<td>Skip Docker build execution and print the Dockerfile to stdout.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--fromImage</code></td>
-<td>Docker image to use as a base image when creating a new image.</td>
-<td><code>ghcr.io/oracle/oraclelinux:7-slim</code></td>
-</tr>
-<tr>
-<td><code>--httpProxyUrl</code></td>
-<td>Proxy for the HTTP protocol. Example: <code>http://myproxy:80</code> or <code>http:user:passwd@myproxy:8080</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>--httpsProxyUrl</code></td>
-<td>Proxy for the HTTPS protocol. Example: <code>https://myproxy:80</code> or <code>https:user:passwd@myproxy:8080</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>--installerResponseFile</code></td>
-<td>One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--inventoryPointerFile</code></td>
-<td>Path to custom inventory pointer file.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--inventoryPointerInstallLoc</code></td>
-<td>Target location for the inventory pointer file.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--jdkVersion</code></td>
-<td>Version of the server JDK to install.</td>
-<td><code>8u202</code></td>
-</tr>
-<tr>
-<td><code>--latestPSU</code></td>
-<td>Find and apply the latest PatchSet Update.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--recommendedPatches</code></td>
-<td>Find and apply the latest PatchSet Update and recommended patches. This takes precedence over &ndash;latestPSU</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--opatchBugNumber</code></td>
-<td>The patch number for OPatch (patching OPatch).</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--packageManager</code></td>
-<td>Override the default package manager for the base image&rsquo;s operating system. Supported values: <code>APK</code>, <code>APTGET</code>, <code>NONE</code>, <code>OS_DEFAULT</code>, <code>YUM</code>, <code>ZYPPER</code></td>
-<td><code>OS_DEFAULT</code></td>
-</tr>
-<tr>
-<td><code>--password</code></td>
-<td>Request password for the Oracle Support <code>--user</code> on STDIN, see <code>--user</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--passwordEnv</code></td>
-<td>Environment variable containing the Oracle Support password, see <code>--user</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--passwordFile</code></td>
-<td>Path to a file containing just the Oracle Support password, see <code>--user</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--patches</code></td>
-<td>Comma separated list of patch IDs. Example: <code>12345678,87654321</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>--pull</code></td>
-<td>Always attempt to pull a newer version of base images during the build.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--sourceImage</code></td>
-<td>(Required) Source Image containing the WebLogic domain.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--strictPatchOrdering</code></td>
-<td>Instruct OPatch to apply patches one at a time (uses <code>apply</code> instead of <code>napply</code>).</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--tag</code></td>
-<td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:12.2.1.3.0</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>--targetImage</code></td>
-<td>Docker image to extend for the domain&rsquo;s new image.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--type</code></td>
-<td>Installer type. Supported values: <code>WLS</code>, <code>WLSDEV</code>, <code>WLSSLIM</code>, <code>FMW</code>, <code>IDM</code>, <code>OSB</code>, <code>OUD_WLS</code>, <code>SOA_OSB</code>, <code>SOA_OSB_B2B</code>, <code>WCP</code>, <code>OAM</code>, <code>OIG</code>, <code>OUD</code>, <code>SOA</code>, <code>WCC</code>, <code>WCS</code>, <code>WCP</code></td>
-<td><code>WLS</code></td>
-</tr>
-<tr>
-<td><code>--user</code></td>
-<td>Your Oracle support email ID.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--version</code></td>
-<td>Installer version.</td>
-<td><code>12.2.1.3.0</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="additional-information">Additional information</h3>
-<h4 id="--additionalbuildcommands"><code>--additionalBuildCommands</code></h4>
-<p>This is an advanced option that let&rsquo;s you provide additional commands to the Docker build step.<br>
-The input for this parameter is a simple text file that contains one or more of the valid sections. Valid sections for rebase:</p>
-<table>
-<thead>
-<tr>
-<th>Section</th>
-<th>Build Stage</th>
-<th>Timing</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>before-jdk-install</code></td>
-<td>Intermediate (JDK_BUILD)</td>
-<td>Before the JDK is installed.</td>
-</tr>
-<tr>
-<td><code>after-jdk-install</code></td>
-<td>Intermediate (JDK_BUILD)</td>
-<td>After the JDK is installed.</td>
-</tr>
-<tr>
-<td><code>before-fmw-install</code></td>
-<td>Intermediate (WLS_BUILD)</td>
-<td>Before the Oracle Home is created.</td>
-</tr>
-<tr>
-<td><code>after-fmw-install</code></td>
-<td>Intermediate (WLS_BUILD)</td>
-<td>After all of the Oracle middleware installers are finished.</td>
-</tr>
-<tr>
-<td><code>final-build-commands</code></td>
-<td>Final image</td>
-<td>After all Image Tool actions are complete, and just before the Docker image is finalized.</td>
-</tr>
-</tbody>
-</table>
-<p><strong>NOTE</strong>: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.<br>
-The Image Tool will copy the Java Home and the Oracle Home directories to the final image.<br>
-Changes fully contained within these directories do not need an additional <code>COPY</code> command in the <code>final-build-commands</code> section.
-Each section can contain one or more valid Dockerfile commands and would look like the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#f92672">[</span>after-fmw-install<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> rm /some/dir/unnecessary-file<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /u01<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
-<p>This option provides a way to supply additional files to the image build command.
-All provided files and directories are copied directly under the <code>files</code> subfolder of the build context.<br>
-To get those files into the image, additional build commands must be provided using the <code>additionalBuildCommands</code> options.
-Access to these files using a build command, such as <code>COPY</code> or <code>ADD</code>, should use the original filename
-with the folder prefix, <code>files/</code>.  For example, if the
-original file was provided as <code>--additionalBuildFiles /scratch/test1/convenience.sh</code>, the Docker build command <code>COPY</code>
-provided in <code>--additionalBuildCommands</code> should look like
-<code>COPY --chown=oracle:oracle files/convenience.sh /my/internal/image/location</code>.<br>
-Because Image Tool uses multi-stage
-builds, it is important to place the build command (like <code>COPY</code>) in the appropriate section of the <code>Dockerfile</code> based
-on when the build needs access to the file.  For example, if the file is needed in the final image and not for
-installation or domain creation steps, use the <code>final-build-commands</code> section so that the <code>COPY</code> command occurs in the
-final stage of the image build.  Or, if the file needs to change the Oracle Home prior to domain creation, use
-the <code>after-fmw-install</code> or <code>before-wdt-command</code> sections.</p>
-<h4 id="use-an-argument-file">Use an argument file</h4>
-<p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
-<p>For example, create a file called <code>build_args</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">rebase
---tag wls:122140
---sourceImage wls:122130
---version 12.2.1.4.0
---jdkVersion 8u221
-</code></pre></div><p>Use it on the command line, as follows:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">imagetool @/path/to/build_args
-</code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
-<p><strong>Note</strong>: Use <code>--passwordEnv</code> or <code>--passwordFile</code> instead of <code>--password</code>.</p>
-<p>The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
-to the cache directory. Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command to set it up.</p>
+<p>The Image Tool installer is available for download on the <a href="https://github.com/oracle/weblogic-image-tool/releases">Releases</a> page.
+If you want to build the installer from source instead of downloading it, follow these instructions:</p>
+<ol>
+<li>Download and install JDK 8u261+.</li>
+<li>Download and install Maven 3.6.3+.</li>
+<li>Clone <a href="https://github.com/oracle/weblogic-image-tool">this</a> repository to your local environment using one of the options under <code>Code</code> near the top of this page.</li>
+<li>From inside the top-level directory of the cloned project, <code>weblogic-image-tool</code>, using Maven, execute one or
+more of these phases:
 <ul>
-<li>
-<p>Update the JDK for an existing domain.  Copy the existing domain from <code>sample:v1</code> where the JDK was 8u202 to a new
-image called <code>sample:v2</code> and install the newer JDK 8u221 with WebLogic Server 12.2.1.3.0.</p>
-<pre><code>imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
-</code></pre></li>
-<li>
-<p>Update the Oracle Home for an existing domain with a newer WebLogic version.  Copy a domain from an existing image to
-a new image with a new install of WebLogic Server 12.2.1.4.0.  Copy the domain
-from <code>sample:v1</code> and select the desired WebLogic installer using the <code>--version</code> argument.</p>
-<pre><code>imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
-</code></pre></li>
-<li>
-<p>Update the JDK and/or Oracle Home for an existing domain using another image with pre-installed binaries.
-Copy the domain from the source image named <code>sample:v1</code> to a new image called <code>sample:v2</code> based on a target image
-named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK must be installed in the same same folders on each image.</p>
-<pre><code>imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
-</code></pre></li>
+<li><code>validate</code> - Validate the project is correct and all necessary information is available.</li>
+<li><code>compile</code>  - Compile the source code.</li>
+<li><code>test</code>     - Test the compiled source code using the JUnit5 framework.</li>
+<li><code>package</code>  - Create the installer ZIP file, <code>imagetool.zip</code>.</li>
+<li><code>verify</code>   - Run integration tests using the JUnit5 framework (Prerequisite: Docker installed).</li>
+<li><code>clean</code>    - Restore the source by removing any items created by <code>package</code> or another phase of the build.</li>
 </ul>
+</li>
+</ol>
+<p><strong>Note:</strong> Maven executes build phases sequentially, <code>validate</code>, <code>compile</code>, <code>test</code>, <code>package</code>, <code>verify</code>, such that
+running <code>verify</code> will run all of these phases from <code>validate</code> through <code>package</code> before running <code>verify</code>.</p>
+<p>Because the <code>package</code> phase comes before the <code>verify</code> phase, it is not necessary to run the integration tests to create
+the Image Tool installer.  If you are making changes and want to validate those changes in your environment, you will
+need to do some additional setup before running the <code>verify</code> phase because several of the integration tests require
+access to the Oracle Technology Network.  To run the integration tests in the
+<code>verify</code> phase, you must specify three environment variables, <code>ORACLE_SUPPORT_USERNAME</code>, <code>ORACLE_SUPPORT_PASSWORD</code>,
+and <code>STAGING_DIR</code>.  The first two, Oracle Support user name and password, are used to connect to Oracle OTN for patches.
+The third, <code>STAGING_DIR</code>, should be a local folder where WebLogic Server installers, JDK installers, and pre-downloaded
+patches can be found.  The files required in the <code>STAGING_DIR</code> depend on which tests that you want to run.</p>
+<p><strong>Example</strong>: Run a set of integration tests (available groups are <code>cache</code>, <code>gate</code>, and <code>nightly</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mvn verify -Dtest.groups<span style="color:#f92672">=</span>cache
+</code></pre></div><p><strong>Example</strong>: Run a single integration test:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mvn verify -Dtest.groups<span style="color:#f92672">=</span>gate,nightly -Dit.test<span style="color:#f92672">=</span>ITImagetool#createWlsImg
+</code></pre></div><p>Integration Test groups:</p>
+<ul>
+<li><code>cache</code> - Tests that build and manipulate the Image Tool cache.</li>
+<li><code>gate</code>  - A basic set of integration tests that are used to validate merge requests, including building several
+Docker image (~20 minutes).</li>
+<li><code>nightly</code> - The full set of integration tests building various Docker images including JRF and WLS
+installations (~2 hours).</li>
+</ul>
+<p><strong>Note:</strong> In order to run an integration test that builds an image like <code>createWlsImg</code>, you must run the <code>cache</code>
+group first to populate the cache with the WLS and JDK installers.</p>
 
 
 <footer class="footline">
@@ -977,7 +746,6 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
             
                 
                     
-                    
                 
                 
 
@@ -992,9 +760,6 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1028,7 +793,6 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
             
                 
                     
-                    
                 
                 
 
@@ -1041,26 +805,6 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
             
             
                 
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
                     
                 
                 
@@ -1078,8 +822,21 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
-                        
+            
+            
+                
                     
                 
                 
@@ -1231,6 +988,7 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
             
                 
                     
+                    
                 
                 
 
@@ -1243,6 +1001,7 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
             
             
                 
+                    
                     
                 
                 
@@ -1267,10 +1026,10 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-image-tool/userguide/tools/create-image/" title="Create Image"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-image-tool/developer/" title="Developer Guide"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-image-tool/userguide/tools/update-image/" title="Update Image" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-image-tool/quickstart/" title="Quick Start" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
