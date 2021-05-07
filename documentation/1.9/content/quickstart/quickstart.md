@@ -2,13 +2,13 @@
 title: "Steps"
 date: 2019-02-23T17:19:24-05:00
 draft: false
-weight: 1
+weight: 3
 ---
 
 
 #### Before you begin
 
-Make sure that you have fulfilled the [Prerequisites]({{< relref "/userguide/prerequisites.md" >}}) and [Setup]({{< relref "/userguide/setup.md" >}}) requirements.
+Make sure that you have fulfilled the [Prerequisites]({{< relref "/quickstart/prerequisites.md" >}}) and [Setup]({{< relref "/quickstart/setup.md" >}}) requirements.
 
 #### Overview
 

@@ -29,14 +29,14 @@ WebLogic Image Tool version and release information can be found [here](https://
 ***
 ### Recent changes and known issues
 
-See the [Release Notes]({{< relref "/release-notes.md" >}}) for known issues and workarounds.
+See the [Release Notes]({{< relref "/release-notes.md" >}}) for issues and important information.
 
 
 ### About this documentation
 
 * Use the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide to create a Linux based WebLogic Docker image.
-* The [User Guide]({{< relref "/userguide/" >}}) contains installation prerequisites, setup information, command options, and detailed usage information.
-* The [Samples]({{< relref "/samples/" >}}) provide informative use case scenarios.
+* The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including command options and usage scenarios.
+* The [Samples]({{< relref "/samples/" >}}) provide typical and informative use cases.
 * The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WIT is built.
 
 
