@@ -17,5 +17,17 @@
  Download and install JDK 8u261+. Download and install Maven 3.6.3+. Clone this repository to your local environment using one of the options under Code near the top of this page. From inside the top-level directory of the cloned project, weblogic-image-tool, using Maven, execute one or more of these phases:  validate - Validate the project is correct and all necessary information is available.</description>
     </item>
     
+    <item>
+      <title>Contribute to WIT</title>
+      <link>https://oracle.github.io/weblogic-image-tool/developer/contribute/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/developer/contribute/</guid>
+      <description>Oracle welcomes contributions to this repository from anyone.
+If you want to submit a pull request to fix a bug or enhance an existing feature, please first open an issue and link to that issue when you submit your pull request.
+If you have any questions about a possible submission, feel free to open an issue too.
+Contributing to the WebLogic Image Tool repository Pull requests can be made under The Oracle Contributor Agreement (OCA).</description>
+    </item>
+    
   </channel>
 </rss>

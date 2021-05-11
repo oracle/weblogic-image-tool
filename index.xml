@@ -48,6 +48,18 @@ Usage: imagetool create [OPTIONS]    Parameter Definition Default     --addition
     </item>
     
     <item>
+      <title>Contribute to WIT</title>
+      <link>https://oracle.github.io/weblogic-image-tool/developer/contribute/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/developer/contribute/</guid>
+      <description>Oracle welcomes contributions to this repository from anyone.
+If you want to submit a pull request to fix a bug or enhance an existing feature, please first open an issue and link to that issue when you submit your pull request.
+If you have any questions about a possible submission, feel free to open an issue too.
+Contributing to the WebLogic Image Tool repository Pull requests can be made under The Oracle Contributor Agreement (OCA).</description>
+    </item>
+    
+    <item>
       <title>Create an image without Internet access</title>
       <link>https://oracle.github.io/weblogic-image-tool/samples/create-image-no-internet/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
@@ -87,7 +99,7 @@ Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --addition
 Steps   Create the image, as directed in the Quick Start guide.
   For each WebLogic patch, download it from Oracle Support and set up the cache.
 For example, to download patch number 27342434 for WebLogic Server version 12.2.1.3.0:
-imagetool cache addPatch --patchId 27342434_12.</description>
+$ imagetool cache addPatch --patchId 27342434_12.</description>
     </item>
     
     <item>
@@ -141,7 +153,7 @@ By default, the Image Tool creates the Docker context directory under the user&a
       <description>The Image Tool lets you create a customized WebLogic domain in the image using the WebLogic Deploy Tool.
 Steps   Create the image, as directed in the Quick Start guide.
   Download the WebLogic Deploy Tool, and then add it to the cache store:
-  imagetool cache addInstaller --type wdt --version 0.22 --path /home/acmeuser/cache/weblogic-deploy.zip Provide the command-line options for the WebLogic Deploy Tool:  imagetool create --fromImage myosimg:latest --tag wls:12.</description>
+  $ imagetool cache addInstaller --type wdt --version 0.22 --path /home/acmeuser/cache/weblogic-deploy.zip Provide the command-line options for the WebLogic Deploy Tool:  $ imagetool create --fromImage myosimg:latest --tag wls:12.</description>
     </item>
     
     <item>
@@ -152,7 +164,7 @@ Steps   Create the image, as directed in the Quick Start guide.
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/logging/</guid>
       <description>The Image Tool uses standard Java logging. To alter the default logging settings, you can modify the logging.properties file under the bin directory where you installed the Image Tool.
 To enable debug logging In logging.properties, comment the existing handlers property and uncomment the second handlers line below the first line that you just commented. This should make the logging.properties file look something like this:
-#handlers=java.util.logging.ConsoleHandler handlers=java.util.logging.FileHandler, java.util.logging.ConsoleHandler Then, change level to FINE or FINER.</description>
+#handlers=java.util.logging.ConsoleHandler $ handlers=java.util.logging.FileHandler, java.util.logging.ConsoleHandler Then, change level to FINE or FINER.</description>
     </item>
     
     <item>

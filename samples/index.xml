@@ -38,7 +38,7 @@ In this use case, the Image Tool will:
 Steps   Create the image, as directed in the Quick Start guide.
   For each WebLogic patch, download it from Oracle Support and set up the cache.
 For example, to download patch number 27342434 for WebLogic Server version 12.2.1.3.0:
-imagetool cache addPatch --patchId 27342434_12.</description>
+$ imagetool cache addPatch --patchId 27342434_12.</description>
     </item>
     
     <item>
@@ -50,7 +50,7 @@ imagetool cache addPatch --patchId 27342434_12.</description>
       <description>The Image Tool lets you create a customized WebLogic domain in the image using the WebLogic Deploy Tool.
 Steps   Create the image, as directed in the Quick Start guide.
   Download the WebLogic Deploy Tool, and then add it to the cache store:
-  imagetool cache addInstaller --type wdt --version 0.22 --path /home/acmeuser/cache/weblogic-deploy.zip Provide the command-line options for the WebLogic Deploy Tool:  imagetool create --fromImage myosimg:latest --tag wls:12.</description>
+  $ imagetool cache addInstaller --type wdt --version 0.22 --path /home/acmeuser/cache/weblogic-deploy.zip Provide the command-line options for the WebLogic Deploy Tool:  $ imagetool create --fromImage myosimg:latest --tag wls:12.</description>
     </item>
     
   </channel>

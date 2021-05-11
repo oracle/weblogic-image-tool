@@ -12,20 +12,20 @@
     <title>Cache :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1620739185" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1620739202" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1620739202"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1620739185"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1620739185"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1620739202"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1620739202"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1620739185"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1620739202"></script>
 
     
   </div>
@@ -536,6 +536,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-image-tool/developer/contribute/" title="Contribute to WIT" class="dd-item ">
+        <a href="/weblogic-image-tool/developer/contribute/">
+        Contribute to WIT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -649,7 +670,7 @@
 <p>The Image Tool maintains a local file cache store. This store is used to look up where the Java, WebLogic Server installers, and WebLogic Server patches reside in the local file system.</p>
 <p>By default, the cache store is located in the user&rsquo;s <code>$HOME/cache</code> directory.  Under this directory, the lookup information is stored in the <code>.metadata</code> file.  All automatically downloaded patches also reside in this directory.</p>
 <p>You can change the default cache store location by setting the environment variable <code>WLSIMG_CACHEDIR</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">export WLSIMG_CACHEDIR<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/path/to/cachedir&#34;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ export WLSIMG_CACHEDIR<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/path/to/cachedir&#34;</span>
 </code></pre></div><p>You use the <code>cache</code> command to manipulate the local file cache. There are several subcommands for the cache feature.</p>
 <pre><code>Usage: imagetool cache [OPTIONS]
 List and set cache options
@@ -699,12 +720,12 @@ cache.dir=/home/acemeuser/cache
 </code></pre></li>
 <li>
 <p><code>addInstaller</code>: Add an installer to the cache, for example, JDK.</p>
-<pre><code>imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
-</code></pre></li>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
+</code></pre></div></li>
 <li>
 <p><code>addPatch</code>: Add a patch to the cache.</p>
-<pre><code>imagetool cache addPatch --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
-</code></pre><p><strong>Note</strong>:  When adding a patch to the cache store, the <code>patchId</code> should be in the following format:  <code>99999999_9.9.9.9.99999</code>  The first 8 digits is the patch ID, followed by an underscore, and then the release number to identify the patch between different patch versions.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool cache addPatch --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
+</code></pre></div><p><strong>Note</strong>:  When adding a patch to the cache store, the <code>patchId</code> should be in the following format:  <code>99999999_9.9.9.9.99999</code>  The first 8 digits is the patch ID, followed by an underscore, and then the release number to identify the patch between different patch versions.</p>
 <p>For example, patch <code>29135930</code> has several different versions in Oracle Support, one for each release or PSU in which the bug is fixed.</p>
 </li>
 </ul>
@@ -734,12 +755,12 @@ cache.dir=/home/acemeuser/cache
 <ul>
 <li>
 <p><code>addEntry</code>: Consider this an expert mode where you can add key value pairs to the cache without any validation.</p>
-<pre><code>imagetool cache addEntry --key xyz_123 --value /path/to/file
-</code></pre></li>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool cache addEntry --key xyz_123 --value /path/to/file
+</code></pre></div></li>
 <li>
 <p><code>deleteEntry</code>: Delete an entry from the cache for a given key. <strong>Note</strong>: This command does not delete files from the disk.</p>
-<pre><code>imagetool cache deleteEntry --key xyz_123
-</code></pre></li>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool cache deleteEntry --key xyz_123
+</code></pre></div></li>
 </ul>
 
 
@@ -1088,6 +1109,22 @@ cache.dir=/home/acemeuser/cache
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -1113,19 +1150,19 @@ cache.dir=/home/acemeuser/cache
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1620739202"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1620739202"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1620739185"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1620739202"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

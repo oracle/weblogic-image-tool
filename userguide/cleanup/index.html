@@ -12,20 +12,20 @@
     <title>Cleanup :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1620739185" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1620739202" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1620739202"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1620739185"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1620739185"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1620739202"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1620739202"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1620739185"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1620739202"></script>
 
     
   </div>
@@ -536,6 +536,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-image-tool/developer/contribute/" title="Contribute to WIT" class="dd-item ">
+        <a href="/weblogic-image-tool/developer/contribute/">
+        Contribute to WIT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -637,10 +658,10 @@ every time the tool runs.  Under normal circumstances, this context directory wi
 if the process is aborted or the tool is unable to remove the directory, it is safe for you to delete it manually.</p>
 <p>By default, the Image Tool creates the Docker context directory under the user&rsquo;s home directory.
 If you prefer to use a different directory for the temporary context, set the environment variable <code>WLSIMG_BLDDIR</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">export WLSIMG_BLDDIR<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/path/to/dir&#34;</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ export WLSIMG_BLDDIR<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/path/to/dir&#34;</span>
 </code></pre></div><p>The Image Tool will try to prune intermediate images from the Docker multi-stage build after the build step.
 If you see dangling images after the build (images labeled as <code>&lt;none&gt;</code>), use the following command to remove them:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker rmi <span style="color:#66d9ef">$(</span>docker images --filter <span style="color:#e6db74">&#34;dangling=true&#34;</span> -q --no-trunc<span style="color:#66d9ef">)</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker rmi <span style="color:#66d9ef">$(</span>docker images --filter <span style="color:#e6db74">&#34;dangling=true&#34;</span> -q --no-trunc<span style="color:#66d9ef">)</span>
 </code></pre></div><p>If you wish to keep the Docker context directory and/or the intermediate images, using the <code>--skipcleanup</code> flag will
 skip the delete steps.  Some older versions of Docker do not support the prune command used by the Image Tool.
 As a temporary workaround, <code>--skipcleanup</code> can be used to skip the prune command until you are able to upgrade to a
@@ -991,6 +1012,22 @@ newer version of Docker.</p>
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -1016,19 +1053,19 @@ newer version of Docker.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1620739202"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1620739202"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1620739185"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1620739202"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

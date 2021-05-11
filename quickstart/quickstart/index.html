@@ -12,20 +12,20 @@
     <title>Steps :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1620739185" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1620739185" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1620739202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1620739202" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.3.1.min.js?1620739202"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1620739185"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1620739185"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1620739202"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1620739202"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1620739185"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1620739202"></script>
 
     
   </div>
@@ -536,6 +536,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-image-tool/developer/contribute/" title="Contribute to WIT" class="dd-item ">
+        <a href="/weblogic-image-tool/developer/contribute/">
+        Contribute to WIT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -659,17 +680,17 @@ and save them in a directory of your choice, for example, <code>/home/acmeuser/w
 </li>
 <li>
 <p>Use the <a href="/weblogic-image-tool/userguide/tools/cache/">Cache Tool</a> to add the installers:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 </code></pre></div><p>You can verify the cache entries by:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">imagetool cache listItems
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool cache listItems
 </code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Cache contents
 jdk_8u202<span style="color:#f92672">=</span>/home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
 wls_12.2.1.3.0<span style="color:#f92672">=</span>/home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
 </code></pre></div></li>
 <li>
 <p>Run the <a href="/weblogic-image-tool/userguide/tools/create-image/"><code>imagetool create</code></a> command:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">imagetool create --tag wls:12.2.1.3.0
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool create --tag wls:12.2.1.3.0
 </code></pre></div></li>
 </ol>
 <p>The final image will have the following structure:</p>
@@ -1022,6 +1043,22 @@ drwxr-xr-x <span style="color:#ae81ff">18</span> root   root   <span style="colo
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -1047,19 +1084,19 @@ drwxr-xr-x <span style="color:#ae81ff">18</span> root   root   <span style="colo
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1620739202"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1620739185"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1620739185"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1620739202"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1620739202"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1620739185"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1620739202"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
