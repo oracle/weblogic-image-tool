@@ -13,11 +13,11 @@ With the Image Tool you can:
 
 * Create a Docker image and install the requested Java and WebLogic software. And, you can create a
 WebLogic domain in the image, at the same time.
-* Create a new Docker image using an existing WebLogic domain from an existing image. The new Docker
+* Create a new Docker image using an existing WebLogic domain from an existing image. The Docker
 image can start from an existing image with a JDK and Oracle middleware installation, or can install
 the JDK and Oracle Home as part of moving the domain.
-* Create a new Docker image by applying WebLogic patches to an existing image. In addition, you can
-create a WebLogic domain if one did not exist previously, update an existing domain, or deploy an application.
+* Create a new Docker image by applying WebLogic patches to an existing image. In addition,
+ if one did not exist previously, you can create a WebLogic domain, update an existing domain, or deploy an application.
 
 For detailed information, see [Image Tool]({{< relref "/userguide/tools/_index.md" >}}).
 
@@ -29,15 +29,16 @@ WebLogic Image Tool version and release information can be found [here](https://
 ***
 ### Recent changes and known issues
 
-See the [Release Notes]({{< relref "/release-notes.md" >}}) for known issues and workarounds.
+See the [Release Notes]({{< relref "/release-notes.md" >}}) for issues and important information.
 
 
 ### About this documentation
 
 * Use the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide to create a Linux based WebLogic Docker image.
-* The [User Guide]({{< relref "/userguide/" >}}) contains installation prerequisites, setup information, command options, and detailed usage information.
-* The [Samples]({{< relref "/samples/" >}}) provide informative use case scenarios.
-* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WIT is built.
+* The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including command options and usage scenarios.
+* The [Samples]({{< relref "/samples/" >}}) provide typical and informative use cases.
+* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WIT is built. Those
+who wish to contribute to the WebLogic Image Tool code will find useful information [here]({{< relref "/developer/contribute.md" >}}).
 
 
 ### Related projects
@@ -47,13 +48,3 @@ See the [Release Notes]({{< relref "/release-notes.md" >}}) for known issues and
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
 * [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
-
-### Contributing
-Those who wish to contribute to the WebLogic Image Tool code will find useful information [here](https://github.com/oracle/weblogic-image-tool/blob/main/CONTRIBUTING.md).
-
-
-
-## Additional tasks
-
-* [Cleanup]({{< relref "/cleanup.md" >}})
-* [Logging]({{< relref "/logging.md" >}})

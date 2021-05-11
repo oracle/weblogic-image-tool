@@ -3,6 +3,7 @@ title: "Create Image"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 1
+description: "The create command creates a new Docker image and installs the requested Java and WebLogic software."
 ---
 
 
@@ -45,23 +46,24 @@ Usage: imagetool create [OPTIONS]
 | `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  |   |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
-| `--wdtEncryptionKey` | Passphrase for WDT -use_encryption that will be requested on STDIN. |   |
-| `--wdtEncryptionKeyEnv` | Passphrase for WDT -use_encryption that is provided as an environment variable. |   |
-| `--wdtEncryptionKeyFile` | Passphrase for WDT -use_encryption that is provided as a file. |   |
+| `--wdtEncryptionKey` | Passphrase for WDT `-use_encryption` that will be requested on STDIN. |   |
+| `--wdtEncryptionKeyEnv` | Passphrase for WDT `-use_encryption` that is provided as an environment variable. |   |
+| `--wdtEncryptionKeyFile` | Passphrase for WDT `-use_encryption` that is provided as a file. |   |
 | `--wdtJavaOptions` | Java command-line options for WDT.  |   |
 | `--wdtModel` | Path to the WDT model file that defines the domain to create.  |   |
 | `--wdtModelOnly` | Install WDT and copy the models to the image, but do not create the domain.  | `false`  |
 | `--wdtRunRCU` | Instruct WDT to run RCU when creating the domain.  |   |
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
 | `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
-| `--wdtVersion` | WDT tool version to use.  |   |
+| `--wdtVersion` | WDT version to use.  |   |
 
 ### Additional information
 
 #### `--additionalBuildCommands`
 
 This is an advanced option that let's you provide additional commands to the Docker build step.  
-The input for this parameter is a simple text file that contains one or more of the valid sections. Valid sections for create:
+The input for this parameter is a simple text file that contains one or more of the valid sections.
+Valid sections for create are:
 
 | Section | Build Stage | Timing |
 | --- | --- | --- |
@@ -74,7 +76,7 @@ The input for this parameter is a simple text file that contains one or more of 
 | `after-wdt-command` | Intermediate (WDT_BUILD) | After WDT domain creation/update is complete. |
 | `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
 
-NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
+**NOTE**: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
 The Image Tool will copy the Java Home, Oracle Home, domain home, and WDT home directories to the final image.  
 Changes fully contained within these directories do not need an additional `COPY` command in the `final-build-commands` section.
 
@@ -109,8 +111,9 @@ the `after-fmw-install` or `before-wdt-command` sections.
 #### Resource Template Files
 
 If provided, the file or files provided with `--resourceTemplates` will be overwritten. For known tokens,
-the placeholders will be replaced with values according to the following table.  **Note:** Placeholders must follow
-the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
+the placeholders will be replaced with values according to the following table.  
+
+**Note:** Placeholders must follow the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
 
 | Token Name | Value Description |
 | --- | --- |
@@ -140,7 +143,7 @@ create
 Use it on the command line, as follows:
 
 ```bash
-imagetool @/path/to/build_args
+$ imagetool @/path/to/build_args
 ```
 
 
@@ -148,22 +151,22 @@ imagetool @/path/to/build_args
 
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure installers) have been downloaded
- to the cache directory. Use the [cache](cache.md) command to set it up.
+The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
+ to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
 - Create an image named `sample:wls` with the WebLogic installer 12.2.1.3.0, server JDK 8u202, and latest PSU applied.
-    ```
-    imagetool create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
+    ```bash
+    $ imagetool create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
     ```
 
-- Create an image named `sample:wdt` with the same options as above and create a domain with [WebLogic Deploy Tooling](https://github.com/oracle/weblogic-deploy-tooling).
-    ```
-    imagetool create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16
+- Create an image named `sample:wdt` with the same options as above and create a domain with [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/).
+    ```bash
+    $ imagetool create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16
     ```
     If `wdtVersion` is not provided, the tool uses the latest release.
 
 - Create an image named `sample:patch` with the selected patches applied.
-    ```
-    imagetool create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
+    ```bash
+    $ imagetool create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
     ```
     The patch numbers may or may not start with '`p`'.

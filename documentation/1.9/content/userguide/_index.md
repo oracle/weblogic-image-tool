@@ -8,4 +8,4 @@ pre = "<b>2. </b>"
 
 # User Guide
 
-The User Guide provides detailed information about installing and using the WebLogic Image Tool.
+The User Guide provides detailed usage information for the WebLogic Image Tool, including typical use case scenarios.

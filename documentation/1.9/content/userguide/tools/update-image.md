@@ -3,6 +3,7 @@ title: "Update Image"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 3
+description: "The update command creates a new Docker image by applying WebLogic patches to an existing image."
 ---
 
 After you have created a Docker image with the Image Tool, you may want to change it from time to time.  Use the `update`
@@ -118,8 +119,9 @@ increase the size of the image significantly, and is not recommended.
 #### Resource Template Files
 
 If provided, the file or files provided with `--resourceTemplates` will be overwritten. For known tokens,
-the placeholders will be replaced with values according to the following table.  **Note:** Placeholders must follow
-the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
+the placeholders will be replaced with values according to the following table.  
+
+**Note:** Placeholders must follow the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
 
 | Token Name | Value Description |
 | --- | --- |
@@ -147,7 +149,7 @@ update
 Use it on the command line, as follows:
 
 ```bash
-imagetool @/path/to/build_args
+$ imagetool @/path/to/build_args
 ```
 
 
@@ -156,23 +158,23 @@ imagetool @/path/to/build_args
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
 - Update an image named `sample:1.0` by applying the latest PSU and tag it as `sample:1.1`.
-    ```
-    imagetool update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
+    ```bash
+    $ imagetool update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
     ```
 
 - Update an image named `sample:1.0` with the selected patches applied and tag it as `sample:1.1`.
-    ```
-    imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,87654321
+    ```bash
+    $ imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,87654321
     ```
 
 - Update an image named `wls:12.2.1.3.0` by creating a new WebLogic domain using WDT and tag it as `mydomain:1`.  The WDT
 installer is accessed from the cache with key wdt_1.1.1.  The model and archive to use are located in a subfolder named `wdt`.
-    ```
-    imagetool update --fromImage wls:12.2.1.3.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
+    ```bash
+    $ imagetool update --fromImage wls:12.2.1.3.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
     ```
 
 - Use `deployApps` from WDT to deploy a new application, the WLS Metrics Exporter.  The model and archive to use are
 located in a subfolder named `wdt`.
-    ```
-    imagetool update --tag mydomain:2 --fromImage mydomain:1 --wdtOperation deploy --wdtArchive ./wdt/exporter_archive.zip --wdtModel ./wdt/exporter_model.yaml --wdtVersion 1.1.1   
+    ```bash
+    $ imagetool update --tag mydomain:2 --fromImage mydomain:1 --wdtOperation deploy --wdtArchive ./wdt/exporter_archive.zip --wdtModel ./wdt/exporter_model.yaml --wdtVersion 1.1.1   
     ```

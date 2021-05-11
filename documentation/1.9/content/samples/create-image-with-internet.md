@@ -26,28 +26,28 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 2. Use the [Cache Tool]({{< relref "/userguide/tools/cache.md" >}}) to add the installers:
 
     ```bash
-    imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
+    $ imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
     ```
 
     ```bash
-    imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
+    $ imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
     ```
 
     **Note**:  The value of the version must be a valid WebLogic Server version number. This version number is used to verify and find the correct patch file to download from Oracle Support.  The format of the version is a 5 digits tuple, separated by period.  For example,  ```12.2.1.3.0``` ```12.1.3.0.0```
 
-3. Create the image using the [Create Tool](create-image.md) commands. For example:
+3. Create the image using the [Create Tool]({{< relref "/userguide/tools/create-image.md" >}}) commands. For example:
 
   ```bash
-  imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user  username@mycompany.com --passwordEnv MYPWD  
+  $ imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user  username@mycompany.com --passwordEnv MYPWD  
   ```
 
    Where ```--user --passwordEnv``` provides the credentials for a user who is entitled to download patches from Oracle Support.
 
  **NOTE**: You can provide the password in one of three ways:
 
- * Read from STDIN --password
- * Environment variable --passwordEnv
- * File containing the password --passwordFile
+ * Read from STDIN `--password`
+ * Environment variable `--passwordEnv`
+ * File containing the password `--passwordFile`
 
 
 You will see the Docker command output as the tool runs:
@@ -72,7 +72,7 @@ Successfully tagged wls:12.2.1.3.0
 3. To verify that the image was created, use the `docker images` command:
 
 ```bash
-docker images
+$ docker images
 
 REPOSITORY                    TAG                 IMAGE ID            CREATED              SIZE
 wls                           12.2.1.3.0          18d366fc3da4        About a minute ago   1.41GB

@@ -3,6 +3,7 @@ title: "Rebase Image"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 2
+description: "The rebase command creates a new Docker image using an existing WebLogic domain from an existing image."
 ---
 
 
@@ -61,7 +62,7 @@ The input for this parameter is a simple text file that contains one or more of 
 | `after-fmw-install` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
 | `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
 
-NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
+**NOTE**: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
 The Image Tool will copy the Java Home and the Oracle Home directories to the final image.  
 Changes fully contained within these directories do not need an additional `COPY` command in the `final-build-commands` section.
 Each section can contain one or more valid Dockerfile commands and would look like the following:
@@ -109,7 +110,7 @@ rebase
 Use it on the command line, as follows:
 
 ```bash
-imagetool @/path/to/build_args
+$ imagetool @/path/to/build_args
 ```
 
 
@@ -117,26 +118,26 @@ imagetool @/path/to/build_args
 
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure installers) have been downloaded
- to the cache directory. Use the [cache](cache.md) command to set it up.
+The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
+ to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
 
 - Update the JDK for an existing domain.  Copy the existing domain from `sample:v1` where the JDK was 8u202 to a new
 image called `sample:v2` and install the newer JDK 8u221 with WebLogic Server 12.2.1.3.0.
-    ```
-    imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
+    ```bash
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
     ```
 
 - Update the Oracle Home for an existing domain with a newer WebLogic version.  Copy a domain from an existing image to
 a new image with a new install of WebLogic Server 12.2.1.4.0.  Copy the domain
 from `sample:v1` and select the desired WebLogic installer using the `--version` argument.  
-    ```
-    imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
+    ```bash
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
     ```
 
 - Update the JDK and/or Oracle Home for an existing domain using another image with pre-installed binaries.
 Copy the domain from the source image named `sample:v1` to a new image called `sample:v2` based on a target image
 named `fmw:12214`.  **Note**: The Oracle Home and JDK must be installed in the same same folders on each image.
-    ```
-    imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
+    ```bash
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
     ```
