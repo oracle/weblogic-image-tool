@@ -49,7 +49,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
     wls_12.2.1.3.0=/home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
     ```
 
-3. Run the [`imagetool create`](create-image.md) command:
+3. Run the [`imagetool create`]({{< relref "/userguide/tools/create-image.md" >}}) command:
 
    ```bash
    imagetool create --tag wls:12.2.1.3.0
