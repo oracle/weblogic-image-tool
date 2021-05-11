@@ -37,7 +37,8 @@ See the [Release Notes]({{< relref "/release-notes.md" >}}) for issues and impor
 * Use the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide to create a Linux based WebLogic Docker image.
 * The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including command options and usage scenarios.
 * The [Samples]({{< relref "/samples/" >}}) provide typical and informative use cases.
-* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WIT is built.
+* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WIT is built. Those
+who wish to contribute to the WebLogic Image Tool code will find useful information [here]({{< relref "/developer/contribute.md" >}}).
 
 
 ### Related projects
@@ -47,6 +48,3 @@ See the [Release Notes]({{< relref "/release-notes.md" >}}) for issues and impor
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
 * [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
-
-### Contributing
-Those who wish to contribute to the WebLogic Image Tool code will find useful information [here](https://github.com/oracle/weblogic-image-tool/blob/main/CONTRIBUTING.md).

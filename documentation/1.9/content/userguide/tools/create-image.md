@@ -143,7 +143,7 @@ create
 Use it on the command line, as follows:
 
 ```bash
-imagetool @/path/to/build_args
+$ imagetool @/path/to/build_args
 ```
 
 
@@ -155,18 +155,18 @@ The commands below assume that all the required JDK, WLS, or FMW (WebLogic infra
  to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
 - Create an image named `sample:wls` with the WebLogic installer 12.2.1.3.0, server JDK 8u202, and latest PSU applied.
-    ```
-    imagetool create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
+    ```bash
+    $ imagetool create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
     ```
 
 - Create an image named `sample:wdt` with the same options as above and create a domain with [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/).
-    ```
-    imagetool create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16
+    ```bash
+    $ imagetool create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16
     ```
     If `wdtVersion` is not provided, the tool uses the latest release.
 
 - Create an image named `sample:patch` with the selected patches applied.
-    ```
-    imagetool create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
+    ```bash
+    $ imagetool create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
     ```
     The patch numbers may or may not start with '`p`'.
