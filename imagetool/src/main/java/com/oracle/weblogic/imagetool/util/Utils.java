@@ -172,7 +172,6 @@ public class Utils {
         int port = url.getPort() == -1 ? url.getDefaultPort() : url.getPort();
         String userInfo = url.getUserInfo();
         String protocol = protocolToSet == null ? url.getProtocol() : protocolToSet;
-
         if (host != null && port != -1) {
             System.setProperty(String.format("%s.proxyHost", protocol), host);
             System.setProperty(String.format("%s.proxyPort", protocol), String.valueOf(port));
