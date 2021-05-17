@@ -435,8 +435,6 @@ public class AruUtil {
         // download the remote patch file to the local target directory
         String filename = targetDir + File.separator + aruPatch.fileName();
         logger.info("IMG-0018", aruPatch.patchId());
-        String proxyHost = "localhost";
-        int proxyPort = 3128;
         try {
             HttpUtil.getHttpExecutor(username, password)
                 .execute(Request.Get(aruPatch.downloadUrl()).connectTimeout(30000)

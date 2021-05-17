@@ -19,8 +19,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
@@ -37,7 +35,6 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -101,10 +98,7 @@ public class HttpUtil {
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
         logger.entering(url);
-        String proxyHost = "localhost";
-        int proxyPort = 3128;
         String xmlString = getHttpExecutor(username,password).execute(Request.Get(url).connectTimeout(30000)
-                //  .viaProxy(new HttpHost(proxyHost, proxyPort))
                 .socketTimeout(30000))
                 .returnContent().asString();
         logger.exiting(xmlString);
@@ -124,16 +118,8 @@ public class HttpUtil {
         config.setCookieSpec(CookieSpecs.STANDARD);
 
         CookieStore cookieStore = new BasicCookieStore();
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-        if (userId != null && password != null) {
-            BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
-            cc.setDomain("edelivery.oracle.com");
-            cookieStore.addCookie(cc);
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
-                    userId, password));
-        }
-        String proxyHost = System.getProperty("https..proxyHost");
+        String proxyHost = System.getProperty("https.proxyHost");
         String proxyPort  = System.getProperty("https.proxyPort");
         HttpClient result;
         if (proxyHost != null) {
@@ -143,7 +129,7 @@ public class HttpUtil {
                 .setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)))
                 .setUserAgent("Wget/1.10")
                 .setDefaultCookieStore(cookieStore).useSystemProperties()
-                .setDefaultCredentialsProvider(credentialsProvider).build();
+                .build();
 
         } else {
             result = HttpClientBuilder.create()
@@ -151,7 +137,7 @@ public class HttpUtil {
                 .setRetryHandler(retryHandler())
                 .setUserAgent("Wget/1.10")
                 .setDefaultCookieStore(cookieStore).useSystemProperties()
-                .setDefaultCredentialsProvider(credentialsProvider).build();
+                .build();
 
         }
         logger.exiting();
@@ -178,13 +164,13 @@ public class HttpUtil {
                     .auth(new HttpHost(proxyHost, Integer.parseInt(proxyPort)), proxyUser, proxyPassword)
                     .auth(new HttpHost("login.oracle.com", 443), supportUserName, supportPassword)
                     .auth(new HttpHost("updates.oracle.com", 443), supportUserName, supportPassword)
-                    .authPreemptiveProxy(new HttpHost("localhost", 3128));
+                    .authPreemptiveProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
 
             } else {
                 executor
                     .auth(new HttpHost("login.oracle.com", 443), supportUserName, supportPassword)
                     .auth(new HttpHost("updates.oracle.com", 443), supportUserName, supportPassword)
-                    .authPreemptiveProxy(new HttpHost("localhost", 3128));
+                    .authPreemptiveProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
             }
         }
         return executor;
