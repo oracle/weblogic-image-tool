@@ -13,7 +13,7 @@ By default, the cache store is located in the user's ```$HOME/cache``` directory
 You can change the default cache store location by setting the environment variable `WLSIMG_CACHEDIR`:
 
 ```bash
-export WLSIMG_CACHEDIR="/path/to/cachedir"
+$ export WLSIMG_CACHEDIR="/path/to/cachedir"
 ```
 
 You use the `cache` command to manipulate the local file cache. There are several subcommands for the cache feature.
@@ -48,13 +48,13 @@ List and set cache options
     ```
 
 - `addInstaller`: Add an installer to the cache, for example, JDK.
-    ```
-    imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
+    ```bash
+    $ imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz
     ```
 
 - `addPatch`: Add a patch to the cache.
-    ```
-    imagetool cache addPatch --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
+    ```bash
+    $ imagetool cache addPatch --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip
     ```
     **Note**:  When adding a patch to the cache store, the `patchId` should be in the following format:  `99999999_9.9.9.9.99999`  The first 8 digits is the patch ID, followed by an underscore, and then the release number to identify the patch between different patch versions.  
 
@@ -69,11 +69,11 @@ List and set cache options
 If you downloaded the release version ```12.2.1.3.190416``` of the patch, then you should use the argument ```--patchId 29135930_12.2.1.3.190416```.
 
 - `addEntry`: Consider this an expert mode where you can add key value pairs to the cache without any validation.
-    ```
-    imagetool cache addEntry --key xyz_123 --value /path/to/file
+    ```bash
+    $ imagetool cache addEntry --key xyz_123 --value /path/to/file
     ```
 
 - `deleteEntry`: Delete an entry from the cache for a given key. **Note**: This command does not delete files from the disk.
-    ```
-    imagetool cache deleteEntry --key xyz_123
+    ```bash
+    $ imagetool cache deleteEntry --key xyz_123
     ```

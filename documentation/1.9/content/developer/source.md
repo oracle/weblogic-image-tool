@@ -8,8 +8,8 @@ weight: 1
 
 The Image Tool installer is available for download on the [Releases](https://github.com/oracle/weblogic-image-tool/releases) page.
 If you want to build the installer from source instead of downloading it, follow these instructions:
-1. Download and install JDK 8u261+
-1. Download and install Maven 3.6.3+
+1. Download and install JDK 8u261+.
+1. Download and install Maven 3.6.3+.
 1. Clone [this](https://github.com/oracle/weblogic-image-tool) repository to your local environment using one of the options under `Code` near the top of this page.
 1. From inside the top-level directory of the cloned project, `weblogic-image-tool`, using Maven, execute one or
 more of these phases:
@@ -34,12 +34,12 @@ patches can be found.  The files required in the `STAGING_DIR` depend on which t
 
 **Example**: Run a set of integration tests (available groups are `cache`, `gate`, and `nightly`:
 ```shell script
-mvn verify -Dtest.groups=cache
+$ mvn verify -Dtest.groups=cache
 ```
 
 **Example**: Run a single integration test:
 ```shell script
-mvn verify -Dtest.groups=gate,nightly -Dit.test=ITImagetool#createWlsImg
+$ mvn verify -Dtest.groups=gate,nightly -Dit.test=ITImagetool#createWlsImg
 ```
 
 Integration Test groups:

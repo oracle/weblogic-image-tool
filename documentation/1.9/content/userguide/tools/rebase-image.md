@@ -110,7 +110,7 @@ rebase
 Use it on the command line, as follows:
 
 ```bash
-imagetool @/path/to/build_args
+$ imagetool @/path/to/build_args
 ```
 
 
@@ -124,20 +124,20 @@ The commands below assume that all the required JDK, WLS, or FMW (WebLogic infra
 
 - Update the JDK for an existing domain.  Copy the existing domain from `sample:v1` where the JDK was 8u202 to a new
 image called `sample:v2` and install the newer JDK 8u221 with WebLogic Server 12.2.1.3.0.
-    ```
-    imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
+    ```bash
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
     ```
 
 - Update the Oracle Home for an existing domain with a newer WebLogic version.  Copy a domain from an existing image to
 a new image with a new install of WebLogic Server 12.2.1.4.0.  Copy the domain
 from `sample:v1` and select the desired WebLogic installer using the `--version` argument.  
-    ```
-    imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
+    ```bash
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
     ```
 
 - Update the JDK and/or Oracle Home for an existing domain using another image with pre-installed binaries.
 Copy the domain from the source image named `sample:v1` to a new image called `sample:v2` based on a target image
 named `fmw:12214`.  **Note**: The Oracle Home and JDK must be installed in the same same folders on each image.
-    ```
-    imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
+    ```bash
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
     ```
