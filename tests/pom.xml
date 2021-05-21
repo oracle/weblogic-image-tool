@@ -12,13 +12,12 @@
     <parent>
         <artifactId>imagetool-parent</artifactId>
         <groupId>com.oracle.weblogic.lifecycle.imagetool</groupId>
-        <version>1.9.11-SNAPSHOT</version>
+        <version>1.9.12</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
         <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
-        <skipITs>false</skipITs>
     </properties>
 
     <dependencies>
@@ -36,36 +35,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>enforce-build-environment</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skipITs}</skip>
-                            <rules>
-                                <requireEnvironmentVariable>
-                                    <variableName>ORACLE_SUPPORT_USERNAME</variableName>
-                                    <message>For integration tests, you must set the environment variable ORACLE_SUPPORT_USERNAME to a valid OTN credential for patch access.</message>
-                                </requireEnvironmentVariable>
-                                <requireEnvironmentVariable>
-                                    <variableName>ORACLE_SUPPORT_PASSWORD</variableName>
-                                    <message>For integration tests, you must set the environment variable ORACLE_SUPPORT_PASSWORD to match the ORACLE_SUPPORT_USERNAME credential.</message>
-                                </requireEnvironmentVariable>
-                                <requireProperty>
-                                    <property>test.staging.dir</property>
-                                    <message>For integration tests, you must define the test.staging.dir System property to point to the directory where the installers are staged. Or, set STAGING_DIR environment variable.</message>
-                                </requireProperty>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin> <!-- tests module does not have a JAR (shippable source) -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

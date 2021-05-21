@@ -27,25 +27,8 @@ else
   exit -1
 fi
 
-read_link() {
-  PREV_DIR=`pwd`
-  CHASE_LINK=$1
-  cd `dirname $CHASE_LINK`
-  CHASE_LINK=`basename $CHASE_LINK`
-  while [ -L "$CHASE_LINK" ]
-  do
-    CHASE_LINK=`readlink $CHASE_LINK`
-    cd `dirname $CHASE_LINK`
-    CHASE_LINK=`basename $CHASE_LINK`
-  done
-  _DIR=`pwd -P`
-  RESULT_PATH=$_DIR/$CHASE_LINK
-  cd $PREV_DIR
-  echo $RESULT_PATH
-}
-
-script_dir=$( dirname "$( read_link "${BASH_SOURCE[0]}" )" )
+script_dir=$(dirname "${BASH_SOURCE[0]}")
 IMAGETOOL_HOME=$(cd "${script_dir}/.." ; pwd)
 export IMAGETOOL_HOME
-${JAVA_HOME}/bin/java -cp "${IMAGETOOL_HOME}/lib/*" -Djava.util.logging.config.file=${IMAGETOOL_HOME}/bin/logging.properties com.oracle.weblogic.imagetool.cli.ImageTool $@
+"${JAVA_EXE}" -cp "${IMAGETOOL_HOME}/lib/*" -Djava.util.logging.config.file="${IMAGETOOL_HOME}/bin/logging.properties" com.oracle.weblogic.imagetool.cli.ImageTool "$@"
 

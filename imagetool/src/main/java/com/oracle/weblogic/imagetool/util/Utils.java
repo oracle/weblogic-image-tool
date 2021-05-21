@@ -22,7 +22,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -413,17 +412,21 @@ public class Utils {
     /**
      * Reads the docker image environment variables into Java Properties.
      *
+     * @param builder     the binary to create the container (like docker)
      * @param dockerImage the name of the Docker image to read from
-     * @param tmpDir      the directory to use on the container to copy a script
+     * @param script      the script resource (path to the script in the JAR)
+     * @param contextDir  the image build context folder
      * @return The key/value pairs representing the ENV of the Docker image
      * @throws IOException          when the Docker command fails
      * @throws InterruptedException when the Docker command is interrupted
      */
-    public static Properties getBaseImageProperties(String builder, String dockerImage, String tmpDir)
-        throws IOException, InterruptedException {
-
-        logger.entering(dockerImage, tmpDir);
-        List<String> imageEnvCmd = Utils.getDockerRunCmd(builder, tmpDir, dockerImage, "test-env.sh");
+    public static Properties getBaseImageProperties(String builder, String dockerImage, String script,
+                                                    String contextDir) throws IOException, InterruptedException {
+        logger.entering(builder, dockerImage, script, contextDir);
+        final String scriptToRun = "test-env.sh";
+        Utils.copyResourceAsFile(script, contextDir + File.separator + scriptToRun, true);
+        List<String> imageEnvCmd = Utils.getDockerRunCmd(builder,
+            contextDir + File.separator + scriptToRun, dockerImage);
         Properties result = Utils.runDockerCommand(imageEnvCmd);
         logger.exiting(result);
         return result;
@@ -433,14 +436,12 @@ public class Utils {
      * Constructs a docker command to run a script in the container with a volume mount.
      *
      * @param builder        docker/podman executable
-     * @param hostDirToMount host dir
+     * @param scriptToRun    the local script to encode and run
      * @param dockerImage    docker image tag
-     * @param scriptToRun    script to execute on the container
-     * @param args           args to the script
      * @return command
      */
-    private static List<String> getDockerRunCmd(String builder, String hostDirToMount, String dockerImage,
-                                                String scriptToRun, String... args) throws IOException {
+    private static List<String> getDockerRunCmd(String builder, String scriptToRun, String dockerImage)
+        throws IOException {
 
         // We are removing the volume mount option, -v won't work in remote docker daemon and also
         // problematic if the mounted volume source is on a nfs volume as we have no idea what the docker volume
@@ -449,17 +450,13 @@ public class Utils {
         // Now are encoding the test script and decode on the fly and execute it.
         // Warning:  don't pass in a big file
 
-        byte[] fileBytes = Files.readAllBytes(Paths.get(hostDirToMount + File.separator + scriptToRun));
+        byte[] fileBytes = Files.readAllBytes(Paths.get(scriptToRun));
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
         String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
-        logger.finer("ONE COMMAND [" + oneCommand + "]");
-        final List<String> retVal = Stream.of(
+        logger.finest("running command in image [" + oneCommand + "]");
+        return Stream.of(
             builder, "run", "--rm",
             dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
-        if (args != null && args.length > 0) {
-            retVal.addAll(Arrays.asList(args));
-        }
-        return retVal;
     }
 
     /**

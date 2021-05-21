@@ -26,6 +26,7 @@ import com.oracle.weblogic.imagetool.tests.utils.CreateCommand;
 import com.oracle.weblogic.imagetool.tests.utils.RebaseCommand;
 import com.oracle.weblogic.imagetool.tests.utils.Runner;
 import com.oracle.weblogic.imagetool.tests.utils.UpdateCommand;
+import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -49,12 +50,12 @@ class ITImagetool {
     private static final LoggingFacade logger = LoggingFactory.getLogger(ITImagetool.class);
 
     // STAGING_DIR - directory where JDK and other installers are pre-staged before testing
-    private static final String STAGING_DIR = getEnvironmentProperty("STAGING_DIR");
-    private static final String wlsImgBldDir = getEnvironmentProperty("WLSIMG_BLDDIR");
-    private static final String wlsImgCacheDir = getEnvironmentProperty("WLSIMG_CACHEDIR");
+    private static final String STAGING_DIR = System.getProperty("STAGING_DIR");
+    private static final String wlsImgBldDir = System.getProperty("WLSIMG_BLDDIR");
+    private static final String wlsImgCacheDir = System.getProperty("WLSIMG_CACHEDIR");
 
     // Docker images
-    private static final String DB_IMAGE = getEnvironmentProperty("DB_IMAGE");
+    private static final String DB_IMAGE = System.getProperty("DB_IMAGE");
 
     // Staging Dir files
     private static final String JDK_INSTALLER = "jdk-8u202-linux-x64.tar.gz";
@@ -85,46 +86,29 @@ class ITImagetool {
     private static boolean wlsImgBuilt = false;
     private static boolean domainImgBuilt = false;
 
-    /**
-     * Get the named property from system environment or Java system property.
-     * If the property is defined in the Environment, that value will take precedence over
-     * Java properties.
-     *
-     * @param name the name of the environment variable, or Java property
-     * @return the value defined in the env or system property
-     */
-    private static String getEnvironmentProperty(String name) {
-        String result = System.getenv(name);
-        if (result == null || result.isEmpty()) {
-            logger.info("Environment variable {0} not set, using Java system property", name);
-            result = System.getProperty(name);
-        }
-        return result;
-    }
-
     private static void validateEnvironmentSettings() {
         logger.info("Initializing the tests ...");
 
         List<String> missingSettings = new ArrayList<>();
-        if (wlsImgBldDir == null || wlsImgBldDir.isEmpty()) {
+        if (Utils.isEmptyString(wlsImgBldDir)) {
             missingSettings.add("WLSIMG_BLDDIR");
         }
 
-        if (wlsImgCacheDir == null || wlsImgCacheDir.isEmpty()) {
+        if (Utils.isEmptyString(wlsImgCacheDir)) {
             missingSettings.add("WLSIMG_CACHEDIR");
         }
 
-        if (STAGING_DIR == null || STAGING_DIR.isEmpty()) {
+        if (Utils.isEmptyString(STAGING_DIR)) {
             missingSettings.add("STAGING_DIR");
         }
 
-        if (DB_IMAGE == null || DB_IMAGE.isEmpty()) {
+        if (Utils.isEmptyString(DB_IMAGE)) {
             missingSettings.add("DB_IMAGE");
         }
 
         if (missingSettings.size() > 0) {
             String error = String.join(", ", missingSettings)
-                + " must be set as a system property or ENV variable";
+                + " must be set as a system property in the pom.xml";
             throw new IllegalArgumentException(error);
         }
 
@@ -285,7 +269,7 @@ class ITImagetool {
     private void buildWdtArchive() throws Exception {
         logger.info("Building WDT archive ...");
         Path scriptPath = Paths.get("src", "test", "resources", "wdt", "build-archive.sh");
-        String command = "sh " + scriptPath.toString();
+        String command = "sh " + scriptPath;
         CommandResult result = executeAndVerify(command);
         if (result.exitValue() != 0) {
             logger.severe(result.stdout());
