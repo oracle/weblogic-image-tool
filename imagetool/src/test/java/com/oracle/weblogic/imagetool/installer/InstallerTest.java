@@ -30,12 +30,12 @@ public class InstallerTest {
 
     @Test
     void fmwInstallerProductIds() {
-        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH), FmwInstallerType.WLS.products(),
+        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT), FmwInstallerType.WLS.products(),
             "WLS product list is incorrect or out of order");
-        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.JDEV),
+        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JRF, AruProduct.JDEV),
             FmwInstallerType.FMW.products(), "FMW product list is incorrect or out of order");
-        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.JDEV, AruProduct.SOA),
-            FmwInstallerType.SOA.products(), "SOA product list is incorrect or out of order");
+        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JRF, AruProduct.JDEV,
+            AruProduct.SOA), FmwInstallerType.SOA.products(), "SOA product list is incorrect or out of order");
     }
 
     @Test

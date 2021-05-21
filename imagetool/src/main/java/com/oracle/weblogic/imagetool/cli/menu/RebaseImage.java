@@ -65,12 +65,9 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 logger.finer("IMG-0002", sourceImage);
                 dockerfileOptions.setSourceImage(sourceImage);
 
-                // Get source image
-                Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
-                    tmpDir + File.separator + "test-env.sh", true);
-
                 logger.info("IMG-0091", sourceImage);
-                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage, tmpDir);
+                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage,
+                    "/probe-env/test-update-env.sh", tmpDir);
 
                 oldOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 oldJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
@@ -85,11 +82,9 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 logger.finer("IMG-0002", targetImage);
                 dockerfileOptions.setTargetImage(targetImage);
                 dockerfileOptions.setRebaseToTarget(true);
-                // Get source image
-                Utils.copyResourceAsFile("/probe-env/test-update-env.sh",
-                    tmpDir + File.separator + "test-env.sh", true);
 
-                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, targetImage, tmpDir);
+                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, targetImage,
+                    "/probe-env/test-update-env.sh", tmpDir);
 
                 newOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
                 newJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
