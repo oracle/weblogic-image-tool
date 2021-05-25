@@ -14,6 +14,7 @@ public enum AruProduct {
     OSB("16011", "Oracle Service Bus"),
     SOA("12745", "Oracle SOA Suite"),
     B2B("12745", "Oracle B2B"),
+    MFT("27538", "Oracle Managed File Transfer"),
     IDM("18391", "Oracle Identity Manager"),
     OAM("18388", "Oracle Access Manager"),
     OUD("19748", "Oracle Unified Directory"),
