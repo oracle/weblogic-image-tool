@@ -42,6 +42,7 @@ public enum FmwInstallerType {
     // Oracle SOA Suite (with Service Bus and B2B)
     SOA_OSB_B2B(Utils.list(FMW.products, AruProduct.SOA, AruProduct.OSB, AruProduct.B2B),
         InstallerType.FMW, InstallerType.SOA, InstallerType.OSB, InstallerType.B2B),
+    // Oracle Managed File Transfer
     MFT(Utils.list(FMW.products, AruProduct.MFT),
         InstallerType.FMW, InstallerType.MFT),
     // Oracle Identity Manager
