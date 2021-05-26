@@ -40,7 +40,7 @@ Usage: imagetool create [OPTIONS]
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
-| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `WCP`, `OAM`, `OIG`, `OUD`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
+| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
 | `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |

@@ -43,7 +43,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--targetImage` | Docker image to extend for the domain's new image. |   |
-| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `WCP`, `OAM`, `OIG`, `OUD`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
+| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Your Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
 
