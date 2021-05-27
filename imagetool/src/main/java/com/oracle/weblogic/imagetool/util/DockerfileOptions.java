@@ -535,6 +535,19 @@ public class DockerfileOptions {
     }
 
     /**
+     * Referenced by the Dockerfile template to determine which command to use to install WDT.
+     *
+     * @return true if the WDT installer file is a tar.gz file; false otherwise.
+     */
+    public boolean usingWdtTarGzInstaller() {
+        boolean result = false;
+        if (wdtInstallerFilename != null && wdtInstallerFilename.toLowerCase().endsWith(".tar.gz")) {
+            result = true;
+        }
+        return result;
+    }
+
+    /**
      * copyOraInst check if it needs to copy the oraInst.loc file.
      *
      * @return true if it needs to copy
@@ -773,8 +786,9 @@ public class DockerfileOptions {
         return wdtInstallerFilename;
     }
 
-    public void setWdtInstallerFilename(String value) {
+    public DockerfileOptions setWdtInstallerFilename(String value) {
         wdtInstallerFilename = value;
+        return this;
     }
 
     public boolean modelOnly() {
