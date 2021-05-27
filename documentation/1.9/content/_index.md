@@ -26,22 +26,25 @@ For detailed information, see [Image Tool]({{< relref "/userguide/tools/_index.m
 
 WebLogic Image Tool version and release information can be found [here](https://github.com/oracle/weblogic-image-tool/releases).
 
-**NOTE**: The upcoming change to Oracle Support's recommended patches list will require  
-Image Tool 1.9.11 in order to use `--recommendedPatches` or `--latestPSU`.
+***
+### Recent changes and known issues
 
-# Documentation
+See the [Release Notes]({{< relref "/release-notes.md" >}}) for issues and important information.
 
-Documentation for WebLogic Image Tool is [available here](https://oracle.github.io/weblogic-image-tool/).
 
-This documentation includes information for users and for developers.
+### About this documentation
 
-# Related projects
+* Use the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide to create a Linux based WebLogic Docker image.
+* The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including command options and usage scenarios.
+* The [Samples]({{< relref "/samples/" >}}) provide typical and informative use cases.
+* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WIT is built. Those
+who wish to contribute to the WebLogic Image Tool code will find useful information [here]({{< relref "/developer/contribute.md" >}}).
+
+
+### Related projects
 
 * [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/)
 * [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/)
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
 * [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
-
-# Contributing
-Those who wish to contribute to the WebLogic Image Tool code will find useful information [here](https://github.com/oracle/weblogic-image-tool/blob/main/CONTRIBUTING.md).
