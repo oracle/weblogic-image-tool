@@ -36,6 +36,7 @@ public class DockerfileOptions {
     private boolean applyPatches;
     private boolean updateOpatch;
     private boolean skipJavaInstall;
+    private boolean skipMiddlewareInstall;
     private boolean isRebaseToTarget;
     private boolean isRebaseToNew;
     private boolean strictPatchOrdering;
@@ -71,6 +72,7 @@ public class DockerfileOptions {
     private boolean wdtStrictValidation;
     private String wdtInstallerFilename;
     private String wdtEncryptionKey;
+    private String wdtBase;
 
     // Additional Build Commands
     private Map<String, List<String>> additionalBuildCommands;
@@ -83,6 +85,7 @@ public class DockerfileOptions {
         applyPatches = false;
         updateOpatch = false;
         skipJavaInstall = false;
+        skipMiddlewareInstall = false;
 
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
@@ -103,6 +106,7 @@ public class DockerfileOptions {
         wdtVariableList = new ArrayList<>();
         wdtRunRcu = false;
         wdtStrictValidation = false;
+        wdtBase = "wls_build"; // By default, use output of Oracle Home install
     }
 
     /**
@@ -462,6 +466,26 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public boolean installJava() {
         return !skipJavaInstall;
+    }
+
+    /**
+     * Disable the Middleware installation because an Oracle Home is already installed.
+     *
+     * @param oracleHome the ORACLE_HOME from the base image.
+     */
+    public void disableMiddlewareInstall(String oracleHome) {
+        this.oracleHome = oracleHome;
+        skipMiddlewareInstall = true;
+    }
+
+    /**
+     * Referenced by Dockerfile template, for enabling Middleware install function.
+     *
+     * @return true if Java should be installed.
+     */
+    @SuppressWarnings("unused")
+    public boolean installMiddleware() {
+        return !skipMiddlewareInstall;
     }
 
     /**
@@ -972,5 +996,15 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public String java_pkg() {
         return javaInstaller;
+    }
+
+    @SuppressWarnings("unused")
+    public String wdtBase() {
+        return wdtBase;
+    }
+
+    public DockerfileOptions setWdtBase(String value) {
+        wdtBase = value;
+        return this;
     }
 }

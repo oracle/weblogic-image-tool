@@ -53,7 +53,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
             }
 
-            dockerfileOptions.setBaseImage(fromImage);
+            dockerfileOptions.setBaseImage(fromImage).setWdtBase(fromImage);
 
             tmpDir = getTempDirectory();
 

@@ -1,82 +1,9 @@
-#
 # Copyright (c) 2019, 2021, Oracle and/or its affiliates.
-#
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
-#
+
 {{#isWdtEnabled}}
-    FROM {{baseImage}} as wdt_build
-    LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
-
-    ENV WLSDEPLOY_PROPERTIES={{{wlsdeploy_properties}}} \
-        DOMAIN_HOME={{{domain_home}}} \
-        PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{domain_home}}}/bin:{{{oracle_home}}}
-
-    USER root
-
-    COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
-
-    RUN mkdir -p {{{wdt_home}}} \
-    && chown {{userid}}:{{groupid}} {{{wdt_home}}}
-
-    USER {{userid}}
-
-    RUN cd {{{wdt_home}}} \
-    && mkdir -p {{{wdt_model_home}}} \
-    && mkdir -p $(dirname {{{domain_home}}})
-
-    {{#wdtModels}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_model_home}}}/
-    {{/wdtModels}}
-
-    {{#wdtArchives}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_model_home}}}/
-    {{/wdtArchives}}
-
-    {{#wdtVariables}}
-        COPY --chown={{userid}}:{{groupid}} {{.}} {{{wdt_model_home}}}/
-    {{/wdtVariables}}
-
-    {{#beforeWdtCommand}}
-        {{{.}}}
-    {{/beforeWdtCommand}}
-
-    RUN rm -rf {{{wdt_home}}}/weblogic-deploy \
-    && cd {{{wdt_home}}} \
-    && jar xf {{{tempDir}}}/{{{wdtInstaller}}} \
-    && cd weblogic-deploy/bin \
-    && rm ./*.cmd \
-    && chmod -R g+w {{{wdt_home}}}/weblogic-deploy \
-    && chmod ug+x ./*.sh
-
-    {{^modelOnly}}
-        RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
-        && {{#isWdtUseEncryption}}echo {{{wdtEncryptionKey}}} | {{/isWdtUseEncryption}} ./{{wdtCommand}} \
-        -oracle_home {{{oracle_home}}} \
-        -domain_home {{{domain_home}}} \
-        -domain_type {{domainType}} \
-        {{#isWdtUseEncryption}}
-            -use_encryption \
-        {{/isWdtUseEncryption}}
-        {{#runRcu}}
-            -run_rcu \
-        {{/runRcu}}
-        {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}} \
-        && chmod -R g+w {{{domain_home}}}
-    {{/modelOnly}}
-    {{#isWdtValidateEnabled}}
-        RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
-        && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
-        -oracle_home {{{oracle_home}}} \
-        -domain_type {{domainType}} \
-        {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}} \
-        && rm -rf {{{wdt_home}}}/weblogic-deploy/logs \
-        && shopt -s globstar && rm -f {{{wdt_home}}}/weblogic-deploy/lib/python/**/*.class
-    {{/isWdtValidateEnabled}}
-
-    {{#afterWdtCommand}}
-        {{{.}}}
-    {{/afterWdtCommand}}
+    {{> run-wdt }}
 {{/isWdtEnabled}}
 
 FROM {{baseImage}} as final_build
