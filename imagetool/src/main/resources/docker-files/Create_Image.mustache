@@ -45,7 +45,10 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
 {{/installJava}}
 
-COPY --from=wls_build --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
+{{#installMiddleware}}
+    COPY --from=wls_build --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
+{{/installMiddleware}}
+
 {{#copyOraInst}}
     COPY --from=wls_build --chown={{userid}}:{{groupid}} {{inv_loc}}/oraInst.loc  {{inv_loc}}/oraInst.loc
 {{/copyOraInst}}

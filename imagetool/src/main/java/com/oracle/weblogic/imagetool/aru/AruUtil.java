@@ -21,14 +21,11 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import static com.oracle.weblogic.imagetool.util.Constants.ARU_LANG_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.ARU_REST_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.CONFLICTCHECKER_URL;
-import static com.oracle.weblogic.imagetool.util.Constants.GET_LSINVENTORY_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.RECOMMENDED_PATCHES_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.REL_URL;
 
@@ -190,27 +187,27 @@ public class AruUtil {
     /**
      * Validate patches conflicts by passing a list of patches.
      *
-     * @param inventoryContent opatch lsinventory content (null if non is passed)
+     * @param installedPatches opatch lsinventory content (null if none is passed)
      * @param patches          A list of patches number
      * @param userId           userId for support account
      * @param password         password for support account
      * @throws IOException when failed to access the aru api
      */
-    public static void validatePatches(String inventoryContent, List<AruPatch> patches, String userId, String password)
-        throws IOException, XPathExpressionException {
-        validatePatches(inventoryContent, patches, new AruHttpHelper(userId, password));
+    public static void validatePatches(List<InstalledPatch> installedPatches, List<AruPatch> patches, String userId,
+                                       String password) throws IOException {
+        validatePatches(installedPatches, patches, new AruHttpHelper(userId, password));
     }
 
     /**
      * Validate patches conflict by passing a list of patches and encapsulated userId and password.
      *
-     * @param inventoryContent opatch lsinventory content (null if non is passed)
+     * @param installedPatches opatch lsinventory content (null if non is passed)
      * @param patches A list of patches number
      * @param aruHttpHelper encapsulated account credentials
      * @throws IOException when failed to access the aru api
      */
-    static void validatePatches(String inventoryContent, List<AruPatch> patches,
-                                       AruHttpHelper aruHttpHelper) throws IOException, XPathExpressionException {
+    static void validatePatches(List<InstalledPatch> installedPatches, List<AruPatch> patches,
+                                       AruHttpHelper aruHttpHelper) throws IOException {
         logger.entering(patches, aruHttpHelper);
 
         if (aruHttpHelper.userId() == null || aruHttpHelper.password() == null) {
@@ -221,28 +218,12 @@ public class AruUtil {
 
         StringBuilder payload = new StringBuilder("<conflict_check_request><platform>2000</platform>");
 
-        if (inventoryContent != null) {
-            String upiPayload = "<inventory_upi_request><lsinventory_output>" + inventoryContent
-                    + "</lsinventory_output></inventory_upi_request>";
-
-            AruHttpHelper upiResult = aruHttpHelper.execValidation(GET_LSINVENTORY_URL, upiPayload);
-
-            NodeList upiList = XPathUtil.nodelist(upiResult.results(),
-                    "/inventory_upi_response/upi");
-            if (upiList.getLength() > 0) {
-                payload.append("<target_patch_list>");
-
-                for (int ii = 0; ii < upiList.getLength(); ii++) {
-                    Node upi = upiList.item(ii);
-                    NamedNodeMap m = upi.getAttributes();
-                    payload.append(String.format("<installed_patch upi=\"%s\"/>",
-                            m.getNamedItem("number").getNodeValue()));
-
-                }
-                payload.append("</target_patch_list>");
-            } else {
-                payload.append("<target_patch_list/>");
+        if (installedPatches != null && !installedPatches.isEmpty()) {
+            payload.append("<target_patch_list>");
+            for (InstalledPatch patch : installedPatches) {
+                payload.append(String.format("<installed_patch upi=\"%s\"/>", patch.getUniquePatchNumber()));
             }
+            payload.append("</target_patch_list>");
         } else {
             payload.append("<target_patch_list/>");
         }
