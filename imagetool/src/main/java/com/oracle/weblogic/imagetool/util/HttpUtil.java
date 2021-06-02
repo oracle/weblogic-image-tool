@@ -120,24 +120,14 @@ public class HttpUtil {
         String proxyHost = System.getProperty("https.proxyHost");
         String proxyPort  = System.getProperty("https.proxyPort");
         HttpClient result;
-        if (proxyHost != null) {
-            result = HttpClientBuilder.create()
-                .setDefaultRequestConfig(config.build())
-                .setRetryHandler(retryHandler())
-                .setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)))
-                .setUserAgent("Wget/1.10")
-                .setDefaultCookieStore(cookieStore).useSystemProperties()
-                .build();
+        result = HttpClientBuilder.create()
+            .setDefaultRequestConfig(config.build())
+            .setRetryHandler(retryHandler())
+            .setProxy(proxyHost != null ? new HttpHost(proxyHost, Integer.parseInt(proxyPort)) : null)
+            .setUserAgent("Wget/1.10")
+            .setDefaultCookieStore(cookieStore).useSystemProperties()
+            .build();
 
-        } else {
-            result = HttpClientBuilder.create()
-                .setDefaultRequestConfig(config.build())
-                .setRetryHandler(retryHandler())
-                .setUserAgent("Wget/1.10")
-                .setDefaultCookieStore(cookieStore).useSystemProperties()
-                .build();
-
-        }
         logger.exiting();
         return result;
     }
@@ -156,6 +146,8 @@ public class HttpUtil {
         String proxyHost = System.getProperty("https.proxyHost");
         String proxyPort  = System.getProperty("https.proxyPort");
         Executor executor =  Executor.newInstance(getOraClient(supportUserName, supportPassword));
+
+
         if (proxyHost != null) {
             if (proxyPassword != null) {
                 executor
