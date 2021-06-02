@@ -115,7 +115,13 @@ RUN echo "INSTALLING MIDDLEWARE" \
         {{{.}}}
     {{/beforeWdtCommand}}
 
-    RUN unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
+    {{#usingWdtTarGzInstaller}}
+        RUN tar zxf {{{tempDir}}}/{{{wdtInstaller}}} -C {{{wdt_home}}}
+    {{/usingWdtTarGzInstaller}}
+    {{^usingWdtTarGzInstaller}}
+        RUN unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
+    {{/usingWdtTarGzInstaller}}
+
     {{^modelOnly}}
         RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
         && {{#isWdtUseEncryption}}echo {{{wdtEncryptionKey}}} | {{/isWdtUseEncryption}} ./createDomain.sh \
