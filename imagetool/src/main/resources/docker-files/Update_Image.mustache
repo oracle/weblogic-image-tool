@@ -30,13 +30,12 @@ USER {{userid}}
         RUN DOMAIN_PARENT=$(dirname {{{domain_home}}}) \
         && mkdir -p $DOMAIN_PARENT \
         && chown {{userid}}:{{groupid}} $DOMAIN_PARENT \
-        && chmod g+w $DOMAIN_PARENT \
-        && mkdir -p {{{wdt_model_home}}} \
-        && chmod g+w {{{wdt_model_home}}}
+        && mkdir -p {{{wdt_model_home}}}
         COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
         {{#isWdtModelHomeOutsideWdtHome}}
             COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
         {{/isWdtModelHomeOutsideWdtHome}}
+        RUN chmod g+w {{{wdt_model_home}}} $DOMAIN_PARENT
     {{/modelOnly}}
     {{^modelOnly}}
         COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
