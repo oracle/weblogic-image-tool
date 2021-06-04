@@ -193,6 +193,8 @@ COPY --from=wls_build --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle
         && mkdir -p {{{wdt_model_home}}} \
         && chmod g+w {{{wdt_model_home}}}
         COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+        # Lost permission after copy, it is crucial for openshift where the process is running with random user
+        RUN chmod g+w {{{wdt_model_home}}} $DOMAIN_PARENT
         {{#isWdtModelHomeOutsideWdtHome}}
             COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
         {{/isWdtModelHomeOutsideWdtHome}}
