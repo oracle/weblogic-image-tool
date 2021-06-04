@@ -9,17 +9,17 @@ if [ "$(type -p java)" ]; then
 fi
 
 if [ "$(type -p dnf)" ]; then
-  echo packageManager=dnf
+  echo packageManager=DNF
 elif [ "$(type -p yum)" ]; then
-  echo packageManager=yum
+  echo packageManager=YUM
 elif [ "$(type -p microdnf)" ]; then
-  echo packageManager=microdnf
+  echo packageManager=MICRODNF
 elif [ "$(type -p apt-get)" ]; then
-  echo packageManager=aptget
+  echo packageManager=APTGET
 elif [ "$(type -p apk)" ]; then
-  echo packageManager=apk
+  echo packageManager=APK
 elif [ "$(type -p zypper)" ]; then
-  echo packageManager=zypper
+  echo packageManager=ZYPPER
 fi
 
 if [ -n "$JAVA_HOME" ]; then

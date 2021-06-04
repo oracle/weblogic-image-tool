@@ -29,7 +29,10 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
         {{> install-java }}
     {{/installJava}}
 
-    {{> install-middleware }}
+    # If an Oracle Home is not already in the base image, install the middleware components
+    {{#installMiddleware}}
+        {{> install-middleware }}
+    {{/installMiddleware}}
 
     FROM os_update as final_build
 
@@ -45,7 +48,10 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
         COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
     {{/installJava}}
 
-    COPY --from=wls_build --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
+    {{#installMiddleware}}
+        COPY --from=wls_build --chown={{userid}}:{{groupid}} {{{oracle_home}}} {{{oracle_home}}}/
+    {{/installMiddleware}}
+
     {{#copyOraInst}}
         COPY --from=wls_build --chown={{userid}}:{{groupid}} {{inv_loc}}/oraInst.loc  {{inv_loc}}/oraInst.loc
     {{/copyOraInst}}

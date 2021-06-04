@@ -207,7 +207,15 @@ public abstract class CommonOptions {
     }
 
     void handlePatchFiles(FmwInstallerType installerType) throws AruException, XPathExpressionException, IOException {
-        handlePatchFiles(installerType, Collections.emptyList());
+        if (dockerfileOptions.installMiddleware()) {
+            handlePatchFiles(installerType, Collections.emptyList());
+        } else {
+            if (applyingPatches()) {
+                // user intended to apply patches, but used a fromImage that already had an Oracle Home
+                // The template does not support (yet) patches on existing Oracle Homes due to image size impact
+                logger.warning("IMG-0093");
+            }
+        }
     }
 
     /**
@@ -363,15 +371,16 @@ public abstract class CommonOptions {
             Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
                 "/probe-env/inspect-image.sh", tmpDir);
 
-            if (baseImageProperties.getProperty("wlsVersion", null) != null) {
-                throw new IllegalArgumentException(Utils.getMessage("IMG-0038", fromImage,
-                    baseImageProperties.getProperty("oracleHome")));
-            }
-
             String existingJavaHome = baseImageProperties.getProperty("javaHome", null);
             if (existingJavaHome != null) {
                 dockerfileOptions.disableJavaInstall(existingJavaHome);
-                logger.info("IMG-0000", existingJavaHome);
+                logger.info("IMG-0000", fromImage);
+            }
+
+            String existingOracleHome = baseImageProperties.getProperty("oracleHome", null);
+            if (existingOracleHome != null) {
+                dockerfileOptions.disableMiddlewareInstall(existingOracleHome);
+                logger.info("IMG-0092", fromImage);
             }
 
             String pkgMgrProp = baseImageProperties.getProperty("packageManager", "YUM");
