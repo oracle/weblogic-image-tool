@@ -150,18 +150,13 @@ public class HttpUtil {
 
         if (proxyHost != null) {
             if (proxyPassword != null) {
-                executor
-                    .auth(new HttpHost(proxyHost, Integer.parseInt(proxyPort)), proxyUser, proxyPassword)
-                    .auth(new HttpHost("login.oracle.com", 443), supportUserName, supportPassword)
-                    .auth(new HttpHost("updates.oracle.com", 443), supportUserName, supportPassword)
-                    .authPreemptiveProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
-
-            } else {
-                executor
-                    .auth(new HttpHost("login.oracle.com", 443), supportUserName, supportPassword)
-                    .auth(new HttpHost("updates.oracle.com", 443), supportUserName, supportPassword)
-                    .authPreemptiveProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
+                executor.auth(new HttpHost(proxyHost, Integer.parseInt(proxyPort)), proxyUser, proxyPassword);
             }
+
+            executor
+                .auth(new HttpHost("login.oracle.com", 443), supportUserName, supportPassword)
+                .auth(new HttpHost("updates.oracle.com", 443), supportUserName, supportPassword)
+                .authPreemptiveProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
         }
         return executor;
     }
