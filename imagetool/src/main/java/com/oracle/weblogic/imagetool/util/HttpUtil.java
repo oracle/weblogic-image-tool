@@ -17,12 +17,10 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
@@ -33,10 +31,8 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -100,8 +96,8 @@ public class HttpUtil {
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
         logger.entering(url);
-        String xmlString = Executor.newInstance(getOraClient(username, password))
-                .execute(Request.Get(url).connectTimeout(30000).socketTimeout(30000))
+        String xmlString = getHttpExecutor(username,password).execute(Request.Get(url).connectTimeout(30000)
+                .socketTimeout(30000))
                 .returnContent().asString();
         logger.exiting(xmlString);
         return parseXmlString(xmlString);
@@ -120,23 +116,49 @@ public class HttpUtil {
         config.setCookieSpec(CookieSpecs.STANDARD);
 
         CookieStore cookieStore = new BasicCookieStore();
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-        if (userId != null && password != null) {
-            BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
-            cc.setDomain("edelivery.oracle.com");
-            cookieStore.addCookie(cc);
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
-                    userId, password));
-        }
-        HttpClient result = HttpClientBuilder.create()
+        String proxyHost = System.getProperty("https.proxyHost");
+        String proxyPort  = System.getProperty("https.proxyPort");
+        HttpClient result;
+        result = HttpClientBuilder.create()
             .setDefaultRequestConfig(config.build())
             .setRetryHandler(retryHandler())
+            .setProxy(proxyHost != null ? new HttpHost(proxyHost, Integer.parseInt(proxyPort)) : null)
             .setUserAgent("Wget/1.10")
             .setDefaultCookieStore(cookieStore).useSystemProperties()
-            .setDefaultCredentialsProvider(credentialsProvider).build();
+            .build();
+
         logger.exiting();
         return result;
+    }
+
+    /**
+     * Return a Executor for http access.
+     * @param supportUserName  oracle support username
+     * @param supportPassword oracle support password
+     * @return Executor
+     */
+
+    public static Executor getHttpExecutor(String supportUserName, String supportPassword) {
+
+        String proxyUser = System.getProperty("https.proxyUser");
+        String proxyPassword = System.getProperty("https.proxyPassword");
+        String proxyHost = System.getProperty("https.proxyHost");
+        String proxyPort  = System.getProperty("https.proxyPort");
+        Executor executor =  Executor.newInstance(getOraClient(supportUserName, supportPassword));
+
+
+        if (proxyHost != null) {
+            if (proxyPassword != null) {
+                executor.auth(new HttpHost(proxyHost, Integer.parseInt(proxyPort)), proxyUser, proxyPassword);
+            }
+
+            executor
+                .auth(new HttpHost("login.oracle.com", 443), supportUserName, supportPassword)
+                .auth(new HttpHost("updates.oracle.com", 443), supportUserName, supportPassword)
+                .authPreemptiveProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
+        }
+        return executor;
     }
 
     private static HttpRequestRetryHandler retryHandler() {
@@ -202,8 +224,9 @@ public class HttpUtil {
                     .setUserAgent("Wget/1.10")
                     .useSystemProperties().build();
 
-        Executor httpExecutor = Executor.newInstance(client).auth(username, password);
+        Executor httpExecutor = HttpUtil.getHttpExecutor(username, password);
         httpExecutor.use(cookieStore);
+
 
         // Has to do search first, otherwise results in 302
         // MUST use the same httpExecutor to maintain session
@@ -212,6 +235,7 @@ public class HttpUtil {
         boolean complete = false;
         int count = 0;
         String xmlString = null;
+
         while (!complete) {
             try {
                 httpExecutor
@@ -223,7 +247,9 @@ public class HttpUtil {
                     .build();
 
                 xmlString =
-                    httpExecutor.execute(Request.Post(url).connectTimeout(30000).socketTimeout(30000).body(entity))
+                    httpExecutor.execute(Request.Post(url).connectTimeout(30000)
+                        .socketTimeout(30000)
+                        .body(entity))
                         .returnContent().asString();
                 complete = true;
             } catch (IOException ioe) {

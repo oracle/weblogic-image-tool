@@ -18,7 +18,6 @@ import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.XPathUtil;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -437,8 +436,9 @@ public class AruUtil {
         String filename = targetDir + File.separator + aruPatch.fileName();
         logger.info("IMG-0018", aruPatch.patchId());
         try {
-            Executor.newInstance(HttpUtil.getOraClient(username, password))
-                .execute(Request.Get(aruPatch.downloadUrl()).connectTimeout(30000).socketTimeout(30000))
+            HttpUtil.getHttpExecutor(username, password)
+                .execute(Request.Get(aruPatch.downloadUrl()).connectTimeout(30000)
+                    .socketTimeout(30000))
                 .saveContent(new File(filename));
         } catch (Exception ex) {
             String message = String.format("Failed to download and save file %s from %s: %s", filename,
