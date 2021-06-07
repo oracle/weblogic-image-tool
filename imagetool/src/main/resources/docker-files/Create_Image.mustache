@@ -37,7 +37,7 @@ ENV ORACLE_HOME={{{oracle_home}}} \
         WDT_MODEL_HOME={{{wdt_model_home}}} \
     {{/modelOnly}}
     {{/isWdtEnabled}}
-    PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}{{#isWdtEnabled}}:${{{domain_home}}}/bin{{/isWdtEnabled}}
+    PATH=${PATH}:{{{java_home}}}/bin:{{{oracle_home}}}/oracle_common/common/bin:{{{oracle_home}}}/wlserver/common/bin:{{{oracle_home}}}{{#isWdtEnabled}}:{{{domain_home}}}/bin{{/isWdtEnabled}}
 
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
@@ -57,21 +57,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 {{/copyOraInventoryDir}}
 
 {{#isWdtEnabled}}
-    {{#modelOnly}}
-        RUN DOMAIN_PARENT=$(dirname {{{domain_home}}}) \
-        && mkdir -p $DOMAIN_PARENT \
-        && chown {{userid}}:{{groupid}} $DOMAIN_PARENT \
-        && mkdir -p {{{wdt_model_home}}}
-        COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
-        {{#isWdtModelHomeOutsideWdtHome}}
-            COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
-        {{/isWdtModelHomeOutsideWdtHome}}
-        RUN chmod g+w {{{wdt_model_home}}} $DOMAIN_PARENT
-    {{/modelOnly}}
-    {{^modelOnly}}
-        COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
-        RUN chmod g+w {{{domain_home}}}
-    {{/modelOnly}}
+    {{> final-wdt-copy}}
 {{/isWdtEnabled}}
 
 USER {{userid}}
