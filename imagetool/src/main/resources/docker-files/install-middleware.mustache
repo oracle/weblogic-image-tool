@@ -39,7 +39,9 @@ RUN echo "INSTALLING MIDDLEWARE" \
     {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
     -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation \
 {{/installPackages}}
-&& chmod -R g+r {{{oracle_home}}}
+&& test $? -eq 0 \
+&& chmod -R g+r {{{oracle_home}}} \
+|| (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1)
 
 {{> fmw-patching}}
 
