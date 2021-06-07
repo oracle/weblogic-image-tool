@@ -16,6 +16,7 @@ public enum InstallerType {
     SOA("soa"),
     OSB("osb"),
     B2B("b2b"),
+    MFT("mft"),
     IDM("idm"),
     OAM("oam"),
     OUD("oud"),
