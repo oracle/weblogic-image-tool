@@ -37,6 +37,7 @@ class DockerfileBuilderTest {
             .setWdtDomainType("WLS")
             .setWdtModels(Arrays.asList("model1.yaml", "model2.yaml"))
             .setPackageInstaller(PackageManagerType.YUM)
+            .setWdtInstallerFilename("weblogic-deploy.zip")
             .setMiddlewareInstall(install);
 
         MustacheFactory mf = new DefaultMustacheFactory(new File("src/main/resources/docker-files"));
