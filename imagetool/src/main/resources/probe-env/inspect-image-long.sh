@@ -9,17 +9,17 @@ if [ "$(type -p java)" ]; then
 fi
 
 if [ "$(type -p dnf)" ]; then
-  echo packageManager=dnf
+  echo packageManager=DNF
 elif [ "$(type -p yum)" ]; then
-  echo packageManager=yum
+  echo packageManager=YUM
 elif [ "$(type -p microdnf)" ]; then
-  echo packageManager=microdnf
+  echo packageManager=MICRODNF
 elif [ "$(type -p apt-get)" ]; then
-  echo packageManager=aptget
+  echo packageManager=APTGET
 elif [ "$(type -p apk)" ]; then
-  echo packageManager=apk
+  echo packageManager=APK
 elif [ "$(type -p zypper)" ]; then
-  echo packageManager=zypper
+  echo packageManager=ZYPPER
 fi
 
 if [ -n "$JAVA_HOME" ]; then
@@ -52,5 +52,5 @@ if [ -n "$ORACLE_HOME" ]; then
   echo oracleHomeGroup="$(stat -c '%G' "$ORACLE_HOME")"
 
   echo opatchVersion="$($ORACLE_HOME/OPatch/opatch version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)')"
-  echo oraclePatches="$($ORACLE_HOME/OPatch/opatch lspatches | awk -F";" '/^[0-9]/ {print $0";"}')"
+  echo oraclePatches="$($ORACLE_HOME/OPatch/opatch lsinventory | awk '{ORS=";"} /^Unique Patch ID/ {print $4} /^Patch description/ {x = substr($0, 21);  print x} /^Patch\s*[0-9]+/ {print $2}')"
 fi

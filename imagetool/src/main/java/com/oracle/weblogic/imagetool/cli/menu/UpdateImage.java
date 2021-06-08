@@ -8,12 +8,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.aru.InstalledPatch;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
@@ -37,7 +39,6 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 public class UpdateImage extends CommonOptions implements Callable<CommandResponse> {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(UpdateImage.class);
-    private String psuVersion = null;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -53,39 +54,39 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
             }
 
-            dockerfileOptions.setBaseImage(fromImage);
+            dockerfileOptions.setBaseImage(fromImage).setWdtBase(fromImage);
 
             tmpDir = getTempDirectory();
 
             Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
-                "/probe-env/test-update-env.sh", tmpDir);
+                "/probe-env/inspect-image-long.sh", tmpDir);
 
-            dockerfileOptions.setJavaHome(baseImageProperties.getProperty("JAVA_HOME", null));
+            dockerfileOptions.setJavaHome(baseImageProperties.getProperty("javaHome", null));
 
-            String oracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
+            String oracleHome = baseImageProperties.getProperty("oracleHome", null);
             if (oracleHome == null) {
                 return new CommandResponse(-1, "IMG-0072", fromImage);
             }
             dockerfileOptions.setOracleHome(oracleHome);
 
             if (wdtOptions.isUsingWdt() && !wdtOptions.modelOnly()) {
-                String domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
+                String domainHome = baseImageProperties.getProperty("domainHome", null);
                 if (domainHome == null && wdtOperation == WdtOperation.UPDATE) {
                     return new CommandResponse(-1, "IMG-0071", fromImage);
                 }
             }
 
-            installerVersion = baseImageProperties.getProperty("WLS_VERSION", Constants.DEFAULT_WLS_VERSION);
+            installerVersion = baseImageProperties.getProperty("wlsVersion", Constants.DEFAULT_WLS_VERSION);
 
-            String opatchVersion = baseImageProperties.getProperty("OPATCH_VERSION");
+            String opatchVersion = baseImageProperties.getProperty("opatchVersion");
 
-            String baseImageUsr = baseImageProperties.getProperty("ORACLE_HOME_USER");
-            String baseImageGrp = baseImageProperties.getProperty("ORACLE_HOME_GROUP");
+            String baseImageUsr = baseImageProperties.getProperty("oracleHomeUser");
+            String baseImageGrp = baseImageProperties.getProperty("oracleHomeGroup");
             if (!dockerfileOptions.userid().equals(baseImageUsr) || !dockerfileOptions.groupid().equals(baseImageGrp)) {
                 return new CommandResponse(-1, "IMG-0087", fromImage, baseImageUsr, baseImageGrp);
             }
 
-            String lsinventoryText = null;
+            List<InstalledPatch> installedPatches = Collections.emptyList();
 
             if (applyingPatches()) {
 
@@ -109,36 +110,24 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 }
 
                 logger.finer("Verifying Patches to WLS ");
+
                 if (userId == null) {
                     logger.warning("IMG-0009");
                 } else {
-
                     if (!Utils.validatePatchIds(patches, false)) {
                         return new CommandResponse(-1, "Patch ID validation failed");
                     }
 
-                    String b64lsout = baseImageProperties.getProperty("LSINV_TEXT", null);
-                    if (b64lsout != null) {
-                        // remove space in the string to make a valid b64 string
-                        b64lsout = b64lsout.replace(" ", "");
-
-                        byte[] lsinventoryContent = Base64.getDecoder().decode(b64lsout);
-                        lsinventoryText = new String(lsinventoryContent);
-
-                        logger.finer("ls inventory = " + lsinventoryText);
-
-                        // Any better way to do this ?
-
-                        if (lsinventoryText.contains("OPatch failed")) {
-                            logger.severe("ls inventory = " + lsinventoryText);
-                            return new CommandResponse(-1, "lsinventory failed");
+                    String oraclePatches = baseImageProperties.getProperty("oraclePatches", null);
+                    if (oraclePatches != null) {
+                        if (oraclePatches.contains("OPatch failed")) {
+                            logger.severe("patch inventory = " + oraclePatches);
+                            return new CommandResponse(-1, "opatch lsinventory failed");
                         }
-                        // search inventory for PSU and extract PSU version, if available
-                        psuVersion = Utils.getPsuVersion(lsinventoryText);
+                        installedPatches = InstalledPatch.getPatchList(oraclePatches);
                     } else {
                         return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
                     }
-
                 }
             }
 
@@ -153,9 +142,9 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             }
 
             FmwInstallerType installerType = FmwInstallerType.fromValue(
-                baseImageProperties.getProperty("WLS_TYPE", "WLS"));
+                baseImageProperties.getProperty("wlsType", "WLS"));
             // resolve required patches
-            handlePatchFiles(installerType, lsinventoryText, psuVersion);
+            handlePatchFiles(installerType, installedPatches);
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",

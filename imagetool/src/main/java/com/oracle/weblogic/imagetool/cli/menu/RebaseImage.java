@@ -67,13 +67,13 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
 
                 logger.info("IMG-0091", sourceImage);
                 Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage,
-                    "/probe-env/test-update-env.sh", tmpDir);
+                    "/probe-env/inspect-image.sh", tmpDir);
 
-                oldOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
-                oldJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
-                domainHome = baseImageProperties.getProperty("DOMAIN_HOME", null);
-                modelHome = baseImageProperties.getProperty("WDT_MODEL_HOME", null);
-                modelOnly = Boolean.parseBoolean(baseImageProperties.getProperty("WDT_MODEL_ONLY", null));
+                oldOracleHome = baseImageProperties.getProperty("oracleHome", null);
+                oldJavaHome = baseImageProperties.getProperty("javaHome", null);
+                domainHome = baseImageProperties.getProperty("domainHome", null);
+                modelHome = baseImageProperties.getProperty("wdtModelHome", null);
+                modelOnly = Boolean.parseBoolean(baseImageProperties.getProperty("wdtModelOnly", null));
             } else {
                 return new CommandResponse(-1, "Source Image not set");
             }
@@ -84,10 +84,10 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 dockerfileOptions.setRebaseToTarget(true);
 
                 Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, targetImage,
-                    "/probe-env/test-update-env.sh", tmpDir);
+                    "/probe-env/inspect-image.sh", tmpDir);
 
-                newOracleHome = baseImageProperties.getProperty("ORACLE_HOME", null);
-                newJavaHome = baseImageProperties.getProperty("JAVA_PATH", null);
+                newOracleHome = baseImageProperties.getProperty("oracleHome", null);
+                newJavaHome = baseImageProperties.getProperty("javaHome", null);
 
             } else {
                 dockerfileOptions.setRebaseToNew(true);
