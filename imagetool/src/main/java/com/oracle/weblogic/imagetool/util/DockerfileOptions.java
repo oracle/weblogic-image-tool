@@ -4,6 +4,8 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -345,6 +347,17 @@ public class DockerfileOptions {
         }
     }
 
+    /**
+     * Utility function to get the parent directory of the domain home directory.
+     * @return the parent path, or the domain home if the domain home does not have a parent.
+     */
+    @SuppressWarnings("unused")
+    public String domain_parent() {
+        Path dir = Paths.get(domain_home());
+        String parent = dir.getParent().toString();
+        return parent != null ? parent : domain_home();
+    }
+
     @SuppressWarnings("unused")
     public String wdt_home() {
         return wdtHome;
@@ -564,11 +577,7 @@ public class DockerfileOptions {
      * @return true if the WDT installer file is a tar.gz file; false otherwise.
      */
     public boolean usingWdtTarGzInstaller() {
-        boolean result = false;
-        if (wdtInstallerFilename != null && wdtInstallerFilename.toLowerCase().endsWith(".tar.gz")) {
-            result = true;
-        }
-        return result;
+        return wdtInstallerFilename != null && wdtInstallerFilename.toLowerCase().endsWith(".tar.gz");
     }
 
     /**

@@ -4,14 +4,13 @@
 # Copy WDT files or domain into the final image
 
 {{#modelOnly}}
-    RUN DOMAIN_PARENT=$(dirname {{{domain_home}}}) \
-    && mkdir -p $DOMAIN_PARENT {{{wdt_home}}} {{{wdt_model_home}}} \
-    && chown {{userid}}:{{groupid}} $DOMAIN_PARENT {{{wdt_home}}} {{{wdt_model_home}}}
+    RUN mkdir -p {{{domain_parent}}} {{{wdt_home}}} {{{wdt_model_home}}} \
+    && chown {{userid}}:{{groupid}} {{{domain_parent}}} {{{wdt_home}}} {{{wdt_model_home}}}
     COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
     {{#isWdtModelHomeOutsideWdtHome}}
         COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
     {{/isWdtModelHomeOutsideWdtHome}}
-    RUN chmod g+w $DOMAIN_PARENT {{{wdt_home}}} {{{wdt_model_home}}}
+    RUN chmod g+w {{{domain_parent}}} {{{wdt_home}}} {{{wdt_model_home}}}
 {{/modelOnly}}
 {{^modelOnly}}
     COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
