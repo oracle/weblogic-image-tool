@@ -988,6 +988,7 @@ class ITImagetool {
         String actual = Runner.run(command, out, logger).stdout().trim();
         String[] tokens = actual.split(" ", 2);
         assertEquals(2, tokens.length, "Unable to get directory permissions for " + directory);
-        assertEquals(expected, tokens[0], "Incorrect directory permissions for " + directory);
+        // When running on an SELinux host, the permissions shown by ls will end with a "."
+        assertTrue(tokens[0].startsWith(expected), "Incorrect directory permissions for " + directory);
     }
 }
