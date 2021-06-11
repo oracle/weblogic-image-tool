@@ -19,8 +19,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
@@ -31,8 +34,10 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -120,13 +125,34 @@ public class HttpUtil {
         String proxyHost = System.getProperty("https.proxyHost");
         String proxyPort  = System.getProperty("https.proxyPort");
         HttpClient result;
-        result = HttpClientBuilder.create()
-            .setDefaultRequestConfig(config.build())
-            .setRetryHandler(retryHandler())
-            .setProxy(proxyHost != null ? new HttpHost(proxyHost, Integer.parseInt(proxyPort)) : null)
-            .setUserAgent("Wget/1.10")
-            .setDefaultCookieStore(cookieStore).useSystemProperties()
-            .build();
+
+        if (proxyHost != null) {
+            result = HttpClientBuilder.create()
+                .setDefaultRequestConfig(config.build())
+                .setRetryHandler(retryHandler())
+                .setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)))
+                .setUserAgent("Wget/1.10")
+                .setDefaultCookieStore(cookieStore).useSystemProperties()
+                .build();
+
+        } else {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+
+            if (userId != null && password != null) {
+                BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
+                cc.setDomain("edelivery.oracle.com");
+                cookieStore.addCookie(cc);
+                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
+                    userId, password));
+            }
+
+            result = HttpClientBuilder.create()
+                .setDefaultRequestConfig(config.build())
+                .setRetryHandler(retryHandler())
+                .setUserAgent("Wget/1.10")
+                .setDefaultCookieStore(cookieStore).useSystemProperties()
+                .setDefaultCredentialsProvider(credentialsProvider).build();
+        }
 
         logger.exiting();
         return result;
