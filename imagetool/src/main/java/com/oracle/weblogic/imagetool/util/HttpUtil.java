@@ -37,7 +37,6 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -139,9 +138,6 @@ public class HttpUtil {
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
             if (userId != null && password != null) {
-                BasicClientCookie cc = new BasicClientCookie("oraclelicense", "a");
-                cc.setDomain("edelivery.oracle.com");
-                cookieStore.addCookie(cc);
                 credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
                     userId, password));
             }
