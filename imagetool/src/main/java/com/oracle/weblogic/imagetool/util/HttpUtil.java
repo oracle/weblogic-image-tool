@@ -134,7 +134,7 @@ public class HttpUtil {
         result = HttpClientBuilder.create()
             .setDefaultRequestConfig(config.build())
             .setRetryHandler(retryHandler())
-            .setProxy(proxyHost == null ? new HttpHost(proxyHost, Integer.parseInt(proxyPort)) : null)
+            .setProxy(proxyHost != null ? new HttpHost(proxyHost, Integer.parseInt(proxyPort)) : null)
             .setUserAgent("Wget/1.10")
             .setDefaultCookieStore(cookieStore).useSystemProperties()
             .setDefaultCredentialsProvider(credentialsProvider)
