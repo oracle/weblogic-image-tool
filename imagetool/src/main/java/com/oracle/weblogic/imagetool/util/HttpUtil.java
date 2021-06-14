@@ -124,22 +124,26 @@ public class HttpUtil {
         String proxyHost = System.getProperty("https.proxyHost");
         String proxyPort  = System.getProperty("https.proxyPort");
         HttpClient result;
-        CredentialsProvider credentialsProvider = null;
 
-        if (userId != null && password != null) {
-            credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
-                userId, password));
-        }
-
-        result = HttpClientBuilder.create()
+        HttpClientBuilder builder = HttpClientBuilder.create()
             .setDefaultRequestConfig(config.build())
             .setRetryHandler(retryHandler())
-            .setProxy(proxyHost != null ? new HttpHost(proxyHost, Integer.parseInt(proxyPort)) : null)
             .setUserAgent("Wget/1.10")
-            .setDefaultCookieStore(cookieStore).useSystemProperties()
-            .setDefaultCredentialsProvider(credentialsProvider)
-            .build();
+            .setDefaultCookieStore(cookieStore).useSystemProperties();
+
+        if (userId != null && password != null) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
+                userId, password));
+            builder.setDefaultCredentialsProvider(credentialsProvider);
+        }
+
+        if (proxyHost != null) {
+            // credentials are set in the getHttpExecutor
+            builder.setProxy( new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
+        }
+
+        result = builder.build();
 
         logger.exiting();
         return result;
