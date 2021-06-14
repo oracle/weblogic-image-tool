@@ -124,31 +124,21 @@ public class HttpUtil {
         String proxyHost = System.getProperty("https.proxyHost");
         String proxyPort  = System.getProperty("https.proxyPort");
         HttpClient result;
+        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-        if (proxyHost != null) {
-            result = HttpClientBuilder.create()
-                .setDefaultRequestConfig(config.build())
-                .setRetryHandler(retryHandler())
-                .setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)))
-                .setUserAgent("Wget/1.10")
-                .setDefaultCookieStore(cookieStore).useSystemProperties()
-                .build();
-
-        } else {
-            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-
-            if (userId != null && password != null) {
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
-                    userId, password));
-            }
-
-            result = HttpClientBuilder.create()
-                .setDefaultRequestConfig(config.build())
-                .setRetryHandler(retryHandler())
-                .setUserAgent("Wget/1.10")
-                .setDefaultCookieStore(cookieStore).useSystemProperties()
-                .setDefaultCredentialsProvider(credentialsProvider).build();
+        if (userId != null && password != null) {
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
+                userId, password));
         }
+
+        result = HttpClientBuilder.create()
+            .setDefaultRequestConfig(config.build())
+            .setRetryHandler(retryHandler())
+            .setProxy(proxyHost == null ? new HttpHost(proxyHost, Integer.parseInt(proxyPort)) : null)
+            .setUserAgent("Wget/1.10")
+            .setDefaultCookieStore(cookieStore).useSystemProperties()
+            .setDefaultCredentialsProvider(credentialsProvider)
+            .build();
 
         logger.exiting();
         return result;
