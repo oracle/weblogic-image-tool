@@ -45,7 +45,7 @@ public class InspectImage implements Callable<CommandResponse> {
 
         String outputTemplate;
         // add additional formats here, the ENUM, and to the resources/inspect-responses folder
-        switch (ouptutFormat) {
+        switch (outputFormat) {
             case JSON:
             default:
                 outputTemplate = "inspect-json.mustache";
@@ -96,5 +96,5 @@ public class InspectImage implements Callable<CommandResponse> {
         description = "Output format. Supported values: ${COMPLETION-CANDIDATES} Default: ${DEFAULT-VALUE}",
         defaultValue = "JSON"
     )
-    private OutputFormat ouptutFormat;
+    private OutputFormat outputFormat;
 }
