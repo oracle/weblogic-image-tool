@@ -140,7 +140,7 @@ public class HttpUtil {
 
         if (proxyHost != null) {
             // credentials are set in the getHttpExecutor
-            builder.setProxy( new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
+            builder.setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
         }
 
         result = builder.build();
