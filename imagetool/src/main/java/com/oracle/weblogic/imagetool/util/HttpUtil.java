@@ -19,8 +19,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
@@ -31,6 +34,7 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.w3c.dom.Document;
@@ -120,13 +124,26 @@ public class HttpUtil {
         String proxyHost = System.getProperty("https.proxyHost");
         String proxyPort  = System.getProperty("https.proxyPort");
         HttpClient result;
-        result = HttpClientBuilder.create()
+
+        HttpClientBuilder builder = HttpClientBuilder.create()
             .setDefaultRequestConfig(config.build())
             .setRetryHandler(retryHandler())
-            .setProxy(proxyHost != null ? new HttpHost(proxyHost, Integer.parseInt(proxyPort)) : null)
             .setUserAgent("Wget/1.10")
-            .setDefaultCookieStore(cookieStore).useSystemProperties()
-            .build();
+            .setDefaultCookieStore(cookieStore).useSystemProperties();
+
+        if (userId != null && password != null) {
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
+                userId, password));
+            builder.setDefaultCredentialsProvider(credentialsProvider);
+        }
+
+        if (proxyHost != null) {
+            // credentials are set in the getHttpExecutor
+            builder.setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
+        }
+
+        result = builder.build();
 
         logger.exiting();
         return result;
