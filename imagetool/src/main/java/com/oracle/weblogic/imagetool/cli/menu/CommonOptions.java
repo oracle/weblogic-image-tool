@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -22,6 +23,7 @@ import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruProduct;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
+import com.oracle.weblogic.imagetool.aru.InstalledPatch;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
@@ -205,7 +207,15 @@ public abstract class CommonOptions {
     }
 
     void handlePatchFiles(FmwInstallerType installerType) throws AruException, XPathExpressionException, IOException {
-        handlePatchFiles(installerType, null, null);
+        if (dockerfileOptions.installMiddleware()) {
+            handlePatchFiles(installerType, Collections.emptyList());
+        } else {
+            if (applyingPatches()) {
+                // user intended to apply patches, but used a fromImage that already had an Oracle Home
+                // The template does not support (yet) patches on existing Oracle Homes due to image size impact
+                logger.warning("IMG-0093");
+            }
+        }
     }
 
     /**
@@ -213,16 +223,16 @@ public abstract class CommonOptions {
      * Downloads and copies patch JARs to the build context directory.
      *
      * @param installerType     The installer type used to create the Oracle Home
-     * @param previousInventory OPatch lsinventory output (currently applied patches, if any)
-     * @param psuVersion        The PSU version, if any are already applied to the OH.
+     * @param installedPatches  a list of patches applied already installed on the target image.
      * @throws AruException     if an error occurs trying to read patch metadata from ARU.
      * @throws IOException      if a transport error occurs trying to access the Oracle REST services.
      * @throws XPathExpressionException when the payload from the REST service is not formatted as expected
      *                          or a partial response was returned.
      */
-    void handlePatchFiles(FmwInstallerType installerType, String previousInventory, String psuVersion)
+    void handlePatchFiles(FmwInstallerType installerType, List<InstalledPatch> installedPatches)
         throws AruException, IOException, XPathExpressionException {
-        logger.entering(psuVersion);
+        logger.entering(installerType, installedPatches);
+        String psuVersion = InstalledPatch.getPsuVersion(installedPatches);
         if (!applyingPatches()) {
             logger.exiting("not applying patches");
             return;
@@ -298,7 +308,7 @@ public abstract class CommonOptions {
             }
         }
 
-        AruUtil.validatePatches(previousInventory, aruPatches, userId, password);
+        AruUtil.validatePatches(installedPatches, aruPatches, userId, password);
 
         String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
         // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
@@ -359,20 +369,21 @@ public abstract class CommonOptions {
             dockerfileOptions.setBaseImage(fromImage);
 
             Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
-                "/probe-env/test-create-env.sh", tmpDir);
+                "/probe-env/inspect-image.sh", tmpDir);
 
-            if (baseImageProperties.getProperty("WLS_VERSION", null) != null) {
-                throw new IllegalArgumentException(Utils.getMessage("IMG-0038", fromImage,
-                    baseImageProperties.getProperty("ORACLE_HOME")));
-            }
-
-            String existingJavaHome = baseImageProperties.getProperty("JAVA_HOME", null);
+            String existingJavaHome = baseImageProperties.getProperty("javaHome", null);
             if (existingJavaHome != null) {
                 dockerfileOptions.disableJavaInstall(existingJavaHome);
-                logger.info("IMG-0000", existingJavaHome);
+                logger.info("IMG-0000", fromImage);
             }
 
-            String pkgMgrProp = baseImageProperties.getProperty("PACKAGE_MANAGER", "YUM");
+            String existingOracleHome = baseImageProperties.getProperty("oracleHome", null);
+            if (existingOracleHome != null) {
+                dockerfileOptions.disableMiddlewareInstall(existingOracleHome);
+                logger.info("IMG-0092", fromImage);
+            }
+
+            String pkgMgrProp = baseImageProperties.getProperty("packageManager", "YUM");
 
             PackageManagerType pkgMgr = PackageManagerType.valueOf(pkgMgrProp);
             logger.fine("fromImage package manager {0}", pkgMgr);

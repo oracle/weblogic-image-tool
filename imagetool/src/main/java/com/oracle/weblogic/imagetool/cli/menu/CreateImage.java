@@ -62,9 +62,14 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
                 dockerfileOptions.setJavaInstaller(installerPath.getFileName().toString());
             }
 
-            MiddlewareInstall install = new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
-            install.copyFiles(cache(), tmpDir);
-            dockerfileOptions.setMiddlewareInstall(install);
+            if (dockerfileOptions.installMiddleware()) {
+                MiddlewareInstall install =
+                    new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
+                install.copyFiles(cache(), tmpDir);
+                dockerfileOptions.setMiddlewareInstall(install);
+            } else {
+                dockerfileOptions.setWdtBase(fromImage);
+            }
 
             BuildCommand cmdBuilder = getInitialBuildCmd(tmpDir);
             // build wdt args if user passes --wdtModelPath

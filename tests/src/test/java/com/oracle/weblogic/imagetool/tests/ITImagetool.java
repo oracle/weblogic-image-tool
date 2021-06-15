@@ -217,6 +217,15 @@ class ITImagetool {
             throw new Exception("Please set environment variables ORACLE_SUPPORT_USERNAME and ORACLE_SUPPORT_PASSWORD"
                 + " for Oracle Support credentials to download the patches.");
         }
+
+        logger.info("Building WDT archive ...");
+        Path scriptPath = Paths.get("src", "test", "resources", "wdt", "build-archive.sh");
+        String command = "sh " + scriptPath;
+        CommandResult result = executeAndVerify(command);
+        if (result.exitValue() != 0) {
+            logger.severe(result.stdout());
+            throw new IOException("Failed to build WDT Archive");
+        }
     }
 
     @AfterAll
@@ -266,17 +275,6 @@ class ITImagetool {
         }
     }
 
-    private void buildWdtArchive() throws Exception {
-        logger.info("Building WDT archive ...");
-        Path scriptPath = Paths.get("src", "test", "resources", "wdt", "build-archive.sh");
-        String command = "sh " + scriptPath;
-        CommandResult result = executeAndVerify(command);
-        if (result.exitValue() != 0) {
-            logger.severe(result.stdout());
-            throw new IOException("Failed to build WDT Archive");
-        }
-    }
-
     private void createDBContainer() throws Exception {
         logger.info("Creating an Oracle db docker container ...");
         String command = "docker rm -f " + dbContainerName;
@@ -291,7 +289,7 @@ class ITImagetool {
         checkCmdInLoop(command);
     }
 
-    private CommandResult executeAndVerify(String command) throws Exception {
+    private static CommandResult executeAndVerify(String command) throws Exception {
         logger.info("Executing command: " + command);
         CommandResult result = Runner.run(command);
         assertEquals(0, result.exitValue(), "for command: " + command);
@@ -496,6 +494,33 @@ class ITImagetool {
     }
 
     /**
+     * Add WDT installer to the cache.
+     * @throws IOException if getting a file to write the command output fails
+     * @throws InterruptedException if running the Java command fails
+     */
+    @Test
+    @Order(7)
+    @Tag("gate")
+    @Tag("cache")
+    @DisplayName("Add WDT installer to cache")
+    void cacheAddInstallerWdt(TestInfo testInfo) throws IOException, InterruptedException {
+        // add WDT installer to the cache
+        Path wdtPath = Paths.get(STAGING_DIR, WDT_INSTALLER);
+        String addCommand = new CacheCommand()
+            .addInstaller(true)
+            .type("wdt")
+            .version(WDT_VERSION)
+            .path(wdtPath)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult addResult = Runner.run(addCommand, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
+        }
+    }
+
+    /**
      * create a WLS image with default WLS version.
      *
      * @throws Exception - if any error occurs
@@ -559,22 +584,8 @@ class ITImagetool {
     @Tag("gate")
     @DisplayName("Create WLS image with WDT domain")
     void createWlsImgUsingWdt(TestInfo testInfo) throws Exception {
-        // add WDT installer to the cache
-        Path wdtPath = Paths.get(STAGING_DIR, WDT_INSTALLER);
-        String addCommand = new CacheCommand()
-            .addInstaller(true)
-            .type("wdt")
-            .version(WDT_VERSION)
-            .path(wdtPath)
-            .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
-            CommandResult addResult = Runner.run(addCommand, out, logger);
-            // the process return code for addInstaller should be 0
-            assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
-
-            // build the wdt archive
-            buildWdtArchive();
 
             String tagName = build_tag + ":" + getMethodName(testInfo);
             // create a WLS image with a domain
@@ -702,9 +713,6 @@ class ITImagetool {
 
         // test assumes that the default JDK version 8u202 is already in the cache
 
-        // build the wdt archive
-        buildWdtArchive();
-
         Path tmpWdtModel = Paths.get(wlsImgBldDir, WDT_MODEL1);
 
         // update wdt model file
@@ -755,9 +763,6 @@ class ITImagetool {
 
         // test assumes that the default JDK version 8u202 is already in the cache
 
-        // build the wdt archive
-        buildWdtArchive();
-
         String tagName = build_tag + ":" + getMethodName(testInfo);
         String command = new CreateCommand()
             .tag(tagName)
@@ -799,9 +804,6 @@ class ITImagetool {
         // test assumes that the default JDK installer is already in the cache
 
         // test assumes that the WDT installer is already in the cache
-
-        // build the wdt archive
-        buildWdtArchive();
 
         String tagName = build_tag + ":" + getMethodName(testInfo);
         String command = new CreateCommand()
@@ -923,13 +925,13 @@ class ITImagetool {
     }
 
     /**
-     * Create an image with WDT Model only on OL 8-slim
+     * Create an image with WDT Model on OL 8-slim
      *
      * @throws Exception - if any error occurs
      */
     @Test
-    @Order(28)
-    @Tag("nightly")
+    @Order(14)
+    @Tag("gate")
     @DisplayName("Create Model in Image with OL 8-slim")
     void createMiiOl8slim(TestInfo testInfo) throws Exception {
         // test assumes that WDT installer is already in the cache from previous test
@@ -937,8 +939,6 @@ class ITImagetool {
         // test assumes that the WLS 12.2.1.3 installer is already in the cache
 
         // test assumes that the default JDK version 8u202 is already in the cache
-
-        // test assumes that the WDT archive was already constructed
 
         Path tmpWdtModel = Paths.get(wlsImgBldDir, WDT_MODEL1);
 
@@ -964,6 +964,31 @@ class ITImagetool {
             // verify the docker image is created
             String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
             assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+
+            validateDirectoryPermissions("/u01/domains", "drwxrwxr-x", tagName, out);
+            validateDirectoryPermissions("/u01/wdt", "drwxrwxr-x", tagName, out);
+            validateDirectoryPermissions("/u01/wdt/models", "drwxrwxr-x", tagName, out);
+            validateDirectoryPermissions("/u01/wdt/weblogic-deploy", "drwxr-x---", tagName, out);
+            validateDirectoryPermissions("/u01/oracle", "drwxr-xr-x", tagName, out);
         }
+    }
+
+    /**
+     * Verify file permissions for a specified path on the given image.
+     * @param directory Directory name to check for permissions value.
+     * @param expected  Expected permission string, such as "drwxrwxr-x"
+     * @param tagName   Tag name or image ID of the image to inspect
+     * @param out       The printwriter where the docker run command will send stdout/stderr
+     * @throws IOException if process start fails
+     * @throws InterruptedException if the wait is interrupted before the process completes
+     */
+    private void validateDirectoryPermissions(String directory, String expected, String tagName, PrintWriter out)
+        throws IOException, InterruptedException {
+        String command = String.format(" docker run -t %s ls -ld %s", tagName, directory);
+        String actual = Runner.run(command, out, logger).stdout().trim();
+        String[] tokens = actual.split(" ", 2);
+        assertEquals(2, tokens.length, "Unable to get directory permissions for " + directory);
+        // When running on an SELinux host, the permissions shown by ls will end with a "."
+        assertTrue(tokens[0].startsWith(expected), "Incorrect directory permissions for " + directory);
     }
 }

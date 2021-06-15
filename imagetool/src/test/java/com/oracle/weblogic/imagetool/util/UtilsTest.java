@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -106,19 +105,5 @@ class UtilsTest {
         } finally {
             logger.setLevel(oldLevel);
         }
-    }
-
-    @Test
-    void getPsuVersionFromInventoryOldStyle() throws IOException {
-        Path inventoryPath = Paths.get("./src/test/resources/utilsTest/lsinventory.txt");
-        String inventoryStr = new String(Files.readAllBytes(inventoryPath));
-        assertEquals("12.2.1.4.191220", Utils.getPsuVersion(inventoryStr), "Utils.getPsuVersion is failing");
-    }
-
-    @Test
-    void getPsuVersionFromInventoryIdStyle() throws IOException {
-        Path inventoryPath = Paths.get("./src/test/resources/utilsTest/lsinventoryWithID.txt");
-        String inventoryStr = new String(Files.readAllBytes(inventoryPath));
-        assertEquals("12.2.1.3.200227", Utils.getPsuVersion(inventoryStr), "Utils.getPsuVersion is failing");
     }
 }

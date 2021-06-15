@@ -4,6 +4,8 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +38,7 @@ public class DockerfileOptions {
     private boolean applyPatches;
     private boolean updateOpatch;
     private boolean skipJavaInstall;
+    private boolean skipMiddlewareInstall;
     private boolean isRebaseToTarget;
     private boolean isRebaseToNew;
     private boolean strictPatchOrdering;
@@ -71,6 +74,7 @@ public class DockerfileOptions {
     private boolean wdtStrictValidation;
     private String wdtInstallerFilename;
     private String wdtEncryptionKey;
+    private String wdtBase;
 
     // Additional Build Commands
     private Map<String, List<String>> additionalBuildCommands;
@@ -83,6 +87,7 @@ public class DockerfileOptions {
         applyPatches = false;
         updateOpatch = false;
         skipJavaInstall = false;
+        skipMiddlewareInstall = false;
 
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
@@ -103,6 +108,7 @@ public class DockerfileOptions {
         wdtVariableList = new ArrayList<>();
         wdtRunRcu = false;
         wdtStrictValidation = false;
+        wdtBase = "wls_build"; // By default, use output of Oracle Home install
     }
 
     /**
@@ -341,6 +347,17 @@ public class DockerfileOptions {
         }
     }
 
+    /**
+     * Utility function to get the parent directory of the domain home directory.
+     * @return the parent path, or the domain home if the domain home does not have a parent.
+     */
+    @SuppressWarnings("unused")
+    public String domain_parent() {
+        Path dir = Paths.get(domain_home());
+        String parent = dir.getParent().toString();
+        return parent != null ? parent : domain_home();
+    }
+
     @SuppressWarnings("unused")
     public String wdt_home() {
         return wdtHome;
@@ -465,6 +482,26 @@ public class DockerfileOptions {
     }
 
     /**
+     * Disable the Middleware installation because an Oracle Home is already installed.
+     *
+     * @param oracleHome the ORACLE_HOME from the base image.
+     */
+    public void disableMiddlewareInstall(String oracleHome) {
+        this.oracleHome = oracleHome;
+        skipMiddlewareInstall = true;
+    }
+
+    /**
+     * Referenced by Dockerfile template, for enabling Middleware install function.
+     *
+     * @return true if Java should be installed.
+     */
+    @SuppressWarnings("unused")
+    public boolean installMiddleware() {
+        return !skipMiddlewareInstall;
+    }
+
+    /**
      * Referenced by Dockerfile template, for enabling patching function.
      *
      * @return true if patching should be performed.
@@ -540,11 +577,7 @@ public class DockerfileOptions {
      * @return true if the WDT installer file is a tar.gz file; false otherwise.
      */
     public boolean usingWdtTarGzInstaller() {
-        boolean result = false;
-        if (wdtInstallerFilename != null && wdtInstallerFilename.toLowerCase().endsWith(".tar.gz")) {
-            result = true;
-        }
-        return result;
+        return wdtInstallerFilename != null && wdtInstallerFilename.toLowerCase().endsWith(".tar.gz");
     }
 
     /**
@@ -972,5 +1005,15 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public String java_pkg() {
         return javaInstaller;
+    }
+
+    @SuppressWarnings("unused")
+    public String wdtBase() {
+        return wdtBase;
+    }
+
+    public DockerfileOptions setWdtBase(String value) {
+        wdtBase = value;
+        return this;
     }
 }

@@ -1,0 +1,26 @@
+# Copyright (c) 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+#
+# Installing Java
+
+FROM os_update as jdk_build
+LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
+
+ENV JAVA_HOME={{{java_home}}}
+
+COPY --chown={{userid}}:{{groupid}} {{java_pkg}} {{{tempDir}}}/
+
+USER {{userid}}
+
+{{#beforeJdkInstall}}
+    {{{.}}}
+{{/beforeJdkInstall}}
+
+RUN tar xzf {{{tempDir}}}/{{java_pkg}} -C /u01 \
+&& $(test -d /u01/jdk* && mv /u01/jdk* {{{java_home}}} || mv /u01/graal* {{{java_home}}}) \
+&& rm -rf {{{tempDir}}} \
+&& rm -f {{{java_home}}}/javafx-src.zip {{{java_home}}}/src.zip
+
+{{#afterJdkInstall}}
+    {{{.}}}
+{{/afterJdkInstall}}
