@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -422,13 +423,51 @@ public class Utils {
     public static Properties getBaseImageProperties(String builder, String dockerImage, String script,
                                                     String contextDir) throws IOException, InterruptedException {
         logger.entering(builder, dockerImage, script, contextDir);
-        final String scriptToRun = "test-env.sh";
-        Utils.copyResourceAsFile(script, contextDir + File.separator + scriptToRun, true);
-        List<String> imageEnvCmd = Utils.getDockerRunCmd(builder,
-            contextDir + File.separator + scriptToRun, dockerImage);
+        //Utils.copyResourceAsFile(script, contextDir + File.separator + scriptToRun, true);
+        InputStream resourceScript = Utils.class.getResourceAsStream(script);
+        //List<String> imageEnvCmd = Utils.getDockerRunCmd(builder,
+        //    contextDir + File.separator + scriptToRun, dockerImage);
+        byte[] fileBytes = readAllBytes(resourceScript);
+        String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
+        String encodedCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
+        logger.finest("running command in image [" + encodedCommand + "]");
+        List<String> imageEnvCmd = Stream.of(
+            builder, "run", "--rm",
+            dockerImage, "/bin/bash", "-c", encodedCommand).collect(Collectors.toList());
+
         Properties result = Utils.runDockerCommand(imageEnvCmd);
         logger.exiting(result);
         return result;
+    }
+
+    // Only needed until switch to Java 9 or higher where InputStream.java provides the same
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        final int bufLen = 4 * 0x400; // 4KB
+        byte[] buf = new byte[bufLen];
+        int readLen;
+        IOException exception = null;
+
+        try {
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                while ((readLen = inputStream.read(buf, 0, bufLen)) != -1) {
+                    outputStream.write(buf, 0, readLen);
+                }
+                return outputStream.toByteArray();
+            }
+        } catch (IOException e) {
+            exception = e;
+            throw e;
+        } finally {
+            if (exception == null) {
+                inputStream.close();
+            } else {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    exception.addSuppressed(e);
+                }
+            }
+        }
     }
 
     /**
