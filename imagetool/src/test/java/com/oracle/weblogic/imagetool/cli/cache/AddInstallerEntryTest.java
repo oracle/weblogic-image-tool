@@ -62,6 +62,6 @@ class AddInstallerEntryTest {
     void testInvalidParameters() {
         CommandResponse response = ImageTool.run(new AddInstallerEntry(), printStream, printStream, "--type",
                 InstallerType.WLS.toString(), "--version", "", "--path", "/path/to/non/existent/file");
-        assertEquals(-1, response.getStatus());
+        assertEquals(1, response.getStatus());
     }
 }
