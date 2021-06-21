@@ -14,17 +14,17 @@ set -e
 #
 if [ -z "${JAVA_HOME}" ]; then
   echo "Please set the JAVA_HOME environment variable to match the location of your Java installation. Java 8 or newer is required." >&2
-  exit -1
+  exit 1
 elif [ ! -d "${JAVA_HOME}" ]; then
   echo "Your JAVA_HOME environment variable points to a non-existent directory: ${JAVA_HOME}" >&2
-  exit -1
+  exit 1
 fi
 
 if [ -x "${JAVA_HOME}/bin/java" ]; then
   JAVA_EXE=${JAVA_HOME}/bin/java
 else
   echo "Java executable at ${JAVA_HOME}/bin/java either does not exist or is not executable" >&2
-  exit -1
+  exit 1
 fi
 
 script_dir=$(dirname "${BASH_SOURCE[0]}")

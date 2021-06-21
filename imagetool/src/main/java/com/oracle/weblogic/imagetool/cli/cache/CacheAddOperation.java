@@ -17,7 +17,7 @@ public abstract class CacheAddOperation extends CacheOperation {
     CommandResponse addToCache(String key) throws CacheStoreException {
         // if file is invalid or does not exist, return an error
         if (filePath == null || !Files.isRegularFile(filePath)) {
-            return new CommandResponse(-1, "IMG-0049", filePath);
+            return new CommandResponse(1, "IMG-0049", filePath);
         }
 
         // if the new value is the same as the existing cache value, do nothing
@@ -28,7 +28,7 @@ public abstract class CacheAddOperation extends CacheOperation {
 
         // if there is already a cache entry and the user did not ask to force it, return an error
         if (!force && existingValue != null) {
-            return new CommandResponse(-1, "IMG-0048", key, existingValue);
+            return new CommandResponse(1, "IMG-0048", key, existingValue);
         }
 
         // input appears valid, add the entry to the cache and exit

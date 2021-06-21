@@ -66,7 +66,7 @@ public class ImageTool implements Callable<CommandResponse> {
             }
             System.exit(response.getStatus());
         }
-        System.exit(-1);
+        System.exit(1);
     }
 
     /**
