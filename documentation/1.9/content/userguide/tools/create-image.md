@@ -17,9 +17,10 @@ Usage: imagetool create [OPTIONS]
 | --- | --- | --- |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
+| `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
-| `--docker` | Path to the Docker executable.  |  `docker` |
+| `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
 | `--fromImage` | Docker image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:7-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
@@ -30,7 +31,7 @@ Usage: imagetool create [OPTIONS]
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
 | `--recommendedPatches` | Find and apply the latest PatchSet Update and recommended patches. This takes precedence over --latestPSU  |   |
-| `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
+| `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  | `28186730`  |
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `OS_DEFAULT`, `YUM`, `ZYPPER`  | `OS_DEFAULT`  |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
@@ -44,7 +45,7 @@ Usage: imagetool create [OPTIONS]
 | `--user` | Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
 | `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
-| `--wdtDomainHome` | Path to the `-domain_home` for WDT.  |   |
+| `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
 | `--wdtEncryptionKey` | Passphrase for WDT `-use_encryption` that will be requested on STDIN. |   |
 | `--wdtEncryptionKeyEnv` | Passphrase for WDT `-use_encryption` that is provided as an environment variable. |   |
@@ -55,7 +56,7 @@ Usage: imagetool create [OPTIONS]
 | `--wdtRunRCU` | Instruct WDT to run RCU when creating the domain.  |   |
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
 | `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
-| `--wdtVersion` | WDT version to use.  |   |
+| `--wdtVersion` | WDT version to use.  | `latest`  |
 
 ### Additional information
 
