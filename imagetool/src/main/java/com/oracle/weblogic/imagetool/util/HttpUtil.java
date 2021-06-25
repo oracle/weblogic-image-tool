@@ -203,8 +203,9 @@ public class HttpUtil {
             boolean retriable = !(request instanceof HttpEntityEnclosingRequest);
             if (retriable) {
                 try {
-                    logger.warning("Connect failed, retrying in 10 seconds, attempts={0} ", executionCount);
-                    Thread.sleep(10000);
+                    long waitTime = executionCount < 5 ? 2 : 10;
+                    logger.warning("Connect failed, retrying in {0} seconds, attempts={1} ", waitTime, executionCount);
+                    Thread.sleep(waitTime * 1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
