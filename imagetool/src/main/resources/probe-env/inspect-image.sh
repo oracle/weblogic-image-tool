@@ -50,4 +50,6 @@ if [ -n "$ORACLE_HOME" ]; then
 
   echo oracleHomeUser="$(stat -c '%U' "$ORACLE_HOME")"
   echo oracleHomeGroup="$(stat -c '%G' "$ORACLE_HOME")"
+
+  echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' $ORACLE_HOME/inventory/registry.xml | sed 's/,$//')"
 fi

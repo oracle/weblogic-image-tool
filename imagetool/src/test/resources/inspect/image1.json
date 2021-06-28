@@ -1,28 +1,23 @@
 {
   "oraclePatches" : [
     {
-      "bug" : "30319071",
-      "uid" : "23384603",
+      "patch" : "30319071",
       "description" : "One-off"
     },
     {
-      "bug" : "26355633",
-      "uid" : "21447583",
+      "patch" : "26355633",
       "description" : "One-off"
     },
     {
-      "bug" : "26287183",
-      "uid" : "21447582",
+      "patch" : "26287183",
       "description" : "One-off"
     },
     {
-      "bug" : "26261906",
-      "uid" : "21344506",
+      "patch" : "26261906",
       "description" : "One-off"
     },
     {
-      "bug" : "26051289",
-      "uid" : "21455037",
+      "patch" : "26051289",
       "description" : "One-off"
     }
   ],

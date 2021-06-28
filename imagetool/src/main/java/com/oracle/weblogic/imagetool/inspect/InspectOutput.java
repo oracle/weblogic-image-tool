@@ -62,8 +62,7 @@ public class InspectOutput {
             while (patchesIter.hasNext()) {
                 PatchJson patch = patchesIter.next();
                 result.append(pad(2)).append('{').append('\n');
-                result.append(jsonKeyValuePair(3, "bug", patch.bug)).append(",\n");
-                result.append(jsonKeyValuePair(3, "uid", patch.uid)).append(",\n");
+                result.append(jsonKeyValuePair(3, "patch", patch.bug)).append(",\n");
                 result.append(jsonKeyValuePair(3, "description", patch.description)).append('\n');
                 result.append(pad(2)).append('}');
                 if (patchesIter.hasNext()) {
