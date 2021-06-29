@@ -3,21 +3,14 @@
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
-import com.github.mustachejava.util.DecoratedCollection;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.inspect.InspectOutput;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine;
 
@@ -41,31 +34,9 @@ public class InspectImage implements Callable<CommandResponse> {
 
         Properties baseImageProperties =
             Utils.getBaseImageProperties(buildEngine, imageName, scriptToRun, tempDirectory);
-        MustacheFactory mf = new DefaultMustacheFactory("inspect-responses");
 
-        String outputTemplate;
-        // add additional formats here, the ENUM, and to the resources/inspect-responses folder
-        switch (outputFormat) {
-            case JSON:
-            default:
-                outputTemplate = "inspect-json.mustache";
-        }
-        Mustache mustache = mf.compile(outputTemplate);
+        System.out.println(new InspectOutput(baseImageProperties));
 
-        // sort the output alphabetically for easier readability
-        TreeMap<String,String> sortedSet = new TreeMap<>();
-        for (Map.Entry<Object,Object> x: baseImageProperties.entrySet()) {
-            sortedSet.put(x.getKey().toString(), x.getValue().toString());
-        }
-
-        try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(System.out))) {
-            // create a decorated collection so that the output template can utilize "last" (last collection item)
-            mustache.execute(out, new Object() {
-                @SuppressWarnings("unused")
-                final DecoratedCollection<Map.Entry<String, String>> response =
-                    new DecoratedCollection<>(sortedSet.entrySet());
-            }).flush();
-        }
         return new CommandResponse(0, "");
     }
 

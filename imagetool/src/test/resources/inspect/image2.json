@@ -1,0 +1,13 @@
+{
+  "oraclePatches" : [
+  ],
+  "domainHome" : "/u01/domains/base_domain",
+  "javaHome" : "/u01/jdk",
+  "javaVersion" : "1.8.0_202",
+  "opatchVersion" : "13.9.4.2.1",
+  "oracleHome" : "/u01/oracle",
+  "oracleHomeGroup" : "oracle",
+  "oracleHomeUser" : "oracle",
+  "packageManager" : "YUM",
+  "wlsVersion" : "12.2.1.4.0"
+}
