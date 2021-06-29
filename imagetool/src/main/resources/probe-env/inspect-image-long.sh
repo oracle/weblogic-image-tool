@@ -52,5 +52,7 @@ if [ -n "$ORACLE_HOME" ]; then
   echo oracleHomeGroup="$(stat -c '%G' "$ORACLE_HOME")"
 
   echo opatchVersion="$($ORACLE_HOME/OPatch/opatch version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)')"
-  echo oraclePatches="$($ORACLE_HOME/OPatch/opatch lsinventory | awk '{ORS=";"} /^Unique Patch ID/ {print $4} /^Patch description/ {x = substr($0, 21);  print x} /^Patch\s*[0-9]+/ {print $2}')"
+  echo oraclePatches="$($ORACLE_HOME/OPatch/opatch lsinventory | awk '{ORS=";"} /^Unique Patch ID/ {print $4} /^Patch description/ {x = substr($0, 21);  print x} /^Patch\s*[0-9]+/ {print $2}' | sed 's/;$//')"
+
+    echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' $ORACLE_HOME/inventory/registry.xml | sed 's/,$//')"
 fi
