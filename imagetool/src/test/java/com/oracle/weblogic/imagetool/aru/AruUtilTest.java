@@ -123,4 +123,16 @@ class AruUtilTest {
         List<String> bugs = latestPsu.stream().map(AruPatch::patchId).collect(Collectors.toList());
         assertTrue(bugs.contains("31535411"));
     }
+
+    @Test
+    void testReleaseNotFound() throws Exception {
+        // should not throw an exception, and return no patches when release does not exist
+        List<AruPatch> latestPsu =
+            AruUtil.rest().getLatestPsu(AruProduct.WLS, "3.0.0.0.0", "x", "x");
+        assertEquals(0, latestPsu.size());
+
+        List<AruPatch> recommendedPatches =
+            AruUtil.rest().getRecommendedPatches(AruProduct.WLS, "3.0.0.0.0", "x", "x");
+        assertEquals(0, recommendedPatches.size());
+    }
 }
