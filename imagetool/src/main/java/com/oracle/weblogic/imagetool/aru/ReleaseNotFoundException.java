@@ -10,7 +10,7 @@ public class ReleaseNotFoundException extends AruException {
     /**
      * The product/version combination was not found in the release table on ARU.
      */
-    public ReleaseNotFoundException() {
-        super();
+    public ReleaseNotFoundException(String message) {
+        super(message);
     }
 }

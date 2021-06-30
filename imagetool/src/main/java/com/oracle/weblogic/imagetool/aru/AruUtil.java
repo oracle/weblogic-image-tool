@@ -327,7 +327,7 @@ public class AruUtil {
         if (Utils.isEmptyString(result)) {
             String msg = Utils.getMessage("IMG-0082", version, product);
             logger.info(msg);
-            throw new ReleaseNotFoundException();
+            throw new ReleaseNotFoundException(msg);
         }
         logger.exiting(result);
         return result;
