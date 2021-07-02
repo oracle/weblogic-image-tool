@@ -310,7 +310,7 @@ public class AruUtil {
      * @throws ReleaseNotFoundException if the specified version for the requested product was not found
      */
     private String getReleaseNumber(AruProduct product, String version, String userId, String password)
-        throws AruException, ReleaseNotFoundException {
+        throws AruException {
         logger.entering(product, version);
 
         String result;
