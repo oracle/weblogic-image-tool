@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Utils;
 
 public class InstalledPatch {
     private static final LoggingFacade logger = LoggingFactory.getLogger(InstalledPatch.class);
@@ -25,10 +26,14 @@ public class InstalledPatch {
      * @return a simple list of InstalledPatch
      */
     public static List<InstalledPatch> getPatchList(String oraclePatches) {
+        logger.entering(oraclePatches);
         List<InstalledPatch> result = new ArrayList<>();
+        if (Utils.isEmptyString(oraclePatches)) {
+            return result;
+        }
         String[] tokens = oraclePatches.split(";");
         if (tokens.length % 3 != 0) {
-            logger.severe("Too many tokens in oracle patches " + tokens.length);
+            logger.severe("IMG-0095", tokens.length);
         }
         for (int i = 0; i < tokens.length; i++) {
             InstalledPatch found = new InstalledPatch();
@@ -42,6 +47,7 @@ public class InstalledPatch {
             result.add(found);
         }
 
+        logger.exiting(result.size());
         return result;
     }
 

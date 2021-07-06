@@ -21,16 +21,18 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,7 +53,7 @@ public class Utils {
     private static final LoggingFacade logger = LoggingFactory.getLogger(Utils.class);
 
     @NonNls
-    private static ResourceBundle bundle = ResourceBundle.getBundle("ImageTool");
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("ImageTool");
 
     private Utils() {
         // hide constructor, usage of this class is only static utilities
@@ -306,8 +308,7 @@ public class Utils {
             }
 
             if (Files.exists(tmpDir)) {
-                logger.warning("Unable to cleanup temp directory, it is safe to remove this directory manually "
-                    + tmpDir.toString());
+                logger.warning("IMG-0038", tmpDir);
             }
         }
     }
@@ -751,16 +752,27 @@ public class Utils {
     }
 
     /**
-     * Create a new list from an existing collection and adding additional elements, if desired.
+     * Create a new set from an existing collection and adding additional elements, if desired.
      * @param start a set of elements to start from
      * @param elements zero to many additional elements to add to the new list
-     * @param <T> the class of the elements to add
-     * @return a new list of element T
+     * @param <T> the class of the elements in the Set
+     * @return a new set of the specified T
      */
     @SafeVarargs
-    public static <T> List<T> list(Collection<? extends T> start, T... elements) {
-        List<T> result = new ArrayList<>(start);
+    public static <T> Set<T> toSet(Collection<? extends T> start, T... elements) {
+        Set<T> result = new HashSet<>(start);
         Collections.addAll(result, elements);
         return result;
+    }
+
+    /**
+     * Create a new Set from a list of elements.
+     * @param array elements to be added to the Set
+     * @param <T> the class of the elements in the Set
+     * @return a set of the specified T
+     */
+    @SafeVarargs
+    public static <T> Set<T> toSet(T... array) {
+        return toSet(Arrays.asList(array));
     }
 }

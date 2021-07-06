@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.installer;
 import java.util.Arrays;
 
 import com.oracle.weblogic.imagetool.aru.AruProduct;
+import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -30,12 +31,18 @@ public class InstallerTest {
 
     @Test
     void fmwInstallerProductIds() {
-        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT), FmwInstallerType.WLS.products(),
+        AruProduct[] list1 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT};
+        assertEquals(Utils.toSet(list1), FmwInstallerType.WLS.products(),
             "WLS product list is incorrect or out of order");
-        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JRF, AruProduct.JDEV),
-            FmwInstallerType.FMW.products(), "FMW product list is incorrect or out of order");
-        assertEquals(Arrays.asList(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JRF, AruProduct.JDEV,
-            AruProduct.SOA), FmwInstallerType.SOA.products(), "SOA product list is incorrect or out of order");
+
+        AruProduct[] list2 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JRF, AruProduct.JDEV};
+        assertEquals(Utils.toSet(list2), FmwInstallerType.FMW.products(),
+            "FMW product list is incorrect or out of order");
+
+        AruProduct[] list3 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JRF, AruProduct.JDEV,
+            AruProduct.SOA};
+        assertEquals(Utils.toSet(list3), FmwInstallerType.SOA.products(),
+            "SOA product list is incorrect or out of order");
     }
 
     @Test
@@ -44,6 +51,13 @@ public class InstallerTest {
             "fromValue FMW failed for FmwInstallerType");
         assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromValue("fmw"),
             "fromValue fmw failed for FmwInstallerType");
+    }
+
+    @Test
+    void fromProductList() {
+        assertEquals(FmwInstallerType.WLS, FmwInstallerType.fromProductList("WLS,COH,TOPLINK"));
+        assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromProductList("INFRA,WLS,COH,TOPLINK"));
+        assertEquals(FmwInstallerType.SOA_OSB, FmwInstallerType.fromProductList("INFRA,WLS,COH,TOPLINK,BPM,SOA,OSB"));
     }
 }
 
