@@ -75,7 +75,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
                 modelHome = baseImageProperties.getProperty("wdtModelHome", null);
                 modelOnly = Boolean.parseBoolean(baseImageProperties.getProperty("wdtModelOnly", null));
             } else {
-                return new CommandResponse(-1, "Source Image not set");
+                return new CommandResponse(1, "Source Image not set");
             }
 
             if (!Utils.isEmptyString(targetImage)) {
@@ -94,15 +94,15 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
             }
 
             if (newJavaHome != null && !newJavaHome.equals(oldJavaHome)) {
-                return new CommandResponse(-1, Utils.getMessage("IMG-0026"));
+                return new CommandResponse(1, Utils.getMessage("IMG-0026"));
             }
 
             if (newOracleHome != null && !newOracleHome.equals(oldOracleHome)) {
-                return new CommandResponse(-1, Utils.getMessage("IMG-0021"));
+                return new CommandResponse(1, Utils.getMessage("IMG-0021"));
             }
 
             if (Utils.isEmptyString(domainHome)) {
-                return new CommandResponse(-1, Utils.getMessage("IMG-0025"));
+                return new CommandResponse(1, Utils.getMessage("IMG-0025"));
             }
 
             if (modelOnly) {
@@ -161,7 +161,7 @@ public class RebaseImage extends CommonOptions implements Callable<CommandRespon
             // add directory to pass the context
             runDockerCommand(dockerfile, cmdBuilder);
         } catch (Exception ex) {
-            return new CommandResponse(-1, ex.getMessage());
+            return new CommandResponse(1, ex.getMessage());
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);

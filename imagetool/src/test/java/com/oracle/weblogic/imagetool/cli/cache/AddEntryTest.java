@@ -57,6 +57,6 @@ class AddEntryTest {
     @Test
     void testInvalidParameters() {
         CommandResponse response = ImageTool.run(new AddEntry(), printStream, printStream, "--key", "", "--value", "");
-        assertEquals(-1, response.getStatus());
+        assertEquals(1, response.getStatus());
     }
 }

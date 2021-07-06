@@ -51,7 +51,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             tmpDir = getTempDirectory();
 
             if (!Utils.validatePatchIds(patches, false)) {
-                return new CommandResponse(-1, "Patch ID validation failed");
+                return new CommandResponse(1, "Patch ID validation failed");
             }
 
             copyOptionsFromImage(fromImage, tmpDir);
@@ -106,7 +106,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             }
         } catch (Exception ex) {
             logger.fine("**ERROR**", ex);
-            return new CommandResponse(-1, ex.getMessage());
+            return new CommandResponse(1, ex.getMessage());
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);

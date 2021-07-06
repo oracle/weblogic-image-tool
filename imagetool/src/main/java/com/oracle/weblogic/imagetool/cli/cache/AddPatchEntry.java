@@ -29,11 +29,11 @@ public class AddPatchEntry extends CacheAddOperation {
             List<String> patches = new ArrayList<>();
             patches.add(patchId);
             if (!Utils.validatePatchIds(patches, true)) {
-                return new CommandResponse(-1, "Patch ID validation failed");
+                return new CommandResponse(1, "Patch ID validation failed");
             }
             return addToCache(patchId);
         } else {
-            return new CommandResponse(-1, "IMG-0076", "--patchId");
+            return new CommandResponse(1, "IMG-0076", "--patchId");
         }
     }
 

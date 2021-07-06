@@ -34,7 +34,7 @@ public class DeleteEntry extends CacheOperation {
                 }
             }
         }
-        return new CommandResponse(-1, "IMG-0045");
+        return new CommandResponse(1, "IMG-0045");
     }
 
     @Option(
