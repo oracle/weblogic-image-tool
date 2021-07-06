@@ -45,7 +45,7 @@ Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --addition
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/</guid>
       <description>The inspect command reports on the contents of a Docker image providing version and location information for Java and WebLogic installations.
-Usage: imagetool inspect [OPTIONS]    Parameter Definition Default     --builder, -b Executable to process the Dockerfile. Use the full path of the executable if not on your path. docker   --format The output format. Supported values: JSON JSON   --image. -i (Required) The image ID or image name to be inspected.</description>
+Usage: imagetool inspect [OPTIONS]    Parameter Definition Default     --builder, -b Executable to process the Dockerfile. Use the full path of the executable if not on your path. docker   --format The output format. Supported values: JSON JSON   --image, -i (Required) The image ID or image name to be inspected.</description>
     </item>
     
     <item>
