@@ -141,8 +141,9 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 return new CommandResponse(1, "IMG-0055");
             }
 
-            FmwInstallerType installerType = FmwInstallerType.fromValue(
-                baseImageProperties.getProperty("wlsType", "WLS"));
+            FmwInstallerType installerType = FmwInstallerType.fromProductList(
+                baseImageProperties.getProperty("oracleInstalledProducts"));
+            logger.info("IMG-0094", installerType);
             // resolve required patches
             handlePatchFiles(installerType, installedPatches);
 

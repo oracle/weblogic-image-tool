@@ -40,10 +40,7 @@ fi
 
 if [ -n "$ORACLE_HOME" ]; then
   echo oracleHome="$ORACLE_HOME"
-  WLS_TYPE=$(cat "$ORACLE_HOME"/inventory/registry.xml 2> /dev/null | grep -q 'WebLogic Server for FMW' && printf "fmw")
-  if [ -n "$WLS_TYPE" ]; then
-    echo wlsType="$WLS_TYPE"
-  fi
+
   if [ -n "$JAVA_HOME" ]; then
     echo wlsVersion="$("$JAVA_HOME"/bin/java -cp "$ORACLE_HOME"/wlserver/server/lib/weblogic.jar weblogic.version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)' | head -1)"
   fi
