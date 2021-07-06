@@ -6,7 +6,7 @@
     <description>Recent content on WebLogic Image Tool</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 06 Jul 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Build from source</title>
       <link>https://oracle.github.io/weblogic-image-tool/developer/source/</link>
@@ -29,22 +29,22 @@ In this use case, the Image Tool will:
     </item>
     
     <item>
-      <title>Create Image</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</link>
-      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</guid>
-      <description>The create command helps build a WebLogic Docker image from a given base OS image. The required option for the command is marked. There are a number of optional parameters for the create feature.
-Usage: imagetool create [OPTIONS]    Parameter Definition Default     --additionalBuildCommands Path to a file with additional build commands. For more details, see Additional information.    --additionalBuildFiles Additional files that are required by your additionalBuildCommands.</description>
-    </item>
-    
-    <item>
       <title>Prerequisites</title>
       <link>https://oracle.github.io/weblogic-image-tool/quickstart/prerequisites/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/quickstart/prerequisites/</guid>
       <description>Docker client and daemon on the build machine, with a minimum Docker version 18.03.1.ce. OPTIONALLY: Podman 3.x may be used in place of Docker. Installers for WebLogic Server and JDK from the Oracle Software Delivery Cloud. When using any of the patching options, --patches, --recommendedPatches, or --latestPSU, you will need to provide Oracle Support credentials. When using the imagetool alias from setup.sh instead of the shell script (imagetool.sh), Bash version 4.</description>
+    </item>
+    
+    <item>
+      <title>Create Image</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</link>
+      <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</guid>
+      <description>The create command helps build a WebLogic Docker image from a given base OS image. The required option for the command is marked. There are a number of optional parameters for the create feature.
+Usage: imagetool create [OPTIONS]    Parameter Definition Default     --additionalBuildCommands Path to a file with additional build commands. For more details, see Additional information.    --additionalBuildFiles Additional files that are required by your additionalBuildCommands.</description>
     </item>
     
     <item>
@@ -70,23 +70,23 @@ Contributing to the WebLogic Image Tool repository Pull requests can be made und
     </item>
     
     <item>
-      <title>Rebase Image</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</link>
-      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</guid>
-      <description>The rebase command creates a new Docker image and copies an existing WebLogic domain to that new image.
-The new Docker image can be based on an existing image in the repository or created as part of the rebase operation similar to the create command.
-Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --additionalBuildCommands Path to a file with additional build commands. For more details, see Additional information.</description>
-    </item>
-    
-    <item>
       <title>Setup</title>
       <link>https://oracle.github.io/weblogic-image-tool/quickstart/setup/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/quickstart/setup/</guid>
       <description> Download and unzip the WIT release ZIP file to a desired location. OPTIONALLY: You may build the project (mvn clean package) to create the ZIP installer in ./imagetool/target. Set the JAVA_HOME environment variable to the location of the Java install (see Prerequisites).  </description>
+    </item>
+    
+    <item>
+      <title>Rebase Image</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</link>
+      <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</guid>
+      <description>The rebase command creates a new Docker image and copies an existing WebLogic domain to that new image.
+The new Docker image can be based on an existing image in the repository or created as part of the rebase operation similar to the create command.
+Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --additionalBuildCommands Path to a file with additional build commands. For more details, see Additional information.</description>
     </item>
     
     <item>
@@ -116,7 +116,7 @@ Overview The high level steps for creating an image are:
     <item>
       <title>Update Image</title>
       <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</link>
-      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</guid>
       <description>After you have created a Docker image with the Image Tool, you may want to change it from time to time. Use the update command to update the existing Docker images created with the Image Tool. For example, you may want to:
@@ -124,14 +124,13 @@ Overview The high level steps for creating an image are:
     </item>
     
     <item>
-      <title>Cache</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/</link>
-      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      <title>Inspect Image</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/</link>
+      <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
       
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/</guid>
-      <description>The Image Tool maintains a local file cache store. This store is used to look up where the Java, WebLogic Server installers, and WebLogic Server patches reside in the local file system.
-By default, the cache store is located in the user&amp;rsquo;s $HOME/cache directory. Under this directory, the lookup information is stored in the .metadata file. All automatically downloaded patches also reside in this directory.
-You can change the default cache store location by setting the environment variable WLSIMG_CACHEDIR:</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/</guid>
+      <description>The inspect command reports on the contents of a Docker image providing version and location information for Java and WebLogic installations.
+Usage: imagetool inspect [OPTIONS]    Parameter Definition Default     --builder, -b Executable to process the Dockerfile. Use the full path of the executable if not on your path. docker   --format The output format. Supported values: JSON JSON   --image. -i (Required) The image ID or image name to be inspected.</description>
     </item>
     
     <item>
@@ -165,6 +164,17 @@ Steps   Create the image, as directed in the Quick Start guide.
       <description>The Image Tool uses standard Java logging. To alter the default logging settings, you can modify the logging.properties file under the bin directory where you installed the Image Tool.
 To enable debug logging In logging.properties, comment the existing handlers property and uncomment the second handlers line below the first line that you just commented. This should make the logging.properties file look something like this:
 #handlers=java.util.logging.ConsoleHandler $ handlers=java.util.logging.FileHandler, java.util.logging.ConsoleHandler Then, change level to FINE or FINER.</description>
+    </item>
+    
+    <item>
+      <title>Cache</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/</link>
+      <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/</guid>
+      <description>The Image Tool maintains a local file cache store. This store is used to look up where the Java, WebLogic Server installers, and WebLogic Server patches reside in the local file system.
+By default, the cache store is located in the user&amp;rsquo;s $HOME/cache directory. Under this directory, the lookup information is stored in the .metadata file. All automatically downloaded patches also reside in this directory.
+You can change the default cache store location by setting the environment variable WLSIMG_CACHEDIR:</description>
     </item>
     
     <item>
