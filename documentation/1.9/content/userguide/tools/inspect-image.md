@@ -1,8 +1,8 @@
 ---
 title: "Inspect Image"
-date: 2021-07-06T17:19:24-05:00
+date: 2021-07-06
 draft: false
-weight: 1
+weight: 4
 description: "The inspect command reports on the contents of a Docker image."
 ---
 

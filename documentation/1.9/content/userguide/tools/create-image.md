@@ -1,6 +1,6 @@
 ---
 title: "Create Image"
-date: 2019-02-23T17:19:24-05:00
+date: 2019-02-23
 draft: false
 weight: 1
 description: "The create command creates a new Docker image and installs the requested Java and WebLogic software."

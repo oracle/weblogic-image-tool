@@ -1,6 +1,6 @@
 ---
 title: "Update Image"
-date: 2019-02-23T17:19:24-05:00
+date: 2019-02-23
 draft: false
 weight: 3
 description: "The update command creates a new Docker image by applying WebLogic patches to an existing image."
