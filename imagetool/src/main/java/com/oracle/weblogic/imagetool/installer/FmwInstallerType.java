@@ -131,6 +131,10 @@ public enum FmwInstallerType {
      */
     public static FmwInstallerType fromProductList(String products) {
         logger.entering(products);
+        if (Utils.isEmptyString(products)) {
+            return null;
+        }
+
         // create a set from the comma-separated list
         Set<AruProduct> productSet = Stream.of(products.split(","))
             .filter(e -> !"TOPLINK".equals(e)) // skip TOPLINK product (WLS always contains TOPLINK)

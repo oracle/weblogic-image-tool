@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
 public class InstallerTest {
@@ -58,6 +59,8 @@ public class InstallerTest {
         assertEquals(FmwInstallerType.WLS, FmwInstallerType.fromProductList("WLS,COH,TOPLINK"));
         assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromProductList("INFRA,WLS,COH,TOPLINK"));
         assertEquals(FmwInstallerType.SOA_OSB, FmwInstallerType.fromProductList("INFRA,WLS,COH,TOPLINK,BPM,SOA,OSB"));
+        assertNull(FmwInstallerType.fromProductList(""));
+        assertNull(FmwInstallerType.fromProductList(null));
     }
 }
 
