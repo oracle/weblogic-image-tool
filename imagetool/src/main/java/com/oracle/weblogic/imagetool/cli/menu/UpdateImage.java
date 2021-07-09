@@ -143,9 +143,17 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             FmwInstallerType installerType = FmwInstallerType.fromProductList(
                 baseImageProperties.getProperty("oracleInstalledProducts"));
-            logger.info("IMG-0094", installerType);
-            // resolve required patches
-            handlePatchFiles(installerType, installedPatches);
+            if (installerType == null) {
+                logger.fine("Unable to detect installed products from image {0}", fromImage);
+                // This error occurred with the 12.2.1.4 quick slim image because registry.xml was missing data
+                if (applyingPatches()) {
+                    return new CommandResponse(1, "IMG-0096", fromImage);
+                }
+            } else {
+                logger.info("IMG-0094", installerType);
+                // resolve required patches
+                handlePatchFiles(installerType, installedPatches);
+            }
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
