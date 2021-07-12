@@ -37,6 +37,13 @@ if [ -n "$WDT_MODEL_HOME" ]; then
   echo wdtModelHome="$WDT_MODEL_HOME"
 fi
 
+if [ -n "$WDT_HOME" ]; then
+  echo wdtHome="$WDT_HOME"
+  echo wdtVersion="$(cat $WDT_HOME/weblogic-deploy/VERSION.txt | sed 's/.* //')"
+elif [ -f "/u01/wdt/weblogic-deploy/VERSION.txt" ]; then
+  echo wdtHome="/u01/wdt"
+  echo wdtVersion="$(cat /u01/wdt/weblogic-deploy/VERSION.txt | sed 's/.* //')"
+fi
 
 if [ -n "$ORACLE_HOME" ]; then
   echo oracleHome="$ORACLE_HOME"

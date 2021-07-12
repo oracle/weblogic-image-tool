@@ -12,7 +12,8 @@ USER root
 ENV OPATCH_NO_FUSER=true
 
 {{#isWdtEnabled}}
-ENV  DOMAIN_HOME={{{domain_home}}} \
+ENV DOMAIN_HOME={{{domain_home}}} \
+    WDT_HOME={{{wdt_home}}} \
     {{#modelOnly}}
         WDT_MODEL_HOME={{{wdt_model_home}}} \
     {{/modelOnly}}

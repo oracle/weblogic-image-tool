@@ -264,6 +264,28 @@ class ITImagetool {
 
     }
 
+    private static CommandResult executeAndVerify(String command) throws Exception {
+        logger.info("Executing command: " + command);
+        CommandResult result = Runner.run(command);
+        assertEquals(0, result.exitValue(), "for command: " + command);
+        logger.info(result.stdout());
+        return result;
+    }
+
+    /**
+     * Determine if a Docker image exists on the local system.
+    */
+    private static boolean imageExists(String imageTag) throws IOException, InterruptedException {
+        return !getImageId(imageTag).isEmpty();
+    }
+
+    /**
+     * Get the docker identifier for this image tag.
+     */
+    private static String getImageId(String imageTag) throws IOException, InterruptedException {
+        return Runner.run("docker images -q " + imageTag).stdout().trim();
+    }
+
     private void verifyFileInImage(String imagename, String filename, String expectedContent) throws Exception {
         logger.info("verifying the file content in image");
         String command = "docker run --rm " + imagename + " bash -c 'cat " + filename + "'";
@@ -287,14 +309,6 @@ class ITImagetool {
         // wait for the db is ready
         command = "docker ps | grep " + dbContainerName;
         checkCmdInLoop(command);
-    }
-
-    private static CommandResult executeAndVerify(String command) throws Exception {
-        logger.info("Executing command: " + command);
-        CommandResult result = Runner.run(command);
-        assertEquals(0, result.exitValue(), "for command: " + command);
-        logger.info(result.stdout());
-        return result;
     }
 
     /**
@@ -538,8 +552,8 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+
             wlsImgBuilt = true;
         }
     }
@@ -568,8 +582,8 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+
             // TODO should check that patch and OPatch were applied
         }
     }
@@ -603,8 +617,8 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+
             domainImgBuilt = true;
         }
     }
@@ -633,8 +647,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
     }
 
@@ -688,8 +701,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
     }
 
@@ -744,8 +756,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
     }
 
@@ -784,8 +795,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
     }
 
@@ -821,8 +831,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
     }
 
@@ -851,8 +860,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
 
         // verify the file created in [before-jdk-install] section
@@ -891,8 +899,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
     }
 
@@ -919,8 +926,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
     }
 
@@ -962,8 +968,7 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the docker image is created
-            String imageId = Runner.run("docker images -q " + tagName, out, logger).stdout().trim();
-            assertFalse(imageId.isEmpty(), "Image was not created: " + tagName);
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
 
             validateDirectoryPermissions("/u01/domains", "drwxrwxr-x", tagName, out);
             validateDirectoryPermissions("/u01/wdt", "drwxrwxr-x", tagName, out);
@@ -990,5 +995,69 @@ class ITImagetool {
         assertEquals(2, tokens.length, "Unable to get directory permissions for " + directory);
         // When running on an SELinux host, the permissions shown by ls will end with a "."
         assertTrue(tokens[0].startsWith(expected), "Incorrect directory permissions for " + directory);
+    }
+
+    /**
+     * update a WLS image with a model.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(28)
+    @Tag("nightly")
+    @DisplayName("Use Update to add a WDT model to createWlsImg")
+    void updateAddModel(TestInfo testInfo) throws Exception {
+        assumeTrue(wlsImgBuilt);
+
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new UpdateCommand()
+            .fromImage(build_tag + ":createWlsImg") //from step 10, createWlsImg()
+            .tag(tagName)
+            .wdtVersion(WDT_VERSION)
+            .wdtModel(WDT_MODEL)
+            .wdtVariables(WDT_VARIABLES)
+            .wdtArchive(WDT_ARCHIVE)
+            .wdtModelOnly(true)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+        }
+    }
+
+    /**
+     * update a WLS image with another model.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(29)
+    @Tag("nightly")
+    @DisplayName("Use Update to add a second WDT model to createWlsImg")
+    void updateAddSecondModel(TestInfo testInfo) throws Exception {
+        String testFromImage = build_tag + ":updateAddModel";
+        // skip this test if updateAddModel() failed to create an image
+        assumeTrue(imageExists(testFromImage));
+
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new UpdateCommand()
+            .fromImage(testFromImage)
+            .tag(tagName)
+            .wdtVersion(WDT_VERSION)
+            .wdtModel(WDT_MODEL2)
+            .wdtModelOnly(true)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+        }
     }
 }

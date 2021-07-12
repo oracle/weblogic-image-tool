@@ -36,11 +36,12 @@ RUN cd {{{wdt_home}}} \
     {{{.}}}
 {{/beforeWdtCommand}}
 
+RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-deploy || echo Initial WDT install \
 {{#usingWdtTarGzInstaller}}
-    RUN tar zxf {{{tempDir}}}/{{{wdtInstaller}}} -C {{{wdt_home}}}
+  && tar zxf {{{tempDir}}}/{{{wdtInstaller}}} -C {{{wdt_home}}}
 {{/usingWdtTarGzInstaller}}
 {{^usingWdtTarGzInstaller}}
-    RUN unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
+  && unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
 {{/usingWdtTarGzInstaller}}
 
 {{^modelOnly}}
