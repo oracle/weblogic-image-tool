@@ -970,31 +970,33 @@ class ITImagetool {
             // verify the docker image is created
             assertTrue(imageExists(tagName), "Image was not created: " + tagName);
 
-            validateDirectoryPermissions("/u01/domains", "drwxrwxr-x", tagName, out);
-            validateDirectoryPermissions("/u01/wdt", "drwxrwxr-x", tagName, out);
-            validateDirectoryPermissions("/u01/wdt/models", "drwxrwxr-x", tagName, out);
-            validateDirectoryPermissions("/u01/wdt/weblogic-deploy", "drwxr-x---", tagName, out);
-            validateDirectoryPermissions("/u01/oracle", "drwxr-xr-x", tagName, out);
+            validateFilePermissions("/u01/domains", "drwxrwxr-x", tagName, out);
+            validateFilePermissions("/u01/wdt", "drwxrwxr-x", tagName, out);
+            validateFilePermissions("/u01/wdt/models", "drwxrwxr-x", tagName, out);
+            validateFilePermissions("/u01/wdt/weblogic-deploy", "drwxr-x---", tagName, out);
+            validateFilePermissions("/u01/oracle", "drwxr-xr-x", tagName, out);
+            validateFilePermissions("/u01/wdt/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
+            validateFilePermissions("/u01/wdt/weblogic-deploy/bin/validateModel.sh", "-rwxr-x---", tagName, out);
         }
     }
 
     /**
      * Verify file permissions for a specified path on the given image.
-     * @param directory Directory name to check for permissions value.
+     * @param path      Filename or Directory to check for permissions value.
      * @param expected  Expected permission string, such as "drwxrwxr-x"
      * @param tagName   Tag name or image ID of the image to inspect
      * @param out       The printwriter where the docker run command will send stdout/stderr
      * @throws IOException if process start fails
      * @throws InterruptedException if the wait is interrupted before the process completes
      */
-    private void validateDirectoryPermissions(String directory, String expected, String tagName, PrintWriter out)
+    private void validateFilePermissions(String path, String expected, String tagName, PrintWriter out)
         throws IOException, InterruptedException {
-        String command = String.format(" docker run -t %s ls -ld %s", tagName, directory);
+        String command = String.format(" docker run --rm -t %s ls -ld %s", tagName, path);
         String actual = Runner.run(command, out, logger).stdout().trim();
         String[] tokens = actual.split(" ", 2);
-        assertEquals(2, tokens.length, "Unable to get directory permissions for " + directory);
+        assertEquals(2, tokens.length, "Unable to get file permissions for " + path);
         // When running on an SELinux host, the permissions shown by ls will end with a "."
-        assertTrue(tokens[0].startsWith(expected), "Incorrect directory permissions for " + directory);
+        assertTrue(tokens[0].startsWith(expected), "Incorrect file permissions for " + path);
     }
 
     /**
@@ -1026,6 +1028,8 @@ class ITImagetool {
 
             // verify the docker image is created
             assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+            validateFilePermissions("/u01/wdt/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
+            validateFilePermissions("/u01/wdt/weblogic-deploy/bin/validateModel.sh", "-rwxr-x---", tagName, out);
         }
     }
 
