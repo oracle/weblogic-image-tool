@@ -3,54 +3,50 @@
 
 package com.oracle.weblogic.imagetool.inspect;
 
-import java.util.ArrayList;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
-
-import com.oracle.weblogic.imagetool.util.Utils;
+import java.util.stream.Collectors;
 
 /**
  * Convert image properties to JSON.
  * This class should be replaced if/when a full JSON parser is added to the project.
  */
 public class InspectOutput {
-    private final String patchesKey = "oraclePatches";
+    private static final String patchesKey = "oraclePatches";
     Map<String,String> attributes;
-    List<PatchJson> patches;
+    List<InventoryPatch> patches;
+    OperatingSystemProperties os;
 
     /**
      * Convert image properties to JSON output.
      * @param imageProperties Properties from the image.
      */
     public InspectOutput(Properties imageProperties) {
-        Map<String,String> sortedSet = new TreeMap<>();
-        for (Map.Entry<Object,Object> x: imageProperties.entrySet()) {
-            sortedSet.put(x.getKey().toString(), x.getValue().toString());
+        // convert Properties to TreeMap (to sort attributes alphabetically)
+        Map<String,String> sorted = imageProperties.entrySet().stream()
+            .map(InspectOutput::convertToStringEntry)
+            .filter(e -> !e.getKey().equals(patchesKey)) // do not store patches entry as a normal attribute
+            .filter(e -> !e.getKey().startsWith("__OS__")) // do not store OS entries as a normal attribute
+            .collect(Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue,
+                (v1, v2) -> v1, // discard duplicates, but there shouldn't be any dupes
+                TreeMap::new)); // use a sorted map
+
+        if (imageProperties.containsKey(patchesKey)) {
+            patches = InventoryPatch.parseInventoryPatches(imageProperties.get(patchesKey).toString());
         }
-        if (sortedSet.containsKey(patchesKey)) {
-            patches = new ArrayList<>();
-            String patchesValue = sortedSet.get(patchesKey);
-            if (!Utils.isEmptyString(patchesValue)) {
-                String[] tokens = patchesValue.split(";");
-                for (int i = 0; i < tokens.length; i++) {
-                    PatchJson patch = new PatchJson();
-                    patch.bug = tokens[i];
-                    if (i++ < tokens.length) {
-                        patch.uid = tokens[i];
-                    }
-                    if (i++ < tokens.length) {
-                        patch.description = tokens[i].replace("\"", "");
-                    }
-                    patches.add(patch);
-                }
-            }
-            sortedSet.remove(patchesKey);
-        }
-        attributes = sortedSet;
+
+        attributes = sorted;
+        os = OperatingSystemProperties.getOperatingSystemProperties(imageProperties);
+    }
+
+    private static Map.Entry<String,String> convertToStringEntry(Map.Entry<Object,Object> entry) {
+        return new AbstractMap.SimpleEntry<>(entry.getKey().toString(), entry.getValue().toString());
     }
 
     @Override
@@ -58,12 +54,12 @@ public class InspectOutput {
         StringBuilder result = new StringBuilder().append("{\n");
         if (patches != null) {
             result.append(pad(1)).append('\"').append(patchesKey).append('\"').append(" : [\n");
-            Iterator<PatchJson> patchesIter = patches.iterator();
+            Iterator<InventoryPatch> patchesIter = patches.iterator();
             while (patchesIter.hasNext()) {
-                PatchJson patch = patchesIter.next();
+                InventoryPatch patch = patchesIter.next();
                 result.append(pad(2)).append('{').append('\n');
-                result.append(jsonKeyValuePair(3, "patch", patch.bug)).append(",\n");
-                result.append(jsonKeyValuePair(3, "description", patch.description)).append('\n');
+                result.append(jsonKeyValuePair(3, "patch", patch.bug())).append(",\n");
+                result.append(jsonKeyValuePair(3, "description", patch.description())).append('\n');
                 result.append(pad(2)).append('}');
                 if (patchesIter.hasNext()) {
                     result.append(',');
@@ -71,6 +67,14 @@ public class InspectOutput {
                 result.append('\n');
             }
             result.append(pad(1)).append("],\n");
+        }
+        if (os != null) {
+            result.append(pad(1)).append('\"').append("os").append('\"').append(" : {\n");
+            result.append(jsonKeyValuePair(2, "id", os.id())).append(",\n");
+            result.append(jsonKeyValuePair(2, "name", os.name())).append(",\n");
+            result.append(jsonKeyValuePair(2, "version", os.version())).append("\n");
+            result.append(pad(1)).append("},");
+            result.append('\n');
         }
         Iterator<Map.Entry<String,String>> attributeIter = attributes.entrySet().iterator();
         while (attributeIter.hasNext()) {
@@ -93,11 +97,5 @@ public class InspectOutput {
         char[] result = new char[size * 2];
         Arrays.fill(result, ' ');
         return result;
-    }
-
-    private static class PatchJson {
-        public String bug;
-        public String uid;
-        public String description;
     }
 }

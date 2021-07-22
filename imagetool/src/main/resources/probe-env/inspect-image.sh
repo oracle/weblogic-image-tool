@@ -57,3 +57,7 @@ if [ -n "$ORACLE_HOME" ]; then
 
   echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' $ORACLE_HOME/inventory/registry.xml | sed 's/,$//')"
 fi
+
+if [ -f "/etc/os-release" ]; then
+  grep '=' /etc/os-release | sed 's/^/__OS__/'
+fi

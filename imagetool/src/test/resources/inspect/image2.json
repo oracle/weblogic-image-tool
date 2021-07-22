@@ -1,6 +1,11 @@
 {
   "oraclePatches" : [
   ],
+  "os" : {
+    "id" : "ol",
+    "name" : "Oracle Linux Server",
+    "version" : "7.9"
+  },
   "domainHome" : "/u01/domains/base_domain",
   "javaHome" : "/u01/jdk",
   "javaVersion" : "1.8.0_202",
