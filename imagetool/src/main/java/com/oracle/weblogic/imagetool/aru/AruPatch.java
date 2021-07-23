@@ -193,7 +193,8 @@ public class AruPatch implements Comparable<AruPatch> {
 
                 // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
                 if (patch.description.contains("STACK PATCH BUNDLE")) {
-                    logger.fine("Discarded Stack Patch Bundle: {0}", patch.description);
+                    logger.fine("{0} --> '{1}'", patch.patchId, patch.description);
+                    logger.warning("IMG-0098", patch.patchId);
                     continue;
                 }
                 int index = patch.downloadPath().indexOf("patch_file=");
@@ -230,9 +231,11 @@ public class AruPatch implements Comparable<AruPatch> {
     public static AruPatch selectPatch(List<AruPatch> patches, String providedVersion, String psuVersion,
                                        String installerVersion) throws VersionNotFoundException {
 
+        logger.entering(patches, providedVersion, psuVersion, installerVersion);
         AruPatch selected = null;
 
         if (patches.isEmpty()) {
+            logger.exiting("Patches list is empty");
             return null;
         }
 
@@ -249,6 +252,7 @@ public class AruPatch implements Comparable<AruPatch> {
             } else if (providedVersion != null && !selected.version().equals(providedVersion)) {
                 throw new VersionNotFoundException(selected.patchId(), providedVersion, patches);
             }
+            logger.exiting(selected);
             return selected;
         }
 
@@ -267,6 +271,7 @@ public class AruPatch implements Comparable<AruPatch> {
             selected = patchMap.get(installerVersion);
         }
 
+        logger.exiting(selected);
         return selected;
     }
 

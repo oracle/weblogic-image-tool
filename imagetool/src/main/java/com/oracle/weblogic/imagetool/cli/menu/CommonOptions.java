@@ -298,13 +298,15 @@ public abstract class CommonOptions {
                 patchId = patchId.substring(0, split);
             }
             List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password);
-            AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, psuVersion,
-                getInstallerVersion());
+            if (!patchVersions.isEmpty()) {
+                AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, psuVersion,
+                    getInstallerVersion());
 
-            if (selectedVersion != null) {
-                aruPatches.add(selectedVersion);
-            } else {
-                throw new MultiplePatchVersionsException(patchId, aruPatches);
+                if (selectedVersion != null) {
+                    aruPatches.add(selectedVersion);
+                } else {
+                    throw new MultiplePatchVersionsException(patchId, aruPatches);
+                }
             }
         }
 
