@@ -22,23 +22,19 @@ public class AruHttpHelper {
     private boolean success;
     private Document results;
     private String errorMessage;
-    private AruProduct product;
-    private String version;
-    private String userId;
-    private String password;
-    private String release;
+    private final AruProduct product;
+    private final String userId;
+    private final String password;
 
     /**
      * Constructor encapsulating the information for the ARU search.
      *
      * @param product ARU product
-     * @param version of the product
      * @param userId ARU user credentials
      * @param password ARU password credentials
      */
-    AruHttpHelper(AruProduct product, String version, String userId, String password) {
+    AruHttpHelper(AruProduct product, String userId, String password) {
         this.product = product;
-        this.version = version;
         this.userId = userId;
         this.password = password;
         this.success = true;
@@ -52,7 +48,7 @@ public class AruHttpHelper {
      * @param password ARU credentials password
      */
     AruHttpHelper(String userId, String password) {
-        this(null, null, userId, password);
+        this(null, userId, password);
     }
     
     /**
@@ -79,34 +75,6 @@ public class AruHttpHelper {
      */
     Document results() {
         return results;
-    }
-
-    /**
-     * Return the product version number for the search.
-     *
-     * @return product version number
-     */
-    String version() {
-        return version;
-    }
-
-    /**
-     * Return the Release number for the category and version.
-     *
-     * @return ARU release number
-     */
-    String release() {
-        return release;
-    }
-
-    /**
-     * Set the release number for the product category and version.
-     *
-     * @param release set the product release number
-     */
-    AruHttpHelper release(String release) {
-        this.release = release;
-        return this;
     }
 
     /**

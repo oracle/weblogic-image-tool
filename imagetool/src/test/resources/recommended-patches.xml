@@ -40,7 +40,7 @@
             <file>
                 <name>p32755791_122140_Generic.zip</name>
                 <size>417431395</size>
-                <download_url host="https://updates.oracle.com"><![CDATA[/blah/blah/Generic.zip]]></download_url>
+                <download_url host="https://updates.oracle.com"><![CDATA[/blah/blah/Generic.zip?aru=1234&patch_file=p1234_122130_Generic.zip]]></download_url>
                 <digest type="SHA-256">1111</digest>
                 <digest type="SHA-1">22222</digest>
             </file>
