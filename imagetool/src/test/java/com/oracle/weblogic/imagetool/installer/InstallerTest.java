@@ -59,6 +59,8 @@ public class InstallerTest {
         assertEquals(FmwInstallerType.WLS, FmwInstallerType.fromProductList("WLS,COH,TOPLINK"));
         assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromProductList("INFRA,WLS,COH,TOPLINK"));
         assertEquals(FmwInstallerType.SOA_OSB, FmwInstallerType.fromProductList("INFRA,WLS,COH,TOPLINK,BPM,SOA,OSB"));
+        // Ignore unsupported products, but keep as many products as possible that ARE known
+        assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromProductList("INFRA,WLS,COH,TOPLINK,OIM"));
         assertNull(FmwInstallerType.fromProductList(""));
         assertNull(FmwInstallerType.fromProductList(null));
     }
