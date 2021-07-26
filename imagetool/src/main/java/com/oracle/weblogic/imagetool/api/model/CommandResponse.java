@@ -7,9 +7,9 @@ import com.oracle.weblogic.imagetool.util.Utils;
 
 public class CommandResponse {
 
-    private int status;
-    private String message;
-    private Object[] messageParams;
+    private final int status;
+    private final String message;
+    private final Object[] messageParams;
 
     /**
      * For use with PicoCLI to return the response to the command line.
