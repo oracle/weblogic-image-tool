@@ -100,14 +100,13 @@ public class AruUtil {
             String releaseNumber = getReleaseNumber(product, version, userId, password);
             Document aruRecommendations = getRecommendedPatchesMetadata(product, releaseNumber, userId, password);
             logger.exiting();
-            return AruPatch.getPatches(aruRecommendations, "[./psu_bundle]");
+            return AruPatch.removeStackPatchBundle(AruPatch.getPatches(aruRecommendations, "[./psu_bundle]"));
         } catch (NoPatchesFoundException | ReleaseNotFoundException ex) {
             logger.exiting();
             return Collections.emptyList();
         } catch (IOException | XPathExpressionException e) {
-            AruException aruE = new AruException(Utils.getMessage("IMG-0032", product.description(), version), e);
-            logger.throwing(aruE);
-            throw aruE;
+            throw logger.throwing(
+                new AruException(Utils.getMessage("IMG-0032", product.description(), version), e));
         }
     }
 
@@ -151,7 +150,7 @@ public class AruUtil {
             logger.info("IMG-0067", product.description());
             String releaseNumber = getReleaseNumber(product, version, userId, password);
             Document aruRecommendations = getRecommendedPatchesMetadata(product, releaseNumber, userId, password);
-            List<AruPatch> patches = AruPatch.getPatches(aruRecommendations);
+            List<AruPatch> patches = AruPatch.removeStackPatchBundle(AruPatch.getPatches(aruRecommendations));
             String psuVersion = getPsuVersion(patches);
             if (!Utils.isEmptyString(psuVersion)) {
                 patches.forEach(p -> logger.fine("Discarding recommended patch {0} {1}", p.patchId(), p.description()));
@@ -161,7 +160,7 @@ public class AruUtil {
                 String psuReleaseNumber = getReleaseNumber(product, psuVersion, userId, password);
                 // get recommended patches for PSU release (Overlay patches are only recommended on the PSU release)
                 Document psuRecommendation = getRecommendedPatchesMetadata(product, psuReleaseNumber, userId, password);
-                patches = AruPatch.getPatches(psuRecommendation);
+                patches = AruPatch.removeStackPatchBundle(AruPatch.getPatches(psuRecommendation));
             }
             patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
             logger.exiting(patches);
@@ -239,8 +238,6 @@ public class AruUtil {
                     logger.finer("Skipping null patch");
                     continue;
                 }
-
-                logger.info("IMG-0022", patch.patchId(), patch.releaseName());
 
                 payload.append(String.format("<patch_group rel_id=\"%s\">%s</patch_group>",
                         patch.release(), patch.patchId()));
@@ -402,7 +399,7 @@ public class AruUtil {
         } catch (NoPatchesFoundException patchEx) {
             throw new NoPatchesFoundException(Utils.getMessage("IMG-0086", bugNumber), patchEx);
         }
-        return AruPatch.getPatches(response, "");
+        return AruPatch.getPatches(response);
     }
 
     /**
