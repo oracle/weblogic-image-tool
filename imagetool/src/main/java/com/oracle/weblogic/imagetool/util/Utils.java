@@ -427,6 +427,7 @@ public class Utils {
         Utils.copyResourceAsFile(script, contextDir + File.separator + scriptToRun, true);
         List<String> imageEnvCmd = Utils.getDockerRunCmd(builder,
             contextDir + File.separator + scriptToRun, dockerImage);
+        logger.info("IMG-0097", dockerImage);
         Properties result = Utils.runDockerCommand(imageEnvCmd);
         logger.exiting(result);
         return result;
