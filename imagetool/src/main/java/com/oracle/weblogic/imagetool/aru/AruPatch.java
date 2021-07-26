@@ -159,7 +159,7 @@ public class AruPatch implements Comparable<AruPatch> {
     }
 
     public boolean isStackPatchBundle() {
-        return description.contains("STACK PATCH BUNDLE");
+        return description != null && description.contains("STACK PATCH BUNDLE");
     }
 
     /**
