@@ -19,7 +19,7 @@ the JDK and Oracle Home as part of moving the domain.
 * Create a new Docker image by applying WebLogic patches to an existing image. In addition,
  if one did not exist previously, you can create a WebLogic domain, update an existing domain, or deploy an application.
 
-For detailed information, see [Image Tool]({{< relref "/userguide/tools/_index.md" >}}).
+For detailed information, see [Image Tool](https://oracle.github.io/weblogic-image-tool/userguide/tools/).
 
 ***
 ### Current production release

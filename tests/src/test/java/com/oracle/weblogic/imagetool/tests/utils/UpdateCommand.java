@@ -3,11 +3,22 @@
 
 package com.oracle.weblogic.imagetool.tests.utils;
 
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 public class UpdateCommand extends ImageToolCommand {
 
     private String fromImage;
     private String tag;
     private String patches;
+
+    // WDT flags
+    private String wdtVersion;
+    private String wdtModel;
+    private String wdtArchive;
+    private String wdtVariables;
+    private boolean wdtModelOnly;
 
     public UpdateCommand() {
         super("update");
@@ -23,12 +34,33 @@ public class UpdateCommand extends ImageToolCommand {
         return this;
     }
 
-    public UpdateCommand tag(String name, String version) {
-        return tag(name + ":" + version);
-    }
-
     public UpdateCommand patches(String... values) {
         patches = String.join(",", values);
+        return this;
+    }
+
+    public UpdateCommand wdtVersion(String value) {
+        wdtVersion = value;
+        return this;
+    }
+
+    public UpdateCommand wdtModel(Path... values) {
+        wdtModel = Arrays.stream(values).map(Path::toString).collect(Collectors.joining(","));
+        return this;
+    }
+
+    public UpdateCommand wdtArchive(Path value) {
+        wdtArchive = value.toString();
+        return this;
+    }
+
+    public UpdateCommand wdtVariables(Path value) {
+        wdtVariables = value.toString();
+        return this;
+    }
+
+    public UpdateCommand wdtModelOnly(boolean value) {
+        wdtModelOnly = value;
         return this;
     }
 
@@ -40,6 +72,11 @@ public class UpdateCommand extends ImageToolCommand {
         return super.build()
             + field("--fromImage", fromImage)
             + field("--tag", tag)
-            + field("--patches", patches);
+            + field("--patches", patches)
+            + field("--wdtVersion", wdtVersion)
+            + field("--wdtModel", wdtModel)
+            + field("--wdtArchive", wdtArchive)
+            + field("--wdtVariables", wdtVariables)
+            + field("--wdtModelOnly", wdtModelOnly);
     }
 }

@@ -51,7 +51,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             init(buildId);
 
             if (fromImage == null || fromImage.isEmpty()) {
-                return new CommandResponse(-1, "update requires a base image. use --fromImage to specify base image");
+                return new CommandResponse(1, "update requires a base image. use --fromImage to specify base image");
             }
 
             dockerfileOptions.setBaseImage(fromImage).setWdtBase(fromImage);
@@ -65,14 +65,14 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             String oracleHome = baseImageProperties.getProperty("oracleHome", null);
             if (oracleHome == null) {
-                return new CommandResponse(-1, "IMG-0072", fromImage);
+                return new CommandResponse(1, "IMG-0072", fromImage);
             }
             dockerfileOptions.setOracleHome(oracleHome);
 
             if (wdtOptions.isUsingWdt() && !wdtOptions.modelOnly()) {
                 String domainHome = baseImageProperties.getProperty("domainHome", null);
                 if (domainHome == null && wdtOperation == WdtOperation.UPDATE) {
-                    return new CommandResponse(-1, "IMG-0071", fromImage);
+                    return new CommandResponse(1, "IMG-0071", fromImage);
                 }
             }
 
@@ -83,7 +83,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             String baseImageUsr = baseImageProperties.getProperty("oracleHomeUser");
             String baseImageGrp = baseImageProperties.getProperty("oracleHomeGroup");
             if (!dockerfileOptions.userid().equals(baseImageUsr) || !dockerfileOptions.groupid().equals(baseImageGrp)) {
-                return new CommandResponse(-1, "IMG-0087", fromImage, baseImageUsr, baseImageGrp);
+                return new CommandResponse(1, "IMG-0087", fromImage, baseImageUsr, baseImageGrp);
             }
 
             List<InstalledPatch> installedPatches = Collections.emptyList();
@@ -115,18 +115,18 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                     logger.warning("IMG-0009");
                 } else {
                     if (!Utils.validatePatchIds(patches, false)) {
-                        return new CommandResponse(-1, "Patch ID validation failed");
+                        return new CommandResponse(1, "Patch ID validation failed");
                     }
 
                     String oraclePatches = baseImageProperties.getProperty("oraclePatches", null);
                     if (oraclePatches != null) {
                         if (oraclePatches.contains("OPatch failed")) {
                             logger.severe("patch inventory = " + oraclePatches);
-                            return new CommandResponse(-1, "opatch lsinventory failed");
+                            return new CommandResponse(1, "opatch lsinventory failed");
                         }
                         installedPatches = InstalledPatch.getPatchList(oraclePatches);
                     } else {
-                        return new CommandResponse(-1, "lsinventory missing. required to check for conflicts");
+                        return new CommandResponse(1, "lsinventory missing. required to check for conflicts");
                     }
                 }
             }
@@ -138,13 +138,22 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             dockerfileOptions.setWdtCommand(wdtOperation);
             if (dockerfileOptions.runRcu()
                 && (wdtOperation == WdtOperation.UPDATE || wdtOperation == WdtOperation.DEPLOY)) {
-                return new CommandResponse(-1, "IMG-0055");
+                return new CommandResponse(1, "IMG-0055");
             }
 
-            FmwInstallerType installerType = FmwInstallerType.fromValue(
-                baseImageProperties.getProperty("wlsType", "WLS"));
-            // resolve required patches
-            handlePatchFiles(installerType, installedPatches);
+            FmwInstallerType installerType = FmwInstallerType.fromProductList(
+                baseImageProperties.getProperty("oracleInstalledProducts"));
+            if (installerType == null) {
+                logger.fine("Unable to detect installed products from image {0}", fromImage);
+                // This error occurred with the 12.2.1.4 quick slim image because registry.xml was missing data
+                if (applyingPatches()) {
+                    return new CommandResponse(1, "IMG-0096", fromImage);
+                }
+            } else {
+                logger.info("IMG-0094", installerType);
+                // resolve required patches
+                handlePatchFiles(installerType, installedPatches);
+            }
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(tmpDir + File.separator + "Dockerfile",
@@ -155,7 +164,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 wdtOptions.handleResourceTemplates(imageTag);
             }
         } catch (Exception ex) {
-            return new CommandResponse(-1, ex.getMessage());
+            return new CommandResponse(1, ex.getMessage());
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);

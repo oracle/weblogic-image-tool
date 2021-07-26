@@ -37,13 +37,17 @@ if [ -n "$WDT_MODEL_HOME" ]; then
   echo wdtModelHome="$WDT_MODEL_HOME"
 fi
 
+if [ -n "$WDT_HOME" ]; then
+  echo wdtHome="$WDT_HOME"
+  echo wdtVersion="$(cat $WDT_HOME/weblogic-deploy/VERSION.txt | sed 's/.* //')"
+elif [ -f "/u01/wdt/weblogic-deploy/VERSION.txt" ]; then
+  echo wdtHome="/u01/wdt"
+  echo wdtVersion="$(cat /u01/wdt/weblogic-deploy/VERSION.txt | sed 's/.* //')"
+fi
 
 if [ -n "$ORACLE_HOME" ]; then
   echo oracleHome="$ORACLE_HOME"
-  WLS_TYPE=$(cat "$ORACLE_HOME"/inventory/registry.xml 2> /dev/null | grep -q 'WebLogic Server for FMW' && printf "fmw")
-  if [ -n "$WLS_TYPE" ]; then
-    echo wlsType="$WLS_TYPE"
-  fi
+
   if [ -n "$JAVA_HOME" ]; then
     echo wlsVersion="$("$JAVA_HOME"/bin/java -cp "$ORACLE_HOME"/wlserver/server/lib/weblogic.jar weblogic.version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)' | head -1)"
   fi
@@ -52,5 +56,11 @@ if [ -n "$ORACLE_HOME" ]; then
   echo oracleHomeGroup="$(stat -c '%G' "$ORACLE_HOME")"
 
   echo opatchVersion="$($ORACLE_HOME/OPatch/opatch version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)')"
-  echo oraclePatches="$($ORACLE_HOME/OPatch/opatch lsinventory | awk '{ORS=";"} /^Unique Patch ID/ {print $4} /^Patch description/ {x = substr($0, 21);  print x} /^Patch\s*[0-9]+/ {print $2}')"
+  echo oraclePatches="$($ORACLE_HOME/OPatch/opatch lsinventory | awk '{ORS=";"} /^Unique Patch ID/ {print $4} /^Patch description/ {x = substr($0, 21);  print x} /^Patch\s*[0-9]+/ {print $2}' | sed 's/;$//')"
+
+    echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' $ORACLE_HOME/inventory/registry.xml | sed 's/,$//')"
+fi
+
+if [ -f "/etc/os-release" ]; then
+  grep '=' /etc/os-release | sed 's/^/__OS__/'
 fi

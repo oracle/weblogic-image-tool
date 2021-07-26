@@ -30,7 +30,7 @@ public class AddEntry extends CacheOperation {
             cache().addToCache(key, location);
             return new CommandResponse(0, msg);
         }
-        return new CommandResponse(-1, "IMG-0044");
+        return new CommandResponse(1, "IMG-0044");
     }
 
     @Option(

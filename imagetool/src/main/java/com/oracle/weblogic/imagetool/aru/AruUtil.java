@@ -101,11 +101,13 @@ public class AruUtil {
             Document aruRecommendations = getRecommendedPatchesMetadata(product, releaseNumber, userId, password);
             logger.exiting();
             return AruPatch.getPatches(aruRecommendations, "[./psu_bundle]");
-        } catch (NoPatchesFoundException npe) {
+        } catch (NoPatchesFoundException | ReleaseNotFoundException ex) {
             logger.exiting();
             return Collections.emptyList();
         } catch (IOException | XPathExpressionException e) {
-            throw new AruException(Utils.getMessage("IMG-0032", product.description(), version), e);
+            AruException aruE = new AruException(Utils.getMessage("IMG-0032", product.description(), version), e);
+            logger.throwing(aruE);
+            throw aruE;
         }
     }
 
@@ -164,7 +166,9 @@ public class AruUtil {
             patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
             logger.exiting(patches);
             return patches;
-        } catch (NoPatchesFoundException npe) {
+        } catch (ReleaseNotFoundException nf) {
+            return Collections.emptyList();
+        } catch (NoPatchesFoundException npf) {
             logger.info("IMG-0069", product.description(), version);
             return Collections.emptyList();
         } catch (IOException | XPathExpressionException e) {
@@ -305,6 +309,7 @@ public class AruUtil {
      * @param password OTN credential password
      * @return release number for the product and version provided
      * @throws AruException if the call to ARU fails, or the response from ARU had an error
+     * @throws ReleaseNotFoundException if the specified version for the requested product was not found
      */
     private String getReleaseNumber(AruProduct product, String version, String userId, String password)
         throws AruException {
@@ -322,7 +327,9 @@ public class AruUtil {
             throw new AruException("Could not extract release number with XPath", xpe);
         }
         if (Utils.isEmptyString(result)) {
-            throw new AruException(Utils.getMessage("IMG-0082", product, version));
+            String msg = Utils.getMessage("IMG-0082", version, product);
+            logger.info(msg);
+            throw new ReleaseNotFoundException(msg);
         }
         logger.exiting(result);
         return result;

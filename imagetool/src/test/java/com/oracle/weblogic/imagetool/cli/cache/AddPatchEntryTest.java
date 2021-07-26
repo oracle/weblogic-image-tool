@@ -63,7 +63,7 @@ public class AddPatchEntryTest {
         int exitCode = cmd.execute("--patchId=12345678_12.2.1.3.0", "--path=/here/there");
         CommandResponse result = cmd.getExecutionResult();
         assertNotNull(result, "Response missing from call to addPatch");
-        assertEquals(-1, result.getStatus());
+        assertEquals(1, result.getStatus());
     }
 
     @Test
@@ -73,6 +73,6 @@ public class AddPatchEntryTest {
         cmd.execute("--patchId=12345678", "--path=pom.xml");
         CommandResponse result = cmd.getExecutionResult();
         assertNotNull(result, "Response missing from call to addPatch");
-        assertEquals(-1, result.getStatus());
+        assertEquals(1, result.getStatus());
     }
 }

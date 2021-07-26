@@ -1,6 +1,6 @@
 ---
 title: "Update Image"
-date: 2019-02-23T17:19:24-05:00
+date: 2019-02-23
 draft: false
 weight: 3
 description: "The update command creates a new Docker image by applying WebLogic patches to an existing image."
@@ -31,15 +31,16 @@ Update WebLogic Docker image with selected patches
 | --- | --- | --- |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
+| `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
-| `--docker` | Path to the Docker executable.  |  `docker` |
+| `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
 | `--fromImage` | Docker image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--latestPSU` | (DEPRECATED) Find and apply the latest PatchSet Update, see [Additional information](#additional-information).  |   |
-| `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  |   |
+| `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  | `28186730`  |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
@@ -50,7 +51,7 @@ Update WebLogic Docker image with selected patches
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--user` | Oracle support email ID.  |   |
 | `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
-| `--wdtDomainHome` | Path to the `-domain_home` for WDT.  |   |
+| `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
 | `--wdtEncryptionKey` | Passphrase for WDT -use_encryption that will be requested on STDIN. |   |
 | `--wdtEncryptionKeyEnv` | Passphrase for WDT -use_encryption that is provided as an environment variable. |   |
