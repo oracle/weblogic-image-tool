@@ -32,10 +32,6 @@ RUN cd {{{wdt_home}}} \
     COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
 {{/wdtVariables}}
 
-{{#beforeWdtCommand}}
-    {{{.}}}
-{{/beforeWdtCommand}}
-
 RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-deploy || echo Initial WDT install \
 {{#usingWdtTarGzInstaller}}
   && tar zxf {{{tempDir}}}/{{{wdtInstaller}}} -C {{{wdt_home}}}
@@ -43,6 +39,10 @@ RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-dep
 {{^usingWdtTarGzInstaller}}
   && unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
 {{/usingWdtTarGzInstaller}}
+
+{{#beforeWdtCommand}}
+    {{{.}}}
+{{/beforeWdtCommand}}
 
 {{^modelOnly}}
     RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
@@ -62,7 +62,6 @@ RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-dep
 {{#isWdtValidateEnabled}}
     RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
     && rm ./*.cmd \
-    && chmod ug+x ./*.sh \
     && chmod -R g+w {{{wdt_home}}}/weblogic-deploy/lib \
     && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
     -oracle_home {{{oracle_home}}} \
