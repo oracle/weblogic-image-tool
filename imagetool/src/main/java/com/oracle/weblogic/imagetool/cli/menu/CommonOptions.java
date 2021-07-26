@@ -303,7 +303,7 @@ public abstract class CommonOptions {
             // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
             if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
                 // Do not continue if the user specified a patch number that cannot be applied.
-                throw new InvalidPatchNumberException(Utils.getMessage("IMG-0098", patchId));
+                throw logger.throwing(new InvalidPatchNumberException(Utils.getMessage("IMG-0098", patchId)));
             }
 
             if (!patchVersions.isEmpty()) {
@@ -313,7 +313,7 @@ public abstract class CommonOptions {
                 if (selectedVersion != null) {
                     aruPatches.add(selectedVersion);
                 } else {
-                    throw new MultiplePatchVersionsException(patchId, aruPatches);
+                    throw logger.throwing(new MultiplePatchVersionsException(patchId, aruPatches));
                 }
             }
         }

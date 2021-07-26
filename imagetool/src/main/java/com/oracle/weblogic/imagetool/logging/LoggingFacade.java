@@ -484,11 +484,12 @@ public class LoggingFacade {
      *
      * @param pending an Exception to include in the logged message
      */
-    public void throwing(Throwable pending) {
+    public <T extends Throwable> T throwing(T pending) {
         if (isFinerEnabled()) {
             CallerDetails details = inferCaller();
             logger.throwing(details.clazz, details.method, pending);
         }
+        return pending;
     }
 
     /**

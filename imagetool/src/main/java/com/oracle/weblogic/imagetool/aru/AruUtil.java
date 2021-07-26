@@ -105,9 +105,8 @@ public class AruUtil {
             logger.exiting();
             return Collections.emptyList();
         } catch (IOException | XPathExpressionException e) {
-            AruException aruE = new AruException(Utils.getMessage("IMG-0032", product.description(), version), e);
-            logger.throwing(aruE);
-            throw aruE;
+            throw logger.throwing(
+                new AruException(Utils.getMessage("IMG-0032", product.description(), version), e));
         }
     }
 
