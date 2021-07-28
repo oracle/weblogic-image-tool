@@ -64,6 +64,9 @@ public class MiddlewareInstall {
                     if (entryName.endsWith(".jar")) {
                         filename = entryName;
                         break;
+                    } else if (entryName.endsWith(".bin")) {
+                        filename = entryName;
+                        break;
                     }
                 }
             }
@@ -85,6 +88,7 @@ public class MiddlewareInstall {
             installPackage.installerFilename = filePath.getFileName().toString();
             installPackage.jarName = getJarNameFromInstaller(filePath);
             installPackage.isZip = installPackage.installerFilename.endsWith(".zip");
+            installPackage.isBin = installPackage.jarName.endsWith(".bin");
             installPackage.responseFile.copyFile(buildContextDir);
         }
         logger.exiting();

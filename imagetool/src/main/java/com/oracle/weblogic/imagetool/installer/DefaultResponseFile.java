@@ -29,6 +29,7 @@ public class DefaultResponseFile implements ResponseFile {
     private static final String R_OAM =
         "Collocated Oracle Identity and Access Manager (Managed through WebLogic server)";
     private static final String R_OUD = "Installation for Oracle Unified Directory";
+    private static final String R_OID = "Collocated Oracle Internet Directory Server (Managed through WebLogic server)";
     private static final String R_WCC = "WebCenter Content";
     private static final String R_WCP = "WebCenter Portal";
     private static final String R_WCS = "WebCenter Sites";
@@ -76,6 +77,9 @@ public class DefaultResponseFile implements ResponseFile {
                 break;
             case OUD:
                 response = R_OUD;
+                break;
+            case OID:
+                response = R_OID;
                 break;
             case WCC:
                 response = R_WCC;

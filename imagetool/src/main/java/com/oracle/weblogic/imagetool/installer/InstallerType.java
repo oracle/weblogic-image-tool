@@ -20,6 +20,7 @@ public enum InstallerType {
     IDM("idm"),
     OAM("oam"),
     OUD("oud"),
+    OID("oid"),
     WCC("wcc"),
     WCP("wcp"),
     WCS("wcs"),

@@ -67,6 +67,9 @@ public enum FmwInstallerType {
     // Oracle Unified Directory
     OUD_WLS(Utils.toSet(FMW.products, AruProduct.OUD),
         InstallerType.FMW, InstallerType.OUD),
+    // Oracle Internet Directory
+    OID(Utils.toSet(FMW.products, AruProduct.OID),
+        InstallerType.FMW, InstallerType.OID),
     // Oracle WebCenter Content
     WCC(Utils.toSet(FMW.products, AruProduct.WCC),
         InstallerType.FMW, InstallerType.WCC),
