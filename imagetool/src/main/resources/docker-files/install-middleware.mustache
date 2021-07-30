@@ -35,10 +35,10 @@ USER {{userid}}
 RUN echo "INSTALLING MIDDLEWARE" \
 {{#installPackages}}
     && echo "INSTALLING {{type}}" \
-    && {{^isBin}}{{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.jar" -d {{{tempDir}}} &&{{/isZip}} \
-    {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
+    && {{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.[jb][ai][rn]" -d {{{tempDir}}} &&{{/isZip}} \
+    {{^isBin}}{{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
     -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation {{/isBin}} \
-    {{#isBin}}{{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.bin" -d {{{tempDir}}} &&{{/isZip}} chmod +x {{{tempDir}}}/{{jarName}} && \
+    {{#isBin}}chmod +x {{{tempDir}}}/{{jarName}} && \
     {{{tempDir}}}/{{jarName}} -printtime -printmemory -printdiskusage -force -ignoreSysPrereqs -silent \
     -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} \
     -jreLoc {{{java_home}}} {{/isBin}} \
