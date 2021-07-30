@@ -35,7 +35,6 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -236,11 +235,6 @@ public class HttpUtil {
         config.setRedirectsEnabled(true);
 
         CookieStore cookieStore = new BasicCookieStore();
-
-        CloseableHttpClient client =
-                HttpClientBuilder.create().setDefaultRequestConfig(config.build())
-                    .setUserAgent("Wget/1.10")
-                    .useSystemProperties().build();
 
         Executor httpExecutor = HttpUtil.getHttpExecutor(username, password);
         httpExecutor.use(cookieStore);

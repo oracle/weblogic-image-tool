@@ -24,6 +24,7 @@ import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruProduct;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.InstalledPatch;
+import com.oracle.weblogic.imagetool.aru.InvalidCredential;
 import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
 import com.oracle.weblogic.imagetool.aru.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
@@ -162,7 +163,7 @@ public abstract class CommonOptions {
         tempDirectory = value;
     }
 
-    void init(String buildId) throws Exception {
+    void init(String buildId) throws InvalidCredential, IOException {
         logger.entering(buildId);
         logger.info(HelpVersionProvider.versionString());
         dockerfileOptions = new DockerfileOptions(buildId);
@@ -170,12 +171,10 @@ public abstract class CommonOptions {
 
         handleProxyUrls();
         password = Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
-        // check user support credentials if useCache not set to always and we are applying any patches
 
-        if (userId != null || password != null) {
-            if (!AruUtil.checkCredentials(userId, password)) {
-                throw new Exception("user Oracle support credentials do not match");
-            }
+        // if userid or password is provided, validate the pair of provided values
+        if ((userId != null || password != null) && !AruUtil.checkCredentials(userId, password)) {
+            throw new InvalidCredential();
         }
 
         handleChown();

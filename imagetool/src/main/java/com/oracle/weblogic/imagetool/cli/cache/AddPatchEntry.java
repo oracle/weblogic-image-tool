@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.logging.LoggingFacade;
-import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -19,8 +17,6 @@ import picocli.CommandLine.Option;
         sortOptions = false
 )
 public class AddPatchEntry extends CacheAddOperation {
-
-    private static final LoggingFacade logger = LoggingFactory.getLogger(AddPatchEntry.class);
 
     @Override
     public CommandResponse call() throws Exception {
