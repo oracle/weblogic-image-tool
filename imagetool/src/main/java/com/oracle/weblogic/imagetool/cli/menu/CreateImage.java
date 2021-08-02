@@ -93,7 +93,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
                 Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
                 Utils.copyLocalFile(Paths.get(inventoryPointerFile), Paths.get(tmpDir, "/oraInst.loc"), false);
             } else {
-                Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir, false);
+                Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir);
             }
 
             // Create Dockerfile

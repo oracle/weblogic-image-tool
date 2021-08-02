@@ -64,10 +64,9 @@ public class Utils {
      *
      * @param resourcePath resource path in the jar
      * @param destPath     local file to copy to.
-     * @param markExec     sets the executable flag if true
      * @throws IOException in case of error
      */
-    public static void copyResourceAsFile(String resourcePath, String destPath, boolean markExec) throws IOException {
+    public static void copyResourceAsFile(String resourcePath, String destPath) throws IOException {
         Objects.requireNonNull(resourcePath);
         Objects.requireNonNull(destPath);
         if (Files.isDirectory(Paths.get(destPath))) {
@@ -79,11 +78,6 @@ public class Utils {
         }
         Files.copy(Utils.class.getResourceAsStream(resourcePath), Paths.get(destPath),
             StandardCopyOption.REPLACE_EXISTING);
-        if (markExec) {
-            if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-                Files.setPosixFilePermissions(Paths.get(destPath), PosixFilePermissions.fromString("r-xr-xr-x"));
-            }
-        }
     }
 
     /**
@@ -424,7 +418,7 @@ public class Utils {
                                                     String contextDir) throws IOException, InterruptedException {
         logger.entering(builder, dockerImage, script, contextDir);
         final String scriptToRun = "test-env.sh";
-        Utils.copyResourceAsFile(script, contextDir + File.separator + scriptToRun, true);
+        Utils.copyResourceAsFile(script, contextDir + File.separator + scriptToRun);
         List<String> imageEnvCmd = Utils.getDockerRunCmd(builder,
             contextDir + File.separator + scriptToRun, dockerImage);
         logger.info("IMG-0097", dockerImage);
