@@ -24,8 +24,10 @@ import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruProduct;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.InstalledPatch;
+import com.oracle.weblogic.imagetool.aru.InvalidCredential;
+import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
+import com.oracle.weblogic.imagetool.aru.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
-import com.oracle.weblogic.imagetool.cachestore.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
@@ -161,7 +163,7 @@ public abstract class CommonOptions {
         tempDirectory = value;
     }
 
-    void init(String buildId) throws Exception {
+    void init(String buildId) throws InvalidCredential, IOException {
         logger.entering(buildId);
         logger.info(HelpVersionProvider.versionString());
         dockerfileOptions = new DockerfileOptions(buildId);
@@ -169,12 +171,10 @@ public abstract class CommonOptions {
 
         handleProxyUrls();
         password = Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
-        // check user support credentials if useCache not set to always and we are applying any patches
 
-        if (userId != null || password != null) {
-            if (!AruUtil.checkCredentials(userId, password)) {
-                throw new Exception("user Oracle support credentials do not match");
-            }
+        // if userid or password is provided, validate the pair of provided values
+        if ((userId != null || password != null) && !AruUtil.checkCredentials(userId, password)) {
+            throw new InvalidCredential();
         }
 
         handleChown();
@@ -286,7 +286,7 @@ public abstract class CommonOptions {
 
         // add user-provided patch list to any patches that were found for latestPsu or recommendedPatches
         for (String patchId : patches) {
-            // if user mistakenly added the OPatch patch to the WLS patch list, skip it
+            // if user mistakenly added the OPatch patch to the WLS patch list, skip it. WIT updates OPatch anyway
             if (OPatchFile.isOPatchPatch(patchId)) {
                 continue;
             }
@@ -298,13 +298,22 @@ public abstract class CommonOptions {
                 patchId = patchId.substring(0, split);
             }
             List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password);
-            AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, psuVersion,
-                getInstallerVersion());
 
-            if (selectedVersion != null) {
-                aruPatches.add(selectedVersion);
-            } else {
-                throw new MultiplePatchVersionsException(patchId, aruPatches);
+            // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
+            if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
+                // Do not continue if the user specified a patch number that cannot be applied.
+                throw logger.throwing(new InvalidPatchNumberException(Utils.getMessage("IMG-0098", patchId)));
+            }
+
+            if (!patchVersions.isEmpty()) {
+                AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, psuVersion,
+                    getInstallerVersion());
+
+                if (selectedVersion != null) {
+                    aruPatches.add(selectedVersion);
+                } else {
+                    throw logger.throwing(new MultiplePatchVersionsException(patchId, aruPatches));
+                }
             }
         }
 

@@ -4,9 +4,6 @@
 #
 #Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
-if [ "$(type -p java)" ]; then
-  echo javaVersion="$(java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
-fi
 
 if [ "$(type -p dnf)" ]; then
   echo packageManager=DNF
@@ -24,6 +21,9 @@ fi
 
 if [ -n "$JAVA_HOME" ]; then
   echo javaHome="$JAVA_HOME"
+  echo javaVersion="$("$JAVA_HOME"/bin/java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
+else
+  echo javaVersion="$(java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
 fi
 
 if [ -n "$DOMAIN_HOME" ]; then
@@ -56,7 +56,24 @@ if [ -n "$ORACLE_HOME" ]; then
   echo oracleHomeGroup="$(stat -c '%G' "$ORACLE_HOME")"
 
   echo opatchVersion="$($ORACLE_HOME/OPatch/opatch version 2> /dev/null | grep -oE -m 1 '([[:digit:]\.]+)')"
-  echo oraclePatches="$($ORACLE_HOME/OPatch/opatch lsinventory | awk '{ORS=";"} /^Unique Patch ID/ {print $4} /^Patch description/ {x = substr($0, 21);  print x} /^Patch\s*[0-9]+/ {print $2}' | sed 's/;$//')"
+  echo oraclePatches="$($ORACLE_HOME/OPatch/opatch lsinventory |
+  awk 'BEGIN { ORS=";" }
+      /^Unique Patch ID/ { print $4 }
+      /^Patch description/ {
+        x = substr($0, 21)
+        print x
+        descriptionNeeded = 0
+      }
+      /^Patch\s*[0-9]+/ {
+        if (descriptionNeeded)
+          print "None"
+        print $2
+        descriptionNeeded = 1
+      }
+      END {
+        if (descriptionNeeded)
+          print "None"
+      }' | sed 's/;$//')"
 
     echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' $ORACLE_HOME/inventory/registry.xml | sed 's/,$//')"
 fi

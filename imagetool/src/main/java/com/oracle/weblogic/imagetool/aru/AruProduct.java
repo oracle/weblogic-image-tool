@@ -3,6 +3,8 @@
 
 package com.oracle.weblogic.imagetool.aru;
 
+import java.util.Arrays;
+
 /**
  * ARU product codes for patching.
  */
@@ -52,5 +54,9 @@ public enum AruProduct {
             }
         }
         throw new IllegalArgumentException("Invalid ARU data found in patch product ID: " + value);
+    }
+
+    public static boolean isKnownAruProduct(String value) {
+        return Arrays.stream(values()).anyMatch(p -> p.toString().equals(value));
     }
 }

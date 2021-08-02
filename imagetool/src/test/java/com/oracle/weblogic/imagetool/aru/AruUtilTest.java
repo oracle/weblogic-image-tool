@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 class AruUtilTest {
-    private static LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
+    private static final LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
     private static Level oldLevel;
 
     @BeforeAll

@@ -154,6 +154,14 @@ public class AruPatch implements Comparable<AruPatch> {
         return "Recommended".equals(lifecycle);
     }
 
+    public boolean notStackPatchBundle() {
+        return !isStackPatchBundle();
+    }
+
+    public boolean isStackPatchBundle() {
+        return description != null && description.contains("STACK PATCH BUNDLE");
+    }
+
     /**
      * Given an XML document with a list of patches, extract each patch into the AruPatch bean and return the list.
      * @param patchList an XML document with a list of patches from ARU
@@ -191,11 +199,6 @@ public class AruPatch implements Comparable<AruPatch> {
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"));
 
-                // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
-                if (patch.description.contains("STACK PATCH BUNDLE")) {
-                    logger.fine("Discarded Stack Patch Bundle: {0}", patch.description);
-                    continue;
-                }
                 int index = patch.downloadPath().indexOf("patch_file=");
                 if (index < 0) {
                     throw new XPathExpressionException(Utils.getMessage("IMG-0059", patch.patchId()));
@@ -230,9 +233,11 @@ public class AruPatch implements Comparable<AruPatch> {
     public static AruPatch selectPatch(List<AruPatch> patches, String providedVersion, String psuVersion,
                                        String installerVersion) throws VersionNotFoundException {
 
+        logger.entering(patches, providedVersion, psuVersion, installerVersion);
         AruPatch selected = null;
 
         if (patches.isEmpty()) {
+            logger.exiting("Patches list is empty");
             return null;
         }
 
@@ -248,7 +253,19 @@ public class AruPatch implements Comparable<AruPatch> {
                 }
             } else if (providedVersion != null && !selected.version().equals(providedVersion)) {
                 throw new VersionNotFoundException(selected.patchId(), providedVersion, patches);
+            } else {
+                // the patch has a version from ARU, warn the user if the version doesn't match the target install
+                if (psuVersion != null) {
+                    if (!selected.version().equals(psuVersion)) {
+                        logger.warning("IMG-0099", selected.patchId(), selected.version(), psuVersion);
+                    }
+                } else {
+                    if (installerVersion != null && !selected.version().equals(installerVersion)) {
+                        logger.warning("IMG-0099", selected.patchId(), selected.version(), installerVersion);
+                    }
+                }
             }
+            logger.exiting(selected);
             return selected;
         }
 
@@ -267,7 +284,17 @@ public class AruPatch implements Comparable<AruPatch> {
             selected = patchMap.get(installerVersion);
         }
 
+        logger.exiting(selected);
         return selected;
+    }
+
+    /**
+     * Find and remove any Stack Patch Bundle type patches from the list.
+      * @param patches the list to scan
+     * @return a new list, with SPB removed
+     */
+    public static List<AruPatch> removeStackPatchBundle(List<AruPatch> patches) {
+        return patches.stream().filter(AruPatch::notStackPatchBundle).collect(Collectors.toList());
     }
 
     @Override

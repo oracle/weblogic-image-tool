@@ -4,9 +4,6 @@
 #
 #Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
-if [ "$(type -p java)" ]; then
-  echo javaVersion="$(java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
-fi
 
 if [ "$(type -p dnf)" ]; then
   echo packageManager=DNF
@@ -24,6 +21,9 @@ fi
 
 if [ -n "$JAVA_HOME" ]; then
   echo javaHome="$JAVA_HOME"
+  echo javaVersion="$("$JAVA_HOME"/bin/java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
+else
+  echo javaVersion="$(java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
 fi
 
 if [ -n "$DOMAIN_HOME" ]; then
