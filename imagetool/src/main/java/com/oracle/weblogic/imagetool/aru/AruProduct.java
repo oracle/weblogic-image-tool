@@ -19,6 +19,7 @@ public enum AruProduct {
     IDM("18391", "Oracle Identity Manager"),
     OAM("18388", "Oracle Access Manager"),
     OUD("19748", "Oracle Unified Directory"),
+    OID("10040", "Oracle Internet Directory"),
     WCC("13946", "Oracle WebCenter Content"),
     WCP("15224", "Oracle WebCenter Portal"),
     WCS("20995", "Oracle WebCenter Sites"),

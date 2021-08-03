@@ -12,4 +12,5 @@ public class MiddlewareInstallPackage {
     String installerFilename;
     String jarName;
     boolean isZip = true;
+    boolean isBin = false;
 }
