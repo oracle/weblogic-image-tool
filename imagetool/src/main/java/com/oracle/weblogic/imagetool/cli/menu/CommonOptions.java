@@ -125,8 +125,8 @@ public abstract class CommonOptions {
             .tag(imageTag)
             .network(buildNetwork)
             .pull(buildPull)
-            .buildArg("http_proxy", httpProxyUrl)
-            .buildArg("https_proxy", httpsProxyUrl)
+            .buildArg("http_proxy", httpProxyUrl, httpProxyUrl.contains("@"))
+            .buildArg("https_proxy", httpsProxyUrl, httpsProxyUrl.contains("@"))
             .buildArg("no_proxy", nonProxyHosts);
 
         if (dockerPath != null && Files.isExecutable(dockerPath)) {
