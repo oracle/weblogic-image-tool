@@ -106,6 +106,9 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             }
         } catch (Exception ex) {
             logger.fine("**ERROR**", ex);
+            //TO-DO remove this
+            logger.info("Exception occurred: {0}", ex.getMessage());
+            ex.printStackTrace();
             return new CommandResponse(1, ex.getMessage());
         } finally {
             if (!skipcleanup) {
