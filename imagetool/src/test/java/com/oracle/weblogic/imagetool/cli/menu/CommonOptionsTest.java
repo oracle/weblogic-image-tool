@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("unit")
-public class CommonOptionsTest {
+class CommonOptionsTest {
     /**
      * Test CommonOptions handleChown method.
      * @throws Exception if reflection fails (developer error)

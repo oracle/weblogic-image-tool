@@ -19,7 +19,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Base64;
@@ -85,19 +84,13 @@ public class Utils {
      *
      * @param sourcePath   resource path in the local directory
      * @param destPath     local file to copy to.
-     * @param markExec     sets the executable flag if true
      * @throws IOException in case of error
      */
-    public static void copyLocalFile(Path sourcePath, Path destPath, boolean markExec) throws IOException {
+    public static void copyLocalFile(Path sourcePath, Path destPath) throws IOException {
         Objects.requireNonNull(sourcePath);
         Objects.requireNonNull(destPath);
         logger.fine("copyLocalFile: copying file {0}->{1}", sourcePath, destPath);
         Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
-        if (markExec) {
-            if (!System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-                Files.setPosixFilePermissions(destPath, PosixFilePermissions.fromString("r-xr-xr-x"));
-            }
-        }
     }
 
     /**
@@ -105,10 +98,9 @@ public class Utils {
      *
      * @param sourcePath   path to the local directory
      * @param destPath     local directory to copy to.
-     * @param markExec     sets the executable flag if true
      * @throws IOException in case of error
      */
-    public static void copyLocalDirectory(Path sourcePath, Path destPath, boolean markExec) throws IOException {
+    public static void copyLocalDirectory(Path sourcePath, Path destPath) throws IOException {
         Objects.requireNonNull(sourcePath);
         Objects.requireNonNull(destPath);
         if (!Files.isDirectory(sourcePath)) {
@@ -124,9 +116,9 @@ public class Utils {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourcePath)) {
             for (Path child : stream) {
                 if (Files.isDirectory(child)) {
-                    copyLocalDirectory(child, destPath.resolve(child.getFileName()), markExec);
+                    copyLocalDirectory(child, destPath.resolve(child.getFileName()));
                 } else if (Files.isRegularFile(child)) {
-                    copyLocalFile(child, destPath.resolve(child.getFileName()), markExec);
+                    copyLocalFile(child, destPath.resolve(child.getFileName()));
                 } else {
                     logger.info("IMG-0035", sourcePath.toString());
                 }

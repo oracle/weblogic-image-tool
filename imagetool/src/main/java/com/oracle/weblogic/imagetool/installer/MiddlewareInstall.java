@@ -61,10 +61,7 @@ public class MiddlewareInstall {
                     ZipEntry entry = entries.nextElement();
                     String entryName = entry.getName();
                     logger.finer("Entry in zip {0}: {1}", filename, entryName);
-                    if (entryName.endsWith(".jar")) {
-                        filename = entryName;
-                        break;
-                    } else if (entryName.endsWith(".bin")) {
+                    if (entryName.endsWith(".jar") || entryName.endsWith(".bin")) {
                         filename = entryName;
                         break;
                     }

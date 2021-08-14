@@ -91,9 +91,9 @@ public abstract class CommonOptions {
                 Path targetFile = Paths.get(getTempDirectory(), FILESFOLDER, additionalFile.getFileName().toString());
                 logger.info("IMG-0043", additionalFile);
                 if (Files.isDirectory(additionalFile)) {
-                    Utils.copyLocalDirectory(additionalFile, targetFile, false);
+                    Utils.copyLocalDirectory(additionalFile, targetFile);
                 } else {
-                    Utils.copyLocalFile(additionalFile, targetFile, false);
+                    Utils.copyLocalFile(additionalFile, targetFile);
                 }
             }
         }

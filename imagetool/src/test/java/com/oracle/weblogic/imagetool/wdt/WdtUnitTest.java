@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
-public class WdtUnitTest {
+class WdtUnitTest {
     @Test
     void parseStringValues() {
         assertEquals(DomainType.JRF, DomainType.fromValue("jrf"));
