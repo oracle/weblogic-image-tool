@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
-public class InstallerTest {
+class InstallerTest {
     @Test
     void fmwInstallerTypeStringTest() {
         assertEquals("fmw, soa, osb", FmwInstallerType.SOA_OSB.installerListString(),

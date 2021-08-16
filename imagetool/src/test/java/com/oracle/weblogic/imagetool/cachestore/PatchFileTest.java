@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
-public class PatchFileTest {
+class PatchFileTest {
     static Path cacheDir;
     static CacheStore cacheStore;
     static final List<String> fileContents = Arrays.asList("A", "B", "C");

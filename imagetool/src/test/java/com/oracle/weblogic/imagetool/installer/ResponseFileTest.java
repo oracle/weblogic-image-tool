@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
-public class ResponseFileTest {
+class ResponseFileTest {
     @Test
     void copyProvidedResponseFile(@TempDir File tmpDir) throws Exception {
         String filename = "responseA.txt";

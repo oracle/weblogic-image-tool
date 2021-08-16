@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
-public class OPatchFileTest {
+class OPatchFileTest {
     @Test
     void opatchPatchIdTest() {
         assertTrue(OPatchFile.isOPatchPatch("28186730"), "OPatch bug number");

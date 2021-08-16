@@ -75,32 +75,32 @@ public class ConsoleFormatter extends Formatter {
     /**
      * Formats the log record.
      *
-     * @param record the log record
+     * @param logRecord the log record
      * @return the formatted log record
      */
     @Override
-    public synchronized String format(LogRecord record) {
+    public synchronized String format(LogRecord logRecord) {
         StringBuilder sb = new StringBuilder();
 
         // Level
         sb.append("[")
-            .append(getMessageLevelColor(record.getLevel()))
-            .append(String.format("%-7s", record.getLevel().getLocalizedName()))
+            .append(getMessageLevelColor(logRecord.getLevel()))
+            .append(String.format("%-7s", logRecord.getLevel().getLocalizedName()))
             .append(AnsiColor.RESET)
             .append("] ");
 
         // message
-        sb.append(replaceColorTokens(formatMessage(record)));
+        sb.append(replaceColorTokens(formatMessage(logRecord)));
 
         // throwable
-        if (record.getThrown() != null) {
+        if (logRecord.getThrown() != null) {
             try {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
-                record.getThrown().printStackTrace(pw);
+                logRecord.getThrown().printStackTrace(pw);
                 pw.close();
                 sb.append(LINE_SEPARATOR)
-                    .append(sw.toString())
+                    .append(sw)
                     .append(LINE_SEPARATOR);
             } catch (Exception ex) {
                 //ignore

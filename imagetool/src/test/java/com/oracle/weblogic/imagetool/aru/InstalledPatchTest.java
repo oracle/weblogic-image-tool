@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("unit")
-public class InstalledPatchTest {
+class InstalledPatchTest {
     @Test
     void getPatchesTest() {
         // Parse the output from the image probe to get a list of installed patches
