@@ -10,23 +10,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("unit")
 class BuilderTest {
-    private final String buildContext = "/some/context";
-    private final String buildEngine = "docker";
+    private static final String BUILD_CONTEXT = "/some/context";
+    private static final String BUILD_ENGINE = "docker";
 
     private String expected(String options) {
-        return String.format("%s build --no-cache %s %s", buildEngine, options, buildContext);
+        return String.format("%s build --no-cache %s %s", BUILD_ENGINE, options, BUILD_CONTEXT);
     }
 
     @Test
     void testSimpleCommand() {
-        BuildCommand cmd = new BuildCommand(buildEngine, buildContext);
+        BuildCommand cmd = new BuildCommand(BUILD_ENGINE, BUILD_CONTEXT);
         cmd.tag("img:1");
         assertEquals(expected("--tag img:1"), cmd.toString());
     }
 
     @Test
     void testBuildWithOptions() {
-        BuildCommand cmd = new BuildCommand(buildEngine, buildContext)
+        BuildCommand cmd = new BuildCommand(BUILD_ENGINE, BUILD_CONTEXT)
             .tag("img:2")
             .pull(true)
             .forceRm(true)
@@ -39,7 +39,7 @@ class BuilderTest {
 
     @Test
     void testBuildWithProxyPass() {
-        BuildCommand cmd = new BuildCommand(buildEngine, buildContext);
+        BuildCommand cmd = new BuildCommand(BUILD_ENGINE, BUILD_CONTEXT);
         cmd.tag("img:3").buildArg("http_proxy", "http://user:pass@blah/blah", true);
         assertEquals(expected("--tag img:3 --build-arg http_proxy=********"), cmd.toString());
     }
