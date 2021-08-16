@@ -5,8 +5,8 @@ package com.oracle.weblogic.imagetool.aru;
 
 import com.oracle.weblogic.imagetool.util.Utils;
 
-public class InvalidCredential extends AruException {
-    public InvalidCredential() {
+public class InvalidCredentialException extends AruException {
+    public InvalidCredentialException() {
         super(Utils.getMessage("IMG-0022"));
     }
 }
