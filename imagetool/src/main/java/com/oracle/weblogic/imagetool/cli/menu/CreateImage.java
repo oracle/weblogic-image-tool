@@ -91,7 +91,7 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
             // Set the inventory location, so that it will be copied
             if (inventoryPointerFile != null) {
                 Utils.setInventoryLocation(inventoryPointerFile, dockerfileOptions);
-                Utils.copyLocalFile(Paths.get(inventoryPointerFile), Paths.get(tmpDir, "/oraInst.loc"), false);
+                Utils.copyLocalFile(Paths.get(inventoryPointerFile), Paths.get(tmpDir, "/oraInst.loc"));
             } else {
                 Utils.copyResourceAsFile("/response-files/oraInst.loc", tmpDir);
             }

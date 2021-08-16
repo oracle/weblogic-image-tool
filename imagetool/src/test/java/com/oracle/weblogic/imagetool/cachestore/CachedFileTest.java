@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
-public class CachedFileTest {
+class CachedFileTest {
 
     static Path cacheDir;
     static CacheStore cacheStore;

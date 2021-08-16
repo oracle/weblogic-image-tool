@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
-public class InspectTest {
+class InspectTest {
     @Test
     void testJsonOutput() throws IOException {
         testPropertiesToJson("src/test/resources/inspect/image1.properties",

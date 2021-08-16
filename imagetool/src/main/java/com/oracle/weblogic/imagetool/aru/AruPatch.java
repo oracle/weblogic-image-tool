@@ -302,6 +302,7 @@ public class AruPatch implements Comparable<AruPatch> {
         return patchId + " - " + description;
     }
 
+    @Override
     public int compareTo(AruPatch obj) {
         return version.compareTo(obj.version);
     }

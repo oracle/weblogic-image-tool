@@ -21,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
-public class AddPatchEntryTest {
+class AddPatchEntryTest {
     private static LoggingFacade commandLogger = LoggingFactory.getLogger(AddPatchEntry.class);
     private static Level oldLevel;
 
     @BeforeAll
-    static void setUp() throws NoSuchFieldException, IllegalAccessException {
+    static void setUp() {
         // disable logging for the tested tool to prevent filling up the screen with errors (that are expected)
         oldLevel = commandLogger.getLevel();
         commandLogger.setLevel(Level.OFF);

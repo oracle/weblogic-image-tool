@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * This class should be replaced if/when a full JSON parser is added to the project.
  */
 public class InspectOutput {
-    private static final String patchesKey = "oraclePatches";
+    private static final String PATCHES_KEY = "oraclePatches";
     Map<String,String> attributes;
     List<InventoryPatch> patches;
     OperatingSystemProperties os;
@@ -30,15 +30,15 @@ public class InspectOutput {
         // convert Properties to TreeMap (to sort attributes alphabetically)
         Map<String,String> sorted = imageProperties.entrySet().stream()
             .map(InspectOutput::convertToStringEntry)
-            .filter(e -> !e.getKey().equals(patchesKey)) // do not store patches entry as a normal attribute
+            .filter(e -> !e.getKey().equals(PATCHES_KEY)) // do not store patches entry as a normal attribute
             .filter(e -> !e.getKey().startsWith("__OS__")) // do not store OS entries as a normal attribute
             .collect(Collectors.toMap(
                 Map.Entry::getKey, Map.Entry::getValue,
                 (v1, v2) -> v1, // discard duplicates, but there shouldn't be any dupes
                 TreeMap::new)); // use a sorted map
 
-        if (imageProperties.containsKey(patchesKey)) {
-            patches = InventoryPatch.parseInventoryPatches(imageProperties.get(patchesKey).toString());
+        if (imageProperties.containsKey(PATCHES_KEY)) {
+            patches = InventoryPatch.parseInventoryPatches(imageProperties.get(PATCHES_KEY).toString());
         }
 
         attributes = sorted;
@@ -53,7 +53,7 @@ public class InspectOutput {
     public String toString() {
         StringBuilder result = new StringBuilder().append("{\n");
         if (patches != null) {
-            result.append(pad(1)).append('\"').append(patchesKey).append('\"').append(" : [\n");
+            result.append(pad(1)).append('\"').append(PATCHES_KEY).append('\"').append(" : [\n");
             Iterator<InventoryPatch> patchesIter = patches.iterator();
             while (patchesIter.hasNext()) {
                 InventoryPatch patch = patchesIter.next();
