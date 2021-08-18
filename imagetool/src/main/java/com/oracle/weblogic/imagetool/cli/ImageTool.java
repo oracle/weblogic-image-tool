@@ -48,7 +48,7 @@ public class ImageTool {
       * @param args command line arguments.
      */
     public static void main(String[] args) {
-        CommandResponse response = run(new ImageTool(),
+        CommandResponse response = run(ImageTool.class,
             new PrintWriter(System.out, true),
             new PrintWriter(System.err, true),
             args);
@@ -60,7 +60,7 @@ public class ImageTool {
     /**
      * Used for main entry point, and also entry point for unit tests.
      *
-     * @param entryPoint must be an object annotated with picocli.CommandLine.Command
+     * @param entryPoint must be an instance or class annotated with picocli.CommandLine.Command
      * @param out where to send stdout
      * @param err where to send stderr
      * @param args the command line arguments (minus the sub commands themselves)

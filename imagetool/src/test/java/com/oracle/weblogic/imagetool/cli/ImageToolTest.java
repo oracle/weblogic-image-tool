@@ -38,7 +38,7 @@ class ImageToolTest {
     @Test
     void testUsage() {
         // No argument should give USAGE
-        CommandResponse response = ImageTool.run(new ImageTool(), printStream, printStream);
+        CommandResponse response = ImageTool.run(ImageTool.class, printStream, printStream);
         assertNotNull(response);
         assertEquals(2, response.getStatus());
         assertTrue(byteArrayOutputStream.toString().contains("Usage: imagetool [OPTIONS]"));
@@ -47,7 +47,7 @@ class ImageToolTest {
     @Test
     void testHelp() {
         // HELP argument should return usage but success code
-        CommandResponse response = ImageTool.run(new ImageTool(), printStream, printStream, "help");
+        CommandResponse response = ImageTool.run(ImageTool.class, printStream, printStream, "help");
         assertNotNull(response);
         assertEquals(0, response.getStatus());
         assertTrue(byteArrayOutputStream.toString().contains("Usage: imagetool [OPTIONS]"));
@@ -56,7 +56,7 @@ class ImageToolTest {
     @Test
     void testHelp2() {
         // HELP argument should return usage but success code
-        CommandResponse response = ImageTool.run(new ImageTool(), printStream, printStream, "--help");
+        CommandResponse response = ImageTool.run(ImageTool.class, printStream, printStream, "--help");
         assertNotNull(response);
         assertEquals(0, response.getStatus());
         assertTrue(byteArrayOutputStream.toString().contains("Usage: imagetool [OPTIONS]"));
