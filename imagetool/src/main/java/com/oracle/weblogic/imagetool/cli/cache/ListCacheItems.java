@@ -25,7 +25,7 @@ public class ListCacheItems extends CacheOperation {
     public CommandResponse call() throws CacheStoreException {
         Map<String, String> resultMap = cache().getCacheItems();
         if (resultMap == null || resultMap.isEmpty()) {
-            return new CommandResponse(0, "IMG-0047");
+            return CommandResponse.success("IMG-0047");
         } else {
             System.out.println("Cache contents");
             String cacheDir = resultMap.getOrDefault(Constants.CACHE_DIR_KEY, null);
@@ -39,7 +39,7 @@ public class ListCacheItems extends CacheOperation {
                 .filter(entry -> pattern.matcher(entry.getKey()).matches())
                 .forEach(System.out::println);
 
-            return new CommandResponse(0, "");
+            return CommandResponse.success(null);
         }
     }
 
