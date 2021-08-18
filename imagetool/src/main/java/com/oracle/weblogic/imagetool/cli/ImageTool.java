@@ -58,7 +58,7 @@ public class ImageTool {
     }
 
     /**
-     * Used for main entry point, and also entry point for unit tests.
+     * Executes the provided entryPoint .
      *
      * @param entryPoint must be an instance or class annotated with picocli.CommandLine.Command
      * @param out where to send stdout

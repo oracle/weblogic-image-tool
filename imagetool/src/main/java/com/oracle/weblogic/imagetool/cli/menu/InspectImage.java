@@ -37,7 +37,7 @@ public class InspectImage implements Callable<CommandResponse> {
 
         System.out.println(new InspectOutput(baseImageProperties));
 
-        return CommandResponse.success("");
+        return CommandResponse.success(null);
     }
 
     @CommandLine.Option(
