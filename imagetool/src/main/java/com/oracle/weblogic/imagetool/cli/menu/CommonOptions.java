@@ -24,7 +24,7 @@ import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruProduct;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.InstalledPatch;
-import com.oracle.weblogic.imagetool.aru.InvalidCredential;
+import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
 import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
 import com.oracle.weblogic.imagetool.aru.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
@@ -163,7 +163,7 @@ public abstract class CommonOptions {
         tempDirectory = value;
     }
 
-    void init(String buildId) throws InvalidCredential, IOException {
+    void init(String buildId) throws InvalidCredentialException, IOException {
         logger.entering(buildId);
         logger.info(HelpVersionProvider.versionString());
         dockerfileOptions = new DockerfileOptions(buildId);
@@ -174,7 +174,7 @@ public abstract class CommonOptions {
 
         // if userid or password is provided, validate the pair of provided values
         if ((userId != null || password != null) && !AruUtil.checkCredentials(userId, password)) {
-            throw new InvalidCredential();
+            throw new InvalidCredentialException();
         }
 
         handleChown();

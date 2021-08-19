@@ -21,20 +21,20 @@ public class DeleteEntry extends CacheOperation {
     public CommandResponse call() throws Exception {
         if (!Utils.isEmptyString(key)) {
             if (Constants.CACHE_DIR_KEY.equalsIgnoreCase(key)) {
-                return new CommandResponse(0, "Cannot delete key: " + key);
+                return CommandResponse.success("Cannot delete key: " + key);
             } else if (Constants.DELETE_ALL_FOR_SURE.equalsIgnoreCase(key)) {
                 cache().clearCache();
-                return new CommandResponse(0, "IMG-0046");
+                return CommandResponse.success("IMG-0046");
             } else {
                 String oldValue = cache().deleteFromCache(key);
                 if (oldValue != null) {
-                    return new CommandResponse(0, "IMG-0051", key, oldValue);
+                    return CommandResponse.success("IMG-0051", key, oldValue);
                 } else {
-                    return new CommandResponse(0, "IMG-0052", key);
+                    return CommandResponse.success("IMG-0052", key);
                 }
             }
         }
-        return new CommandResponse(1, "IMG-0045");
+        return CommandResponse.error("IMG-0045");
     }
 
     @Option(

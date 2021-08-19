@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
 class AddPatchEntryTest {
-    private static LoggingFacade commandLogger = LoggingFactory.getLogger(AddPatchEntry.class);
+    private static final LoggingFacade commandLogger = LoggingFactory.getLogger(AddPatchEntry.class);
     private static Level oldLevel;
 
     @BeforeAll

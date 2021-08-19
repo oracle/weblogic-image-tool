@@ -28,9 +28,9 @@ public class AddEntry extends CacheOperation {
                 msg = String.format("Added entry %s=%s", key, location);
             }
             cache().addToCache(key, location);
-            return new CommandResponse(0, msg);
+            return CommandResponse.success(msg);
         }
-        return new CommandResponse(1, "IMG-0044");
+        return CommandResponse.error("IMG-0044");
     }
 
     @Option(

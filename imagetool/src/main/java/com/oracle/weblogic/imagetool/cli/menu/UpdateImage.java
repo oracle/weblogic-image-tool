@@ -51,7 +51,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             init(buildId);
 
             if (fromImage == null || fromImage.isEmpty()) {
-                return new CommandResponse(1, "update requires a base image. use --fromImage to specify base image");
+                return CommandResponse.error("IMG-0100");
             }
 
             dockerfileOptions.setBaseImage(fromImage).setWdtBase(fromImage);
@@ -65,14 +65,14 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
 
             String oracleHome = baseImageProperties.getProperty("oracleHome", null);
             if (oracleHome == null) {
-                return new CommandResponse(1, "IMG-0072", fromImage);
+                return CommandResponse.error("IMG-0072", fromImage);
             }
             dockerfileOptions.setOracleHome(oracleHome);
 
             if (wdtOptions.isUsingWdt() && !wdtOptions.modelOnly()) {
                 String domainHome = baseImageProperties.getProperty("domainHome", null);
                 if (domainHome == null && wdtOperation == WdtOperation.UPDATE) {
-                    return new CommandResponse(1, "IMG-0071", fromImage);
+                    return CommandResponse.error("IMG-0071", fromImage);
                 }
             }
 
@@ -83,7 +83,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             String baseImageUsr = baseImageProperties.getProperty("oracleHomeUser");
             String baseImageGrp = baseImageProperties.getProperty("oracleHomeGroup");
             if (!dockerfileOptions.userid().equals(baseImageUsr) || !dockerfileOptions.groupid().equals(baseImageGrp)) {
-                return new CommandResponse(1, "IMG-0087", fromImage, baseImageUsr, baseImageGrp);
+                return CommandResponse.error("IMG-0087", fromImage, baseImageUsr, baseImageGrp);
             }
 
             List<InstalledPatch> installedPatches = Collections.emptyList();
@@ -115,18 +115,18 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                     logger.warning("IMG-0009");
                 } else {
                     if (!Utils.validatePatchIds(patches, false)) {
-                        return new CommandResponse(1, "Patch ID validation failed");
+                        return CommandResponse.error("Patch ID validation failed");
                     }
 
                     String oraclePatches = baseImageProperties.getProperty("oraclePatches", null);
                     if (oraclePatches != null) {
                         if (oraclePatches.contains("OPatch failed")) {
                             logger.severe("patch inventory = " + oraclePatches);
-                            return new CommandResponse(1, "opatch lsinventory failed");
+                            return CommandResponse.error("opatch lsinventory failed");
                         }
                         installedPatches = InstalledPatch.getPatchList(oraclePatches);
                     } else {
-                        return new CommandResponse(1, "lsinventory missing. required to check for conflicts");
+                        return CommandResponse.error("lsinventory missing. required to check for conflicts");
                     }
                 }
             }
@@ -138,7 +138,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
             dockerfileOptions.setWdtCommand(wdtOperation);
             if (dockerfileOptions.runRcu()
                 && (wdtOperation == WdtOperation.UPDATE || wdtOperation == WdtOperation.DEPLOY)) {
-                return new CommandResponse(1, "IMG-0055");
+                return CommandResponse.error("IMG-0055");
             }
 
             FmwInstallerType installerType = FmwInstallerType.fromProductList(
@@ -147,7 +147,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 logger.fine("Unable to detect installed products from image {0}", fromImage);
                 // This error occurred with the 12.2.1.4 quick slim image because registry.xml was missing data
                 if (applyingPatches()) {
-                    return new CommandResponse(1, "IMG-0096", fromImage);
+                    return CommandResponse.error("IMG-0096", fromImage);
                 }
             } else {
                 logger.info("IMG-0094", installerType);
@@ -164,7 +164,7 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
                 wdtOptions.handleResourceTemplates(imageTag);
             }
         } catch (Exception ex) {
-            return new CommandResponse(1, ex.getMessage());
+            return CommandResponse.error(ex.getMessage());
         } finally {
             if (!skipcleanup) {
                 Utils.deleteFilesRecursively(tmpDir);
@@ -175,9 +175,9 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
         logger.finer("Exiting UpdateImage.call ");
 
         if (dryRun) {
-            return new CommandResponse(0, "IMG-0054");
+            return CommandResponse.success("IMG-0054");
         } else {
-            return new CommandResponse(0, "IMG-0053",
+            return CommandResponse.success("IMG-0053",
                 Duration.between(startTime, endTime).getSeconds(), imageTag);
         }
     }

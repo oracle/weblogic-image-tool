@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.cli;
 
 import java.io.PrintWriter;
-import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cli.cache.CacheCLI;
@@ -18,6 +17,8 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.ParseResult;
+
+import static picocli.CommandLine.ExitCode;
 
 @Command(
         name = "imagetool",
@@ -38,57 +39,56 @@ import picocli.CommandLine.ParseResult;
         usageHelpWidth = 120,
         commandListHeading = "%nCommands:%n%nChoose from:%n"
 )
-public class ImageTool implements Callable<CommandResponse> {
+public class ImageTool {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(ImageTool.class);
 
-    @Override
-    public CommandResponse call() {
-        CommandLine.usage(ImageTool.class, System.out);
-        return new CommandResponse(0, "");
-    }
-
     /**
-     * Entry point for Image Tool.
+     * Entry point for Image Tool command line.
       * @param args command line arguments.
      */
     public static void main(String[] args) {
-        CommandResponse response = run(new ImageTool(),
+        CommandResponse response = run(ImageTool.class,
             new PrintWriter(System.out, true),
             new PrintWriter(System.err, true),
             args);
 
-        if (response != null) {
-            if (response.getStatus() != 0) {
-                logger.severe(response.getMessage());
-            } else if (!response.getMessage().isEmpty()) {
-                logger.info(response.getMessage());
-            }
-            System.exit(response.getStatus());
-        }
-        System.exit(1);
+        response.logResponse(logger);
+        System.exit(response.getStatus());
     }
 
     /**
-     * Used from main entry point, and also entry point for unit tests.
+     * Executes the provided entryPoint .
+     *
+     * @param entryPoint must be an instance or class annotated with picocli.CommandLine.Command
      * @param out where to send stdout
      * @param err where to send stderr
      * @param args the command line arguments (minus the sub commands themselves)
      */
-    public static CommandResponse run(Callable<CommandResponse> callable, PrintWriter out, PrintWriter err,
-                                      String... args) {
-
-        CommandLine cmd = new CommandLine(callable)
+    public static CommandResponse run(Object entryPoint, PrintWriter out, PrintWriter err, String... args) {
+        CommandLine cmd = new CommandLine(entryPoint)
             .setCaseInsensitiveEnumValuesAllowed(true)
             .setToggleBooleanFlags(false)
             .setUnmatchedArgumentsAllowed(false)
             .setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.AUTO))
+            .setParameterExceptionHandler(new ExceptionHandler())
             .setOut(out)
             .setErr(err);
 
-        cmd.execute(args);
+        int exit = cmd.execute(args);
+        CommandResponse response;
+        if (exit == ExitCode.USAGE) {
+            response = new CommandResponse(ExitCode.USAGE, null);
+        } else {
+            CommandLine commandLine = getSubcommand(cmd);
+            response = commandLine.getExecutionResult();
+            if (response == null) {
+                logger.fine("User requested usage by using help command");
+                response = CommandResponse.success(null);
+            }
+        }
         //Get the command line for the sub-command (if exists), and ignore the parents, like "imagetool cache listItems"
-        return getSubcommand(cmd).getExecutionResult();
+        return response;
     }
 
     /**
@@ -104,5 +104,24 @@ public class ImageTool implements Callable<CommandResponse> {
         }
 
         return commandLine;
+    }
+
+    static class ExceptionHandler implements CommandLine.IParameterExceptionHandler {
+
+        @Override
+        public int handleParseException(CommandLine.ParameterException ex, String[] args) {
+            CommandLine cmd = ex.getCommandLine();
+            PrintWriter writer = cmd.getErr();
+
+            writer.println(ex.getMessage());
+            CommandLine.UnmatchedArgumentException.printSuggestions(ex, writer);
+
+            CommandLine.Model.CommandSpec spec = cmd.getCommandSpec();
+            ex.getCommandLine().usage(writer, cmd.getColorScheme());
+
+            return cmd.getExitCodeExceptionMapper() != null
+                ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
+                : spec.exitCodeOnInvalidInput();
+        }
     }
 }

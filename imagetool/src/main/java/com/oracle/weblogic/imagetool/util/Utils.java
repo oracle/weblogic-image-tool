@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.URL;
@@ -25,7 +24,6 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -36,8 +34,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
@@ -550,39 +546,6 @@ public class Utils {
         }
 
         return workingDir;
-    }
-
-    /**
-     * Return the version number inside a opatch file.
-     *
-     * @param fileName full path to the opatch patch
-     * @return version number of the patch
-     */
-
-    public static String getOpatchVersionFromZip(String fileName) {
-
-        try (ZipFile zipFile = new ZipFile(fileName)) {
-
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                if (entry.getName().endsWith("/version.txt")) {
-                    InputStream stream = zipFile.getInputStream(entry);
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-                    StringBuilder out = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        out.append(line);
-                    }
-                    return out.toString();
-                }
-            }
-        } catch (IOException ioe) {
-            logger.warning("Cannot read opatch file " + fileName);
-            logger.finer(ioe.getLocalizedMessage());
-        }
-        return null;
     }
 
     /**
