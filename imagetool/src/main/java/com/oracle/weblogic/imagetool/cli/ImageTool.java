@@ -70,6 +70,7 @@ public class ImageTool {
             .setCaseInsensitiveEnumValuesAllowed(true)
             .setToggleBooleanFlags(false)
             .setUnmatchedArgumentsAllowed(false)
+            .setTrimQuotes(true)
             .setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.AUTO))
             .setParameterExceptionHandler(new ExceptionHandler())
             .setOut(out)
