@@ -29,13 +29,13 @@ WebLogic Image Tool version and release information can be found [here](https://
 **NOTE**: The upcoming change to Oracle Support's recommended patches list will require  
 Image Tool 1.9.11 in order to use `--recommendedPatches` or `--latestPSU`.
 
-# Documentation
+## Documentation
 
 Documentation for WebLogic Image Tool is [available here](https://oracle.github.io/weblogic-image-tool/).
 
 This documentation includes information for users and for developers.
 
-# Related projects
+## Related projects
 
 * [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/)
 * [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/)
@@ -43,5 +43,19 @@ This documentation includes information for users and for developers.
 * [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
 
-# Contributing
-Those who wish to contribute to the WebLogic Image Tool code will find useful information [here](https://github.com/oracle/weblogic-image-tool/blob/main/CONTRIBUTING.md).
+## Contributing
+
+This project welcomes contributions from the community. Before submitting a pull
+request, please [review our contribution guide](./CONTRIBUTING.md).
+
+## Security
+
+Please consult the [security guide](./SECURITY.md) for our responsible security
+vulnerability disclosure process.
+
+## License
+
+Copyright (c) 2019, 2021 Oracle and/or its affiliates.
+
+Released under the Universal Permissive License v1.0 as shown at
+<https://oss.oracle.com/licenses/upl/>.
