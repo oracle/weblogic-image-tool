@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.oracle.weblogic.imagetool.cli.menu.KubernetesTarget;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.tests.annotations.IntegrationTest;
@@ -970,13 +971,13 @@ class ITImagetool {
             // verify the docker image is created
             assertTrue(imageExists(tagName), "Image was not created: " + tagName);
 
-            validateFilePermissions("/u01/domains", "drwxrwxr-x", tagName, out);
-            validateFilePermissions("/u01/wdt", "drwxrwxr-x", tagName, out);
-            validateFilePermissions("/u01/wdt/models", "drwxrwxr-x", tagName, out);
-            validateFilePermissions("/u01/wdt/weblogic-deploy", "drwxr-x---", tagName, out);
-            validateFilePermissions("/u01/oracle", "drwxr-xr-x", tagName, out);
-            validateFilePermissions("/u01/wdt/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
-            validateFilePermissions("/u01/wdt/weblogic-deploy/bin/validateModel.sh", "-rwxr-x---", tagName, out);
+            verifyFilePermissions("/u01/domains", "drwxr-xr-x", tagName, out);
+            verifyFilePermissions("/u01/wdt", "drwxr-xr-x", tagName, out);
+            verifyFilePermissions("/u01/wdt/models", "drwxr-xr-x", tagName, out);
+            verifyFilePermissions("/u01/wdt/weblogic-deploy", "drwxr-x---", tagName, out);
+            verifyFilePermissions("/u01/oracle", "drwxr-xr-x", tagName, out);
+            verifyFilePermissions("/u01/wdt/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
+            verifyFilePermissions("/u01/wdt/weblogic-deploy/bin/validateModel.sh", "-rwxr-x---", tagName, out);
         }
     }
 
@@ -989,7 +990,7 @@ class ITImagetool {
      * @throws IOException if process start fails
      * @throws InterruptedException if the wait is interrupted before the process completes
      */
-    private void validateFilePermissions(String path, String expected, String tagName, PrintWriter out)
+    private void verifyFilePermissions(String path, String expected, String tagName, PrintWriter out)
         throws IOException, InterruptedException {
         String command = String.format(" docker run --rm -t %s ls -ld %s", tagName, path);
         String actual = Runner.run(command, out, logger).stdout().trim();
@@ -1028,8 +1029,8 @@ class ITImagetool {
 
             // verify the docker image is created
             assertTrue(imageExists(tagName), "Image was not created: " + tagName);
-            validateFilePermissions("/u01/wdt/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
-            validateFilePermissions("/u01/wdt/weblogic-deploy/bin/validateModel.sh", "-rwxr-x---", tagName, out);
+            verifyFilePermissions("/u01/wdt/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
+            verifyFilePermissions("/u01/wdt/weblogic-deploy/bin/validateModel.sh", "-rwxr-x---", tagName, out);
         }
     }
 
@@ -1064,4 +1065,41 @@ class ITImagetool {
             assertTrue(imageExists(tagName), "Image was not created: " + tagName);
         }
     }
+
+    /**
+     * create WLS image with OpenShift settings.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(30)
+    @Tag("nightly")
+    @DisplayName("Create image with OpenShift settings")
+    void createWlsImgWithOpenShiftSettings(TestInfo testInfo) throws Exception {
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new CreateCommand()
+            .jdkVersion(JDK_VERSION)
+            .tag(tagName)
+            .wdtVersion(WDT_VERSION)
+            .wdtArchive(WDT_ARCHIVE)
+            .wdtDomainHome("/u01/domains/simple_domain")
+            .wdtModel(WDT_MODEL, WDT_MODEL2)
+            .wdtVariables(WDT_VARIABLES)
+            .target(KubernetesTarget.OpenShift)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+
+            // verify the file permissions on the domain directory were set correctly
+            verifyFilePermissions("/u01/domains/simple_domain", "drwxrwxr-x", tagName, out);
+        }
+
+    }
+
+
 }

@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import com.oracle.weblogic.imagetool.cli.menu.KubernetesTarget;
+
 public class CreateCommand extends ImageToolCommand {
     private String version;
     private String type;
@@ -20,6 +22,7 @@ public class CreateCommand extends ImageToolCommand {
     private String passwordEnv;
     private String patches;
     private String additionalBuildCommands;
+    private String kubernetesTarget;
 
     // WDT flags
     private String wdtVersion;
@@ -89,9 +92,13 @@ public class CreateCommand extends ImageToolCommand {
         return this;
     }
 
-
     public CreateCommand additionalBuildCommands(Path value) {
         additionalBuildCommands = value.toString();
+        return this;
+    }
+
+    public CreateCommand target(KubernetesTarget value) {
+        kubernetesTarget = value.toString();
         return this;
     }
 
@@ -152,6 +159,7 @@ public class CreateCommand extends ImageToolCommand {
             + field("--passwordEnv", passwordEnv)
             + field("--patches", patches)
             + field("--additionalBuildCommands", additionalBuildCommands)
+            + field("--target", kubernetesTarget)
             + field("--wdtVersion", wdtVersion)
             + field("--wdtModel", wdtModel)
             + field("--wdtArchive", wdtArchive)
