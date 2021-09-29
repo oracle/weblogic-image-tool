@@ -46,7 +46,7 @@ RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-dep
 
 {{^modelOnly}}
     RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
-    && {{#isWdtUseEncryption}}echo {{{wdtEncryptionKey}}} | {{/isWdtUseEncryption}} ./createDomain.sh \
+    && {{#isWdtUseEncryption}}echo {{{wdtEncryptionKey}}} | {{/isWdtUseEncryption}} ./{{wdtCommand}} \
     -oracle_home {{{oracle_home}}} \
     -domain_home {{{domain_home}}} \
     -domain_type {{domainType}} \
