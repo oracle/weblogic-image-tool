@@ -10,9 +10,13 @@
     {{#isWdtModelHomeOutsideWdtHome}}
         COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
     {{/isWdtModelHomeOutsideWdtHome}}
-    RUN chmod g+w {{{domain_parent}}} {{{wdt_home}}} {{{wdt_model_home}}}
+    {{#domainGroupAsUser}}
+        RUN chmod g=u {{{domain_parent}}} {{{wdt_home}}} {{{wdt_model_home}}}
+    {{/domainGroupAsUser}}
 {{/modelOnly}}
 {{^modelOnly}}
     COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
-    RUN chmod g+w {{{domain_home}}}
+    {{#domainGroupAsUser}}
+        RUN chmod g=u {{{domain_home}}}
+    {{/domainGroupAsUser}}
 {{/modelOnly}}

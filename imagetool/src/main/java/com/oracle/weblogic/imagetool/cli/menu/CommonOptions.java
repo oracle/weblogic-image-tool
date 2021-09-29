@@ -180,6 +180,11 @@ public abstract class CommonOptions {
         handleChown();
         handleAdditionalBuildCommands();
 
+        if (kubernetesTarget == KubernetesTarget.OpenShift) {
+            dockerfileOptions.setDomainGroupAsUser(true);
+            //TODO: if not set by user, change OS group to root for dockerfileOptions
+        }
+
         logger.exiting();
     }
 
@@ -582,6 +587,13 @@ public abstract class CommonOptions {
         description = "Executable to process the Dockerfile. Default: ${DEFAULT-VALUE}"
     )
     String buildEngine = "docker";
+
+    @Option(
+        names = {"--target"},
+        description = "Apply settings appropriate to the target environment. Default: ${DEFAULT-VALUE}"
+            + " Supported values: ${COMPLETION-CANDIDATES}"
+    )
+    KubernetesTarget kubernetesTarget = KubernetesTarget.Default;
 
     @SuppressWarnings("unused")
     @Unmatched
