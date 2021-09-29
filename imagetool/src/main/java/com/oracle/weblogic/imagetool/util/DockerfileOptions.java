@@ -96,6 +96,8 @@ public class DockerfileOptions {
         invLoc = DEFAULT_INV_LOC;
         oraInvDir = DEFAULT_ORAINV_DIR;
 
+        username = "oracle";
+        groupname = "oracle";
         tempDirectory = "/tmp/imagetool";
 
         baseImageName = "ghcr.io/oracle/oraclelinux:7-slim";

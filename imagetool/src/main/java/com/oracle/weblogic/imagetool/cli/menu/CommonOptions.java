@@ -54,6 +54,10 @@ public abstract class CommonOptions {
     abstract String getInstallerVersion();
 
     private void handleChown() {
+        if (osUserAndGroup == null) {
+            return;
+        }
+
         if (osUserAndGroup.length != 2) {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0027"));
         }
@@ -182,7 +186,10 @@ public abstract class CommonOptions {
 
         if (kubernetesTarget == KubernetesTarget.OpenShift) {
             dockerfileOptions.setDomainGroupAsUser(true);
-            //TODO: if not set by user, change OS group to root for dockerfileOptions
+            // if the user did not set the OS user:group, make the default oracle:root, instead of oracle:oracle
+            if (osUserAndGroup == null) {
+                dockerfileOptions.setGroupId("root");
+            }
         }
 
         logger.exiting();
@@ -502,8 +509,7 @@ public abstract class CommonOptions {
     @Option(
         names = {"--chown"},
         split = ":",
-        description = "userid:groupid for JDK/Middleware installs and patches. Default: ${DEFAULT-VALUE}.",
-        defaultValue = "oracle:oracle"
+        description = "userid:groupid for JDK/Middleware installs and patches. Default: oracle:oracle."
     )
     private String[] osUserAndGroup;
 
