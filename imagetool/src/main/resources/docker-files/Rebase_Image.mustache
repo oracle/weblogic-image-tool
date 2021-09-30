@@ -72,7 +72,9 @@ RUN mkdir -p {{domain_home}}
     {{/isWdtModelHomeOutsideWdtHome}}
 {{/modelOnly}}
 
-RUN chmod g+w {{{domain_home}}}
+{{#domainGroupAsUser}}
+    RUN chmod g=u {{{domain_home}}}
+{{/domainGroupAsUser}}
 
 WORKDIR {{{work_dir}}}
 

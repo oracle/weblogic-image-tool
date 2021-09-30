@@ -59,6 +59,7 @@ public class DockerfileOptions {
     private PackageManagerType pkgMgr;
     private List<String> patchFilenames;
     private MiddlewareInstall mwInstallers;
+    private boolean domainGroupAsUser;
 
     // WDT values
     private String wdtHome;
@@ -88,12 +89,15 @@ public class DockerfileOptions {
         updateOpatch = false;
         skipJavaInstall = false;
         skipMiddlewareInstall = false;
+        domainGroupAsUser = false;
 
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
         invLoc = DEFAULT_INV_LOC;
         oraInvDir = DEFAULT_ORAINV_DIR;
 
+        username = "oracle";
+        groupname = "oracle";
         tempDirectory = "/tmp/imagetool";
 
         baseImageName = "ghcr.io/oracle/oraclelinux:7-slim";
@@ -1015,5 +1019,15 @@ public class DockerfileOptions {
     public DockerfileOptions setWdtBase(String value) {
         wdtBase = value;
         return this;
+    }
+
+    public DockerfileOptions setDomainGroupAsUser(boolean value) {
+        domainGroupAsUser = value;
+        return this;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean domainGroupAsUser() {
+        return domainGroupAsUser;
     }
 }

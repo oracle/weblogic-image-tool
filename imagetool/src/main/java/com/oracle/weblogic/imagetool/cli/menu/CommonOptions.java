@@ -54,6 +54,10 @@ public abstract class CommonOptions {
     abstract String getInstallerVersion();
 
     private void handleChown() {
+        if (osUserAndGroup == null) {
+            return;
+        }
+
         if (osUserAndGroup.length != 2) {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0027"));
         }
@@ -179,6 +183,14 @@ public abstract class CommonOptions {
 
         handleChown();
         handleAdditionalBuildCommands();
+
+        if (kubernetesTarget == KubernetesTarget.OpenShift) {
+            dockerfileOptions.setDomainGroupAsUser(true);
+            // if the user did not set the OS user:group, make the default oracle:root, instead of oracle:oracle
+            if (osUserAndGroup == null) {
+                dockerfileOptions.setGroupId("root");
+            }
+        }
 
         logger.exiting();
     }
@@ -497,8 +509,7 @@ public abstract class CommonOptions {
     @Option(
         names = {"--chown"},
         split = ":",
-        description = "userid:groupid for JDK/Middleware installs and patches. Default: ${DEFAULT-VALUE}.",
-        defaultValue = "oracle:oracle"
+        description = "userid:groupid for JDK/Middleware installs and patches. Default: oracle:oracle."
     )
     private String[] osUserAndGroup;
 
@@ -582,6 +593,13 @@ public abstract class CommonOptions {
         description = "Executable to process the Dockerfile. Default: ${DEFAULT-VALUE}"
     )
     String buildEngine = "docker";
+
+    @Option(
+        names = {"--target"},
+        description = "Apply settings appropriate to the target environment. Default: ${DEFAULT-VALUE}"
+            + " Supported values: ${COMPLETION-CANDIDATES}"
+    )
+    KubernetesTarget kubernetesTarget = KubernetesTarget.Default;
 
     @SuppressWarnings("unused")
     @Unmatched

@@ -56,13 +56,17 @@ RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-dep
     {{#runRcu}}
         -run_rcu \
     {{/runRcu}}
-    {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}} \
-    && chmod -R g+w {{{domain_home}}}
+    {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
+    {{#domainGroupAsUser}}
+        RUN chmod -R g=u {{{domain_home}}}
+    {{/domainGroupAsUser}}
 {{/modelOnly}}
 {{#isWdtValidateEnabled}}
     RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
     && rm ./*.cmd \
-    && chmod -R g+w {{{wdt_home}}}/weblogic-deploy/lib \
+    {{#domainGroupAsUser}}
+        && chmod -R g=u {{{wdt_home}}}/weblogic-deploy/lib \
+    {{/domainGroupAsUser}}
     && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
     -oracle_home {{{oracle_home}}} \
     -domain_type {{domainType}} \
