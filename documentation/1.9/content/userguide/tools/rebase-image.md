@@ -43,6 +43,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
+| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | Default  |
 | `--targetImage` | Docker image to extend for the domain's new image. |   |
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Your Oracle support email ID.  |   |
@@ -93,6 +94,18 @@ on when the build needs access to the file.  For example, if the file is needed 
 installation or domain creation steps, use the `final-build-commands` section so that the `COPY` command occurs in the
 final stage of the image build.  Or, if the file needs to change the Oracle Home prior to domain creation, use
 the `after-fmw-install` or `before-wdt-command` sections.
+
+#### `--target`
+
+By default, the generated WLS domain in your image will use the best practices defined by Oracle WebLogic Server.  
+The `target` option allows you to toggle the defaults so that the generated domain is easier to use in the target
+environment.  For example, the `--target OpenShift` option will change the file permissions in the domain directory
+so that the group permissions match the user permissions.
+
+| Target | Default File Permissions | Default File Ownership |
+| --- | --- | --- |
+| Default | rwxr-x--- | oracle:oracle |
+| OpenShift | rwxrwx--- | oracle:root |
 
 #### Use an argument file
 

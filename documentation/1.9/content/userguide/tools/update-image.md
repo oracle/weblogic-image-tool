@@ -49,6 +49,7 @@ Update WebLogic Docker image with selected patches
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
+| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | Default  |
 | `--user` | Oracle support email ID.  |   |
 | `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
@@ -116,6 +117,18 @@ the `after-fmw-install` or `before-wdt-command` sections.
 The `latestPSU` option will continue to be supported for the CREATE option, but has been deprecated for use in the
 UPDATE option.  Because of the number of patches and their size, using `latestPSU` as an update to an existing image can
 increase the size of the image significantly, and is not recommended.
+
+#### `--target`
+
+By default, the generated WLS domain in your image will use the best practices defined by Oracle WebLogic Server.  
+The `target` option allows you to toggle the defaults so that the generated domain is easier to use in the target
+environment.  For example, the `--target OpenShift` option will change the file permissions in the domain directory
+so that the group permissions match the user permissions.
+
+| Target | Default File Permissions | Default File Ownership |
+| --- | --- | --- |
+| Default | rwxr-x--- | oracle:oracle |
+| OpenShift | rwxrwx--- | oracle:root |
 
 #### Resource Template Files
 
