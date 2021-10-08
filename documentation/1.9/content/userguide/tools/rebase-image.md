@@ -43,7 +43,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
-| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | Default  |
+| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
 | `--targetImage` | Docker image to extend for the domain's new image. |   |
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Your Oracle support email ID.  |   |
@@ -104,8 +104,8 @@ so that the group permissions match the user permissions.
 
 | Target | Default File Permissions | Default File Ownership |
 | --- | --- | --- |
-| Default | rwxr-x--- | oracle:oracle |
-| OpenShift | rwxrwx--- | oracle:root |
+| `Default` | `rwxr-x---` | `oracle:oracle` |
+| `OpenShift` | `rwxrwx---` | `oracle:root` |
 
 #### Use an argument file
 

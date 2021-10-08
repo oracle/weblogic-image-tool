@@ -41,7 +41,7 @@ Usage: imagetool create [OPTIONS]
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
-| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | Default  |
+| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
@@ -119,8 +119,8 @@ so that the group permissions match the user permissions.
 
 | Target | Default File Permissions | Default File Ownership |
 | --- | --- | --- |
-| Default | rwxr-x--- | oracle:oracle |
-| OpenShift | rwxrwx--- | oracle:root |
+| `Default` | `rwxr-x---` | `oracle:oracle` |
+| `OpenShift` | `rwxrwx---` | `oracle:root` |
 
 #### Resource Template Files
 
