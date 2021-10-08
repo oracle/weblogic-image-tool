@@ -12,20 +12,20 @@
     <title>Update Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1628479178" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1628479178" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1633720024" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1633720024" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1628479178"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1633720024"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1628479178"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1628479178"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1633720024"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1633720024"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1628479178"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1633720024"></script>
 
     
   </div>
@@ -818,6 +818,11 @@ Update WebLogic Docker image with selected patches
 <td></td>
 </tr>
 <tr>
+<td><code>--target</code></td>
+<td>Select the target environment in which the created image will be used. Supported values: <code>Default</code> (Docker/Kubernetes), <code>OpenShift</code></td>
+<td><code>Default</code></td>
+</tr>
+<tr>
 <td><code>--user</code></td>
 <td>Oracle support email ID.</td>
 <td></td>
@@ -953,6 +958,32 @@ the <code>after-fmw-install</code> or <code>before-wdt-command</code> sections.<
 <p>The <code>latestPSU</code> option will continue to be supported for the CREATE option, but has been deprecated for use in the
 UPDATE option.  Because of the number of patches and their size, using <code>latestPSU</code> as an update to an existing image can
 increase the size of the image significantly, and is not recommended.</p>
+<h4 id="--target"><code>--target</code></h4>
+<p>By default, the generated WLS domain in your image will use the best practices defined by Oracle WebLogic Server.<br>
+The <code>target</code> option allows you to toggle the defaults so that the generated domain is easier to use in the target
+environment.  For example, the <code>--target OpenShift</code> option will change the file permissions in the domain directory
+so that the group permissions match the user permissions.</p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Default File Permissions</th>
+<th>Default File Ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Default</code></td>
+<td><code>rwxr-x---</code></td>
+<td><code>oracle:oracle</code></td>
+</tr>
+<tr>
+<td><code>OpenShift</code></td>
+<td><code>rwxrwx---</code></td>
+<td><code>oracle:root</code></td>
+</tr>
+</tbody>
+</table>
 <h4 id="resource-template-files">Resource Template Files</h4>
 <p>If provided, the file or files provided with <code>--resourceTemplates</code> will be overwritten. For known tokens,
 the placeholders will be replaced with values according to the following table.</p>
@@ -1421,19 +1452,19 @@ located in a subfolder named <code>wdt</code>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1628479178"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1628479178"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1628479178"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1628479178"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1628479178"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1628479178"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1633720024"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1633720024"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1633720024"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1633720024"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1633720024"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1633720024"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1628479178"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1628479178"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1628479178"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1633720024"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1633720024"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1633720024"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1628479178"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1633720024"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
