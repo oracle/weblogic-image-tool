@@ -45,6 +45,7 @@ who wish to contribute to the WebLogic Image Tool code will find useful informat
 
 * [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/)
 * [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/)
+* [WebLogic Kubernetes Toolkit UI](https://oracle.github.io/weblogic-toolkit-ui/)
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
 * [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
