@@ -9,12 +9,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
+import com.oracle.weblogic.imagetool.aru.NoPatchesFoundException;
+import com.oracle.weblogic.imagetool.aru.VersionNotFoundException;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -53,32 +54,44 @@ public class OPatchFile extends PatchFile {
 
         List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password);
         if (!isOffline(userid, password)) {
-            // if working online with ARU metadata, filter results based on availability and ARU recommendation
-            Stream<AruPatch> filteredList = patches.stream().filter(AruPatch::isOpenAccess);
+            // if working online with ARU metadata, filter results based on access flag (discard protected versions)
+            patches = patches.stream().filter(AruPatch::isOpenAccess).collect(Collectors.toList());
+            logger.fine("Found {0} OPatch versions for id {1}", patches.size(), patchNumber);
+        } else {
+            // if working offline, update the placeholder in the list to have the provided version or the latest cached
+            AruPatch offlinePatch = patches.get(0);
             if (providedVersion == null) {
-                // When the user did not provide a specific version, try to reduce the patch list to one patch.
-                // There should only be ONE recommended patch/install for OPatch
-                filteredList = filteredList.filter(AruPatch::isRecommended);
+                offlinePatch.version(getLatestCachedVersion(cache, patchNumber));
+            } else {
+                offlinePatch.version(providedVersion);
             }
-            patches = filteredList.collect(Collectors.toList());
         }
 
         // For the OPatch use case, only the provided version (--opatchBugNumber) is used to "select" a patch.
         // selectPatch will return null if there is more than one patch in the patches list.
-        AruPatch selectedPatch = AruPatch.selectPatch(patches, providedVersion, null, null);
+        //AruPatch selectedPatch = AruPatch.selectPatch(patches, providedVersion, null, null);
 
-        if (selectedPatch != null) {
-            // if offline, find the latest OPatch version available in the cache
-            if (isOffline(userid, password) && providedVersion == null) {
-                selectedPatch.version(getLatestCachedVersion(cache, patchNumber));
+        AruPatch selectedPatch;
+        if (patches.isEmpty()) {
+            throw new NoPatchesFoundException(Utils.getMessage("IMG-0057", patchNumber));
+        } else if (providedVersion != null) {
+            String finalProvidedVersion = providedVersion;
+            selectedPatch = patches.stream()
+                .filter(p -> finalProvidedVersion.equals(p.version())).findAny().orElse(null);
+            if (selectedPatch == null) {
+                logger.severe("IMG-0101", providedVersion);
+                throw new VersionNotFoundException(patchNumber, providedVersion, patches);
             }
         } else {
-            // select first recommended patch
+            // Sort the patches list from highest to lowest (newest to oldest)
             List<AruPatch> sortedList = patches.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-            selectedPatch = sortedList.get(0);
-            logger.warning("IMG-0057", selectedPatch.version(), sortedList.stream()
-                .map(s -> s.patchId() + "_" + s.version())
-                .collect(Collectors.joining(", ")));
+            // Select the first recommended patch, if there is one marked as recommended
+            selectedPatch = sortedList.stream().filter(AruPatch::isRecommended).findFirst().orElse(null);
+            if (selectedPatch == null) {
+                // nothing is marked as recommended, return the newest (highest numbered) patch
+                selectedPatch = sortedList.stream().findFirst().orElse(null);
+                // since patches list cannot be empty here, this findFirst should never return null
+            }
         }
         logger.exiting(selectedPatch);
         return new OPatchFile(selectedPatch, userid, password);
