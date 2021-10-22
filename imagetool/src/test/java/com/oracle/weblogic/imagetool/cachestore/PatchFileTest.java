@@ -90,6 +90,7 @@ class PatchFileTest {
             responseCache.put("1110002", getResource("/patch-1110002.xml"));
             responseCache.put("1110003", getResource("/patch-1110003.xml"));
             responseCache.put("28186730", getResource("/patch-28186730.xml"));
+            responseCache.put("2818673x", getResource("/patch-2818673x.xml"));
         }
 
         @Override
@@ -343,18 +344,18 @@ class PatchFileTest {
          *     There are 5 versions of the OPatch patch.
          *     The user does not specify a version.
          * Expected:
-         *     The recommended patch from ARU should be selected.
+         *     The recommended OPatch version from ARU should be selected.
          */
 
         // 28186730 has multiple patches available, but none are specified
-        String patchId = "28186730";
+        String patchId = null;
         OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
 
         String filePath = patchFile.resolve(cacheStore);
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_13.9.4.2.5");
+        assertEquals("13.9.4.2.4", patchFile.getVersion(), "wrong version selected");
+        String filePathFromCache = cacheStore.getValueFromCache("28186730_13.9.4.2.4");
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -366,7 +367,7 @@ class PatchFileTest {
          *     There are 5 versions of the OPatch patch.
          *     The user specifies a specific version.
          * Expected:
-         *     The provided version of the patch is selected.
+         *     The provided version of OPatch is selected.
          */
 
         // 28186730 has multiple patches available, but none are specified
@@ -390,5 +391,30 @@ class PatchFileTest {
         String patchId = "28186730_13.9.4.2.2";
         assertThrows(VersionNotFoundException.class, () ->
             OPatchFile.getInstance(patchId, "x", "x", cacheStore));
+    }
+
+
+    @Test
+    void opatchNoRecommendedTest() throws Exception {
+        /*
+         * Condition:
+         *     There are 5 versions of the OPatch patch.
+         *     None are marked as life_cycle = Recommended.
+         *     The user does not specify a specific version.
+         * Expected:
+         *     The newest OPatch from ARU should be selected.
+         */
+
+        // 28186730 has multiple patches available, but none are specified
+        String patchId = "2818673x";
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+
+        String filePath = patchFile.resolve(cacheStore);
+
+        assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
+        assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
+        String filePathFromCache = cacheStore.getValueFromCache("28186730_13.9.4.2.5");
+        assertNotNull(filePathFromCache, "Could not find new patch in cache");
+        assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
 }
