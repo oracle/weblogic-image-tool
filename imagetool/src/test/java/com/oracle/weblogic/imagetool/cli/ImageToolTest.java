@@ -49,7 +49,7 @@ class ImageToolTest {
         // HELP argument should return usage but success code
         CommandResponse response = ImageTool.run(ImageTool.class, printStream, printStream, "help");
         assertNotNull(response);
-        assertEquals(0, response.getStatus());
+        assertEquals(2, response.getStatus());
         assertTrue(byteArrayOutputStream.toString().contains("Usage: imagetool [OPTIONS]"));
     }
 

@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Unmatched;
 
 @Command(
@@ -20,8 +19,7 @@ import picocli.CommandLine.Unmatched;
                 AddInstallerEntry.class,
                 AddPatchEntry.class,
                 AddEntry.class,
-                DeleteEntry.class,
-                HelpCommand.class
+                DeleteEntry.class
         },
         sortOptions = false
 )

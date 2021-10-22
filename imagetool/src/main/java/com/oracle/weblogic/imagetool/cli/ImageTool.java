@@ -15,7 +15,6 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.ParseResult;
 
 import static picocli.CommandLine.ExitCode;
@@ -27,12 +26,11 @@ import static picocli.CommandLine.ExitCode;
         versionProvider = HelpVersionProvider.class,
         sortOptions = false,
         subcommands = {
-                CacheCLI.class,
-                CreateImage.class,
-                UpdateImage.class,
-                RebaseImage.class,
-                InspectImage.class,
-                HelpCommand.class
+            CacheCLI.class,
+            CreateImage.class,
+            UpdateImage.class,
+            RebaseImage.class,
+            InspectImage.class
         },
         requiredOptionMarker = '*',
         abbreviateSynopsis = true,
