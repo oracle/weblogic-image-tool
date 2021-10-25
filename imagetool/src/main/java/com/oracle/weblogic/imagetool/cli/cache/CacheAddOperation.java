@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
-import picocli.CommandLine;
+import picocli.CommandLine.Option;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
@@ -45,14 +45,14 @@ public abstract class CacheAddOperation extends CacheOperation {
 
     private Path absolutePath = null;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--force"},
         description = "Overwrite existing entry, if it exists"
     )
     private boolean force = false;
 
 
-    @CommandLine.Option(
+    @Option(
         names = {"--path"},
         description = "Location on disk. For ex: /path/to/patch-or-installer.zip",
         required = true

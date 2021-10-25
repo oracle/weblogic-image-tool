@@ -12,9 +12,10 @@ import java.util.concurrent.Callable;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.inspect.InspectOutput;
 import com.oracle.weblogic.imagetool.util.Utils;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-@CommandLine.Command(
+@Command(
     name = "inspect",
     description = "Inspect an image created by this tool",
     requiredOptionMarker = '*',
@@ -40,7 +41,7 @@ public class InspectImage implements Callable<CommandResponse> {
         return CommandResponse.success(null);
     }
 
-    @CommandLine.Option(
+    @Option(
         names = {"--image", "-i"},
         required = true,
         paramLabel = "IMAGE:ID",
@@ -48,20 +49,20 @@ public class InspectImage implements Callable<CommandResponse> {
     )
     private String imageName;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--builder", "-b"},
         description = "Executable to inspect docker images. Default: ${DEFAULT-VALUE}"
     )
     String buildEngine = "docker";
 
-    @CommandLine.Option(
+    @Option(
         names = {"--patches"},
         description = "Include OPatch information in the output, including a list of patches applied.",
         defaultValue = "false"
     )
     private boolean listPatches;
 
-    @CommandLine.Option(
+    @Option(
         names = {"--format"},
         paramLabel = "FORMAT",
         description = "Output format. Supported values: ${COMPLETION-CANDIDATES} Default: ${DEFAULT-VALUE}",
