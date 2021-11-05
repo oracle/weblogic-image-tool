@@ -19,6 +19,8 @@ import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
+import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
+
 /**
  * Provides the data used by the Dockerfile templates (in mustache).
  */
@@ -100,12 +102,11 @@ public class DockerfileOptions {
         groupname = "oracle";
         tempDirectory = "/tmp/imagetool";
 
-        baseImageName = "ghcr.io/oracle/oraclelinux:7-slim";
+        baseImageName = "ghcr.io/oracle/oraclelinux:8-slim";
 
         // WDT values
         useWdt = false;
         wdtHome = "/u01/wdt";
-        wdtModelHome = wdtHome + "/models";
         wdtOperation = WdtOperation.CREATE;
         wdtModelList = new ArrayList<>();
         wdtArchiveList = new ArrayList<>();
@@ -233,9 +234,17 @@ public class DockerfileOptions {
      * @return this DockerfileOptions object
      */
     public DockerfileOptions setWdtModelHome(String value) {
-        if (!Utils.isEmptyString(value)) {
-            wdtModelHome = value;
-        }
+        wdtModelHome = value;
+        return this;
+    }
+
+    /**
+     * Set the directory to use for WDT install.
+     * @param value unix path to the folder name, like /u01/wdt
+     * @return this object
+     */
+    public DockerfileOptions setWdtHome(String value) {
+        wdtHome = value;
         return this;
     }
 
@@ -284,7 +293,12 @@ public class DockerfileOptions {
      * @return this DockerfileOptions object
      */
     public DockerfileOptions setPackageInstaller(PackageManagerType option) {
-        pkgMgr = option;
+        if (PackageManagerType.OS_DEFAULT == option) {
+            // This default must match the Package Manager for the configured fromImage default in baseImageName
+            pkgMgr = PackageManagerType.MICRODNF;
+        } else {
+            pkgMgr = option;
+        }
         return this;
     }
 
@@ -362,14 +376,26 @@ public class DockerfileOptions {
         return parent != null ? parent : domain_home();
     }
 
+    /**
+     * Referenced by Dockerfile template, returns the path for the WDT model home.
+     * @return the WDT Model home path
+     */
     @SuppressWarnings("unused")
     public String wdt_home() {
         return wdtHome;
     }
 
+    /**
+     * Referenced by Dockerfile template, returns the WDT model home path.
+     * @return the WDT Model home path
+     */
     @SuppressWarnings("unused")
     public String wdt_model_home() {
-        return wdtModelHome;
+        if (!Utils.isEmptyString(wdtModelHome)) {
+            return wdtModelHome;
+        } else {
+            return wdtHome + "/models";
+        }
     }
 
     /**
@@ -379,7 +405,7 @@ public class DockerfileOptions {
      */
     @SuppressWarnings("unused")
     public boolean isWdtModelHomeOutsideWdtHome() {
-        return !wdtModelHome.startsWith(wdtHome + File.separator);
+        return !wdt_model_home().startsWith(wdtHome + File.separator);
     }
 
     @SuppressWarnings("unused")
@@ -704,7 +730,7 @@ public class DockerfileOptions {
         StringJoiner result = new StringJoiner(",", wdtParameterName, "");
         result.setEmptyValue("");
         for (String name : filenames) {
-            result.add(wdtModelHome + "/" + name);
+            result.add(wdt_model_home() + "/" + name);
         }
         return result.toString();
     }
@@ -1029,5 +1055,15 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public boolean domainGroupAsUser() {
         return domainGroupAsUser;
+    }
+
+    /**
+     * True if --fromImage is busybox. Referenced by Dockerfile.
+     *
+     * @return true if the target image is BusyBox
+     */
+    @SuppressWarnings("unused")
+    public boolean usingBusybox() {
+        return BUSYBOX.equals(baseImageName);
     }
 }

@@ -409,13 +409,11 @@ public abstract class CommonOptions {
             PackageManagerType pkgMgr = PackageManagerType.valueOf(pkgMgrProp);
             logger.fine("fromImage package manager {0}", pkgMgr);
             if (packageManager != PackageManagerType.OS_DEFAULT && pkgMgr != packageManager) {
+                // If the user is overriding the detected package manager, use the provided value
                 logger.info("IMG-0079", pkgMgr, packageManager);
                 pkgMgr = packageManager;
             }
             dockerfileOptions.setPackageInstaller(pkgMgr);
-        } else if (packageManager == PackageManagerType.OS_DEFAULT) {
-            // Default OS is Oracle Linux 7-slim, so default package manager is YUM
-            dockerfileOptions.setPackageInstaller(PackageManagerType.YUM);
         } else {
             dockerfileOptions.setPackageInstaller(packageManager);
         }

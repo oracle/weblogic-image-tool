@@ -137,17 +137,17 @@ class CommonOptionsTest {
         final String DOMAIN_HOME = "/u01/domains/xxxx";
         final String DOMAIN_SOURCE = "PersistentVolume";
 
-        WdtOptions wdtOptions = new WdtOptions();
+        WdtFullOptions wdtOptions = new WdtFullOptions();
 
         // accessing private fields normally set by the command line
-        Field resourceTemplatesField = WdtOptions.class.getDeclaredField("resourceTemplates");
+        Field resourceTemplatesField = WdtFullOptions.class.getDeclaredField("resourceTemplates");
         resourceTemplatesField.setAccessible(true);
         List<Path> resolveFiles =
             Arrays.asList(new File("target/test-classes/templates/resolver.yml").toPath(),
             new File("target/test-classes/templates/verrazzano.yml").toPath());
         resourceTemplatesField.set(wdtOptions, resolveFiles);
 
-        Field imageTagField = WdtOptions.class.getDeclaredField("wdtDomainHome");
+        Field imageTagField = WdtFullOptions.class.getDeclaredField("wdtDomainHome");
         imageTagField.setAccessible(true);
         imageTagField.set(wdtOptions, DOMAIN_HOME);
 

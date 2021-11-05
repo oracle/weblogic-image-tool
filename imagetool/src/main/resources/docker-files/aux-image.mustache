@@ -1,0 +1,62 @@
+#
+# Copyright (c) 2021, Oracle and/or its affiliates.
+#
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+#
+# Create Auxiliary Image for WebLogic Kubernetes Operator
+
+FROM {{baseImage}} as os_update
+
+USER root
+
+# Use package manager to make sure that unzip, tar, and other required packages are installed
+{{^usingBusybox}}{{> package-managers}}{{/usingBusybox}}
+
+# Create the Oracle user that will be the owner of the installed software
+{{> create-user-group}}
+
+FROM os_update as wdt_build
+
+RUN mkdir -p {{{wdt_home}}} \
+ && mkdir -p {{{wdt_model_home}}} \
+ && chown {{userid}}:{{groupid}} {{{wdt_home}}}
+
+COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
+
+RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-deploy || echo Initial WDT install \
+{{#usingWdtTarGzInstaller}}
+    && tar zxf {{{tempDir}}}/{{{wdtInstaller}}} -C {{{wdt_home}}}
+{{/usingWdtTarGzInstaller}}
+{{^usingWdtTarGzInstaller}}
+    && unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
+{{/usingWdtTarGzInstaller}}
+
+FROM os_update as final
+
+ENV AUXILIARY_IMAGE_PATH={{{wdt_home}}} \
+    WDT_HOME={{{wdt_home}}} \
+    WDT_MODEL_HOME={{{wdt_model_home}}}
+
+RUN mkdir -p {{{wdt_home}}} {{{wdt_model_home}}} \
+ && chown {{userid}}:{{groupid}} {{{wdt_home}}} {{{wdt_model_home}}}
+COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+
+{{#wdtModels}}
+    COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
+{{/wdtModels}}
+
+{{#wdtArchives}}
+    COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
+{{/wdtArchives}}
+
+{{#wdtVariables}}
+    COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
+{{/wdtVariables}}
+
+USER {{userid}}
+
+WORKDIR {{{wdt_home}}}
+
+{{#finalBuildCommands}}
+    {{{.}}}
+{{/finalBuildCommands}}

@@ -204,5 +204,5 @@ public class UpdateImage extends CommonOptions implements Callable<CommandRespon
     private WdtOperation wdtOperation = WdtOperation.UPDATE;
 
     @ArgGroup(exclusive = false, heading = "WDT Options%n")
-    private WdtOptions wdtOptions = new WdtOptions();
+    private WdtFullOptions wdtOptions = new WdtFullOptions();
 }

@@ -175,5 +175,5 @@ public class CreateImage extends CommonOptions implements Callable<CommandRespon
     private String inventoryPointerInstallLoc;
 
     @ArgGroup(exclusive = false, heading = "WDT Options%n")
-    private WdtOptions wdtOptions = new WdtOptions();
+    private WdtFullOptions wdtOptions = new WdtFullOptions();
 }
