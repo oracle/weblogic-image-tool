@@ -53,6 +53,10 @@ public class WdtBaseOptions {
         dockerfileOptions.setWdtEnabled()
             .setWdtModelHome(wdtModelHome);
 
+        if (wdtHome != null) {
+            dockerfileOptions.setWdtHome(wdtHome);
+        }
+
         if (wdtModelPath != null) {
             List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
             dockerfileOptions.setWdtModels(modelList);
@@ -124,4 +128,10 @@ public class WdtBaseOptions {
         description = "Copy the models to the location in the image Default: WDT_HOME/models"
     )
     private String wdtModelHome;
+
+    @Option(
+        names = {"--wdtHome"},
+        description = "Set the base directory in the target image for WDT models and the WDT installer."
+    )
+    private String wdtHome;
 }

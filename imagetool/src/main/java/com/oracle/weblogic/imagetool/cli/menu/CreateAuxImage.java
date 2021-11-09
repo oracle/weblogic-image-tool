@@ -54,12 +54,16 @@ public class CreateAuxImage  implements Callable<CommandResponse> {
         String buildId = UUID.randomUUID().toString();
         dockerfileOptions = new DockerfileOptions(buildId);
 
-        // If no fromImage is provided by the user, default to using busybox
-        dockerfileOptions.setBaseImage(Utils.isEmptyString(fromImage) ? BUSYBOX : fromImage);
-        // WDT install and artifacts should be defaulted to the /auxiliary directory
+        // WDT install and artifacts should be defaulted to the /auxiliary directory instead of /u01/wdt
         dockerfileOptions.setWdtHome("/auxiliary");
-
         copyOptionsFromImage(fromImage, buildDir());
+
+        if (Utils.isEmptyString(fromImage)) {
+            // If no fromImage is provided by the user, default to using busybox
+            fromImage = BUSYBOX;
+        }
+        dockerfileOptions.setBaseImage(fromImage);
+
         handleProxyUrls();
         handleChown();
         wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
@@ -79,7 +83,7 @@ public class CreateAuxImage  implements Callable<CommandResponse> {
             return CommandResponse.success("IMG-0054");
         } else {
             return CommandResponse.success("IMG-0053",
-                Duration.between(startTime, Instant.now()).getSeconds(), fromImage);
+                Duration.between(startTime, Instant.now()).getSeconds(), imageTag);
         }
     }
 
