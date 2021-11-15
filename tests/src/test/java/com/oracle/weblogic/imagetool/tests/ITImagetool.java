@@ -23,6 +23,7 @@ import com.oracle.weblogic.imagetool.tests.annotations.IntegrationTest;
 import com.oracle.weblogic.imagetool.tests.annotations.Logger;
 import com.oracle.weblogic.imagetool.tests.utils.CacheCommand;
 import com.oracle.weblogic.imagetool.tests.utils.CommandResult;
+import com.oracle.weblogic.imagetool.tests.utils.CreateAuxCommand;
 import com.oracle.weblogic.imagetool.tests.utils.CreateCommand;
 import com.oracle.weblogic.imagetool.tests.utils.RebaseCommand;
 import com.oracle.weblogic.imagetool.tests.utils.Runner;
@@ -653,6 +654,39 @@ class ITImagetool {
     }
 
     /**
+     * Use the Rebase function to move a domain to a new image.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(14)
+    @Tag("gate")
+    @DisplayName("Create Aux Image")
+    void createAuxImage(TestInfo testInfo) throws Exception {
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new CreateAuxCommand()
+            .tag(tagName)
+            .wdtModel(WDT_MODEL)
+            .wdtArchive(WDT_ARCHIVE)
+            .wdtVersion(WDT_VERSION)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+
+            // verify the file created in [before-jdk-install] section
+            verifyFileInImage(tagName, "/auxiliary/models/simple-topology.yaml", "AdminUserName: weblogic");
+            verifyFilePermissions("/auxiliary/models/archive.zip", "-rw-r-----", tagName, out);
+            verifyFilePermissions("/auxiliary/models/archive.zip", "-rw-r-----", tagName, out);
+            verifyFilePermissions("/auxiliary/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
+        }
+    }
+
+    /**
      * Create a FMW image with internet access to download PSU.
      * Oracle Support credentials must be provided to download the patches.
      * Uses different JDK version from the default in the Image Tool.
@@ -1100,6 +1134,4 @@ class ITImagetool {
         }
 
     }
-
-
 }
