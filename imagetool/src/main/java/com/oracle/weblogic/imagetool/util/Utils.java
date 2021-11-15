@@ -555,7 +555,7 @@ public class Utils {
      * @return true if all patch IDs are valid , false otherwise.
      */
 
-    public static boolean validatePatchIds(List<String> patches, boolean rigid) {
+    public static boolean validatePatchIds(List<String> patches, boolean rigid) throws InvalidPatchIdFormatException {
         Pattern patchIdPattern;
         if (rigid) {
             patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
@@ -574,8 +574,7 @@ public class Utils {
                         errorFormat = "12345678[_12.2.1.3.0]";
                     }
 
-                    logger.severe("IMG-0004", patchId, errorFormat);
-                    return false;
+                    throw new InvalidPatchIdFormatException(patchId, errorFormat);
                 }
             }
         }

@@ -64,7 +64,7 @@ class CommonOptionsTest {
     @Test
     void handleAdditionalBuildCommands(@TempDir File buildDir) throws Exception {
         CreateImage createImage = new CreateImage();
-        createImage.setTempDirectory(buildDir.getAbsolutePath());
+        createImage.setBuildDirectory(buildDir.getAbsolutePath());
 
         // accessing private fields normally set by the command line
         Field optionsField = CommonOptions.class.getDeclaredField("dockerfileOptions");

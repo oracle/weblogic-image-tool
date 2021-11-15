@@ -3,8 +3,7 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -20,16 +19,15 @@ public class AddPatchEntry extends CacheAddOperation {
 
     @Override
     public CommandResponse call() throws Exception {
-
-        if (patchId != null && !patchId.isEmpty()) {
-            List<String> patches = new ArrayList<>();
-            patches.add(patchId);
-            if (!Utils.validatePatchIds(patches, true)) {
-                return CommandResponse.error("Patch ID validation failed");
+        try {
+            if (patchId != null && !patchId.isEmpty()) {
+                Utils.validatePatchIds(Collections.singletonList(patchId), true);
+                return addToCache(patchId);
+            } else {
+                return CommandResponse.error("IMG-0076", "--patchId");
             }
-            return addToCache(patchId);
-        } else {
-            return CommandResponse.error("IMG-0076", "--patchId");
+        } catch (Exception ex) {
+            return CommandResponse.error(ex.getMessage());
         }
     }
 
