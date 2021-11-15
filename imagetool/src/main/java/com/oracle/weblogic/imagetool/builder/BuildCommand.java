@@ -45,16 +45,6 @@ public class BuildCommand {
     }
 
     /**
-     * If Docker is not on the user's path, set the full path to the executable.
-     * @param value full path to Docker
-     * @deprecated use --builder instead
-     */
-    @Deprecated
-    public void dockerPath(String value) {
-        command.set(0, value);
-    }
-
-    /**
      * Add Docker image tag name for this build command.
      * @param value name to be used as the image tag.
      * @return this

@@ -43,6 +43,7 @@ public class WdtFullOptions extends WdtBaseOptions {
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @throws IOException in case of error
      */
+    @Override
     void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
         logger.entering(tmpDir);
         if (!isUsingWdt()) {
