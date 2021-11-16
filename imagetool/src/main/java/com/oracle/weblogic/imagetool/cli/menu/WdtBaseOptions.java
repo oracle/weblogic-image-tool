@@ -118,14 +118,14 @@ public class WdtBaseOptions {
 
     @Option(
         names = {"--wdtVersion"},
-        description = "WDT tool version to use",
+        description = "WDT tool version to use.  Default: ${DEFAULT-VALUE}.",
         defaultValue = "latest"
     )
     private String wdtVersion;
 
     @Option(
         names = {"--wdtModelHome"},
-        description = "Copy the models to the location in the image Default: WDT_HOME/models"
+        description = "Copy the models to the location in the image.  Default: WDT_HOME/models"
     )
     private String wdtModelHome;
 

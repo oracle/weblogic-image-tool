@@ -234,7 +234,7 @@ public abstract class CommonOptions {
         names = {"--tag"},
         paramLabel = "TAG",
         required = true,
-        description = "Tag for the final build image. Ex: store/oracle/weblogic:12.2.1.3.0"
+        description = "Tag for the final build image. Ex: container-registry.oracle.com/middleware/weblogic:12.2.1.4"
     )
     String imageTag;
 
@@ -265,7 +265,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--skipcleanup"},
-        description = "Do no delete build context folder, intermediate images, and failed build container."
+        description = "Do not delete the build context folder, intermediate images, and failed build containers."
     )
     boolean skipcleanup = false;
 
@@ -309,7 +309,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--packageManager"},
-        description = "Set the Linux package manager to use for installing OS packages. Default: ${DEFAULT-VALUE}."
+        description = "Override the detected Linux package manager for installing OS packages."
     )
     PackageManagerType packageManager = PackageManagerType.OS_DEFAULT;
 
