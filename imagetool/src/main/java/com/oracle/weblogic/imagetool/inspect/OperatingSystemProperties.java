@@ -5,6 +5,8 @@ package com.oracle.weblogic.imagetool.inspect;
 
 import java.util.Properties;
 
+import com.oracle.weblogic.imagetool.util.Utils;
+
 public class OperatingSystemProperties {
     private String id;
     private String version;
@@ -29,9 +31,16 @@ public class OperatingSystemProperties {
      */
     public static OperatingSystemProperties getOperatingSystemProperties(Properties imageProperties) {
         OperatingSystemProperties result = new OperatingSystemProperties();
-        result.id = imageProperties.getProperty("__OS__ID").replace("\"", "");
-        result.version = imageProperties.getProperty("__OS__VERSION").replace("\"", "");
-        result.name = imageProperties.getProperty("__OS__NAME").replace("\"", "");
+        result.id = removeQuotes(imageProperties.getProperty("__OS__ID"));
+        result.version = removeQuotes(imageProperties.getProperty("__OS__VERSION"));
+        result.name = removeQuotes(imageProperties.getProperty("__OS__NAME"));
         return result;
+    }
+
+    private static String removeQuotes(String value) {
+        if (Utils.isEmptyString(value)) {
+            return value;
+        }
+        return value.replace("\"", "");
     }
 }
