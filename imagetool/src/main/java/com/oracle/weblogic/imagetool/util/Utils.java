@@ -435,11 +435,11 @@ public class Utils {
 
         byte[] fileBytes = Files.readAllBytes(Paths.get(scriptToRun));
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
-        String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
+        String oneCommand = String.format("echo %s | base64 -d | /bin/sh", encodedFile);
         logger.finest("running command in image [" + oneCommand + "]");
         return Stream.of(
             builder, "run", "--rm",
-            dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
+            dockerImage, "/bin/sh", "-c", oneCommand).collect(Collectors.toList());
     }
 
     /**
