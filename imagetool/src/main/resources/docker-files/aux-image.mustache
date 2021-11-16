@@ -10,7 +10,7 @@ FROM {{baseImage}} as os_update
 USER root
 
 # Use package manager to make sure that unzip, tar, and other required packages are installed
-{{^usingBusybox}}{{> package-managers}}{{/usingBusybox}}
+{{> package-managers}}
 
 # Create the Oracle user that will be the owner of the installed software
 {{> create-user-group}}

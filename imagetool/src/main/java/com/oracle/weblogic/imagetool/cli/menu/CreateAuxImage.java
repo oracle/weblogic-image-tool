@@ -34,9 +34,14 @@ public class CreateAuxImage extends CommonOptions implements Callable<CommandRes
 
         // WDT install and artifacts should be defaulted to the /auxiliary directory instead of /u01/wdt
         dockerfileOptions.setWdtHome("/auxiliary");
-        copyOptionsFromImage(fromImage(), buildDir());
 
-        dockerfileOptions.setBaseImage(Utils.isEmptyString(fromImage()) ? BUSYBOX : fromImage());
+        // if the user did not specify a fromImage, use BusyBox as the base image.
+        if (Utils.isEmptyString(fromImage())) {
+            dockerfileOptions.setBaseImage(BUSYBOX);
+            dockerfileOptions.usingBusybox(true);
+        }
+
+        copyOptionsFromImage(fromImage(), buildDir());
 
         wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
 

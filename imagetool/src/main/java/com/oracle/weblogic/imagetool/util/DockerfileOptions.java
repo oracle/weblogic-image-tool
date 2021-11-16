@@ -19,8 +19,6 @@ import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
-import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
-
 /**
  * Provides the data used by the Dockerfile templates (in mustache).
  */
@@ -62,6 +60,7 @@ public class DockerfileOptions {
     private List<String> patchFilenames;
     private MiddlewareInstall mwInstallers;
     private boolean domainGroupAsUser;
+    private boolean usingBusybox;
 
     // WDT values
     private String wdtHome;
@@ -92,6 +91,7 @@ public class DockerfileOptions {
         skipJavaInstall = false;
         skipMiddlewareInstall = false;
         domainGroupAsUser = false;
+        usingBusybox = false;
 
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
@@ -294,8 +294,12 @@ public class DockerfileOptions {
      */
     public DockerfileOptions setPackageInstaller(PackageManagerType option) {
         if (PackageManagerType.OS_DEFAULT == option) {
-            // This default must match the Package Manager for the configured fromImage default in baseImageName
-            pkgMgr = PackageManagerType.MICRODNF;
+            if (usingBusybox()) {
+                pkgMgr = PackageManagerType.NONE;
+            } else {
+                // This default must match the Package Manager for the configured fromImage default in baseImageName
+                pkgMgr = PackageManagerType.MICRODNF;
+            }
         } else {
             pkgMgr = option;
         }
@@ -1058,12 +1062,23 @@ public class DockerfileOptions {
     }
 
     /**
-     * True if --fromImage is busybox. Referenced by Dockerfile.
+     * Returns true if BusyBox options should be used in the Dockerfile.
      *
-     * @return true if the target image is BusyBox
+     * @return true if BusyBox options should be used in the Dockerfile.
      */
     @SuppressWarnings("unused")
     public boolean usingBusybox() {
-        return BUSYBOX.equals(baseImageName);
+        return usingBusybox;
+    }
+
+    /**
+     * Use BusyBox options in the Dockerfile when this value is true.
+     *
+     * @param value true to use BusyBox options, false otherwise.
+     * @return this
+     */
+    public DockerfileOptions usingBusybox(boolean value) {
+        usingBusybox = value;
+        return this;
     }
 }

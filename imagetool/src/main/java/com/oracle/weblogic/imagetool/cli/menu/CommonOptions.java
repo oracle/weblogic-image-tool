@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
+import com.oracle.weblogic.imagetool.inspect.OperatingSystemProperties;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
@@ -26,6 +27,8 @@ import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Unmatched;
+
+import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
@@ -193,6 +196,11 @@ public abstract class CommonOptions {
             if (existingOracleHome != null) {
                 dockerfileOptions.disableMiddlewareInstall(existingOracleHome);
                 logger.info("IMG-0092", fromImage);
+            }
+
+            OperatingSystemProperties os = OperatingSystemProperties.getOperatingSystemProperties(baseImageProperties);
+            if (os.name() != null && os.name().equalsIgnoreCase(BUSYBOX)) {
+                dockerfileOptions.usingBusybox(true);
             }
 
             String pkgMgrProp = baseImageProperties.getProperty("packageManager", "YUM");
