@@ -258,7 +258,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--dockerLog"},
-        description = "file to log output from the docker build",
+        description = "file to log output from the docker build.",
         hidden = true
     )
     private Path dockerLog;
@@ -278,51 +278,51 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--additionalBuildCommands"},
-        description = "path to a file with additional build commands"
+        description = "path to a file with additional build commands."
     )
     private Path additionalBuildCommandsPath;
 
     @Option(
         names = {"--additionalBuildFiles"},
         split = ",",
-        description = "comma separated list of files that should be copied to the build context folder"
+        description = "comma separated list of files that should be copied to the build context folder."
     )
     private List<Path> additionalBuildFiles;
 
     @Option(
         names = {"--dryRun"},
-        description = "Skip image build execution and print Dockerfile to stdout"
+        description = "Skip image build execution and print Dockerfile to stdout."
     )
     boolean dryRun = false;
 
     @Option(
         names = {"--buildNetwork"},
-        description = "Set the networking mode for the RUN instructions during build"
+        description = "Set the networking mode for the RUN instructions during build."
     )
     String buildNetwork;
 
     @Option(
         names = {"--pull"},
-        description = "Always attempt to pull a newer version of base images during the build"
+        description = "Always attempt to pull a newer version of base images during the build."
     )
     private boolean buildPull = false;
 
     @Option(
         names = {"--packageManager"},
-        description = "Set the Linux package manager to use for installing OS packages. Default: ${DEFAULT-VALUE}"
+        description = "Set the Linux package manager to use for installing OS packages. Default: ${DEFAULT-VALUE}."
     )
     PackageManagerType packageManager = PackageManagerType.OS_DEFAULT;
 
     @Option(
         names = {"--builder", "-b"},
-        description = "Executable to process the Dockerfile. Default: ${DEFAULT-VALUE}"
+        description = "Executable to process the Dockerfile. Default: ${DEFAULT-VALUE}."
     )
     String buildEngine = "docker";
 
     @Option(
         names = {"--target"},
-        description = "Apply settings appropriate to the target environment. Default: ${DEFAULT-VALUE}"
-            + " Supported values: ${COMPLETION-CANDIDATES}"
+        description = "Apply settings appropriate to the target environment.  Default: ${DEFAULT-VALUE}."
+            + "  Supported values: ${COMPLETION-CANDIDATES}."
     )
     KubernetesTarget kubernetesTarget = KubernetesTarget.Default;
 
