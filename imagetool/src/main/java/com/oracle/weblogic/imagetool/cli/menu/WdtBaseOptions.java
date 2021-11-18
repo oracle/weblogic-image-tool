@@ -100,38 +100,38 @@ public class WdtBaseOptions {
 
     @Option(
         names = {"--wdtModel"},
-        description = "path to the WDT model file that defines the Domain to create"
+        description = "A WDT model file (or a comma-separated list of files)."
     )
     private Path wdtModelPath;
 
     @Option(
         names = {"--wdtArchive"},
-        description = "path to the WDT archive file used by the WDT model"
+        description = "A WDT archive zip file, if needed (or comma-separated list of files)."
     )
     private Path wdtArchivePath;
 
     @Option(
         names = {"--wdtVariables"},
-        description = "path to the WDT variables file for use with the WDT model"
+        description = "A WDT variables file, if needed (or comma-separated list of files)."
     )
     private Path wdtVariablesPath;
 
     @Option(
         names = {"--wdtVersion"},
-        description = "WDT tool version to use.  Default: ${DEFAULT-VALUE}.",
+        description = "WDT version to use.  Default: ${DEFAULT-VALUE}.",
         defaultValue = "latest"
     )
     private String wdtVersion;
 
     @Option(
         names = {"--wdtModelHome"},
-        description = "Copy the models to the location in the image.  Default: WDT_HOME/models"
+        description = "The target location in the image to copy WDT models.  Default: WDT_HOME/models"
     )
     private String wdtModelHome;
 
     @Option(
         names = {"--wdtHome"},
-        description = "Set the base directory in the target image for WDT models and the WDT installer."
+        description = "The target folder in the image for the WDT install and models. Default: /u01/wdt"
     )
     private String wdtHome;
 }
