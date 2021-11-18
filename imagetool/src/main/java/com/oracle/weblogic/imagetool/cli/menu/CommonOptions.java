@@ -46,26 +46,27 @@ public abstract class CommonOptions {
     private String buildId;
 
     private void handleChown() {
-        if (osUserAndGroup == null) {
+        if (!isOptionSet("--chown")) {
             return;
         }
 
-        if (osUserAndGroup.length != 2) {
+        String[] userGroupPair = osUserAndGroup.split(":");
+        if (userGroupPair.length != 2) {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0027"));
         }
 
         Pattern p = Pattern.compile("^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$");
-        Matcher usr = p.matcher(osUserAndGroup[0]);
+        Matcher usr = p.matcher(userGroupPair[0]);
         if (!usr.matches()) {
-            throw new IllegalArgumentException(Utils.getMessage("IMG-0028", osUserAndGroup[0]));
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0028", userGroupPair[0]));
         }
-        Matcher grp = p.matcher(osUserAndGroup[1]);
+        Matcher grp = p.matcher(userGroupPair[1]);
         if (!grp.matches()) {
-            throw new IllegalArgumentException(Utils.getMessage("IMG-0029", osUserAndGroup[1]));
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0029", userGroupPair[1]));
         }
 
-        dockerfileOptions.setUserId(osUserAndGroup[0]);
-        dockerfileOptions.setGroupId(osUserAndGroup[1]);
+        dockerfileOptions.setUserId(userGroupPair[0]);
+        dockerfileOptions.setGroupId(userGroupPair[1]);
     }
 
     private void handleAdditionalBuildCommands() throws IOException {
@@ -169,7 +170,7 @@ public abstract class CommonOptions {
         if (kubernetesTarget == KubernetesTarget.OpenShift) {
             dockerfileOptions.setDomainGroupAsUser(true);
             // if the user did not set the OS user:group, make the default oracle:root, instead of oracle:oracle
-            if (osUserAndGroup == null) {
+            if (!isOptionSet(osUserAndGroup)) {
                 dockerfileOptions.setGroupId("root");
             }
         }
@@ -184,9 +185,7 @@ public abstract class CommonOptions {
      * @throws InterruptedException if an interrupt is received while trying to run a system command.
      */
     public void copyOptionsFromImage() throws IOException, InterruptedException {
-        // hasMatchedOption determines if the user provided --fromImage on the commandline
-        CommandLine.ParseResult pr = spec.commandLine().getParseResult();
-        if (pr.hasMatchedOption("--fromImage")) {
+        if (isOptionSet("--fromImage")) {
             logger.info("IMG-0002", fromImage);
 
             Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
@@ -236,6 +235,11 @@ public abstract class CommonOptions {
         }
         Utils.deleteFilesRecursively(buildDir());
         Utils.removeIntermediateDockerImages(buildEngine, buildId());
+    }
+
+    private boolean isOptionSet(String optionName) {
+        CommandLine.ParseResult pr = spec.commandLine().getParseResult();
+        return pr.hasMatchedOption(optionName);
     }
 
     /**
@@ -311,10 +315,10 @@ public abstract class CommonOptions {
     @Option(
         names = {"--chown"},
         paramLabel = "<owner:group>",
-        split = ":",
-        description = "owner and groupid to be used for files copied into the image. Default: oracle:oracle."
+        description = "owner and groupid to be used for files copied into the image. Default: ${DEFAULT-VALUE}",
+        defaultValue = "oracle:oracle"
     )
-    private String[] osUserAndGroup;
+    private String osUserAndGroup;
 
     @Option(
         names = {"--additionalBuildCommands"},

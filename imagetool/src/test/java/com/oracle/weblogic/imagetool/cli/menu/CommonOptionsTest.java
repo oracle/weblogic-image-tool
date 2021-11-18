@@ -24,30 +24,34 @@ import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import picocli.CommandLine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("unit")
 class CommonOptionsTest {
+    private static void setPrivateField(String fieldname, Object target, Object value)
+        throws NoSuchFieldException, IllegalAccessException {
+
+        Field optionsField = CommonOptions.class.getDeclaredField(fieldname);
+        optionsField.setAccessible(true);
+        optionsField.set(target, value);
+    }
+
     /**
-     * Test CommonOptions handleChown method.
+     * handleChown() should set the Dockerfile userid and groupid.
+     * use case: user provides derek:data.  Result should be "derek" for user and "data" for group.
      * @throws Exception if reflection fails (developer error)
      */
     @Test
     void handleChown() throws Exception {
         CreateImage createImage = new CreateImage();
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--chown", "derek:data");
 
-        // accessing private fields normally set by the command line
-        Field optionsField = CommonOptions.class.getDeclaredField("dockerfileOptions");
-        optionsField.setAccessible(true);
         DockerfileOptions dockerfile = new DockerfileOptions("testbuildid");
-        optionsField.set(createImage, dockerfile);
-
-        Field userAndGroupField = CommonOptions.class.getDeclaredField("osUserAndGroup");
-        userAndGroupField.setAccessible(true);
-        String[] userAndGroup = {"derek", "data"};
-        userAndGroupField.set(createImage, userAndGroup);
+        // accessing private fields normally set by the command line
+        setPrivateField("dockerfileOptions", createImage, dockerfile);
 
         Method chownMethod = CommonOptions.class.getDeclaredMethod("handleChown");
         chownMethod.setAccessible(true);
@@ -55,6 +59,28 @@ class CommonOptionsTest {
 
         assertEquals("derek", dockerfile.userid(), "CommonOptions handleChown failed to process user");
         assertEquals("data", dockerfile.groupid(), "CommonOptions handleChown failed to process group");
+    }
+
+    /**
+     * handleChown() should set the Dockerfile userid and groupid.
+     * use case: default, no input.  Result should be "oracle" for both.
+     * @throws Exception if reflection fails (developer error)
+     */
+    @Test
+    void handleChownDefault() throws Exception {
+        CreateImage createImage = new CreateImage();
+        new CommandLine(createImage).parseArgs("--tag", "tag:1");
+
+        DockerfileOptions dockerfile = new DockerfileOptions("testbuildid");
+        // accessing private fields normally set by the command line
+        setPrivateField("dockerfileOptions", createImage, dockerfile);
+
+        Method chownMethod = CommonOptions.class.getDeclaredMethod("handleChown");
+        chownMethod.setAccessible(true);
+        chownMethod.invoke(createImage);
+
+        assertEquals("oracle", dockerfile.userid(), "CommonOptions handleChown failed to process user");
+        assertEquals("oracle", dockerfile.groupid(), "CommonOptions handleChown failed to process group");
     }
 
     /**

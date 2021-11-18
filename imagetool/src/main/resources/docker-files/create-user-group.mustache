@@ -12,5 +12,5 @@ RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && 
 && chmod 775 /u01
 {{/usingBusybox}}
 {{#usingBusybox}}
-RUN addgroup oracle && adduser -D -G oracle oracle
+RUN addgroup {{groupid}} && adduser -D -G {{groupid}} {{userid}}
 {{/usingBusybox}}
