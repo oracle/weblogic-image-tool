@@ -31,7 +31,6 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Unmatched;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
@@ -312,9 +311,4 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         description = "Do not update OPatch version, even if a newer version is available."
     )
     private boolean skipOpatchUpdate = false;
-
-    @SuppressWarnings("unused")
-    @Unmatched
-
-    List<String> unmatchedOptions;
 }

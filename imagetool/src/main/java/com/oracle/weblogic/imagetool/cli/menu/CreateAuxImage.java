@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.Callable;
 
@@ -34,34 +33,31 @@ public class CreateAuxImage extends CommonOptions
     public CommandResponse call() throws Exception {
         Instant startTime = Instant.now();
 
-        initializeOptions();
+        try {
+            initializeOptions();
 
-        // WDT install and artifacts should be defaulted to the /auxiliary directory instead of /u01/wdt
-        dockerfileOptions.setWdtHome("/auxiliary");
-        // The default for Aux is busybox.  copyOptionsFromImage() will override this if --fromImage is provided.
-        dockerfileOptions.usingBusybox(true);
+            // WDT install and artifacts should be defaulted to the /auxiliary directory instead of /u01/wdt
+            dockerfileOptions.setWdtHome("/auxiliary");
+            // The default for Aux is busybox.  copyOptionsFromImage() will override this if --fromImage is provided.
+            dockerfileOptions.usingBusybox(true);
 
-        copyOptionsFromImage();
+            copyOptionsFromImage();
 
-        wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
+            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
 
-        // Create Dockerfile
-        String dockerfile = Utils.writeDockerfile(buildDir() + File.separator + "Dockerfile",
-            "aux-image.mustache", dockerfileOptions, dryRun);
+            // Create Dockerfile
+            String dockerfile = Utils.writeDockerfile(buildDir() + File.separator + "Dockerfile",
+                "aux-image.mustache", dockerfileOptions, dryRun);
 
-        runDockerCommand(dockerfile, getInitialBuildCmd(buildDir()));
-
-        if (!skipcleanup) {
-            Utils.deleteFilesRecursively(buildDir());
+            runDockerCommand(dockerfile, getInitialBuildCmd(buildDir()));
+        } catch (Exception ex) {
+            logger.fine("**ERROR**", ex);
+            return CommandResponse.error(ex.getMessage());
+        } finally {
+            cleanup();
         }
-
         logger.exiting();
-        if (dryRun) {
-            return CommandResponse.success("IMG-0054");
-        } else {
-            return CommandResponse.success("IMG-0053",
-                Duration.between(startTime, Instant.now()).getSeconds(), imageTag);
-        }
+        return successfulBuildResponse(startTime);
     }
 
     /**

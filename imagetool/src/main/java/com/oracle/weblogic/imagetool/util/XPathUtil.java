@@ -29,6 +29,10 @@ public class XPathUtil {
 
     private static XPathFactory factory = null;
 
+    private XPathUtil() {
+        // static utility class.
+    }
+
     private static synchronized XPathFactory factory() {
         if (factory == null) {
             factory = XPathFactory.newInstance();
@@ -98,5 +102,4 @@ public class XPathUtil {
             return errMsg;
         }
     }
-
 }

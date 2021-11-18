@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
@@ -218,6 +221,35 @@ public abstract class CommonOptions {
             dockerfileOptions.setPackageInstaller(pkgMgr);
         } else {
             dockerfileOptions.setPackageInstaller(packageManager);
+        }
+    }
+
+    /**
+     * Delete build context directory and remove all intermediate build images.
+     *
+     * @throws IOException if an error occurs trying to delete the context directory files.
+     * @throws InterruptedException when interrupted.
+     */
+    public void cleanup() throws IOException, InterruptedException {
+        if (skipcleanup) {
+            return;
+        }
+        Utils.deleteFilesRecursively(buildDir());
+        Utils.removeIntermediateDockerImages(buildEngine, buildId());
+    }
+
+    /**
+     * Return successful build response and message.
+     * @param startTime the time that the build started (for build duration).
+     * @return exit response.
+     */
+    public CommandResponse successfulBuildResponse(Instant startTime) {
+        Instant endTime = Instant.now();
+        if (dryRun) {
+            return CommandResponse.success("IMG-0054");
+        } else {
+            return CommandResponse.success("IMG-0053",
+                Duration.between(startTime, endTime).getSeconds(), imageTag);
         }
     }
 

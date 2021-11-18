@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.File;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.Callable;
 
@@ -49,18 +48,10 @@ public class CreateImage extends CommonCreateOptions implements Callable<Command
             logger.fine("**ERROR**", ex);
             return CommandResponse.error(ex.getMessage());
         } finally {
-            if (!skipcleanup) {
-                Utils.deleteFilesRecursively(buildDir());
-                Utils.removeIntermediateDockerImages(buildEngine, buildId());
-            }
+            cleanup();
         }
-        Instant endTime = Instant.now();
         logger.exiting();
-        if (dryRun) {
-            return CommandResponse.success("IMG-0054");
-        } else {
-            return CommandResponse.success("IMG-0053", Duration.between(startTime, endTime).getSeconds(), imageTag());
-        }
+        return successfulBuildResponse(startTime);
     }
 
     @ArgGroup(exclusive = false, heading = "WDT Options%n")
