@@ -125,7 +125,8 @@ public class WdtBaseOptions {
 
     @Option(
         names = {"--wdtModelHome"},
-        description = "The target location in the image to copy WDT models.  Default: WDT_HOME/models"
+        description =
+            "The target location in the image to copy WDT model, variable, and archive files.  Default: WDT_HOME/models"
     )
     private String wdtModelHome;
 
