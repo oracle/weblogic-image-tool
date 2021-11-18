@@ -102,8 +102,6 @@ public class DockerfileOptions {
         groupname = "oracle";
         tempDirectory = "/tmp/imagetool";
 
-        baseImageName = "ghcr.io/oracle/oraclelinux:8-slim";
-
         // WDT values
         useWdt = false;
         wdtHome = "/u01/wdt";

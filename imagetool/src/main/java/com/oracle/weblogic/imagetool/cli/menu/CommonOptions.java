@@ -25,7 +25,9 @@ import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
+import picocli.CommandLine;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
 
 import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
@@ -33,6 +35,7 @@ import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
     private static final String FILESFOLDER = "files";
+    public static final String FROM_IMAGE_LABEL = "<image name>";
 
     DockerfileOptions dockerfileOptions;
     private String buildDirectory = null;
@@ -154,6 +157,7 @@ public abstract class CommonOptions {
         logger.info(HelpVersionProvider.versionString());
         logger.info("IMG-0016", buildId);
         dockerfileOptions = new DockerfileOptions(buildId);
+        dockerfileOptions.setBaseImage(fromImage);
 
         handleProxyUrls();
         handleChown();
@@ -172,19 +176,18 @@ public abstract class CommonOptions {
 
     /**
      * Set the docker options (dockerfile template bean) by extracting information from the fromImage.
-     * @param fromImage image tag of the starting image
-     * @param tmpDir    name of the temp directory to use for the build context
+     *
      * @throws IOException when a file operation fails.
      * @throws InterruptedException if an interrupt is received while trying to run a system command.
      */
-    public void copyOptionsFromImage(String fromImage, String tmpDir) throws IOException, InterruptedException {
-
-        if (fromImage != null && !fromImage.isEmpty()) {
-            logger.finer("IMG-0002", fromImage);
-            dockerfileOptions.setBaseImage(fromImage);
+    public void copyOptionsFromImage() throws IOException, InterruptedException {
+        // hasMatchedOption determines if the user provided --fromImage on the commandline
+        CommandLine.ParseResult pr = spec.commandLine().getParseResult();
+        if (pr.hasMatchedOption("--fromImage")) {
+            logger.info("IMG-0002", fromImage);
 
             Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
-                "/probe-env/inspect-image.sh", tmpDir);
+                "/probe-env/inspect-image.sh", buildDir());
 
             String existingJavaHome = baseImageProperties.getProperty("javaHome", null);
             if (existingJavaHome != null) {
@@ -198,10 +201,10 @@ public abstract class CommonOptions {
                 logger.info("IMG-0092", fromImage);
             }
 
+            // If the OS is busybox, the Dockerfile needs to know in order to use the correct security commands
             OperatingSystemProperties os = OperatingSystemProperties.getOperatingSystemProperties(baseImageProperties);
-            if (os.name() != null && os.name().equalsIgnoreCase(BUSYBOX)) {
-                dockerfileOptions.usingBusybox(true);
-            }
+            // If OS is BusyBox, set usingBusyBox() to true, else set to false.
+            dockerfileOptions.usingBusybox(os.name() != null && os.name().equalsIgnoreCase(BUSYBOX));
 
             String pkgMgrProp = baseImageProperties.getProperty("packageManager", "YUM");
 
@@ -232,7 +235,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--tag"},
-        paramLabel = "TAG",
+        paramLabel = "<image tag>",
         required = true,
         description = "Tag for the final build image. Ex: container-registry.oracle.com/middleware/weblogic:12.2.1.4"
     )
@@ -240,18 +243,22 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--fromImage"},
-        description = "Docker image to use as base image."
+        paramLabel = FROM_IMAGE_LABEL,
+        description = "Docker image to use as base image.  Default: ${DEFAULT-VALUE}",
+        defaultValue = "ghcr.io/oracle/oraclelinux:8-slim"
     )
     private String fromImage;
 
     @Option(
         names = {"--httpProxyUrl"},
+        paramLabel = "<HTTP proxy URL>",
         description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     private String httpProxyUrl;
 
     @Option(
         names = {"--httpsProxyUrl"},
+        paramLabel = "<HTTPS proxy URL>",
         description = "proxy for https protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     private String httpsProxyUrl;
@@ -271,6 +278,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--chown"},
+        paramLabel = "<owner:group>",
         split = ":",
         description = "userid:groupid for JDK/Middleware installs and patches. Default: oracle:oracle."
     )
@@ -297,6 +305,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--buildNetwork"},
+        paramLabel = "<networking mode>",
         description = "Set the networking mode for the RUN instructions during build."
     )
     String buildNetwork;
@@ -309,6 +318,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--packageManager"},
+        paramLabel = "<package manager>",
         description = "Override the detected Linux package manager for installing OS packages."
     )
     PackageManagerType packageManager = PackageManagerType.OS_DEFAULT;
@@ -328,6 +338,8 @@ public abstract class CommonOptions {
 
     @SuppressWarnings("unused")
     @Unmatched
-
     List<String> unmatchedOptions;
+
+    @Spec
+    CommandLine.Model.CommandSpec spec;
 }

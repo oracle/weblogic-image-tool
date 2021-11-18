@@ -32,7 +32,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
     void prepareNewImage() throws IOException, InterruptedException, XPathExpressionException, AruException {
 
         logger.entering();
-        copyOptionsFromImage(fromImage(), buildDir());
+        copyOptionsFromImage();
 
         if (dockerfileOptions.installJava()) {
             CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion);

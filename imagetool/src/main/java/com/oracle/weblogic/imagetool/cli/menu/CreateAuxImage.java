@@ -12,8 +12,10 @@ import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Utils;
-import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.IDefaultValueProvider;
+import picocli.CommandLine.Model.ArgSpec;
 
 import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
 
@@ -21,9 +23,11 @@ import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
     name = "createAuxImage",
     description = "Build Auxiliary docker image for WebLogic domain configuration",
     requiredOptionMarker = '*',
+    defaultValueProvider = CreateAuxImage.class,
     abbreviateSynopsis = true
 )
-public class CreateAuxImage extends CommonOptions implements Callable<CommandResponse> {
+public class CreateAuxImage extends CommonOptions
+    implements Callable<CommandResponse>, IDefaultValueProvider {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CreateAuxImage.class);
 
     @Override
@@ -34,14 +38,10 @@ public class CreateAuxImage extends CommonOptions implements Callable<CommandRes
 
         // WDT install and artifacts should be defaulted to the /auxiliary directory instead of /u01/wdt
         dockerfileOptions.setWdtHome("/auxiliary");
+        // The default for Aux is busybox.  copyOptionsFromImage() will override this if --fromImage is provided.
+        dockerfileOptions.usingBusybox(true);
 
-        // if the user did not specify a fromImage, use BusyBox as the base image.
-        if (Utils.isEmptyString(fromImage())) {
-            dockerfileOptions.setBaseImage(BUSYBOX);
-            dockerfileOptions.usingBusybox(true);
-        }
-
-        copyOptionsFromImage(fromImage(), buildDir());
+        copyOptionsFromImage();
 
         wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
 
@@ -64,7 +64,25 @@ public class CreateAuxImage extends CommonOptions implements Callable<CommandRes
         }
     }
 
+    /**
+     * Default value plugin to override the default value for --fromImage.
+     *
+     * @param argSpec Provided by the PicoCLI framework.
+     * @return BusyBox for --fromImage default value, null otherwise.
+     */
+    @Override
+    public String defaultValue(ArgSpec argSpec) {
+        if (!argSpec.isOption()) {
+            return null;
+        }
+        // Using the parameter label, locate --fromImage Option and change its default to busybox
+        if (CommonOptions.FROM_IMAGE_LABEL.equals(argSpec.paramLabel())) {
+            return BUSYBOX;
+        }
+        return null;
+    }
 
-    @CommandLine.ArgGroup(exclusive = false, heading = "WDT Options%n")
+
+    @ArgGroup(exclusive = false, heading = "WDT Options%n")
     private final WdtBaseOptions wdtOptions = new WdtBaseOptions();
 }
