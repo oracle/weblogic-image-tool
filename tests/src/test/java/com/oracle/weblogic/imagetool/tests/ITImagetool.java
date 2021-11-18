@@ -1031,7 +1031,7 @@ class ITImagetool {
         String[] tokens = actual.split(" ", 2);
         assertEquals(2, tokens.length, "Unable to get file permissions for " + path);
         // When running on an SELinux host, the permissions shown by ls will end with a "."
-        assertTrue(tokens[0].startsWith(expected), "Incorrect file permissions for " + path);
+        assertEquals(expected, tokens[0].substring(0,expected.length()), "Incorrect file permissions for " + path);
     }
 
     /**
