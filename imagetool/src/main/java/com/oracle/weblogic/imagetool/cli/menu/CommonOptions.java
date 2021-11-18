@@ -312,7 +312,7 @@ public abstract class CommonOptions {
         names = {"--chown"},
         paramLabel = "<owner:group>",
         split = ":",
-        description = "userid:groupid for JDK/Middleware installs and patches. Default: oracle:oracle."
+        description = "owner and groupid to be used for files copied into the image. Default: oracle:oracle."
     )
     private String[] osUserAndGroup;
 
@@ -351,7 +351,7 @@ public abstract class CommonOptions {
     @Option(
         names = {"--packageManager"},
         paramLabel = "<package manager>",
-        description = "Override the detected Linux package manager for installing OS packages."
+        description = "Override the detected package manager for installing OS packages."
     )
     PackageManagerType packageManager = PackageManagerType.OS_DEFAULT;
 
