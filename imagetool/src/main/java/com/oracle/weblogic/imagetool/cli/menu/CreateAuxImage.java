@@ -36,8 +36,6 @@ public class CreateAuxImage extends CommonOptions
         try {
             initializeOptions();
 
-            // WDT install and artifacts should be defaulted to the /auxiliary directory instead of /u01/wdt
-            dockerfileOptions.setWdtHome("/auxiliary");
             // The default for Aux is busybox.  copyOptionsFromImage() will override this if --fromImage is provided.
             dockerfileOptions.usingBusybox(true);
 
@@ -71,11 +69,16 @@ public class CreateAuxImage extends CommonOptions
         if (!argSpec.isOption()) {
             return null;
         }
+        String defaultValue = null;
         // Using the parameter label, locate --fromImage Option and change its default to busybox
         if (CommonOptions.FROM_IMAGE_LABEL.equals(argSpec.paramLabel())) {
-            return BUSYBOX;
+            defaultValue = BUSYBOX;
         }
-        return null;
+        // Using the parameter label, locate --wdtHome Option and change its default to auxiliary
+        if (WdtBaseOptions.WDT_HOME_LABEL.equals(argSpec.paramLabel())) {
+            defaultValue = "/auxiliary";
+        }
+        return defaultValue;
     }
 
 

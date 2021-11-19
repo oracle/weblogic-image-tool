@@ -23,6 +23,7 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 public class WdtBaseOptions {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(WdtBaseOptions.class);
+    public static final String WDT_HOME_LABEL = "<WDT home directory>";
 
     /**
      * Return true if the user provided a WDT model or WDT archive on the command line.
@@ -51,11 +52,8 @@ public class WdtBaseOptions {
         logger.entering(tmpDir);
 
         dockerfileOptions.setWdtEnabled()
+            .setWdtHome(wdtHome)
             .setWdtModelHome(wdtModelHome);
-
-        if (wdtHome != null) {
-            dockerfileOptions.setWdtHome(wdtHome);
-        }
 
         if (wdtModelPath != null) {
             List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
@@ -132,7 +130,9 @@ public class WdtBaseOptions {
 
     @Option(
         names = {"--wdtHome"},
-        description = "The target folder in the image for the WDT install and models. Default: /u01/wdt"
+        paramLabel = WDT_HOME_LABEL,
+        description = "The target folder in the image for the WDT install and models. Default: ${DEFAULT-VALUE}.",
+        defaultValue = "/u01/wdt"
     )
     private String wdtHome;
 }

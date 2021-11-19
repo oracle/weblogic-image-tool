@@ -104,7 +104,6 @@ public class DockerfileOptions {
 
         // WDT values
         useWdt = false;
-        wdtHome = "/u01/wdt";
         wdtOperation = WdtOperation.CREATE;
         wdtModelList = new ArrayList<>();
         wdtArchiveList = new ArrayList<>();
