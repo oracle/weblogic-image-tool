@@ -3,10 +3,10 @@ title: "Inspect Image"
 date: 2021-07-06
 draft: false
 weight: 4
-description: "The inspect command reports on the contents of a Docker image."
+description: "The inspect command reports on the contents of a container image."
 ---
 
-The `inspect` command reports on the contents of a Docker image providing version and location information for Java 
+The `inspect` command reports on the contents of a container image providing version and location information for Java 
 and WebLogic installations.
 
 ```

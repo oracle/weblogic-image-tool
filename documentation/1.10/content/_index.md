@@ -11,12 +11,12 @@ configure a WebLogic domain with your applications, apply WebLogic Server patche
 
 With the Image Tool you can:
 
-* Create a Docker image and install the requested Java and WebLogic software. And, you can create a
+* Create a container image and install the requested Java and WebLogic software. And, you can create a
 WebLogic domain in the image, at the same time.
-* Create a new Docker image using an existing WebLogic domain from an existing image. The Docker
+* Create a new container image using an existing WebLogic domain from an existing image. The Docker
 image can start from an existing image with a JDK and Oracle middleware installation, or can install
 the JDK and Oracle Home as part of moving the domain.
-* Create a new Docker image by applying WebLogic patches to an existing image. In addition,
+* Create a new container image by applying WebLogic patches to an existing image. In addition,
  if one did not exist previously, you can create a WebLogic domain, update an existing domain, or deploy an application.
 
 For detailed information, see [Image Tool]({{< relref "/userguide/tools/_index.md" >}}).
@@ -34,7 +34,7 @@ See the [Release Notes]({{< relref "/release-notes.md" >}}) for issues and impor
 
 ### About this documentation
 
-* Use the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide to create a Linux based WebLogic Docker image.
+* Use the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide to create a Linux based WebLogic container image.
 * The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including command options and usage scenarios.
 * The [Samples]({{< relref "/samples/" >}}) provide typical and informative use cases.
 * The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WIT is built. Those

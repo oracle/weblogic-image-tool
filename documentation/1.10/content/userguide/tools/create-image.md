@@ -3,11 +3,11 @@ title: "Create Image"
 date: 2019-02-23
 draft: false
 weight: 1
-description: "The create command creates a new Docker image and installs the requested Java and WebLogic software."
+description: "The create command creates a new container image and installs the requested Java and WebLogic software."
 ---
 
 
-The `create` command helps build a WebLogic Docker image from a given base OS image. The required option for the command is marked. There are a number of optional parameters for the create feature.
+The `create` command helps build a WebLogic container image from a given base OS image. The required option for the command is marked. There are a number of optional parameters for the create feature.
 
 ```
 Usage: imagetool create [OPTIONS]
@@ -22,7 +22,7 @@ Usage: imagetool create [OPTIONS]
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:7-slim`  |
+| `--fromImage` | Container image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:7-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
@@ -76,7 +76,7 @@ Valid sections for create are:
 | `after-fmw-install` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
 | `before-wdt-command` | Intermediate (WDT_BUILD) | Before WDT is installed. |
 | `after-wdt-command` | Intermediate (WDT_BUILD) | After WDT domain creation/update is complete. |
-| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
+| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 
 **NOTE**: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
 The Image Tool will copy the Java Home, Oracle Home, domain home, and WDT home directories to the final image.  

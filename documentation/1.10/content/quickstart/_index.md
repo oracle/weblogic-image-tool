@@ -8,4 +8,4 @@ pre = "<b> </b>"
 
 # Quick Start Guide
 
-Use this Quick Start guide to create a Linux based WebLogic Docker image.
+Use this Quick Start guide to create a Linux based WebLogic container image.

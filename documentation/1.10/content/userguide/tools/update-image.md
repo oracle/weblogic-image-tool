@@ -3,11 +3,11 @@ title: "Update Image"
 date: 2019-02-23
 draft: false
 weight: 3
-description: "The update command creates a new Docker image by applying WebLogic patches to an existing image."
+description: "The update command creates a new container image by applying WebLogic patches to an existing image."
 ---
 
-After you have created a Docker image with the Image Tool, you may want to change it from time to time.  Use the `update`
-command to update the existing Docker images created with the Image Tool.  For example, you may want to:
+After you have created a container image with the Image Tool, you may want to change it from time to time.  Use the `update`
+command to update the existing container images created with the Image Tool.  For example, you may want to:
 * Apply a WebLogic patch
 * Apply the latest PSU from Oracle
 * Create a new WebLogic domain (if one did not already exist)
@@ -36,7 +36,7 @@ Update WebLogic Docker image with selected patches
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
+| `--fromImage` | Container image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--latestPSU` | (DEPRECATED) Find and apply the latest PatchSet Update, see [Additional information](#additional-information).  |   |
@@ -77,7 +77,7 @@ The input for this parameter is a simple text file that contains one or more of 
 | --- | --- | --- |
 | `before-wdt-command` | Intermediate (WDT_BUILD) | Before WDT is installed. |
 | `after-wdt-command` | Intermediate (WDT_BUILD) | After WDT domain creation/update is complete. |
-| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
+| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 
 NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
 The Image Tool will copy the domain home and the WDT home directories to the final image.  

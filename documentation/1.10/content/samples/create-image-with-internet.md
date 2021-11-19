@@ -6,7 +6,7 @@ weight: 1
 ---
 
 
-The Image Tool supports creating Linux based WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains.  It can be used with or without Internet access.
+The Image Tool supports creating Linux based WebLogic container images, applying WebLogic patches, and creating WebLogic domains.  It can be used with or without Internet access.
 
 In this use case, the Image Tool will:
 

@@ -3,12 +3,12 @@ title: "Rebase Image"
 date: 2019-02-23
 draft: false
 weight: 2
-description: "The rebase command creates a new Docker image using an existing WebLogic domain from an existing image."
+description: "The rebase command creates a new container image using an existing WebLogic domain from an existing image."
 ---
 
 
-The `rebase` command creates a new Docker image and copies an existing WebLogic domain to that new image.  
-The new Docker image can be based on an existing image in the repository or created as part of the rebase operation
+The `rebase` command creates a new container image and copies an existing WebLogic domain to that new image.  
+The new container image can be based on an existing image in the repository or created as part of the rebase operation
 similar to the `create` command.
 
 ```
@@ -24,7 +24,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:7-slim`  |
+| `--fromImage` | Container image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:7-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
@@ -44,7 +44,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
-| `--targetImage` | Docker image to extend for the domain's new image. |   |
+| `--targetImage` | Container image to extend for the domain's new image. |   |
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Your Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
@@ -62,7 +62,7 @@ The input for this parameter is a simple text file that contains one or more of 
 | `after-jdk-install` | Intermediate (JDK_BUILD) | After the JDK is installed. |
 | `before-fmw-install` | Intermediate (WLS_BUILD) | Before the Oracle Home is created. |
 | `after-fmw-install` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
-| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
+| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 
 **NOTE**: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
 The Image Tool will copy the Java Home and the Oracle Home directories to the final image.  
