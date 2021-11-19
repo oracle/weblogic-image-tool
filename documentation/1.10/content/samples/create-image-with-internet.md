@@ -10,7 +10,7 @@ The Image Tool supports creating Linux based WebLogic container images, applying
 
 In this use case, the Image Tool will:
 
-1. Start with a base-level operating system image (`ghcr.io/oracle/oraclelinux:7-slim`).
+1. Start with a base-level operating system image (`ghcr.io/oracle/oraclelinux:8-slim`).
 2. Update the image with the necessary packages for installing WebLogic Server.
 3. Install Java and WebLogic Server.
 

@@ -30,7 +30,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--wdtArchive` | A WDT archive zip file or comma-separated list of files.  |   |
 | `--wdtHome` | The target folder in the image for the WDT install and models.  | `/auxiliary`  |
 | `--wdtModel` | A WDT model file or a comma-separated list of files.  |   |
-| `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `$WDT_HOME/models` |
+| `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
 | `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
 | `--wdtVersion` | WDT version to use.  | `latest`  |
 

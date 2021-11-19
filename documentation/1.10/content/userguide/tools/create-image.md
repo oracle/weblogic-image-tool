@@ -22,7 +22,7 @@ Usage: imagetool create [OPTIONS]
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Container image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:7-slim`  |
+| `--fromImage` | Container image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:8-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
@@ -45,18 +45,20 @@ Usage: imagetool create [OPTIONS]
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
-| `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
+| `--wdtArchive` | A WDT archive zip file or comma-separated list of files.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
 | `--wdtEncryptionKey` | Passphrase for WDT `-use_encryption` that will be requested on STDIN. |   |
 | `--wdtEncryptionKeyEnv` | Passphrase for WDT `-use_encryption` that is provided as an environment variable. |   |
 | `--wdtEncryptionKeyFile` | Passphrase for WDT `-use_encryption` that is provided as a file. |   |
+| `--wdtHome` | The target folder in the image for the WDT install and models.  | `/u01/wdt`  |
 | `--wdtJavaOptions` | Java command-line options for WDT.  |   |
-| `--wdtModel` | Path to the WDT model file that defines the domain to create.  |   |
+| `--wdtModel` | A WDT model file or a comma-separated list of files.  |   |
+| `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
 | `--wdtModelOnly` | Install WDT and copy the models to the image, but do not create the domain.  | `false`  |
 | `--wdtRunRCU` | Instruct WDT to run RCU when creating the domain.  |   |
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
-| `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
+| `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
 | `--wdtVersion` | WDT version to use.  | `latest`  |
 
 ### Additional information
