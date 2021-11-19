@@ -8,7 +8,7 @@ description: "The createAuxImage command creates a new container image with WDT 
 
 
 The `createAuxImage` command helps build a container image from a given base OS image. 
-The required option for the command is marked. There are a number of optional parameters for the create feature.
+There are a number of optional parameters for the create feature. The required option for the command is marked.
 
 ```
 Usage: imagetool createAuxImage [OPTIONS]
@@ -28,7 +28,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--skipCleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
-| `--wdtArchive` | A WDT archive zip file or comma-separated list of files.  |   |
+| `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
 | `--wdtHome` | The target folder in the image for the WDT install and models.  | `/auxiliary`  |
 | `--wdtModel` | A WDT model file or a comma-separated list of files.  |   |
 | `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
@@ -71,7 +71,7 @@ $ imagetool @/path/to/build_args
 
 ### Usage scenarios
 
-The commands below assume that all the required WDT installer has been downloaded and added to the cache.
+The following commands assume that the required WDT installer has been downloaded and added to the ImageTool cache.
 Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
 - Create an image named `wdt:1.10` with the latest [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/) version.

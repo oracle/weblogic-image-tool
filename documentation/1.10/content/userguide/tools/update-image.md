@@ -52,7 +52,7 @@ Update WebLogic Docker image with selected patches
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
 | `--user` | Oracle support email ID.  |   |
-| `--wdtArchive` | A WDT archive zip file or comma-separated list of files.  |   |
+| `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
 | `--wdtEncryptionKey` | Passphrase for WDT -use_encryption that will be requested on STDIN. |   |

@@ -7,7 +7,8 @@ description: "The create command creates a new container image and installs the 
 ---
 
 
-The `create` command helps build a WebLogic container image from a given base OS image. The required option for the command is marked. There are a number of optional parameters for the create feature.
+The `create` command helps build a WebLogic container image from a given base OS image.
+There are a number of optional parameters for this feature. The required option for the command is marked.
 
 ```
 Usage: imagetool create [OPTIONS]
@@ -46,7 +47,7 @@ Usage: imagetool create [OPTIONS]
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
-| `--wdtArchive` | A WDT archive zip file or comma-separated list of files.  |   |
+| `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
 | `--wdtEncryptionKey` | Passphrase for WDT `-use_encryption` that will be requested on STDIN. |   |
@@ -168,7 +169,7 @@ $ imagetool @/path/to/build_args
 
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
+The following commands assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
  to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
 - Create an image named `sample:wls` with the WebLogic installer 12.2.1.3.0, server JDK 8u202, and latest PSU applied.
