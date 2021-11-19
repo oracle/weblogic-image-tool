@@ -40,6 +40,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
+| `--skipCleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |

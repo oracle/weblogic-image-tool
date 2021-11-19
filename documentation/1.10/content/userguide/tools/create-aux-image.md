@@ -25,6 +25,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `YUM`, `ZYPPER`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
+| `--skipCleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
 | `--wdtArchive` | A WDT archive zip file or comma-separated list of files.  |   |
