@@ -67,10 +67,6 @@ public class OPatchFile extends PatchFile {
             }
         }
 
-        // For the OPatch use case, only the provided version (--opatchBugNumber) is used to "select" a patch.
-        // selectPatch will return null if there is more than one patch in the patches list.
-        //AruPatch selectedPatch = AruPatch.selectPatch(patches, providedVersion, null, null);
-
         AruPatch selectedPatch;
         if (patches.isEmpty()) {
             throw new NoPatchesFoundException(Utils.getMessage("IMG-0057", patchNumber));

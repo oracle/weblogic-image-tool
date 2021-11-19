@@ -4,15 +4,9 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
@@ -21,18 +15,16 @@ import com.oracle.weblogic.imagetool.util.ResourceTemplateOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
+public class WdtFullOptions extends WdtBaseOptions {
 
-public class WdtOptions {
-
-    private static final LoggingFacade logger = LoggingFactory.getLogger(WdtOptions.class);
+    private static final LoggingFacade logger = LoggingFactory.getLogger(WdtFullOptions.class);
 
     /**
      * Return true if the user specified a WDT model or WDT archive on the command line.
      * @return true if WDT was selected by the user
      */
-    boolean isUsingWdt() {
-        return wdtModelOnly || wdtModelPath != null || wdtArchivePath != null;
+    public boolean isUsingWdt() {
+        return wdtModelOnly || isWdtModelProvided();
     }
 
     /**
@@ -40,7 +32,7 @@ public class WdtOptions {
      * WDT should not run a create or update script.
      * @return true if the WDT script should not run during the build.
      */
-    boolean modelOnly() {
+    public boolean modelOnly() {
         return wdtModelOnly;
     }
 
@@ -51,13 +43,15 @@ public class WdtOptions {
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @throws IOException in case of error
      */
+    @Override
     void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
-
+        logger.entering(tmpDir);
         if (!isUsingWdt()) {
+            logger.exiting();
             return;
         }
+        super.handleWdtArgs(dockerfileOptions, tmpDir);
 
-        logger.entering(tmpDir);
         String encryptionKey = Utils.getPasswordFromInputs(encryptionKeyStr, encryptionKeyFile, encryptionKeyEnv);
         if (encryptionKey != null) {
             dockerfileOptions.setWdtEncryptionKey(encryptionKey);
@@ -69,49 +63,9 @@ public class WdtOptions {
             .setWdtDomainType(wdtDomainType)
             .setRunRcu(runRcu)
             .setWdtStrictValidation(wdtStrictValidation)
-            .setWdtModelOnly(wdtModelOnly)
-            .setWdtModelHome(wdtModelHome);
-
-        if (wdtModelPath != null) {
-            List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
-            dockerfileOptions.setWdtModels(modelList);
-        }
-
-        if (wdtArchivePath != null) {
-            List<String> archiveList = addWdtFilesAsList(wdtArchivePath, "archive", tmpDir);
-            dockerfileOptions.setWdtArchives(archiveList);
-        }
-
-        if (wdtVariablesPath != null && Files.isRegularFile(wdtVariablesPath)) {
-            String wdtVariableFilename = wdtVariablesPath.getFileName().toString();
-            Files.copy(wdtVariablesPath, Paths.get(tmpDir, wdtVariableFilename));
-            //Until WDT supports multiple variable files, take single file argument from CLI and convert to list
-            dockerfileOptions.setWdtVariables(Collections.singletonList(wdtVariableFilename));
-        }
-
-        CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
-        Path wdtfile = wdtInstaller.copyFile(cache(), tmpDir);
-        dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
+            .setWdtModelOnly(wdtModelOnly);
 
         logger.exiting();
-    }
-
-    private List<String> addWdtFilesAsList(Path fileArg, String type, String tmpDir) throws IOException {
-        String[] listOfFiles = fileArg.toString().split(",");
-        List<String> fileList = new ArrayList<>();
-
-        for (String individualFile : listOfFiles) {
-            Path individualPath = Paths.get(individualFile);
-            if (Files.isRegularFile(individualPath)) {
-                String modelFilename = individualPath.getFileName().toString();
-                Files.copy(individualPath, Paths.get(tmpDir, modelFilename));
-                fileList.add(modelFilename);
-            } else {
-                String errMsg = String.format("WDT %s file %s not found ", type, individualFile);
-                throw new IOException(errMsg);
-            }
-        }
-        return fileList;
     }
 
     /**
@@ -131,37 +85,12 @@ public class WdtOptions {
         ResourceTemplateOptions options = new ResourceTemplateOptions()
             .domainHome(wdtDomainHome)
             .imageName(imageName)
-            .modelHome(wdtModelHome)
+            .modelHome(wdtModelHome())
             .domainHomeSourceType(domainType);
 
         // resolve parameters in the list of mustache templates returned by gatherFiles()
         Utils.writeResolvedFiles(resourceTemplates, options);
     }
-
-    @Option(
-        names = {"--wdtModel"},
-        description = "path to the WDT model file that defines the Domain to create"
-    )
-    private Path wdtModelPath;
-
-    @Option(
-        names = {"--wdtArchive"},
-        description = "path to the WDT archive file used by the WDT model"
-    )
-    private Path wdtArchivePath;
-
-    @Option(
-        names = {"--wdtVariables"},
-        description = "path to the WDT variables file for use with the WDT model"
-    )
-    private Path wdtVariablesPath;
-
-    @Option(
-        names = {"--wdtVersion"},
-        description = "WDT tool version to use",
-        defaultValue = "latest"
-    )
-    private String wdtVersion;
 
     @Option(
         names = {"--wdtDomainType"},
@@ -197,13 +126,6 @@ public class WdtOptions {
     )
     @SuppressWarnings("FieldCanBeLocal")
     private boolean wdtModelOnly = false;
-
-    @Option(
-        names = {"--wdtModelHome"},
-        description = "Copy the models to the location in the image Default: ${DEFAULT-VALUE}.",
-        defaultValue = "/u01/wdt/models"
-    )
-    private String wdtModelHome;
 
     @Option(
         names = {"--wdtStrictValidation"},

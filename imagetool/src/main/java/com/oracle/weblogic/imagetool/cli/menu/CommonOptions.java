@@ -3,77 +3,70 @@
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.aru.AruException;
-import com.oracle.weblogic.imagetool.aru.AruPatch;
-import com.oracle.weblogic.imagetool.aru.AruProduct;
-import com.oracle.weblogic.imagetool.aru.AruUtil;
-import com.oracle.weblogic.imagetool.aru.InstalledPatch;
+import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
-import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
-import com.oracle.weblogic.imagetool.aru.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
-import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
-import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
+import com.oracle.weblogic.imagetool.inspect.OperatingSystemProperties;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
+import picocli.CommandLine;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
+import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
     private static final String FILESFOLDER = "files";
+    public static final String FROM_IMAGE_LABEL = "<image name>";
 
     DockerfileOptions dockerfileOptions;
-    private String tempDirectory = null;
+    private String buildDirectory = null;
     private String nonProxyHosts = null;
-
-    abstract String getInstallerVersion();
+    private String buildId;
 
     private void handleChown() {
-        if (osUserAndGroup == null) {
+        if (!isOptionSet("--chown")) {
             return;
         }
 
-        if (osUserAndGroup.length != 2) {
+        String[] userGroupPair = osUserAndGroup.split(":");
+        if (userGroupPair.length != 2) {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0027"));
         }
 
         Pattern p = Pattern.compile("^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$");
-        Matcher usr = p.matcher(osUserAndGroup[0]);
+        Matcher usr = p.matcher(userGroupPair[0]);
         if (!usr.matches()) {
-            throw new IllegalArgumentException(Utils.getMessage("IMG-0028", osUserAndGroup[0]));
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0028", userGroupPair[0]));
         }
-        Matcher grp = p.matcher(osUserAndGroup[1]);
+        Matcher grp = p.matcher(userGroupPair[1]);
         if (!grp.matches()) {
-            throw new IllegalArgumentException(Utils.getMessage("IMG-0029", osUserAndGroup[1]));
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0029", userGroupPair[1]));
         }
 
-        dockerfileOptions.setUserId(osUserAndGroup[0]);
-        dockerfileOptions.setGroupId(osUserAndGroup[1]);
+        dockerfileOptions.setUserId(userGroupPair[0]);
+        dockerfileOptions.setGroupId(userGroupPair[1]);
     }
 
     private void handleAdditionalBuildCommands() throws IOException {
@@ -87,12 +80,12 @@ public abstract class CommonOptions {
         }
 
         if (additionalBuildFiles != null) {
-            Files.createDirectory(Paths.get(getTempDirectory(), FILESFOLDER));
+            Files.createDirectory(Paths.get(buildDir(), FILESFOLDER));
             for (Path additionalFile : additionalBuildFiles) {
                 if (!Files.isReadable(additionalFile)) {
                     throw new FileNotFoundException(Utils.getMessage("IMG-0030", additionalFile));
                 }
-                Path targetFile = Paths.get(getTempDirectory(), FILESFOLDER, additionalFile.getFileName().toString());
+                Path targetFile = Paths.get(buildDir(), FILESFOLDER, additionalFile.getFileName().toString());
                 logger.info("IMG-0043", additionalFile);
                 if (Files.isDirectory(additionalFile)) {
                     Utils.copyLocalDirectory(additionalFile, targetFile);
@@ -133,11 +126,6 @@ public abstract class CommonOptions {
             .buildArg("https_proxy", httpsProxyUrl, httpsProxyUrl != null && httpsProxyUrl.contains("@"))
             .buildArg("no_proxy", nonProxyHosts);
 
-        if (dockerPath != null && Files.isExecutable(dockerPath)) {
-            // remove this IF block after the deprecation period
-            logger.warning("--dockerPath is deprecated, use --builder");
-            cmdBuilder.dockerPath(dockerPath.toAbsolutePath().toString());
-        }
         logger.exiting();
         return cmdBuilder;
     }
@@ -149,13 +137,13 @@ public abstract class CommonOptions {
         Utils.setProxyIfRequired(httpProxyUrl, httpsProxyUrl, nonProxyHosts);
     }
 
-    String getTempDirectory() throws IOException {
-        if (tempDirectory == null) {
+    String buildDir() throws IOException {
+        if (buildDirectory == null) {
             Path tmpDir = Files.createTempDirectory(Paths.get(Utils.getBuildWorkingDir()), "wlsimgbuilder_temp");
-            tempDirectory = tmpDir.toAbsolutePath().toString();
-            logger.info("IMG-0003", tempDirectory);
+            buildDirectory = tmpDir.toAbsolutePath().toString();
+            logger.info("IMG-0003", buildDirectory);
         }
-        return tempDirectory;
+        return buildDirectory;
     }
 
     /**
@@ -163,31 +151,26 @@ public abstract class CommonOptions {
      * This method is used by UNIT tests ONLY.
      * @param value should be the value of a temp directory generated by the the UNIT test framework
      */
-    void setTempDirectory(String value) {
-        tempDirectory = value;
+    void setBuildDirectory(String value) {
+        buildDirectory = value;
     }
 
-    void init(String buildId) throws InvalidCredentialException, IOException {
-        logger.entering(buildId);
+    void initializeOptions() throws InvalidCredentialException, IOException, InvalidPatchIdFormatException {
+        logger.entering();
+        buildId = UUID.randomUUID().toString();
         logger.info(HelpVersionProvider.versionString());
-        dockerfileOptions = new DockerfileOptions(buildId);
         logger.info("IMG-0016", buildId);
+        dockerfileOptions = new DockerfileOptions(buildId);
+        dockerfileOptions.setBaseImage(fromImage);
 
         handleProxyUrls();
-        password = Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
-
-        // if userid or password is provided, validate the pair of provided values
-        if ((userId != null || password != null) && !AruUtil.checkCredentials(userId, password)) {
-            throw new InvalidCredentialException();
-        }
-
         handleChown();
         handleAdditionalBuildCommands();
 
         if (kubernetesTarget == KubernetesTarget.OpenShift) {
             dockerfileOptions.setDomainGroupAsUser(true);
             // if the user did not set the OS user:group, make the default oracle:root, instead of oracle:oracle
-            if (osUserAndGroup == null) {
+            if (!isOptionSet(osUserAndGroup)) {
                 dockerfileOptions.setGroupId("root");
             }
         }
@@ -196,201 +179,17 @@ public abstract class CommonOptions {
     }
 
     /**
-     * Returns true if any patches should be applied.
-     * A PSU is considered a patch.
-     *
-     * @return true if applying patches
-     */
-    boolean applyingPatches() {
-        return (latestPsu || recommendedPatches) || !patches.isEmpty();
-    }
-
-    /**
-     * Should OPatch version be updated.
-     * OPatch should be updated to the latest version available unless the user
-     * requests that OPatch should not be updated.
-     * @return true if OPatch should be updated.
-     */
-    boolean shouldUpdateOpatch() {
-        if (skipOpatchUpdate) {
-            logger.fine("IMG-0065");
-        }
-        return !skipOpatchUpdate;
-    }
-
-    void handlePatchFiles(FmwInstallerType installerType) throws AruException, XPathExpressionException, IOException {
-        if (dockerfileOptions.installMiddleware()) {
-            handlePatchFiles(installerType, Collections.emptyList());
-        } else {
-            if (applyingPatches()) {
-                // user intended to apply patches, but used a fromImage that already had an Oracle Home
-                // The template does not support (yet) patches on existing Oracle Homes due to image size impact
-                logger.warning("IMG-0093");
-            }
-        }
-    }
-
-    /**
-     * Process all patches requested by the user, if any.
-     * Downloads and copies patch JARs to the build context directory.
-     *
-     * @param installerType     The installer type used to create the Oracle Home
-     * @param installedPatches  a list of patches applied already installed on the target image.
-     * @throws AruException     if an error occurs trying to read patch metadata from ARU.
-     * @throws IOException      if a transport error occurs trying to access the Oracle REST services.
-     * @throws XPathExpressionException when the payload from the REST service is not formatted as expected
-     *                          or a partial response was returned.
-     */
-    void handlePatchFiles(FmwInstallerType installerType, List<InstalledPatch> installedPatches)
-        throws AruException, IOException, XPathExpressionException {
-        logger.entering(installerType, installedPatches);
-        String psuVersion = InstalledPatch.getPsuVersion(installedPatches);
-        if (!applyingPatches()) {
-            logger.exiting("not applying patches");
-            return;
-        }
-
-        List<AruPatch> aruPatches = new ArrayList<>();
-        if (recommendedPatches || latestPsu) {
-            if (userId == null || password == null) {
-                throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
-            }
-
-            if (recommendedPatches) {
-                // Get the latest PSU and its recommended patches
-                aruPatches = AruUtil.rest()
-                    .getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
-
-                if (aruPatches.isEmpty()) {
-                    recommendedPatches = false;
-                    logger.info("IMG-0084", getInstallerVersion());
-                } else if (FmwInstallerType.isBaseWeblogicServer(installerType)) {
-                    // find and remove all ADR patches in the recommended patches list for base WLS installers
-                    List<AruPatch> discard = aruPatches.stream()
-                        .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
-                        .collect(Collectors.toList());
-                    // let the user know that the ADR patches will be discarded
-                    discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
-                    aruPatches.removeAll(discard);
-                }
-            } else {
-                // PSUs for WLS and JRF installers are considered WLS patches
-                aruPatches = AruUtil.rest().getLatestPsu(installerType, getInstallerVersion(), userId, password);
-
-                if (aruPatches.isEmpty()) {
-                    latestPsu = false;
-                    logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
-                }
-            }
-        }
-
-        if (!aruPatches.isEmpty()) {
-            // when applying a new PSU, use that PSU version to find patches where user did not qualify the patch number
-            for (AruPatch patch : aruPatches) {
-                if (patch.isPsu() && AruProduct.fromProductId(patch.product()) == AruProduct.WLS) {
-                    String psuName = patch.psuBundle();
-                    String psu = psuName.substring(psuName.lastIndexOf(' ') + 1);
-                    logger.fine("Using PSU {0} to set preferred patch version to {1}", patch.patchId(), psu);
-                    psuVersion = psu;
-                }
-            }
-        }
-
-        // add user-provided patch list to any patches that were found for latestPsu or recommendedPatches
-        for (String patchId : patches) {
-            // if user mistakenly added the OPatch patch to the WLS patch list, skip it. WIT updates OPatch anyway
-            if (OPatchFile.isOPatchPatch(patchId)) {
-                continue;
-            }
-            // if patch ID was provided as bugnumber_version, split the bugnumber and version strings
-            String providedVersion = null;
-            int split = patchId.indexOf('_');
-            if (split > 0) {
-                providedVersion = patchId.substring(split + 1);
-                patchId = patchId.substring(0, split);
-            }
-            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password);
-
-            // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
-            if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
-                // Do not continue if the user specified a patch number that cannot be applied.
-                throw logger.throwing(new InvalidPatchNumberException(Utils.getMessage("IMG-0098", patchId)));
-            }
-
-            if (!patchVersions.isEmpty()) {
-                AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, psuVersion,
-                    getInstallerVersion());
-
-                if (selectedVersion != null) {
-                    aruPatches.add(selectedVersion);
-                } else {
-                    throw logger.throwing(new MultiplePatchVersionsException(patchId, aruPatches));
-                }
-            }
-        }
-
-        AruUtil.validatePatches(installedPatches, aruPatches, userId, password);
-
-        String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
-        // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
-        for (AruPatch patch : aruPatches) {
-            PatchFile patchFile = new PatchFile(patch, userId, password);
-            String patchLocation = patchFile.resolve(cache());
-            if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
-                File cacheFile = new File(patchLocation);
-                try {
-                    if (patch.fileName() == null) {
-                        patch.fileName(cacheFile.getName());
-                    }
-                    Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, cacheFile.getName()));
-                } catch (FileAlreadyExistsException ee) {
-                    logger.warning("IMG-0077", patchFile.getKey());
-                }
-            } else {
-                logger.severe("IMG-0024", patchFile.getKey());
-            }
-        }
-        if (!aruPatches.isEmpty()) {
-            dockerfileOptions
-                .setPatchingEnabled()
-                .setStrictPatchOrdering(strictPatchOrdering)
-                .setPatchList(aruPatches);
-        }
-        logger.exiting();
-    }
-
-    private Path createPatchesTempDirectory() throws IOException {
-        Path tmpPatchesDir = Files.createDirectory(Paths.get(getTempDirectory(), "patches"));
-        Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
-        return tmpPatchesDir;
-    }
-
-    void installOpatchInstaller(String tmpDir, String opatchBugNumber)
-        throws IOException, XPathExpressionException, AruException {
-        logger.entering(opatchBugNumber);
-        String filePath = OPatchFile.getInstance(opatchBugNumber, userId, password, cache()).resolve(cache());
-        String filename = new File(filePath).getName();
-        Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
-        dockerfileOptions.setOPatchPatchingEnabled();
-        dockerfileOptions.setOPatchFileName(filename);
-        logger.exiting(filename);
-    }
-
-    /**
      * Set the docker options (dockerfile template bean) by extracting information from the fromImage.
-     * @param fromImage image tag of the starting image
-     * @param tmpDir    name of the temp directory to use for the build context
+     *
      * @throws IOException when a file operation fails.
      * @throws InterruptedException if an interrupt is received while trying to run a system command.
      */
-    public void copyOptionsFromImage(String fromImage, String tmpDir) throws IOException, InterruptedException {
-
-        if (fromImage != null && !fromImage.isEmpty()) {
-            logger.finer("IMG-0002", fromImage);
-            dockerfileOptions.setBaseImage(fromImage);
+    public void copyOptionsFromImage() throws IOException, InterruptedException {
+        if (isOptionSet("--fromImage")) {
+            logger.info("IMG-0002", fromImage);
 
             Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
-                "/probe-env/inspect-image.sh", tmpDir);
+                "/probe-env/inspect-image.sh", buildDir());
 
             String existingJavaHome = baseImageProperties.getProperty("javaHome", null);
             if (existingJavaHome != null) {
@@ -404,205 +203,179 @@ public abstract class CommonOptions {
                 logger.info("IMG-0092", fromImage);
             }
 
+            // If the OS is busybox, the Dockerfile needs to know in order to use the correct security commands
+            OperatingSystemProperties os = OperatingSystemProperties.getOperatingSystemProperties(baseImageProperties);
+            // If OS is BusyBox, set usingBusyBox() to true, else set to false.
+            dockerfileOptions.usingBusybox(os.name() != null && os.name().equalsIgnoreCase(BUSYBOX));
+
             String pkgMgrProp = baseImageProperties.getProperty("packageManager", "YUM");
 
             PackageManagerType pkgMgr = PackageManagerType.valueOf(pkgMgrProp);
             logger.fine("fromImage package manager {0}", pkgMgr);
             if (packageManager != PackageManagerType.OS_DEFAULT && pkgMgr != packageManager) {
+                // If the user is overriding the detected package manager, use the provided value
                 logger.info("IMG-0079", pkgMgr, packageManager);
                 pkgMgr = packageManager;
             }
             dockerfileOptions.setPackageInstaller(pkgMgr);
-        } else if (packageManager == PackageManagerType.OS_DEFAULT) {
-            // Default OS is Oracle Linux 7-slim, so default package manager is YUM
-            dockerfileOptions.setPackageInstaller(PackageManagerType.YUM);
         } else {
             dockerfileOptions.setPackageInstaller(packageManager);
         }
     }
 
-    String getUserId() {
-        return userId;
+    /**
+     * Delete build context directory and remove all intermediate build images.
+     *
+     * @throws IOException if an error occurs trying to delete the context directory files.
+     * @throws InterruptedException when interrupted.
+     */
+    public void cleanup() throws IOException, InterruptedException {
+        if (skipcleanup) {
+            return;
+        }
+        Utils.deleteFilesRecursively(buildDir());
+        Utils.removeIntermediateDockerImages(buildEngine, buildId());
     }
 
-    String getPassword() {
-        return password;
+    private boolean isOptionSet(String optionName) {
+        CommandLine.ParseResult pr = spec.commandLine().getParseResult();
+        return pr.hasMatchedOption(optionName);
+    }
+
+    /**
+     * Return successful build response and message.
+     * @param startTime the time that the build started (for build duration).
+     * @return exit response.
+     */
+    public CommandResponse successfulBuildResponse(Instant startTime) {
+        Instant endTime = Instant.now();
+        if (dryRun) {
+            return CommandResponse.success("IMG-0054");
+        } else {
+            return CommandResponse.success("IMG-0053",
+                Duration.between(startTime, endTime).getSeconds(), imageTag);
+        }
+    }
+
+    public String imageTag() {
+        return imageTag;
+    }
+
+    public String fromImage() {
+        return fromImage;
+    }
+
+    public String buildId() {
+        return buildId;
     }
 
     @Option(
         names = {"--tag"},
-        paramLabel = "TAG",
+        paramLabel = "<image tag>",
         required = true,
-        description = "Tag for the final build image. Ex: store/oracle/weblogic:12.2.1.3.0"
+        description = "Tag for the final build image. Ex: container-registry.oracle.com/middleware/weblogic:12.2.1.4"
     )
     String imageTag;
 
     @Option(
-        names = {"--user"},
-        paramLabel = "<support email>",
-        description = "Oracle Support email id"
+        names = {"--fromImage"},
+        paramLabel = FROM_IMAGE_LABEL,
+        description = "Docker image to use as base image.  Default: ${DEFAULT-VALUE}",
+        defaultValue = "ghcr.io/oracle/oraclelinux:8-slim"
     )
-    private String userId;
-
-    private String password;
-
-    @Option(
-        names = {"--password"},
-        interactive = true,
-        arity = "0..1",
-        paramLabel = "<support password>",
-        description = "Enter password for Oracle Support userId on STDIN"
-    )
-    private String passwordStr;
-
-    @Option(
-        names = {"--passwordEnv"},
-        paramLabel = "<environment variable>",
-        description = "environment variable containing the support password"
-    )
-    private String passwordEnv;
-
-    @Option(
-        names = {"--passwordFile"},
-        paramLabel = "<password file>",
-        description = "path to file containing just the password"
-    )
-    private Path passwordFile;
+    private String fromImage;
 
     @Option(
         names = {"--httpProxyUrl"},
+        paramLabel = "<HTTP proxy URL>",
         description = "proxy for http protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     private String httpProxyUrl;
 
     @Option(
         names = {"--httpsProxyUrl"},
+        paramLabel = "<HTTPS proxy URL>",
         description = "proxy for https protocol. Ex: http://myproxy:80 or http://user:passwd@myproxy:8080"
     )
     private String httpsProxyUrl;
 
-    /**
-     * Set the Docker build executable when "docker" is not on the path.
-     * @deprecated use --builder instead
-     */
-    @Option(
-        names = {"--docker"},
-        description = "path to docker executable. Default: ${DEFAULT-VALUE}",
-        defaultValue = "docker"
-    )
-    @Deprecated
-    private Path dockerPath;
-
     @Option(
         names = {"--dockerLog"},
-        description = "file to log output from the docker build",
+        description = "file to log output from the docker build.",
         hidden = true
     )
     private Path dockerLog;
 
     @Option(
         names = {"--skipcleanup"},
-        description = "Do no delete build context folder, intermediate images, and failed build container."
+        description = "Do not delete the build context folder, intermediate images, and failed build containers."
     )
     boolean skipcleanup = false;
 
     @Option(
         names = {"--chown"},
-        split = ":",
-        description = "userid:groupid for JDK/Middleware installs and patches. Default: oracle:oracle."
+        paramLabel = "<owner:group>",
+        description = "owner and groupid to be used for files copied into the image. Default: ${DEFAULT-VALUE}",
+        defaultValue = "oracle:oracle"
     )
-    private String[] osUserAndGroup;
+    private String osUserAndGroup;
 
     @Option(
         names = {"--additionalBuildCommands"},
-        description = "path to a file with additional build commands"
+        description = "path to a file with additional build commands."
     )
     private Path additionalBuildCommandsPath;
 
     @Option(
         names = {"--additionalBuildFiles"},
         split = ",",
-        description = "comma separated list of files that should be copied to the build context folder"
+        description = "comma separated list of files that should be copied to the build context folder."
     )
     private List<Path> additionalBuildFiles;
 
     @Option(
         names = {"--dryRun"},
-        description = "Skip image build execution and print Dockerfile to stdout"
+        description = "Skip image build execution and print Dockerfile to stdout."
     )
     boolean dryRun = false;
 
     @Option(
-        names = {"--latestPSU"},
-        description = "Whether to apply patches from latest PSU."
-    )
-    boolean latestPsu = false;
-
-    @Option(
-        names = {"--recommendedPatches"},
-        description = "Whether to apply recommended patches from latest PSU."
-    )
-    boolean recommendedPatches = false;
-
-    @Option(
-        names = {"--strictPatchOrdering"},
-        description = "Use OPatch to apply patches one at a time."
-    )
-    boolean strictPatchOrdering = false;
-
-    @Option(
-        names = {"--patches"},
-        paramLabel = "patchId",
-        split = ",",
-        description = "Comma separated patch Ids. Ex: 12345678,87654321"
-    )
-    List<String> patches = new ArrayList<>();
-
-    @Option(
-        names = {"--opatchBugNumber"},
-        description = "the patch number for OPatch (patching OPatch)"
-    )
-    String opatchBugNumber;
-
-    @Option(
         names = {"--buildNetwork"},
-        description = "Set the networking mode for the RUN instructions during build"
+        paramLabel = "<networking mode>",
+        description = "Set the networking mode for the RUN instructions during build."
     )
     String buildNetwork;
 
     @Option(
         names = {"--pull"},
-        description = "Always attempt to pull a newer version of base images during the build"
+        description = "Always attempt to pull a newer version of base images during the build."
     )
     private boolean buildPull = false;
 
     @Option(
-        names = {"--skipOpatchUpdate"},
-        description = "Do not update OPatch version, even if a newer version is available."
-    )
-    private boolean skipOpatchUpdate = false;
-
-    @Option(
         names = {"--packageManager"},
-        description = "Set the Linux package manager to use for installing OS packages. Default: ${DEFAULT-VALUE}"
+        paramLabel = "<package manager>",
+        description = "Override the detected package manager for installing OS packages."
     )
     PackageManagerType packageManager = PackageManagerType.OS_DEFAULT;
 
     @Option(
         names = {"--builder", "-b"},
-        description = "Executable to process the Dockerfile. Default: ${DEFAULT-VALUE}"
+        description = "Executable to process the Dockerfile. Default: ${DEFAULT-VALUE}."
     )
     String buildEngine = "docker";
 
     @Option(
         names = {"--target"},
-        description = "Apply settings appropriate to the target environment. Default: ${DEFAULT-VALUE}"
-            + " Supported values: ${COMPLETION-CANDIDATES}"
+        description = "Apply settings appropriate to the target environment.  Default: ${DEFAULT-VALUE}."
+            + "  Supported values: ${COMPLETION-CANDIDATES}."
     )
     KubernetesTarget kubernetesTarget = KubernetesTarget.Default;
 
     @SuppressWarnings("unused")
     @Unmatched
-
     List<String> unmatchedOptions;
+
+    @Spec
+    CommandLine.Model.CommandSpec spec;
 }

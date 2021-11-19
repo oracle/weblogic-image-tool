@@ -435,11 +435,11 @@ public class Utils {
 
         byte[] fileBytes = Files.readAllBytes(Paths.get(scriptToRun));
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
-        String oneCommand = String.format("echo %s | base64 -d | /bin/bash", encodedFile);
+        String oneCommand = String.format("echo %s | base64 -d | /bin/sh", encodedFile);
         logger.finest("running command in image [" + oneCommand + "]");
         return Stream.of(
             builder, "run", "--rm",
-            dockerImage, "/bin/bash", "-c", oneCommand).collect(Collectors.toList());
+            dockerImage, "/bin/sh", "-c", oneCommand).collect(Collectors.toList());
     }
 
     /**
@@ -555,7 +555,7 @@ public class Utils {
      * @return true if all patch IDs are valid , false otherwise.
      */
 
-    public static boolean validatePatchIds(List<String> patches, boolean rigid) {
+    public static boolean validatePatchIds(List<String> patches, boolean rigid) throws InvalidPatchIdFormatException {
         Pattern patchIdPattern;
         if (rigid) {
             patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
@@ -574,8 +574,7 @@ public class Utils {
                         errorFormat = "12345678[_12.2.1.3.0]";
                     }
 
-                    logger.severe("IMG-0004", patchId, errorFormat);
-                    return false;
+                    throw new InvalidPatchIdFormatException(patchId, errorFormat);
                 }
             }
         }

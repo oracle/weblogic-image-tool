@@ -5,30 +5,36 @@
 #Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 
-if [ "$(type -p dnf)" ]; then
+if type dnf > /dev/null 2>&1; then
   echo packageManager=DNF
-elif [ "$(type -p yum)" ]; then
+elif type yum > /dev/null 2>&1; then
   echo packageManager=YUM
-elif [ "$(type -p microdnf)" ]; then
+elif type microdnf > /dev/null 2>&1; then
   echo packageManager=MICRODNF
-elif [ "$(type -p apt-get)" ]; then
+elif type apt-get > /dev/null 2>&1; then
   echo packageManager=APTGET
-elif [ "$(type -p apk)" ]; then
+elif type apk > /dev/null 2>&1; then
   echo packageManager=APK
-elif [ "$(type -p zypper)" ]; then
+elif type zypper > /dev/null 2>&1; then
   echo packageManager=ZYPPER
+else
+  echo packageManager=NONE
 fi
 
 if [ -n "$JAVA_HOME" ]; then
   echo javaHome="$JAVA_HOME"
-  echo javaVersion="$("$JAVA_HOME"/bin/java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
+  javaVersion="$("$JAVA_HOME"/bin/java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
 else
-  echo javaVersion="$(java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
+  javaVersion="$(java -version 2>&1 | awk -F '\"' '/version/ {print $2}')"
+fi
+
+if [ -n "$javaVersion" ]; then
+  echo javaVersion="$javaVersion"
 fi
 
 if [ -n "$DOMAIN_HOME" ]; then
   echo domainHome="$DOMAIN_HOME"
-  if [ ! -d "$DOMAIN_HOME" ] || [ -z "$(ls -A $DOMAIN_HOME)" ]; then
+  if [ ! -d "$DOMAIN_HOME" ] || [ -z "$(ls -A "$DOMAIN_HOME")" ]; then
     echo wdtModelOnly=true
   fi
 fi
@@ -39,10 +45,10 @@ fi
 
 if [ -n "$WDT_HOME" ]; then
   echo wdtHome="$WDT_HOME"
-  echo wdtVersion="$(cat $WDT_HOME/weblogic-deploy/VERSION.txt | sed 's/.* //')"
+  echo wdtVersion="$(sed 's/.* //' "$WDT_HOME"/weblogic-deploy/VERSION.txt )"
 elif [ -f "/u01/wdt/weblogic-deploy/VERSION.txt" ]; then
   echo wdtHome="/u01/wdt"
-  echo wdtVersion="$(cat /u01/wdt/weblogic-deploy/VERSION.txt | sed 's/.* //')"
+  echo wdtVersion="$(sed 's/.* //' /u01/wdt/weblogic-deploy/VERSION.txt)"
 fi
 
 if [ -n "$ORACLE_HOME" ]; then
@@ -55,9 +61,13 @@ if [ -n "$ORACLE_HOME" ]; then
   echo oracleHomeUser="$(stat -c '%U' "$ORACLE_HOME")"
   echo oracleHomeGroup="$(stat -c '%G' "$ORACLE_HOME")"
 
-  echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' $ORACLE_HOME/inventory/registry.xml | sed 's/,$//')"
+  echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' "$ORACLE_HOME"/inventory/registry.xml | sed 's/,$//')"
 fi
 
 if [ -f "/etc/os-release" ]; then
   grep '=' /etc/os-release | sed 's/^/__OS__/'
+elif type busybox > /dev/null 2>&1; then
+  echo __OS__ID="bb"
+  echo __OS__NAME="$(busybox | head -1 | awk '{ print $1 }')"
+  echo __OS__VERSION="$(busybox | head -1 | awk '{ print $2 }')"
 fi

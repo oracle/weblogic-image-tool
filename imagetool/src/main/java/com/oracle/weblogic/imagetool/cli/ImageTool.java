@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cli.cache.CacheCLI;
+import com.oracle.weblogic.imagetool.cli.menu.CreateAuxImage;
 import com.oracle.weblogic.imagetool.cli.menu.CreateImage;
 import com.oracle.weblogic.imagetool.cli.menu.InspectImage;
 import com.oracle.weblogic.imagetool.cli.menu.RebaseImage;
@@ -28,6 +29,7 @@ import static picocli.CommandLine.ExitCode;
         subcommands = {
             CacheCLI.class,
             CreateImage.class,
+            CreateAuxImage.class,
             UpdateImage.class,
             RebaseImage.class,
             InspectImage.class
