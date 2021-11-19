@@ -2,7 +2,7 @@
 title: "Rebase Image"
 date: 2019-02-23
 draft: false
-weight: 2
+weight: 3
 description: "The rebase command creates a new container image using an existing WebLogic domain from an existing image."
 ---
 

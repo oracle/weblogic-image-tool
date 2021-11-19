@@ -2,7 +2,7 @@
 title: "Inspect Image"
 date: 2021-07-06
 draft: false
-weight: 4
+weight: 10
 description: "The inspect command reports on the contents of a container image."
 ---
 

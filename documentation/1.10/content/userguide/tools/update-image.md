@@ -2,7 +2,7 @@
 title: "Update Image"
 date: 2019-02-23
 draft: false
-weight: 3
+weight: 4
 description: "The update command creates a new container image by applying WebLogic patches to an existing image."
 ---
 
