@@ -15,9 +15,9 @@ Usage: imagetool inspect [OPTIONS]
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
+| `--image`, `-i` | (Required) The image ID or image name to be inspected.  |   |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--format` | The output format. Supported values: JSON | `JSON`  |
-| `--image`, `-i` | (Required) The image ID or image name to be inspected.  |   |
 | `--patches` | Include OPatch information in the output, including a list of WebLogic patches that are applied.  |   |
 
 #### Use an argument file

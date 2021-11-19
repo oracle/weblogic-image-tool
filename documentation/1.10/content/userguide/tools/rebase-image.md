@@ -17,12 +17,13 @@ Usage: imagetool rebase [OPTIONS]
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
+| `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
+| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
-| `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
 | `--fromImage` | Container image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:8-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
@@ -41,9 +42,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
 | `--skipCleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
-| `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
-| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
 | `--targetImage` | Container image to extend for the domain's new image. |   |
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |

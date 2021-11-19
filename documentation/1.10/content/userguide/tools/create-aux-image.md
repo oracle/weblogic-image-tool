@@ -3,12 +3,17 @@ title: "Create Auxiliary Image"
 date: 2019-02-23
 draft: false
 weight: 2
-description: "The createAuxImage command creates a new container image with WDT models, archives, and variable files."
+description: "The createAuxImage command creates a new container image with WDT install and optional models, archives, and variables files."
 ---
 
 
 The `createAuxImage` command helps build a container image from a given base OS image. 
-There are a number of optional parameters for the create feature. The required option for the command is marked.
+Auxiliary images are very small images providing the WDT install files with WDT models, archives, and variables 
+for [WebLogic Kubernetes Operator - Auxiliary Images](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/auxiliary-images/).
+These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files, 
+in your WebLogic Server Kubernetes Operator environment.
+
+There are a number of optional parameters for this feature. The required option for the command is marked.
 
 ```
 Usage: imagetool createAuxImage [OPTIONS]
@@ -16,6 +21,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
+| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
@@ -26,23 +32,21 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `YUM`, `ZYPPER`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
 | `--skipCleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
-| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
 | `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
 | `--wdtHome` | The target folder in the image for the WDT install and models.  | `/auxiliary`  |
 | `--wdtModel` | A WDT model file or a comma-separated list of files.  |   |
 | `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
 | `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
-| `--wdtVersion` | WDT version to use.  | `latest`  |
+| `--wdtVersion` | WDT version to be installed in the container image in {wdtHome}/weblogic-deploy.  | `latest`  |
 
 ### Additional information
 
 #### `--target`
 
-By default, the generated WLS domain in your image will use the best practices defined by Oracle WebLogic Server.  
-The `target` option allows you to toggle the defaults so that the generated domain is easier to use in the target
-environment.  For example, the `--target OpenShift` option will change the file permissions in the domain directory
-so that the group permissions match the user permissions.
+The file permissions in the Auxiliary image should match the container image where WebLogic Server is installed.
+The target option is supplied for Auxiliary images as a convenience to simplify creating images with the same owner:group file permissions.
+Use the same value for `--target` when creating images with `create` and `createAuxImage`.
 
 | Target | Default File Permissions | Default File Ownership |
 | --- | --- | --- |
