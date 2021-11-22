@@ -44,7 +44,7 @@ public class WdtFullOptions extends WdtBaseOptions {
      * @throws IOException in case of error
      */
     @Override
-    void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
+    public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
         logger.entering(tmpDir);
         if (!isUsingWdt()) {
             logger.exiting();
