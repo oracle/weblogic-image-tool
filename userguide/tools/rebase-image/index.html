@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="The rebase command creates a new Docker image using an existing WebLogic domain from an existing image.">
+    <meta name="description" content="The rebase command creates a new container image using an existing WebLogic domain from an existing image.">
 
 
     <link rel="icon" href="/weblogic-image-tool/images/favicon.png" type="image/png">
@@ -12,20 +12,20 @@
     <title>Rebase Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1635131979" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1637598783" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1635131979"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1637598783"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1635131979"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1635131979"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1637598783"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1637598783"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1635131979"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1637598783"></script>
 
     
   </div>
@@ -240,6 +240,27 @@
       <li data-nav-id="/weblogic-image-tool/userguide/tools/create-image/" title="Create Image" class="dd-item ">
         <a href="/weblogic-image-tool/userguide/tools/create-image/">
         Create Image
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-image-tool/userguide/tools/create-aux-image/" title="Create Auxiliary Image" class="dd-item ">
+        <a href="/weblogic-image-tool/userguide/tools/create-aux-image/">
+        Create Auxiliary Image
         
         </a>
     </li>
@@ -689,8 +710,8 @@
         
 
 
-<p>The <code>rebase</code> command creates a new Docker image and copies an existing WebLogic domain to that new image.<br>
-The new Docker image can be based on an existing image in the repository or created as part of the rebase operation
+<p>The <code>rebase</code> command creates a new container image and copies an existing WebLogic domain to that new image.<br>
+The new container image can be based on an existing image in the repository or created as part of the rebase operation
 similar to the <code>create</code> command.</p>
 <pre><code>Usage: imagetool rebase [OPTIONS]
 </code></pre><table>
@@ -702,6 +723,16 @@ similar to the <code>create</code> command.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--sourceImage</code></td>
+<td>(Required) Source Image containing the WebLogic domain.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--tag</code></td>
+<td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:12.2.1.3.0</code></td>
+<td></td>
+</tr>
 <tr>
 <td><code>--additionalBuildCommands</code></td>
 <td>Path to a file with additional build commands. For more details, see <a href="#additional-information">Additional information</a>.</td>
@@ -728,19 +759,14 @@ similar to the <code>create</code> command.</p>
 <td><code>oracle:oracle</code></td>
 </tr>
 <tr>
-<td><code>--docker</code></td>
-<td>(DEPRECATED) Path to the Docker executable. Use <code>--builder</code> instead.</td>
-<td><code>docker</code></td>
-</tr>
-<tr>
 <td><code>--dryRun</code></td>
 <td>Skip Docker build execution and print the Dockerfile to stdout.</td>
 <td></td>
 </tr>
 <tr>
 <td><code>--fromImage</code></td>
-<td>Docker image to use as a base image when creating a new image.</td>
-<td><code>ghcr.io/oracle/oraclelinux:7-slim</code></td>
+<td>Container image to use as a base image when creating a new image.</td>
+<td><code>ghcr.io/oracle/oraclelinux:8-slim</code></td>
 </tr>
 <tr>
 <td><code>--httpProxyUrl</code></td>
@@ -818,18 +844,13 @@ similar to the <code>create</code> command.</p>
 <td></td>
 </tr>
 <tr>
-<td><code>--sourceImage</code></td>
-<td>(Required) Source Image containing the WebLogic domain.</td>
+<td><code>--skipCleanup</code></td>
+<td>Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.</td>
 <td></td>
 </tr>
 <tr>
 <td><code>--strictPatchOrdering</code></td>
 <td>Instruct OPatch to apply patches one at a time (uses <code>apply</code> instead of <code>napply</code>).</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--tag</code></td>
-<td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:12.2.1.3.0</code></td>
 <td></td>
 </tr>
 <tr>
@@ -839,7 +860,7 @@ similar to the <code>create</code> command.</p>
 </tr>
 <tr>
 <td><code>--targetImage</code></td>
-<td>Docker image to extend for the domain&rsquo;s new image.</td>
+<td>Container image to extend for the domain&rsquo;s new image.</td>
 <td></td>
 </tr>
 <tr>
@@ -895,7 +916,7 @@ The input for this parameter is a simple text file that contains one or more of 
 <tr>
 <td><code>final-build-commands</code></td>
 <td>Final image</td>
-<td>After all Image Tool actions are complete, and just before the Docker image is finalized.</td>
+<td>After all Image Tool actions are complete, and just before the container image is finalized.</td>
 </tr>
 </tbody>
 </table>
@@ -1136,6 +1157,22 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                     
                 
                 
@@ -1374,7 +1411,7 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-image-tool/userguide/tools/create-image/" title="Create Image"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-image-tool/userguide/tools/create-aux-image/" title="Create Auxiliary Image"> <i class="fa fa-chevron-left"></i></a>
 		
 		
 			<a class="nav nav-next" href="/weblogic-image-tool/userguide/tools/update-image/" title="Update Image" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
@@ -1387,19 +1424,19 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1635131979"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1637598783"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1635131979"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1637598783"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1635131979"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1637598783"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

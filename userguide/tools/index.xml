@@ -13,8 +13,18 @@
       <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</guid>
-      <description>The create command helps build a WebLogic Docker image from a given base OS image. The required option for the command is marked. There are a number of optional parameters for the create feature.
-Usage: imagetool create [OPTIONS]    Parameter Definition Default     --additionalBuildCommands Path to a file with additional build commands. For more details, see Additional information.    --additionalBuildFiles Additional files that are required by your additionalBuildCommands.</description>
+      <description>The create command helps build a WebLogic container image from a given base OS image. There are a number of optional parameters for this feature. The required option for the command is marked.
+Usage: imagetool create [OPTIONS]    Parameter Definition Default     --tag (Required) Tag for the final build image. Example: store/oracle/weblogic:12.2.1.3.0    --additionalBuildCommands Path to a file with additional build commands. For more details, see Additional information.</description>
+    </item>
+    
+    <item>
+      <title>Create Auxiliary Image</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-aux-image/</link>
+      <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-aux-image/</guid>
+      <description>The createAuxImage command helps build a container image from a given base OS image. Auxiliary images are very small images providing the WDT install files with WDT models, archives, and variables for WebLogic Kubernetes Operator - Auxiliary Images. These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files, in your WebLogic Server Kubernetes Operator environment.
+There are a number of optional parameters for this feature.</description>
     </item>
     
     <item>
@@ -23,9 +33,9 @@ Usage: imagetool create [OPTIONS]    Parameter Definition Default     --addition
       <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</guid>
-      <description>The rebase command creates a new Docker image and copies an existing WebLogic domain to that new image.
-The new Docker image can be based on an existing image in the repository or created as part of the rebase operation similar to the create command.
-Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --additionalBuildCommands Path to a file with additional build commands. For more details, see Additional information.</description>
+      <description>The rebase command creates a new container image and copies an existing WebLogic domain to that new image.
+The new container image can be based on an existing image in the repository or created as part of the rebase operation similar to the create command.
+Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --sourceImage (Required) Source Image containing the WebLogic domain.    --tag (Required) Tag for the final build image.</description>
     </item>
     
     <item>
@@ -34,7 +44,7 @@ Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --addition
       <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</guid>
-      <description>After you have created a Docker image with the Image Tool, you may want to change it from time to time. Use the update command to update the existing Docker images created with the Image Tool. For example, you may want to:
+      <description>After you have created a container image with the Image Tool, you may want to change it from time to time. Use the update command to update the existing container images created with the Image Tool. For example, you may want to:
  Apply a WebLogic patch Apply the latest PSU from Oracle Create a new WebLogic domain (if one did not already exist) Deploy a new application to an existing domain Modify the domain configuration (add a data source, change a port number, and such)  The required options for the update command are marked.</description>
     </item>
     
@@ -44,8 +54,8 @@ Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --addition
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/</guid>
-      <description>The inspect command reports on the contents of a Docker image providing version and location information for Java and WebLogic installations.
-Usage: imagetool inspect [OPTIONS]    Parameter Definition Default     --builder, -b Executable to process the Dockerfile. Use the full path of the executable if not on your path. docker   --format The output format. Supported values: JSON JSON   --image, -i (Required) The image ID or image name to be inspected.</description>
+      <description>The inspect command reports on the contents of a container image providing version and location information for Java and WebLogic installations.
+Usage: imagetool inspect [OPTIONS]    Parameter Definition Default     --image, -i (Required) The image ID or image name to be inspected.    --builder, -b Executable to process the Dockerfile. Use the full path of the executable if not on your path. docker   --format The output format.</description>
     </item>
     
     <item>

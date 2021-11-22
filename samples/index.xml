@@ -13,9 +13,9 @@
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/samples/create-image-with-internet/</guid>
-      <description>The Image Tool supports creating Linux based WebLogic Docker images, applying WebLogic patches, and creating WebLogic domains. It can be used with or without Internet access.
+      <description>The Image Tool supports creating Linux based WebLogic container images, applying WebLogic patches, and creating WebLogic domains. It can be used with or without Internet access.
 In this use case, the Image Tool will:
- Start with a base-level operating system image (ghcr.io/oracle/oraclelinux:7-slim). Update the image with the necessary packages for installing WebLogic Server. Install Java and WebLogic Server.  Steps   Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
+ Start with a base-level operating system image (ghcr.io/oracle/oraclelinux:8-slim). Update the image with the necessary packages for installing WebLogic Server. Install Java and WebLogic Server.  Steps   Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
     </item>
     
     <item>

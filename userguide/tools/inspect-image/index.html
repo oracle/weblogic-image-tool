@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="The inspect command reports on the contents of a Docker image.">
+    <meta name="description" content="The inspect command reports on the contents of a container image.">
 
 
     <link rel="icon" href="/weblogic-image-tool/images/favicon.png" type="image/png">
@@ -12,20 +12,20 @@
     <title>Inspect Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1635131979" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1635131979" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1637598783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1637598783" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1635131979"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1637598783"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1635131979"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1635131979"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1637598783"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1637598783"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1635131979"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1637598783"></script>
 
     
   </div>
@@ -240,6 +240,27 @@
       <li data-nav-id="/weblogic-image-tool/userguide/tools/create-image/" title="Create Image" class="dd-item ">
         <a href="/weblogic-image-tool/userguide/tools/create-image/">
         Create Image
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-image-tool/userguide/tools/create-aux-image/" title="Create Auxiliary Image" class="dd-item ">
+        <a href="/weblogic-image-tool/userguide/tools/create-aux-image/">
+        Create Auxiliary Image
         
         </a>
     </li>
@@ -689,7 +710,7 @@
         
 
 
-<p>The <code>inspect</code> command reports on the contents of a Docker image providing version and location information for Java
+<p>The <code>inspect</code> command reports on the contents of a container image providing version and location information for Java
 and WebLogic installations.</p>
 <pre><code>Usage: imagetool inspect [OPTIONS]
 </code></pre><table>
@@ -702,6 +723,11 @@ and WebLogic installations.</p>
 </thead>
 <tbody>
 <tr>
+<td><code>--image</code>, <code>-i</code></td>
+<td>(Required) The image ID or image name to be inspected.</td>
+<td></td>
+</tr>
+<tr>
 <td><code>--builder</code>, <code>-b</code></td>
 <td>Executable to process the Dockerfile. Use the full path of the executable if not on your path.</td>
 <td><code>docker</code></td>
@@ -710,11 +736,6 @@ and WebLogic installations.</p>
 <td><code>--format</code></td>
 <td>The output format. Supported values: JSON</td>
 <td><code>JSON</code></td>
-</tr>
-<tr>
-<td><code>--image</code>, <code>-i</code></td>
-<td>(Required) The image ID or image name to be inspected.</td>
-<td></td>
 </tr>
 <tr>
 <td><code>--patches</code></td>
@@ -907,6 +928,22 @@ and WebLogic installations.</p>
                     
                         
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -1175,19 +1212,19 @@ and WebLogic installations.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1635131979"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1637598783"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1635131979"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1635131979"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1637598783"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1637598783"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1635131979"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1637598783"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

@@ -26,7 +26,7 @@
     <loc>https://oracle.github.io/weblogic-image-tool/quickstart/setup/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</loc>
+    <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-aux-image/</loc>
     <lastmod>2019-02-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/</loc>
@@ -38,7 +38,7 @@
     <loc>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</loc>
+    <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</loc>
     <lastmod>2019-02-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/samples/</loc>
@@ -47,20 +47,23 @@
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/</loc>
     <lastmod>2019-02-22T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/</loc>
-    <lastmod>2021-07-06T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/cleanup/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/samples/create-image-wdt/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</loc>
+    <lastmod>2019-02-23T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/developer/</loc>
     <lastmod>2019-02-22T15:27:54-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/logging/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/</loc>
+    <lastmod>2021-07-06T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/</loc>
     <lastmod>2019-02-23T00:00:00+00:00</lastmod>
