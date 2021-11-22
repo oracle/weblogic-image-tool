@@ -1,22 +1,22 @@
 ---
-title: "Rebase Image"
+title: "Create Image"
 date: 2019-02-23
 draft: false
-weight: 2
-description: "The rebase command creates a new Docker image using an existing WebLogic domain from an existing image."
+weight: 1
+description: "The create command creates a new container image and installs the requested Java and WebLogic software."
 ---
 
 
-The `rebase` command creates a new Docker image and copies an existing WebLogic domain to that new image.  
-The new Docker image can be based on an existing image in the repository or created as part of the rebase operation
-similar to the `create` command.
+The `create` command helps build a WebLogic container image from a given base OS image.
+There are a number of optional parameters for this feature. The required option for the command is marked.
 
 ```
-Usage: imagetool rebase [OPTIONS]
+Usage: imagetool create [OPTIONS]
 ```
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
+| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
@@ -24,7 +24,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:7-slim`  |
+| `--fromImage` | Container image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:8-slim`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
@@ -32,7 +32,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--inventoryPointerInstallLoc` | Target location for the inventory pointer file.  |   |
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
-| `--recommendedPatches` | Find and apply the latest PatchSet Update and recommended patches. This takes precedence over --latestPSU |   |
+| `--recommendedPatches` | Find and apply the latest PatchSet Update and recommended patches. This takes precedence over --latestPSU  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  | `28186730`  |
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `OS_DEFAULT`, `YUM`, `ZYPPER`  | `OS_DEFAULT`  |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
@@ -40,33 +40,52 @@ Usage: imagetool rebase [OPTIONS]
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
-| `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
+| `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
+| `--skipCleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
-| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
-| `--targetImage` | Docker image to extend for the domain's new image. |   |
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
-| `--user` | Your Oracle support email ID.  |   |
+| `--user` | Oracle support email ID.  |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
+| `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
+| `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
+| `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
+| `--wdtEncryptionKey` | Passphrase for WDT `-use_encryption` that will be requested on STDIN. |   |
+| `--wdtEncryptionKeyEnv` | Passphrase for WDT `-use_encryption` that is provided as an environment variable. |   |
+| `--wdtEncryptionKeyFile` | Passphrase for WDT `-use_encryption` that is provided as a file. |   |
+| `--wdtHome` | The target folder in the image for the WDT install and models.  | `/u01/wdt`  |
+| `--wdtJavaOptions` | Java command-line options for WDT.  |   |
+| `--wdtModel` | A WDT model file or a comma-separated list of files.  |   |
+| `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
+| `--wdtModelOnly` | Install WDT and copy the models to the image, but do not create the domain.  | `false`  |
+| `--wdtRunRCU` | Instruct WDT to run RCU when creating the domain.  |   |
+| `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
+| `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
+| `--wdtVersion` | WDT version to use.  | `latest`  |
 
 ### Additional information
 
 #### `--additionalBuildCommands`
 
 This is an advanced option that let's you provide additional commands to the Docker build step.  
-The input for this parameter is a simple text file that contains one or more of the valid sections. Valid sections for rebase:
+The input for this parameter is a simple text file that contains one or more of the valid sections.
+Valid sections for create are:
 
 | Section | Build Stage | Timing |
 | --- | --- | --- |
+| `package-manager-packages` | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
 | `before-jdk-install` | Intermediate (JDK_BUILD) | Before the JDK is installed. |
 | `after-jdk-install` | Intermediate (JDK_BUILD) | After the JDK is installed. |
 | `before-fmw-install` | Intermediate (WLS_BUILD) | Before the Oracle Home is created. |
 | `after-fmw-install` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
-| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
+| `before-wdt-command` | Intermediate (WDT_BUILD) | Before WDT is installed. |
+| `after-wdt-command` | Intermediate (WDT_BUILD) | After WDT domain creation/update is complete. |
+| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 
 **NOTE**: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
-The Image Tool will copy the Java Home and the Oracle Home directories to the final image.  
+The Image Tool will copy the Java Home, Oracle Home, domain home, and WDT home directories to the final image.  
 Changes fully contained within these directories do not need an additional `COPY` command in the `final-build-commands` section.
+
 Each section can contain one or more valid Dockerfile commands and would look like the following:
 
 ```dockerfile
@@ -107,6 +126,20 @@ so that the group permissions match the user permissions.
 | `Default` | `rwxr-x---` | `oracle:oracle` |
 | `OpenShift` | `rwxrwx---` | `oracle:root` |
 
+#### Resource Template Files
+
+If provided, the file or files provided with `--resourceTemplates` will be overwritten. For known tokens,
+the placeholders will be replaced with values according to the following table.  
+
+**Note:** Placeholders must follow the Mustache syntax, like `{{imageName}}` or `{{{imageName}}}`.
+
+| Token Name | Value Description |
+| --- | --- |
+| `domainHome` | The value provided to the Image Tool with `--wdtDomainHome`. |
+| `domainHomeSourceType` | `PersistentVolume` (default), `FromModel` if `--wdtModelOnly`, or `Image` if the domain is created in the image with WDT. |
+| `imageName` | The value provided to the Image Tool with `--tag`. |
+| `modelHome` | The value provided to the Image Tool with `--wdtModelHome`. |
+
 #### Use an argument file
 
 You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.
@@ -114,11 +147,15 @@ You can save all arguments passed for the Image Tool in a file, then use the fil
 For example, create a file called `build_args`:
 
 ```bash
-rebase
---tag wls:122140
---sourceImage wls:122130
---version 12.2.1.4.0
---jdkVersion 8u221
+create
+--type wls
+--version 12.2.1.3.0
+--tag wls:122130
+--user acmeuser@mycompany.com
+--httpProxyUrl http://mycompany-proxy:80
+--httpsProxyUrl http://mycompany-proxy:80
+--passwordEnv MYPWD
+
 ```
 
 Use it on the command line, as follows:
@@ -132,26 +169,22 @@ $ imagetool @/path/to/build_args
 
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
-The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
+The following commands assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
  to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
-
-- Update the JDK for an existing domain.  Copy the existing domain from `sample:v1` where the JDK was 8u202 to a new
-image called `sample:v2` and install the newer JDK 8u221 with WebLogic Server 12.2.1.3.0.
+- Create an image named `sample:wls` with the WebLogic installer 12.2.1.3.0, server JDK 8u202, and latest PSU applied.
     ```bash
-    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
+    $ imagetool create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
     ```
 
-- Update the Oracle Home for an existing domain with a newer WebLogic version.  Copy a domain from an existing image to
-a new image with a new install of WebLogic Server 12.2.1.4.0.  Copy the domain
-from `sample:v1` and select the desired WebLogic installer using the `--version` argument.  
+- Create an image named `sample:wdt` with the same options as above and create a domain with [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/).
     ```bash
-    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
+    $ imagetool create --tag sample:wdt --latestPSU --user testuser@xyz.com --password hello --wdtModel /path/to/model.json --wdtVariables /path/to/variables.json --wdtVersion 0.16
     ```
+    If `wdtVersion` is not provided, the tool uses the latest release.
 
-- Update the JDK and/or Oracle Home for an existing domain using another image with pre-installed binaries.
-Copy the domain from the source image named `sample:v1` to a new image called `sample:v2` based on a target image
-named `fmw:12214`.  **Note**: The Oracle Home and JDK must be installed in the same same folders on each image.
+- Create an image named `sample:patch` with the selected patches applied.
     ```bash
-    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
+    $ imagetool create --tag sample:patch --user testuser@xyz.com --password hello --patches 12345678,p87654321
     ```
+    The patch numbers may or may not start with '`p`'.

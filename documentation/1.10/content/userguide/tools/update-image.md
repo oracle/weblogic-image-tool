@@ -2,12 +2,12 @@
 title: "Update Image"
 date: 2019-02-23
 draft: false
-weight: 3
-description: "The update command creates a new Docker image by applying WebLogic patches to an existing image."
+weight: 4
+description: "The update command creates a new container image by applying WebLogic patches to an existing image."
 ---
 
-After you have created a Docker image with the Image Tool, you may want to change it from time to time.  Use the `update`
-command to update the existing Docker images created with the Image Tool.  For example, you may want to:
+After you have created a container image with the Image Tool, you may want to change it from time to time.  Use the `update`
+command to update the existing container images created with the Image Tool.  For example, you may want to:
 * Apply a WebLogic patch
 * Apply the latest PSU from Oracle
 * Create a new WebLogic domain (if one did not already exist)
@@ -29,14 +29,14 @@ Update WebLogic Docker image with selected patches
 ```
 | Parameter | Definition | Default |
 | --- | --- | --- |
+| `--fromImage` | (Required) Container image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
+| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
-| `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
-| `--fromImage` | Docker image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--latestPSU` | (DEPRECATED) Find and apply the latest PatchSet Update, see [Additional information](#additional-information).  |   |
@@ -47,23 +47,25 @@ Update WebLogic Docker image with selected patches
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
+| `--skipCleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
-| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
 | `--user` | Oracle support email ID.  |   |
-| `--wdtArchive` | Path to the WDT archive file used by the WDT model.  |   |
+| `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
 | `--wdtEncryptionKey` | Passphrase for WDT -use_encryption that will be requested on STDIN. |   |
 | `--wdtEncryptionKeyEnv` | Passphrase for WDT -use_encryption that is provided as an environment variable. |   |
 | `--wdtEncryptionKeyFile` | Passphrase for WDT -use_encryption that is provided as a file. |   |
+| `--wdtHome` | The target folder in the image for the WDT install and models.  | `/u01/wdt`  |
 | `--wdtJavaOptions` | Java command-line options for WDT.  |   |
-| `--wdtModel` | Path to the WDT model file that defines the domain to create.  |   |
+| `--wdtModel` | A WDT model file or a comma-separated list of files.  |   |
+| `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
 | `--wdtModelOnly` | Install WDT and copy the models to the image, but do not create the domain.  | `false`  |
 | `--wdtOperation` | Create a new domain, or update an existing domain. Supported values: `CREATE`, `UPDATE`, `DEPLOY`  | `CREATE`  |
 | `--wdtRunRCU` | Instruct WDT to run RCU when creating the domain.  |   |
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
-| `--wdtVariables` | Path to the WDT variables file for use with the WDT model.  |   |
+| `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
 | `--wdtVersion` | WDT tool version to use.  |   |
 
 ### Additional information
@@ -77,7 +79,7 @@ The input for this parameter is a simple text file that contains one or more of 
 | --- | --- | --- |
 | `before-wdt-command` | Intermediate (WDT_BUILD) | Before WDT is installed. |
 | `after-wdt-command` | Intermediate (WDT_BUILD) | After WDT domain creation/update is complete. |
-| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the Docker image is finalized. |
+| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 
 NOTE: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
 The Image Tool will copy the domain home and the WDT home directories to the final image.  

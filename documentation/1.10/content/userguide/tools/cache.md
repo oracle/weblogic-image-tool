@@ -2,7 +2,7 @@
 title: "Cache"
 date: 2019-02-23
 draft: false
-weight: 5
+weight: 20
 description: "The Image Tool maintains metadata on the local file system for patches and installers.  You can use the cache command to manipulate the local metadata."
 ---
 

@@ -2,11 +2,11 @@
 title: "Inspect Image"
 date: 2021-07-06
 draft: false
-weight: 4
-description: "The inspect command reports on the contents of a Docker image."
+weight: 10
+description: "The inspect command reports on the contents of a container image."
 ---
 
-The `inspect` command reports on the contents of a Docker image providing version and location information for Java 
+The `inspect` command reports on the contents of a container image providing version and location information for Java 
 and WebLogic installations.
 
 ```
@@ -15,9 +15,9 @@ Usage: imagetool inspect [OPTIONS]
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
+| `--image`, `-i` | (Required) The image ID or image name to be inspected.  |   |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--format` | The output format. Supported values: JSON | `JSON`  |
-| `--image`, `-i` | (Required) The image ID or image name to be inspected.  |   |
 | `--patches` | Include OPatch information in the output, including a list of WebLogic patches that are applied.  |   |
 
 #### Use an argument file

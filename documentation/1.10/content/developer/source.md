@@ -46,7 +46,7 @@ Integration Test groups:
 - `cache` - Tests that build and manipulate the Image Tool cache.
 - `gate`  - A basic set of integration tests that are used to validate merge requests, including building several
 Docker image (~20 minutes).
-- `nightly` - The full set of integration tests building various Docker images including JRF and WLS
+- `nightly` - The full set of integration tests building various container images including JRF and WLS
 installations (~2 hours).
 
 **Note:** In order to run an integration test that builds an image like `createWlsImg`, you must run the `cache`
