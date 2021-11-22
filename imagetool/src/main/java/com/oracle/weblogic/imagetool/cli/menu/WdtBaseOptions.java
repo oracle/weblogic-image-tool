@@ -48,12 +48,14 @@ public class WdtBaseOptions {
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @throws IOException in case of error
      */
-    void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
+    public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
         logger.entering(tmpDir);
 
-        dockerfileOptions.setWdtEnabled()
-            .setWdtHome(wdtHome)
-            .setWdtModelHome(wdtModelHome);
+        if (isWdtModelProvided()) {
+            dockerfileOptions.setWdtEnabled();
+        }
+
+        dockerfileOptions.setWdtHome(wdtHome).setWdtModelHome(wdtModelHome);
 
         if (wdtModelPath != null) {
             List<String> modelList = addWdtFilesAsList(wdtModelPath, "model", tmpDir);
