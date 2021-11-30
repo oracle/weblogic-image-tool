@@ -5,12 +5,13 @@
 #
 # Create user and group
 {{^usingBusybox}}
-RUN if [ -z "$(getent group {{groupid}})" ]; then hash groupadd &> /dev/null && groupadd {{groupid}} || exit -1 ; fi \
-&& if [ -z "$(getent passwd {{userid}})" ]; then hash useradd &> /dev/null && useradd -g {{groupid}} {{userid}} || exit -1; fi \
-&& mkdir -p /u01 \
-&& chown {{userid}}:{{groupid}} /u01 \
-&& chmod 775 /u01
+RUN if [ -z "$(getent group {{groupid}})" ]; then groupadd {{groupid}} || exit -1 ; fi \
+ && if [ -z "$(getent passwd {{userid}})" ]; then useradd -g {{groupid}} {{userid}} || exit -1; fi \
+ && mkdir -p /u01 \
+ && chown {{userid}}:{{groupid}} /u01 \
+ && chmod 775 /u01
 {{/usingBusybox}}
 {{#usingBusybox}}
-RUN addgroup {{groupid}} && adduser -D -G {{groupid}} {{userid}}
+RUN if [ -z "$(grep ^{{groupid}}: /etc/group)" ]; then addgroup {{groupid}} || exit -1 ; fi \
+ && if [ -z "$(grep ^{{userid}}: /etc/passwd)" ]; then adduser -D -G {{groupid}} {{userid}} || exit -1 ; fi
 {{/usingBusybox}}
