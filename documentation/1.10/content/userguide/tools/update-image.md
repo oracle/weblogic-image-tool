@@ -14,6 +14,8 @@ command to update the existing container images created with the Image Tool.  Fo
 * Deploy a new application to an existing domain
 * Modify the domain configuration (add a data source, change a port number, and such)
 
+**NOTE**: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID [2764636.1](https://support.oracle.com/rs?type=doc&id=2764636.1)), because an SPB is _not_ a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool `create` command with the `--recommendedPatches` option.
+
 The required options for the `update` command are marked.
 
 **NOTE**: You can provide the password in one of the three ways:

@@ -10,6 +10,8 @@ description: "The create command creates a new container image and installs the 
 The `create` command helps build a WebLogic container image from a given base OS image.
 There are a number of optional parameters for this feature. The required option for the command is marked.
 
+**NOTE**: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID [2764636.1](https://support.oracle.com/rs?type=doc&id=2764636.1)), because an SPB is _not_ a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool `create` command with the `--recommendedPatches` option.
+
 ```
 Usage: imagetool create [OPTIONS]
 ```
