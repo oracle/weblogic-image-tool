@@ -120,10 +120,6 @@ public class HttpUtil {
 
         CookieStore cookieStore = new BasicCookieStore();
 
-        String proxyHost = System.getProperty("https.proxyHost");
-        String proxyPort  = System.getProperty("https.proxyPort");
-        HttpClient result;
-
         HttpClientBuilder builder = HttpClientBuilder.create()
             .setDefaultRequestConfig(config.build())
             .setRetryHandler(retryHandler())
@@ -137,13 +133,7 @@ public class HttpUtil {
             builder.setDefaultCredentialsProvider(credentialsProvider);
         }
 
-        if (proxyHost != null) {
-            // credentials are set in the getHttpExecutor
-            builder.setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
-        }
-
-        result = builder.build();
-
+        HttpClient result = builder.useSystemProperties().build();
         logger.exiting();
         return result;
     }
@@ -171,7 +161,7 @@ public class HttpUtil {
 
             executor
                 .auth(new HttpHost("login.oracle.com", 443), supportUserName, supportPassword)
-                .auth(new HttpHost("updates.oracle.com", 443), supportUserName, supportPassword)
+                .auth(new HttpHost(Constants.ARU_UPDATES_HOST, 443), supportUserName, supportPassword)
                 .authPreemptiveProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
         }
         return executor;
