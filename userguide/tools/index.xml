@@ -14,7 +14,7 @@
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</guid>
       <description>The create command helps build a WebLogic container image from a given base OS image. There are a number of optional parameters for this feature. The required option for the command is marked.
-Usage: imagetool create [OPTIONS]    Parameter Definition Default     --tag (Required) Tag for the final build image. Example: store/oracle/weblogic:12.2.1.3.0    --additionalBuildCommands Path to a file with additional build commands. For more details, see Additional information.</description>
+NOTE: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID 2764636.1), because an SPB is not a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool create command with the --recommendedPatches option.</description>
     </item>
     
     <item>
@@ -45,7 +45,7 @@ Usage: imagetool rebase [OPTIONS]    Parameter Definition Default     --sourceIm
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</guid>
       <description>After you have created a container image with the Image Tool, you may want to change it from time to time. Use the update command to update the existing container images created with the Image Tool. For example, you may want to:
- Apply a WebLogic patch Apply the latest PSU from Oracle Create a new WebLogic domain (if one did not already exist) Deploy a new application to an existing domain Modify the domain configuration (add a data source, change a port number, and such)  The required options for the update command are marked.</description>
+ Apply a WebLogic patch Apply the latest PSU from Oracle Create a new WebLogic domain (if one did not already exist) Deploy a new application to an existing domain Modify the domain configuration (add a data source, change a port number, and such)  NOTE: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID 2764636.</description>
     </item>
     
     <item>
