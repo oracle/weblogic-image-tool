@@ -476,6 +476,7 @@ public class Utils {
                     break;
             }
         }
+        logger.finer("Discovered proxy setting ({0}): {1}", protocol, retVal);
         return retVal;
     }
 
@@ -510,12 +511,16 @@ public class Utils {
      * Java properties.
      *
      * @param name the name of the environment variable, or Java property
+     * @param defaultValue if no environment variable is defined, nor system property, return this value
      * @return the value defined in the env or system property
      */
-    public static String getEnvironmentProperty(String name) {
+    public static String getEnvironmentProperty(String name, String defaultValue) {
         String result = System.getenv(name);
         if (isEmptyString(result)) {
             result = System.getProperty(name);
+        }
+        if (isEmptyString(result)) {
+            return defaultValue;
         }
         return result;
     }
@@ -526,10 +531,7 @@ public class Utils {
      * @return working directory
      */
     public static String getBuildWorkingDir() throws IOException {
-        String workingDir = getEnvironmentProperty("WLSIMG_BLDDIR");
-        if (workingDir == null) {
-            workingDir = System.getProperty("user.home");
-        }
+        String workingDir = getEnvironmentProperty("WLSIMG_BLDDIR", System.getProperty("user.home"));
         Path path = Paths.get(workingDir);
 
         boolean pathExists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
