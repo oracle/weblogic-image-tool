@@ -33,6 +33,9 @@ public class OperatingSystemProperties {
         OperatingSystemProperties result = new OperatingSystemProperties();
         result.id = removeQuotes(imageProperties.getProperty("__OS__ID"));
         result.version = removeQuotes(imageProperties.getProperty("__OS__VERSION"));
+        if (result.version == null) {
+            result.version = removeQuotes(imageProperties.getProperty("__OS__VERSION_ID"));
+        }
         result.name = removeQuotes(imageProperties.getProperty("__OS__NAME"));
         return result;
     }

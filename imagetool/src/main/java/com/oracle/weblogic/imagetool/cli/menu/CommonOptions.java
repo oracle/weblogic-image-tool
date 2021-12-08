@@ -33,7 +33,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
 
-import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX;
+import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX_OS_IDS;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
@@ -205,8 +205,11 @@ public abstract class CommonOptions {
 
             // If the OS is busybox, the Dockerfile needs to know in order to use the correct security commands
             OperatingSystemProperties os = OperatingSystemProperties.getOperatingSystemProperties(baseImageProperties);
-            // If OS is BusyBox, set usingBusyBox() to true, else set to false.
-            dockerfileOptions.usingBusybox(os.name() != null && os.name().equalsIgnoreCase(BUSYBOX));
+            // If OS is a BusyBox type OS, set usingBusyBox() to true, else set to false.
+            if (os.name() != null) {
+                // if OS name is in BUSYBOX_OS_NAMES, set usingBusybox to true
+                dockerfileOptions.usingBusybox(BUSYBOX_OS_IDS.stream().anyMatch(os.id()::equalsIgnoreCase));
+            }
 
             String pkgMgrProp = baseImageProperties.getProperty("packageManager", "YUM");
 
