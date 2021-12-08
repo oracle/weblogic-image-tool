@@ -11,5 +11,5 @@ weight: 1
 - When using the `imagetool` alias from `setup.sh` instead of the shell script (`imagetool.sh`), Bash version 4.0 or later is required for `<tab>` command completion.
 - When using any of the patching options, `--patches`, `--recommendedPatches`, or `--latestPSU`, you will need to provide [Oracle Support](https://www.oracle.com/technical-resources/) credentials.
 
-{{% notice note %}} The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID [2764636.1](https://support.oracle.com/rs?type=doc&id=2764636.1)), because an SPB is _not_ a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool `create` command with the `--recommendedPatches` option.
+{{% notice note %}} The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID [2764636.1](https://support.oracle.com/rs?type=doc&id=2764636.1)), because an SPB is _not_ a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool `create` or `update` command with the `--recommendedPatches` option.
 {{% /notice %}}
