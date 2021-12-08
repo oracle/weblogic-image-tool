@@ -281,7 +281,7 @@ public abstract class CommonOptions {
         names = {"--fromImage"},
         paramLabel = FROM_IMAGE_LABEL,
         description = "Docker image to use as base image.  Default: ${DEFAULT-VALUE}",
-        defaultValue = "ghcr.io/oracle/oraclelinux:8-slim"
+        defaultValue = Constants.ORACLE_LINUX
     )
     private String fromImage;
 
