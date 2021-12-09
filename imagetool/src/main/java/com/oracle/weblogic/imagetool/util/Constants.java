@@ -3,6 +3,10 @@
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public final class Constants {
 
     public static final String ARU_UPDATES_HOST =
@@ -23,6 +27,7 @@ public final class Constants {
     public static final String PATCH_ID_REGEX =  "^(\\d{8})(?:[_][0-9][0-9](?:\\.[0-9]){3,8}\\.(\\d+))?";
     public static final String RIGID_PATCH_ID_REGEX =  "^(\\d{8})[_][0-9][0-9](?:\\.[0-9]){3,8}\\.(\\d+)";
     public static final String BUSYBOX = "busybox";
+    public static final List<String> BUSYBOX_OS_IDS = Collections.unmodifiableList(Arrays.asList("bb", "alpine"));
     public static final String ORACLE_LINUX = "ghcr.io/oracle/oraclelinux:8-slim";
 
     private Constants() {
