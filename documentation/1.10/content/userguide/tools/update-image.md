@@ -49,7 +49,7 @@ Update WebLogic Docker image with selected patches
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
-| `--skipCleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
+| `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
 | `--user` | Oracle support email ID.  |   |
