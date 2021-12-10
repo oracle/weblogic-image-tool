@@ -7,7 +7,7 @@ weight: 2
 
 - Download the WIT release ZIP file to a desired location.
   - The latest ZIP file can be found on the project [releases](https://github.com/oracle/weblogic-image-tool/releases) page.
-  - Alternatively, you can download the ZIP file with cUrl.
+  - Alternatively, you can download the ZIP file with cURL.
     ```shell
     curl -m 120 -fL https://github.com/oracle/weblogic-image-tool/releases/latest/download/imagetool.zip -o ./imagetool.zip
     ```
