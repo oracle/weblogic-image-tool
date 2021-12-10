@@ -5,9 +5,11 @@ draft: false
 weight: 1
 ---
 
-- Docker client and daemon on the build machine, with a minimum Docker version 18.03.1.ce.
-- OPTIONALLY: Podman 3.x may be used in place of Docker.  
-- Installers for WebLogic Server and JDK from the [Oracle Software Delivery Cloud](https://edelivery.oracle.com).
+- A container image client on the build machine, such as Docker or Podman. 
+  - For Docker a minimum version of 18.03.1.ce is required.
+  - For Podman a minimum version of 3.0.1 is required.
+- An installed version of Java to run ImageTool, version 8+. 
+- Installers for Oracle WebLogic Server and Oracle JDK from the [Oracle Software Delivery Cloud](https://edelivery.oracle.com) for installation into the new image.
 - When using the `imagetool` alias from `setup.sh` instead of the shell script (`imagetool.sh`), Bash version 4.0 or later is required for `<tab>` command completion.
 - When using any of the patching options, `--patches`, `--recommendedPatches`, or `--latestPSU`, you will need to provide [Oracle Support](https://www.oracle.com/technical-resources/) credentials.
 
