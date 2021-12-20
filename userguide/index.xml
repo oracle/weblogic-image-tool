@@ -8,6 +8,24 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/userguide/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Prerequisites</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/</guid>
+      <description>A container image client on the build machine, such as Docker or Podman.  For Docker, a minimum version of 18.03.1.ce is required. For Podman, a minimum version of 3.0.1 is required.   An installed version of Java to run Image Tool, version 8+. Installers for Oracle WebLogic Server and Oracle JDK from the Oracle Software Delivery Cloud for installation into the new image. When using the imagetool alias from setup.</description>
+    </item>
+    
+    <item>
+      <title>Setup</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/setup/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/setup/</guid>
+      <description>Download the WIT release ZIP file to a desired location.  The latest ZIP file can be found on the project releases page. Alternatively, you can download the ZIP file with cURL. curl -m 120 -fL https://github.com/oracle/weblogic-image-tool/releases/latest/download/imagetool.zip -o ./imagetool.zip    Unzip the downloaded ZIP file into a directory of your choice.  All of the contents of the ZIP file will be extracted into a single subdirectory named imagetool.</description>
+    </item>
+    
+    <item>
       <title>Cleanup</title>
       <link>https://oracle.github.io/weblogic-image-tool/userguide/cleanup/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>

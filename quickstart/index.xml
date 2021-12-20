@@ -8,24 +8,6 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/quickstart/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Prerequisites</title>
-      <link>https://oracle.github.io/weblogic-image-tool/quickstart/prerequisites/</link>
-      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/quickstart/prerequisites/</guid>
-      <description>Docker client and daemon on the build machine, with a minimum Docker version 18.03.1.ce. OPTIONALLY: Podman 3.x may be used in place of Docker. Installers for WebLogic Server and JDK from the Oracle Software Delivery Cloud. When using the imagetool alias from setup.sh instead of the shell script (imagetool.sh), Bash version 4.0 or later is required for &amp;lt;tab&amp;gt; command completion. When using any of the patching options, --patches, --recommendedPatches, or --latestPSU, you will need to provide Oracle Support credentials.</description>
-    </item>
-    
-    <item>
-      <title>Setup</title>
-      <link>https://oracle.github.io/weblogic-image-tool/quickstart/setup/</link>
-      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/quickstart/setup/</guid>
-      <description> Download and unzip the WIT release ZIP file to a desired location. OPTIONALLY: You may build the project (mvn clean package) to create the ZIP installer in ./imagetool/target. Set the JAVA_HOME environment variable to the location of the Java install (see Prerequisites).  </description>
-    </item>
-    
-    <item>
       <title>Steps</title>
       <link>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
