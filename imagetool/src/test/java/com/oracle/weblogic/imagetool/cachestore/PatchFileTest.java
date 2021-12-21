@@ -344,7 +344,7 @@ class PatchFileTest {
          *     There are 5 versions of the OPatch patch.
          *     The user does not specify a version.
          * Expected:
-         *     The recommended OPatch version from ARU should be selected.
+         *     The tool ignores the recommended flag and selects the highest version number (latest).
          */
 
         // 28186730 has multiple patches available, but none are specified
@@ -354,8 +354,8 @@ class PatchFileTest {
         String filePath = patchFile.resolve(cacheStore);
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        assertEquals("13.9.4.2.4", patchFile.getVersion(), "wrong version selected");
-        String filePathFromCache = cacheStore.getValueFromCache("28186730_13.9.4.2.4");
+        assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
+        String filePathFromCache = cacheStore.getValueFromCache("28186730_13.9.4.2.5");
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }

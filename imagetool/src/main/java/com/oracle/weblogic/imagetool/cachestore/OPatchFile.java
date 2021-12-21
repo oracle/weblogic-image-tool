@@ -81,13 +81,8 @@ public class OPatchFile extends PatchFile {
         } else {
             // Sort the patches list from highest to lowest (newest to oldest)
             List<AruPatch> sortedList = patches.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-            // Select the first recommended patch, if there is one marked as recommended
-            selectedPatch = sortedList.stream().filter(AruPatch::isRecommended).findFirst().orElse(null);
-            if (selectedPatch == null) {
-                // nothing is marked as recommended, return the newest (highest numbered) patch
-                selectedPatch = sortedList.stream().findFirst().orElse(null);
-                // since patches list cannot be empty here, this findFirst should never return null
-            }
+            // Select the newest (highest numbered) patch
+            selectedPatch = sortedList.stream().findFirst().orElse(null);
         }
         logger.exiting(selectedPatch);
         return new OPatchFile(selectedPatch, userid, password);
