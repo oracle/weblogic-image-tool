@@ -455,7 +455,8 @@ public class Utils {
             switch (protocol.toLowerCase()) {
                 case Constants.HTTP:
                 case Constants.HTTPS:
-                    retVal = System.getenv(String.format("%s_proxy", protocol));
+                    String envVarName = String.format("%s_proxy", protocol);
+                    retVal = getProxyEnvironmentVariableValue(envVarName);
                     if (isEmptyString(retVal)) {
                         String proxyHost = System.getProperty(String.format("%s.proxyHost", protocol), null);
                         String proxyPort = System.getProperty(String.format("%s.proxyPort", protocol), "80");
@@ -466,7 +467,7 @@ public class Utils {
                     break;
                 case "none":
                 default:
-                    retVal = System.getenv("no_proxy");
+                    retVal = getProxyEnvironmentVariableValue("no_proxy");
                     if (isEmptyString(retVal)) {
                         retVal = System.getProperty("http.nonProxyHosts", null);
                         if (!isEmptyString(retVal)) {
@@ -658,8 +659,13 @@ public class Utils {
         }
     }
 
-
-
+    private static String getProxyEnvironmentVariableValue(String envVarName) {
+        String retVal = System.getenv(envVarName.toLowerCase());
+        if (isEmptyString(retVal)) {
+            retVal = System.getenv(envVarName.toUpperCase());
+        }
+        return retVal;
+    }
 
     private static boolean validFile(Path file) throws IOException {
         return file != null && Files.isRegularFile(file) && Files.size(file) > 0;

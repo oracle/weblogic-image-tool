@@ -8,7 +8,7 @@ weight: 3
 
 #### Before you begin
 
-Make sure that you have fulfilled the [Prerequisites]({{< relref "/quickstart/prerequisites.md" >}}) and [Setup]({{< relref "/quickstart/setup.md" >}}) requirements.
+Make sure that you have fulfilled the [Prerequisites]({{< relref "/userguide/prerequisites.md" >}}) and [Setup]({{< relref "/userguide/setup.md" >}}) requirements.
 
 #### Overview
 
