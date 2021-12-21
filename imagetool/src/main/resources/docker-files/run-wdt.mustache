@@ -11,6 +11,8 @@ DOMAIN_HOME={{{domain_home}}}
 
 COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
 
+USER root
+
 RUN mkdir -p {{{wdt_home}}} \
 && chown {{userid}}:{{groupid}} {{{wdt_home}}}
 

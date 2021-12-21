@@ -110,7 +110,6 @@ public class DockerfileOptions {
         wdtVariableList = new ArrayList<>();
         wdtRunRcu = false;
         wdtStrictValidation = false;
-        wdtBase = "wls_build"; // By default, use output of Oracle Home install
     }
 
     /**
@@ -1038,9 +1037,17 @@ public class DockerfileOptions {
         return javaInstaller;
     }
 
+    /**
+     * Return the image/layer used during the container build for the WDT operations.
+     * @return wls_build or value provided by setWdtBase()
+     */
     @SuppressWarnings("unused")
     public String wdtBase() {
-        return wdtBase;
+        if (Utils.isEmptyString(wdtBase)) {
+            return "wls_build"; // By default, use the image layer created from the Oracle Home install
+        } else {
+            return wdtBase;
+        }
     }
 
     public DockerfileOptions setWdtBase(String value) {
