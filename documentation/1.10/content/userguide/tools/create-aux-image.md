@@ -22,6 +22,8 @@ Usage: imagetool createAuxImage [OPTIONS]
 | Parameter | Definition | Default |
 | --- | --- | --- |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
+| `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
+| `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
@@ -41,6 +43,41 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--wdtVersion` | WDT version to be installed in the container image in {wdtHome}/weblogic-deploy.  | `latest`  |
 
 ### Additional information
+
+#### `--additionalBuildCommands`
+
+This is an advanced option that let's you provide additional commands to the Docker build step.  
+The input for this parameter is a simple text file that contains one or more of the valid sections.
+Valid sections for `createAuxImage` are:
+
+| Section | Build Stage | Timing |
+| --- | --- | --- |
+| `package-manager-packages` | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
+| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
+
+Each section can contain one or more valid Dockerfile commands and would look like the following:
+
+```dockerfile
+[final-build-commands]
+LABEL owner="middleware team"
+COPY --chown=oracle:oracle files/my_additional_file.txt /auxiliary
+```
+
+#### `--additionalBuildFiles`
+
+This option provides a way to supply additional files to the image build command.
+All provided files and directories are copied directly under the `files` subfolder of the build context.  
+To get those files into the image, additional build commands must be provided using the `additionalBuildCommands` options.
+Access to these files using a build command, such as `COPY` or `ADD`, should use the original filename
+with the folder prefix, `files/`.  For example, if the
+original file was provided as `--additionalBuildFiles /scratch/test1/convenience.sh`, the Docker build command `COPY`
+provided in `--additionalBuildCommands` should look like
+`COPY --chown=oracle:oracle files/convenience.sh /my/internal/image/location`.  
+Because Image Tool uses multi-stage
+builds, it is important to place the build command (like `COPY`) in the appropriate section of the `Dockerfile` based
+on when the build needs access to the file.  For example, if the file is needed in the final image and not for
+installation or domain creation steps, use the `final-build-commands` section so that the `COPY` command occurs in the
+final stage of the image build.
 
 #### `--target`
 
