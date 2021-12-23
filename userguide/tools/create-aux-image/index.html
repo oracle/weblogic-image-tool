@@ -12,20 +12,20 @@
     <title>Create Auxiliary Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1640016783" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1640016783" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1640273692" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1640273692" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1640016783"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1640273692"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1640016783"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1640016783"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1640273692"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1640273692"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1640016783"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1640273692"></script>
 
     
   </div>
@@ -732,6 +732,16 @@ in your WebLogic Server Kubernetes Operator environment.</p>
 <td></td>
 </tr>
 <tr>
+<td><code>--additionalBuildCommands</code></td>
+<td>Path to a file with additional build commands. For more details, see <a href="#additional-information">Additional information</a>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--additionalBuildFiles</code></td>
+<td>Additional files that are required by your <code>additionalBuildCommands</code>.  A comma separated list of files that should be copied to the build context.</td>
+<td></td>
+</tr>
+<tr>
 <td><code>--builder</code>, <code>-b</code></td>
 <td>Executable to process the Dockerfile. Use the full path of the executable if not on your path.</td>
 <td><code>docker</code></td>
@@ -819,6 +829,49 @@ in your WebLogic Server Kubernetes Operator environment.</p>
 </tbody>
 </table>
 <h3 id="additional-information">Additional information</h3>
+<h4 id="--additionalbuildcommands"><code>--additionalBuildCommands</code></h4>
+<p>This is an advanced option that let&rsquo;s you provide additional commands to the Docker build step.<br>
+The input for this parameter is a simple text file that contains one or more of the valid sections.
+Valid sections for <code>createAuxImage</code> are:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Build Stage</th>
+<th>Timing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>package-manager-packages</code></td>
+<td>All</td>
+<td>A list of OS packages, such as <code>ftp gzip</code>, separated by line or space.</td>
+</tr>
+<tr>
+<td><code>final-build-commands</code></td>
+<td>Final image</td>
+<td>After all Image Tool actions are complete, and just before the container image is finalized.</td>
+</tr>
+</tbody>
+</table>
+<p>Each section can contain one or more valid Dockerfile commands and would look like the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /auxiliary<span style="color:#960050;background-color:#1e0010">
+</span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
+<p>This option provides a way to supply additional files to the image build command.
+All provided files and directories are copied directly under the <code>files</code> subfolder of the build context.<br>
+To get those files into the image, additional build commands must be provided using the <code>additionalBuildCommands</code> options.
+Access to these files using a build command, such as <code>COPY</code> or <code>ADD</code>, should use the original filename
+with the folder prefix, <code>files/</code>.  For example, if the
+original file was provided as <code>--additionalBuildFiles /scratch/test1/convenience.sh</code>, the Docker build command <code>COPY</code>
+provided in <code>--additionalBuildCommands</code> should look like
+<code>COPY --chown=oracle:oracle files/convenience.sh /my/internal/image/location</code>.<br>
+Because Image Tool uses multi-stage
+builds, it is important to place the build command (like <code>COPY</code>) in the appropriate section of the <code>Dockerfile</code> based
+on when the build needs access to the file.  For example, if the file is needed in the final image and not for
+installation or domain creation steps, use the <code>final-build-commands</code> section so that the <code>COPY</code> command occurs in the
+final stage of the image build.</p>
 <h4 id="--target"><code>--target</code></h4>
 <p>The file permissions in the Auxiliary image should match the container image where WebLogic Server is installed.
 The target option is supplied for Auxiliary images as a convenience to simplify creating images with the same owner:group file permissions.
@@ -1289,19 +1342,19 @@ Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1640016783"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1640016783"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1640016783"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1640016783"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1640016783"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1640016783"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1640273692"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1640273692"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1640273692"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1640273692"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1640273692"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1640273692"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1640016783"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1640016783"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1640016783"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1640273692"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1640273692"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1640273692"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1640016783"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1640273692"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
