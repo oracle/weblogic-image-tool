@@ -32,7 +32,7 @@ public enum FmwInstallerType {
         InstallerType.WLSDEV),
 
     // Oracle WebLogic Server Infrastructure (JRF)
-    FMW(Utils.toSet(WLS.products, AruProduct.JRF, AruProduct.JDEV),
+    FMW(Utils.toSet(WLS.products, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM),
         InstallerType.FMW),
     // Oracle Service Bus
     OSB(Utils.toSet(FMW.products, AruProduct.OSB),
