@@ -24,7 +24,7 @@ public enum FmwInstallerType {
     // data from https://updates.oracle.com/Orion/Services/metadata?table=aru_products
 
     // Oracle WebLogic Server
-    WLS(Utils.toSet(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT),
+    WLS(Utils.toSet(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JDBC),
         InstallerType.WLS),
     WLSSLIM(Utils.toSet(WLS.products),
         InstallerType.WLSSLIM),
