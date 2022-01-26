@@ -26,8 +26,8 @@ public enum AruProduct {
     JDEV("11281", "Oracle JDeveloper"),
     OPSS("16606", "Oracle Platform Security Service"),
     OWSM("12787", "Oracle Webservices Manager"),
-    JDBC("9512", "Oracle JDBC for Fusion Middleware")
-    //FIT("33256", "Fusion Internal Tools") No longer used after July 2020 PSU
+    JDBC("9512", "Oracle JDBC for Fusion Middleware"),
+    FIT("33256", "Fusion Internal Tools")
     ;
 
     private final String productId;
