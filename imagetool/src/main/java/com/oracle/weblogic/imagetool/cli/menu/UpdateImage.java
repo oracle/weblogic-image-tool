@@ -64,7 +64,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
             }
             dockerfileOptions.setOracleHome(oracleHome);
 
-            if (wdtOptions.isUsingWdt() && !wdtOptions.modelOnly()) {
+            if (wdtOptions.userProvidedFiles() && !wdtOptions.modelOnly()) {
                 String domainHome = baseImageProperties.getProperty("domainHome", null);
                 if (domainHome == null && wdtOperation == WdtOperation.UPDATE) {
                     return CommandResponse.error("IMG-0071", fromImage());

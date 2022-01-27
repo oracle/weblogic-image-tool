@@ -19,6 +19,9 @@ public class AddInstallerEntry extends CacheAddOperation {
 
     @Override
     public CommandResponse call() throws CacheStoreException {
+        if ("NONE".equalsIgnoreCase(version)) {
+            throw new IllegalArgumentException("IMG-0105");
+        }
         String key = String.format("%s%s%s", type, CacheStore.CACHE_KEY_SEPARATOR, version);
         return addToCache(key);
     }
