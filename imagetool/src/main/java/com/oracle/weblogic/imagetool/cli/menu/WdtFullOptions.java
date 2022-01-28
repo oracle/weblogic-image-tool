@@ -20,14 +20,6 @@ public class WdtFullOptions extends WdtBaseOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(WdtFullOptions.class);
 
     /**
-     * Return true if the user specified a WDT model or WDT archive on the command line.
-     * @return true if WDT was selected by the user
-     */
-    public boolean isUsingWdt() {
-        return wdtModelOnly || isWdtModelProvided();
-    }
-
-    /**
      * Return true if the user specified the wdtModelOnly option, and
      * WDT should not run a create or update script.
      * @return true if the WDT script should not run during the build.
@@ -46,10 +38,16 @@ public class WdtFullOptions extends WdtBaseOptions {
     @Override
     public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
         logger.entering(tmpDir);
-        if (!isUsingWdt()) {
+        if (!userProvidedFiles()) {
+            // user did not provide any WDT files, nothing to do for WDT.
             logger.exiting();
             return;
         }
+        if (skipWdtInstaller()) {
+            // user provided model files but specified WDT version NONE.  NONE is only valid for Aux images.
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0103"));
+        }
+        // user provided WDT files and a WDT installer, so call WdtBaseOptions.handleWdtArgs
         super.handleWdtArgs(dockerfileOptions, tmpDir);
 
         String encryptionKey = Utils.getPasswordFromInputs(encryptionKeyStr, encryptionKeyFile, encryptionKeyEnv);
@@ -78,7 +76,7 @@ public class WdtFullOptions extends WdtBaseOptions {
         DomainHomeSourceType domainType = DomainHomeSourceType.PV;
         if (modelOnly()) {
             domainType = DomainHomeSourceType.MODEL;
-        } else if (isUsingWdt()) {
+        } else if (userProvidedFiles()) {
             domainType = DomainHomeSourceType.IMAGE;
         }
 

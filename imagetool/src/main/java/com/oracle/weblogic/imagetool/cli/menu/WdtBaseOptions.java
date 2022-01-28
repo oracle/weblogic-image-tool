@@ -16,6 +16,7 @@ import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
@@ -26,11 +27,19 @@ public class WdtBaseOptions {
     public static final String WDT_HOME_LABEL = "<WDT home directory>";
 
     /**
-     * Return true if the user provided a WDT model or WDT archive on the command line.
-     * @return true if the user provided a WDT file as input on the command line.
+     * Return true if the user provided WDT models, WDT archives, or WDT variables on the command line.
+     * @return true if the user provided at least one WDT file as input on the command line.
      */
-    public boolean isWdtModelProvided() {
+    public boolean userProvidedFiles() {
         return wdtModelPath != null || wdtArchivePath != null || wdtVariablesPath != null;
+    }
+
+    /**
+     * Return true if the user did not specify --wdtVersion=NONE.
+     * @return true if the tool should install WDT binaries.
+     */
+    public boolean skipWdtInstaller() {
+        return wdtVersion.equalsIgnoreCase("NONE");
     }
 
     /**
@@ -51,9 +60,11 @@ public class WdtBaseOptions {
     public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
         logger.entering(tmpDir);
 
-        if (isWdtModelProvided()) {
-            dockerfileOptions.setWdtEnabled();
+        if (!userProvidedFiles() && skipWdtInstaller()) {
+            // if user did not provide models, variables, archives, or a WDT installer, there is nothing to do.
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0104"));
         }
+        dockerfileOptions.setWdtEnabled();
 
         dockerfileOptions.setWdtHome(wdtHome).setWdtModelHome(wdtModelHome);
 
@@ -72,10 +83,11 @@ public class WdtBaseOptions {
             dockerfileOptions.setWdtVariables(variablesList);
         }
 
-        CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
-        Path wdtfile = wdtInstaller.copyFile(cache(), tmpDir);
-        dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
-
+        if (!skipWdtInstaller()) {
+            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
+            Path wdtfile = wdtInstaller.copyFile(cache(), tmpDir);
+            dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
+        }
         logger.exiting();
     }
 
@@ -91,8 +103,7 @@ public class WdtBaseOptions {
                 Files.copy(individualPath, Paths.get(tmpDir, modelFilename));
                 fileList.add(modelFilename);
             } else {
-                String errMsg = String.format("WDT %s file %s not found ", type, individualFile);
-                throw new FileNotFoundException(errMsg);
+                throw new FileNotFoundException(Utils.getMessage("IMG-0102",type, individualFile));
             }
         }
         return fileList;

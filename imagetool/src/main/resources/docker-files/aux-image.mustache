@@ -22,15 +22,17 @@ RUN mkdir -p {{{wdt_home}}} \
  && mkdir -p {{{wdt_model_home}}} \
  && chown {{userid}}:{{groupid}} {{{wdt_home}}}
 
-COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
+{{#installWdt}}
+    COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
 
-RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-deploy || echo Initial WDT install \
-{{#usingWdtTarGzInstaller}}
-    && tar zxf {{{tempDir}}}/{{{wdtInstaller}}} -C {{{wdt_home}}}
-{{/usingWdtTarGzInstaller}}
-{{^usingWdtTarGzInstaller}}
-    && unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
-{{/usingWdtTarGzInstaller}}
+    RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-deploy || echo Initial WDT install \
+    {{#usingWdtTarGzInstaller}}
+        && tar zxf {{{tempDir}}}/{{{wdtInstaller}}} -C {{{wdt_home}}}
+    {{/usingWdtTarGzInstaller}}
+    {{^usingWdtTarGzInstaller}}
+        && unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
+    {{/usingWdtTarGzInstaller}}
+{{/installWdt}}
 
 FROM os_update as final
 
@@ -54,9 +56,9 @@ COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
     COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
 {{/wdtVariables}}
 
-{{#isWdtEnabled}}
-    RUN chmod -R 640 {{{wdt_model_home}}}/*
-{{/isWdtEnabled}}
+{{#hasWdtFiles}}
+  RUN chmod -R 640 {{{wdt_model_home}}}/*
+{{/hasWdtFiles}}
 
 USER {{userid}}
 

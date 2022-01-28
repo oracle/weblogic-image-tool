@@ -601,6 +601,10 @@ public class DockerfileOptions {
         return useWdt;
     }
 
+    public boolean installWdt() {
+        return wdtInstallerFilename != null;
+    }
+
     /**
      * Referenced by the Dockerfile template to determine which command to use to install WDT.
      *
@@ -714,6 +718,11 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public List<String> wdtVariables() {
         return wdtVariableList;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean hasWdtFiles() {
+        return !wdtModelList.isEmpty() || !wdtVariableList.isEmpty() || !wdtArchiveList.isEmpty();
     }
 
     /**
