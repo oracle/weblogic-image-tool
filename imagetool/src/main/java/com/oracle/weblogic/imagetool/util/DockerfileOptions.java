@@ -720,6 +720,11 @@ public class DockerfileOptions {
         return wdtVariableList;
     }
 
+    @SuppressWarnings("unused")
+    public boolean hasWdtFiles() {
+        return !wdtModelList.isEmpty() || !wdtVariableList.isEmpty() || !wdtArchiveList.isEmpty();
+    }
+
     /**
      * Referenced by Dockerfile template, provides the WDT argument for 1..n variable files.
      *

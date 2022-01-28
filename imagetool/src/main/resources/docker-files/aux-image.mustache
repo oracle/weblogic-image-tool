@@ -56,7 +56,9 @@ COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
     COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
 {{/wdtVariables}}
 
-#RUN chmod -R 640 {{{wdt_model_home}}}/*
+{{#hasWdtFiles}}
+  RUN chmod -R 640 {{{wdt_model_home}}}/*
+{{/hasWdtFiles}}
 
 USER {{userid}}
 
