@@ -40,7 +40,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--wdtModel` | A WDT model file or a comma-separated list of files.  |   |
 | `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
 | `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
-| `--wdtVersion` | WDT version to be installed in the container image in {wdtHome}/weblogic-deploy.  | `latest`  |
+| `--wdtVersion` | WDT version to be installed in the container image in {wdtHome}/weblogic-deploy. For more details, see [Additional information](#additional-information). | `latest`  |
 
 ### Additional information
 
@@ -89,6 +89,12 @@ Use the same value for `--target` when creating images with `create` and `create
 | --- | --- | --- |
 | `Default` | `rwxr-x---` | `oracle:oracle` |
 | `OpenShift` | `rwxrwx---` | `oracle:root` |
+
+#### `--wdtVersion`
+
+As of version 1.11.0, you may opt to install WDT and the model files in separate images.  By default, the cached `wdt_latest`
+version of WDT is installed in the Auxiliary image with the selected models, archives, and variable files.  If you use 
+`--wdtVersion=none` (case insensitive), the auxiliary image will be created without installing WDT.  
 
 #### Use an argument file
 
