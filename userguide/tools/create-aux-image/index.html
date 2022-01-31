@@ -12,20 +12,20 @@
     <title>Create Auxiliary Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1643295202" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1643295202" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1643644567" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1643644567" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1643295202"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1643644567"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1643295202"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1643295202"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1643644567"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1643644567"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1643295202"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1643644567"></script>
 
     
   </div>
@@ -823,7 +823,7 @@ in your WebLogic Server Kubernetes Operator environment.</p>
 </tr>
 <tr>
 <td><code>--wdtVersion</code></td>
-<td>WDT version to be installed in the container image in {wdtHome}/weblogic-deploy.</td>
+<td>WDT version to be installed in the container image in {wdtHome}/weblogic-deploy. For more details, see <a href="#additional-information">Additional information</a>.</td>
 <td><code>latest</code></td>
 </tr>
 </tbody>
@@ -897,6 +897,10 @@ Use the same value for <code>--target</code> when creating images with <code>cre
 </tr>
 </tbody>
 </table>
+<h4 id="--wdtversion"><code>--wdtVersion</code></h4>
+<p>As of version 1.11.0, you may opt to install WDT and the model files in separate images.  By default, the cached <code>wdt_latest</code>
+version of WDT is installed in the Auxiliary image with the selected models, archives, and variable files.  If you use
+<code>--wdtVersion=none</code> (case insensitive), the auxiliary image will be created without installing WDT.</p>
 <h4 id="use-an-argument-file">Use an argument file</h4>
 <p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
 <p>For example, create a file called <code>build_args</code>:</p>
@@ -1342,19 +1346,19 @@ Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1643295202"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1643295202"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1643295202"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1643295202"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1643295202"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1643295202"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1643644567"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1643644567"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1643644567"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1643644567"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1643644567"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1643644567"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1643295202"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1643295202"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1643295202"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1643644567"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1643644567"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1643644567"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1643295202"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1643644567"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
