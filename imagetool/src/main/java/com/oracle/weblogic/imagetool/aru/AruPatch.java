@@ -254,36 +254,33 @@ public class AruPatch implements Comparable<AruPatch> {
             } else if (providedVersion != null && !selected.version().equals(providedVersion)) {
                 throw new VersionNotFoundException(selected.patchId(), providedVersion, patches);
             } else {
-                // the patch has a version from ARU, warn the user if the version doesn't match the target install
-                if (psuVersion != null) {
-                    if (!selected.version().equals(psuVersion)) {
-                        logger.warning("IMG-0099", selected.patchId(), selected.version(), psuVersion);
-                    }
-                } else {
-                    if (installerVersion != null && !selected.version().equals(installerVersion)) {
-                        logger.warning("IMG-0099", selected.patchId(), selected.version(), installerVersion);
-                    }
-                }
+                logger.info("IMG-0099", selected.patchId(), selected.version(), selected.description());
             }
+            
             logger.exiting(selected);
             return selected;
         }
 
         Map<String, AruPatch> patchMap = patches.stream().collect(Collectors
             .toMap(AruPatch::version, aruPatch -> aruPatch));
-        // if the user provided a specific version, select the provided version, or fail
+        // select the correct patch version (priority order: user provided version, PSU version, GA installer version)
         if (providedVersion != null) {
+            // if the user provided a specific version, select the provided version, or fail
             if (patchMap.containsKey(providedVersion)) {
                 selected = patchMap.get(providedVersion);
             } else {
                 throw new VersionNotFoundException(patches.get(0).patchId(), providedVersion, patches);
             }
         } else if (patchMap.containsKey(psuVersion)) {
+            // if the image has a PSU installed, or the new patch list has a PSU, otherwise skip to installer version
             selected = patchMap.get(psuVersion);
         } else if (patchMap.containsKey(installerVersion)) {
             selected = patchMap.get(installerVersion);
         }
 
+        if (selected != null) {
+            logger.info("IMG-0099", selected.patchId(), selected.version(), selected.description());
+        }
         logger.exiting(selected);
         return selected;
     }
