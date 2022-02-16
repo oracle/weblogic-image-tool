@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.aru;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,42 @@ public class AruUtil {
     private static AruUtil instance;
 
     private static final String BUG_SEARCH_URL = ARU_REST_URL + "/search?bug=%s";
+
+    private static int REST_RETRIES = 10;
+    private static int REST_INTERVAL = 500;
+
+    static {
+        // static block to parst environment variable overrides for REST call defaults
+        final String retriesEnvVar = "WLSIMG_REST_RETRY_MAX";
+        final String retriesString = System.getenv(retriesEnvVar);
+        try {
+            if (retriesString != null) {
+                REST_RETRIES = Integer.parseInt(retriesString);
+                if (REST_RETRIES < 1) {
+                    REST_RETRIES = 10;
+                    logger.severe("IMG-0109", retriesEnvVar, retriesString, 1, REST_RETRIES);
+                }
+                logger.fine("Retry max set to {0}", REST_RETRIES);
+            }
+        } catch (NumberFormatException nfe) {
+            logger.warning("IMG-0108", retriesEnvVar, retriesString);
+        }
+
+        final String waitEnvVar = "WLSIMG_REST_RETRY_INTERVAL";
+        final String waitString = System.getenv(waitEnvVar);
+        try {
+            if (waitString != null) {
+                REST_INTERVAL = Integer.parseInt(waitString);
+                if (REST_INTERVAL < 0) {
+                    REST_INTERVAL = 500;
+                    logger.severe("IMG-0109", waitEnvVar, waitString, 0, REST_INTERVAL);
+                }
+                logger.fine("Retry interval set to {0}", REST_INTERVAL);
+            }
+        } catch (NumberFormatException nfe) {
+            logger.warning("IMG-0108", waitEnvVar, waitString);
+        }
+    }
 
     /**
      * Get ARU HTTP helper instance.
@@ -98,13 +135,14 @@ public class AruUtil {
         try {
             logger.info("IMG-0019", product.description());
             String releaseNumber = getReleaseNumber(product, version, userId, password);
-            Document aruRecommendations = getRecommendedPatchesMetadata(product, releaseNumber, userId, password);
+            Document aruRecommendations = retry(
+                () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
             logger.exiting();
             return AruPatch.removeStackPatchBundle(AruPatch.getPatches(aruRecommendations, "[./psu_bundle]"));
         } catch (NoPatchesFoundException | ReleaseNotFoundException ex) {
             logger.exiting();
             return Collections.emptyList();
-        } catch (IOException | XPathExpressionException e) {
+        } catch (RetryFailedException | XPathExpressionException e) {
             throw logger.throwing(
                 new AruException(Utils.getMessage("IMG-0032", product.description(), version), e));
         }
@@ -149,7 +187,8 @@ public class AruUtil {
         try {
             logger.info("IMG-0067", product.description());
             String releaseNumber = getReleaseNumber(product, version, userId, password);
-            Document aruRecommendations = getRecommendedPatchesMetadata(product, releaseNumber, userId, password);
+            Document aruRecommendations = retry(
+                () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
             List<AruPatch> patches = AruPatch.removeStackPatchBundle(AruPatch.getPatches(aruRecommendations));
             String psuVersion = getPsuVersion(patches);
             if (!Utils.isEmptyString(psuVersion)) {
@@ -159,8 +198,10 @@ public class AruUtil {
                 // get release number for PSU
                 String psuReleaseNumber = getReleaseNumber(product, psuVersion, userId, password);
                 // get recommended patches for PSU release (Overlay patches are only recommended on the PSU release)
-                Document psuRecommendation = getRecommendedPatchesMetadata(product, psuReleaseNumber, userId, password);
-                patches = AruPatch.removeStackPatchBundle(AruPatch.getPatches(psuRecommendation));
+                Document psuOverrides = retry(
+                    () -> getRecommendedPatchesMetadata(product, psuReleaseNumber, userId, password));
+
+                patches = AruPatch.removeStackPatchBundle(AruPatch.getPatches(psuOverrides));
             }
             patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
             logger.exiting(patches);
@@ -170,7 +211,7 @@ public class AruUtil {
         } catch (NoPatchesFoundException npf) {
             logger.info("IMG-0069", product.description(), version);
             return Collections.emptyList();
-        } catch (IOException | XPathExpressionException e) {
+        } catch (RetryFailedException | XPathExpressionException e) {
             throw new AruException(Utils.getMessage("IMG-0070", product.description(), version), e);
         }
     }
@@ -275,16 +316,15 @@ public class AruUtil {
         if (allReleasesDocument == null) {
             logger.fine("Getting all releases document from ARU...");
             try {
-                Document response = HttpUtil.getXMLContent(REL_URL, userId, password);
-                verifyResponse(response);
-                allReleasesDocument = response;
-            } catch (IOException | AruException | XPathExpressionException ex) {
-                throw new AruException(Utils.getMessage("IMG-0081"), ex);
+                allReleasesDocument = retry(() -> getAndVerify(REL_URL, userId, password));
+            } catch (RetryFailedException e) {
+                throw new AruException(Utils.getMessage("IMG-0081"));
             }
         }
         return allReleasesDocument;
     }
 
+    // could be private, but leaving as protected for unit testing
     Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber, String userId, String password)
         throws IOException, AruException, XPathExpressionException {
 
@@ -356,7 +396,13 @@ public class AruUtil {
         return aruHttpHelper.success();
     }
 
-    void verifyResponse(Document response) throws AruException, XPathExpressionException {
+    private Document getAndVerify(String url, String userId, String password)
+        throws IOException, XPathExpressionException, AruException {
+        Document response = HttpUtil.getXMLContent(url, userId, password);
+        return verifyResponse(response);
+    }
+
+    private Document verifyResponse(Document response) throws AruException, XPathExpressionException {
         NodeList nodeList = XPathUtil.nodelist(response, "/results/error");
         if (nodeList.getLength() > 0) {
             String errorMessage = XPathUtil.string(response, "/results/error/message");
@@ -371,6 +417,7 @@ public class AruUtil {
             logger.throwing(error);
             throw error;
         }
+        return response;
     }
 
     /**
@@ -393,13 +440,14 @@ public class AruUtil {
 
         String url = String.format(BUG_SEARCH_URL, bugNumber);
         logger.info("IMG-0063", bugNumber);
-        Document response = HttpUtil.getXMLContent(url, userId, password);
         try {
-            verifyResponse(response);
+            Document response = retry(() -> getAndVerify(url, userId, password));
+            return AruPatch.getPatches(response);
         } catch (NoPatchesFoundException patchEx) {
             throw new NoPatchesFoundException(Utils.getMessage("IMG-0086", bugNumber), patchEx);
+        } catch (RetryFailedException retryEx) {
+            throw new AruException(Utils.getMessage("IMG-0110", retryEx));
         }
-        return AruPatch.getPatches(response);
     }
 
     /**
@@ -426,13 +474,39 @@ public class AruUtil {
                     .socketTimeout(30000))
                 .saveContent(new File(filename));
         } catch (Exception ex) {
-            String message = String.format("Failed to download and save file %s from %s: %s", filename,
-                aruPatch.downloadUrl(), ex.getLocalizedMessage());
+            String message = Utils.getMessage("IMG-0107", filename, aruPatch.downloadUrl(), ex.getLocalizedMessage());
             logger.severe(message);
             throw new IOException(message, ex);
         }
         logger.exiting(filename);
         return filename;
+    }
+
+    private interface CallToRetry {
+        Document process() throws IOException, XPathExpressionException, AruException;
+    }
+
+    // create an environment variable that can override the tries count (undocumented)
+    private static Document retry(CallToRetry call) throws AruException, RetryFailedException {
+        for (int i = 0; i < REST_RETRIES; i++) {
+            try {
+                return call.process();
+            } catch (UnknownHostException e) {
+                throw new AruException(e.getLocalizedMessage(), e);
+            } catch (IOException | XPathExpressionException e) {
+                logger.info("IMG-0106", e.getMessage(), (i + 1), REST_RETRIES);
+            }
+            try {
+                if (REST_INTERVAL > 0) {
+                    logger.finer("Waiting {0} ms before retry...", REST_INTERVAL);
+                    Thread.sleep(REST_INTERVAL);
+                }
+            } catch (InterruptedException wakeAndAbort) {
+                break;
+            }
+        }
+        // When all retries are exhausted, raise an ARU exception to exit the process (give up)
+        throw logger.throwing(new RetryFailedException());
     }
 }
 

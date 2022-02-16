@@ -77,7 +77,6 @@ class AruUtilTest {
                 e.printStackTrace();
                 throw new RuntimeException("failed to load resources XML", e);
             }
-            verifyResponse(result);
             return result;
         }
 
