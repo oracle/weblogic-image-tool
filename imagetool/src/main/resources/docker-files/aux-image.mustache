@@ -40,9 +40,14 @@ ENV AUXILIARY_IMAGE_PATH={{{wdt_home}}} \
     WDT_HOME={{{wdt_home}}} \
     WDT_MODEL_HOME={{{wdt_model_home}}}
 
-RUN mkdir -p {{{wdt_home}}} {{{wdt_model_home}}} \
- && chown {{userid}}:{{groupid}} {{{wdt_home}}} {{{wdt_model_home}}}
-COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+{{#installWdt}}
+    RUN mkdir -p {{{wdt_home}}} && chown {{userid}}:{{groupid}} {{{wdt_home}}}
+    COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_home}} {{wdt_home}}/
+{{/installWdt}}
+
+{{#hasWdtFiles}}
+    RUN mkdir -p {{{wdt_model_home}}} && chown {{userid}}:{{groupid}} {{{wdt_model_home}}}
+{{/hasWdtFiles}}
 
 {{#wdtModels}}
     COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
