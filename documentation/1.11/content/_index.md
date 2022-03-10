@@ -65,3 +65,7 @@ Use WebLogic Image Tool to create, update, and rebase the following FMW product 
 * Universal Content Management (UCM)
 * Oracle Managed File Transfer (MFT)
 * Oracle Internet Directory (OID)
+* Oracle WebCenter Sites (WCS)
+* Oracle Identity Manager (IDM)
+* Oracle WebCenter Content (WCC)
+* Oracle WebCenter Portal (WCP)
