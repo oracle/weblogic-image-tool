@@ -1,3 +1,23 @@
+def isDocOnlyChanges() {
+    for (changeLogSet in currentBuild.changeSets) {
+        for (entry in changeLogSet.getItems()) { // for each commit in the detected changes
+            for (file in entry.getAffectedFiles()) {
+                filename = file.getPath();
+                // if the file is part of the documentation set, skip it
+                if (!filename.startsWith('documentation/')) {
+                    // if the file is a markdown file, skip it
+                    if (!filename.endsWith(".md")) {
+                        // since the two previous conditions were not met, this change includes more than documentation
+                        println filename
+                        return false
+                    }
+                }
+            }
+        }
+    }
+    return true
+}
+
 pipeline {
     options {
         disableConcurrentBuilds()
@@ -51,8 +71,11 @@ pipeline {
             when {
                 allOf {
                     changeRequest target: 'main'
-                    not { changelog '\\[skip-ci\\].*' }
+                    // if documentation only change, skip integration tests
+                    not { expression { isDocOnlyChanges() } }
+                    // if running nightly full integration tests, skip gate tests that are included in nightly
                     not { changelog '\\[full-mats\\].*' }
+                    not { triggeredBy 'TimerTrigger' }
                 }
             }
             steps {
