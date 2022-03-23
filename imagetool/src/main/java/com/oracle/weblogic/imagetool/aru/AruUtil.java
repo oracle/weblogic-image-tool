@@ -502,7 +502,8 @@ public class AruUtil {
                     Thread.sleep(REST_INTERVAL);
                 }
             } catch (InterruptedException wakeAndAbort) {
-                break;
+                logger.warning("Process interrupted!");
+                Thread.currentThread().interrupt();
             }
         }
         // When all retries are exhausted, raise an ARU exception to exit the process (give up)
