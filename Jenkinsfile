@@ -99,6 +99,25 @@ pipeline {
                 }
             }
         }
+        stage ('Analyze') {
+            when {
+                anyOf {
+                    changeRequest()
+                    branch "main"
+                }
+            }
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk11'
+            }
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    withCredentials([string(credentialsId: 'encj_github_token', variable: 'GITHUB_TOKEN')]) {
+                        runSonarScanner()
+                    }
+                }
+            }
+        }
         stage ('Save Nightly Installer'){
             when {
                 allOf {
@@ -113,4 +132,23 @@ pipeline {
             }
         }
      }
+}
+
+void runSonarScanner() {
+    def changeUrl = env.GIT_URL.split("/")
+    def org = changeUrl[3]
+    def repo = changeUrl[4].substring(0, changeUrl[4].length() - 4)
+    if (env.CHANGE_ID != null) {
+        sh "mvn -B sonar:sonar \
+            -Dsonar.projectKey=${org}_${repo} \
+            -Dsonar.pullrequest.provider=GitHub \
+            -Dsonar.pullrequest.github.repository=${org}/${repo} \
+            -Dsonar.pullrequest.key=${env.CHANGE_ID} \
+            -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH} \
+            -Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
+    } else {
+       sh "mvn -B sonar:sonar \
+           -Dsonar.projectKey=${org}_${repo} \
+           -Dsonar.branch.name=${env.BRANCH_NAME}"
+    }
 }
