@@ -4,6 +4,22 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 public enum KubernetesTarget {
-    Default,
-    OpenShift
+    DEFAULT("Default"),
+    OPENSHIFT("OpenShift");
+
+    private String value;
+
+    /**
+     * Create an Enum value for the installer type.
+     * @param value value is the first part of the key for the installer in the cache, and the filename of the
+     *              response file
+     */
+    KubernetesTarget(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

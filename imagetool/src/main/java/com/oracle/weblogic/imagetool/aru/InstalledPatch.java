@@ -32,18 +32,15 @@ public class InstalledPatch {
             return result;
         }
         String[] tokens = oraclePatches.split(";");
+        // Each patch record is made up of 3 fields.
         if (tokens.length % 3 != 0) {
             logger.severe("IMG-0095", tokens.length);
         }
-        for (int i = 0; i < tokens.length; i++) {
+        for (int j = 0; j < tokens.length; j = j + 3) {
             InstalledPatch found = new InstalledPatch();
-            found.bugNumber = tokens[i];
-            if (tokens.length > i + 1) {
-                found.uniquePatchNumber = tokens[++i];
-            }
-            if (tokens.length > i + 1) {
-                found.patchDescription = tokens[++i].replaceAll("^\"|\"$", "");
-            }
+            found.bugNumber = tokens[j];
+            found.uniquePatchNumber = tokens[j + 1];
+            found.patchDescription = tokens[j + 2].replaceAll("(^\")|(\"$)", "");
             result.add(found);
         }
 

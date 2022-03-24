@@ -37,8 +37,8 @@ public class AruUtil {
 
     private static final String BUG_SEARCH_URL = ARU_REST_URL + "/search?bug=%s";
 
-    private static int REST_RETRIES = 10;
-    private static int REST_INTERVAL = 500;
+    private static int restRetries = 10;
+    private static int restInterval = 500;
 
     static {
         // static block to parst environment variable overrides for REST call defaults
@@ -46,12 +46,12 @@ public class AruUtil {
         final String retriesString = System.getenv(retriesEnvVar);
         try {
             if (retriesString != null) {
-                REST_RETRIES = Integer.parseInt(retriesString);
-                if (REST_RETRIES < 1) {
-                    REST_RETRIES = 10;
-                    logger.severe("IMG-0109", retriesEnvVar, retriesString, 1, REST_RETRIES);
+                restRetries = Integer.parseInt(retriesString);
+                if (restRetries < 1) {
+                    restRetries = 10;
+                    logger.severe("IMG-0109", retriesEnvVar, retriesString, 1, restRetries);
                 }
-                logger.fine("Retry max set to {0}", REST_RETRIES);
+                logger.fine("Retry max set to {0}", restRetries);
             }
         } catch (NumberFormatException nfe) {
             logger.warning("IMG-0108", retriesEnvVar, retriesString);
@@ -61,12 +61,12 @@ public class AruUtil {
         final String waitString = System.getenv(waitEnvVar);
         try {
             if (waitString != null) {
-                REST_INTERVAL = Integer.parseInt(waitString);
-                if (REST_INTERVAL < 0) {
-                    REST_INTERVAL = 500;
-                    logger.severe("IMG-0109", waitEnvVar, waitString, 0, REST_INTERVAL);
+                restInterval = Integer.parseInt(waitString);
+                if (restInterval < 0) {
+                    restInterval = 500;
+                    logger.severe("IMG-0109", waitEnvVar, waitString, 0, restInterval);
                 }
-                logger.fine("Retry interval set to {0}", REST_INTERVAL);
+                logger.fine("Retry interval set to {0}", restInterval);
             }
         } catch (NumberFormatException nfe) {
             logger.warning("IMG-0108", waitEnvVar, waitString);
@@ -488,18 +488,18 @@ public class AruUtil {
 
     // create an environment variable that can override the tries count (undocumented)
     private static Document retry(CallToRetry call) throws AruException, RetryFailedException {
-        for (int i = 0; i < REST_RETRIES; i++) {
+        for (int i = 0; i < restRetries; i++) {
             try {
                 return call.process();
             } catch (UnknownHostException e) {
                 throw new AruException(e.getLocalizedMessage(), e);
             } catch (IOException | XPathExpressionException e) {
-                logger.info("IMG-0106", e.getMessage(), (i + 1), REST_RETRIES);
+                logger.info("IMG-0106", e.getMessage(), (i + 1), restRetries);
             }
             try {
-                if (REST_INTERVAL > 0) {
-                    logger.finer("Waiting {0} ms before retry...", REST_INTERVAL);
-                    Thread.sleep(REST_INTERVAL);
+                if (restInterval > 0) {
+                    logger.finer("Waiting {0} ms before retry...", restInterval);
+                    Thread.sleep(restInterval);
                 }
             } catch (InterruptedException wakeAndAbort) {
                 logger.warning("Process interrupted!");

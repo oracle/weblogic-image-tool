@@ -1119,7 +1119,7 @@ class ITImagetool {
             .wdtDomainHome("/u01/domains/simple_domain")
             .wdtModel(WDT_MODEL, WDT_MODEL2)
             .wdtVariables(WDT_VARIABLES)
-            .target(KubernetesTarget.OpenShift)
+            .target(KubernetesTarget.OPENSHIFT)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
