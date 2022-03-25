@@ -37,11 +37,21 @@ public class AruUtil {
 
     private static final String BUG_SEARCH_URL = ARU_REST_URL + "/search?bug=%s";
 
-    private static int restRetries = 10;
-    private static int restInterval = 500;
+    private int restRetries = 10;
+    private int restInterval = 500;
 
-    static {
-        // static block to parst environment variable overrides for REST call defaults
+    /**
+     * Get ARU HTTP helper instance.
+     * @return ARU helper.
+     */
+    public static AruUtil rest() {
+        if (instance == null) {
+            instance = new AruUtil();
+        }
+        return instance;
+    }
+
+    protected AruUtil() {
         final String retriesEnvVar = "WLSIMG_REST_RETRY_MAX";
         final String retriesString = System.getenv(retriesEnvVar);
         try {
@@ -71,21 +81,6 @@ public class AruUtil {
         } catch (NumberFormatException nfe) {
             logger.warning("IMG-0108", waitEnvVar, waitString);
         }
-    }
-
-    /**
-     * Get ARU HTTP helper instance.
-     * @return ARU helper.
-     */
-    public static AruUtil rest() {
-        if (instance == null) {
-            instance = new AruUtil();
-        }
-        return instance;
-    }
-
-    protected AruUtil() {
-        // hide constructor
     }
 
     /**
@@ -482,24 +477,44 @@ public class AruUtil {
         return filename;
     }
 
+    /**
+     * The maximum number of retries that will be attempted when trying to reach the ARU REST API method.
+     * This value can be set by using the environment variable WLSIMG_REST_RETRY_MAX.
+     *
+     * @return The maximum number of retries to attempt.
+     */
+    public int getMaxRetries() {
+        return restRetries;
+    }
+
+    /**
+     * The time between each ARU REST retry.
+     * This value can be set by using the environment variable WLSIMG_REST_RETRY_INTERVAL.
+     *
+     * @return The time to wait between each ARU REST API attempt during the retry loop.
+     */
+    public int getRetryInterval() {
+        return restInterval;
+    }
+
     private interface CallToRetry {
         Document process() throws IOException, XPathExpressionException, AruException;
     }
 
     // create an environment variable that can override the tries count (undocumented)
     private static Document retry(CallToRetry call) throws AruException, RetryFailedException {
-        for (int i = 0; i < restRetries; i++) {
+        for (int i = 0; i < rest().getMaxRetries(); i++) {
             try {
                 return call.process();
             } catch (UnknownHostException e) {
                 throw new AruException(e.getLocalizedMessage(), e);
             } catch (IOException | XPathExpressionException e) {
-                logger.info("IMG-0106", e.getMessage(), (i + 1), restRetries);
+                logger.info("IMG-0106", e.getMessage(), (i + 1), rest().getMaxRetries());
             }
             try {
-                if (restInterval > 0) {
-                    logger.finer("Waiting {0} ms before retry...", restInterval);
-                    Thread.sleep(restInterval);
+                if (rest().getRetryInterval() > 0) {
+                    logger.finer("Waiting {0} ms before retry...", rest().getRetryInterval());
+                    Thread.sleep(rest().getRetryInterval());
                 }
             } catch (InterruptedException wakeAndAbort) {
                 logger.warning("Process interrupted!");
