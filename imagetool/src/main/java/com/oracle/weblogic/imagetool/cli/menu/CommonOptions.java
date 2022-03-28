@@ -167,7 +167,7 @@ public abstract class CommonOptions {
         handleChown();
         handleAdditionalBuildCommands();
 
-        if (kubernetesTarget == KubernetesTarget.OpenShift) {
+        if (kubernetesTarget == KubernetesTarget.OPENSHIFT) {
             dockerfileOptions.setDomainGroupAsUser(true);
             // if the user did not set the OS user:group, make the default oracle:root, instead of oracle:oracle
             if (!isOptionSet(osUserAndGroup)) {
@@ -373,7 +373,7 @@ public abstract class CommonOptions {
         description = "Apply settings appropriate to the target environment.  Default: ${DEFAULT-VALUE}."
             + "  Supported values: ${COMPLETION-CANDIDATES}."
     )
-    KubernetesTarget kubernetesTarget = KubernetesTarget.Default;
+    KubernetesTarget kubernetesTarget = KubernetesTarget.DEFAULT;
 
     @SuppressWarnings("unused")
     @Unmatched
