@@ -17,7 +17,6 @@ pipeline {
         // variables for SystemTest stages (integration tests)
         STAGING_DIR = "/scratch/artifacts/imagetool"
         DB_IMAGE = "phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim"
-        JACOCO_REPORT_PATH = "${WORKSPACE}/imagetool/target/site/jacoco/jacoco.xml"
     }
 
     stages {
@@ -141,7 +140,6 @@ void runSonarScanner() {
     def repo = changeUrl[4].substring(0, changeUrl[4].length() - 4)
     if (env.CHANGE_ID != null) {
         sh "mvn -B sonar:sonar \
-            -Dsonar.coverage.jacoco.xmlReportPaths=${JACOCO_REPORT_PATH} \
             -Dsonar.projectKey=${org}_${repo} \
             -Dsonar.pullrequest.provider=GitHub \
             -Dsonar.pullrequest.github.repository=${org}/${repo} \
@@ -150,7 +148,6 @@ void runSonarScanner() {
             -Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
     } else {
        sh "mvn -B sonar:sonar \
-            -Dsonar.coverage.jacoco.xmlReportPaths=${JACOCO_REPORT_PATH} \
            -Dsonar.projectKey=${org}_${repo} \
            -Dsonar.branch.name=${env.BRANCH_NAME}"
     }
