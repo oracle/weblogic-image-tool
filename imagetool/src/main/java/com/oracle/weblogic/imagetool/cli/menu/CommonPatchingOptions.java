@@ -45,7 +45,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         password = Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
 
         // if userid or password is provided, validate the pair of provided values
-        if ((userId != null || password != null) && !AruUtil.checkCredentials(userId, password)) {
+        if ((userId != null || password != null) && !AruUtil.rest().checkCredentials(userId, password)) {
             throw new InvalidCredentialException();
         }
 
@@ -107,39 +107,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             return;
         }
 
-        List<AruPatch> aruPatches = new ArrayList<>();
-        if (recommendedPatches || latestPsu) {
-            if (userId == null || password == null) {
-                throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
-            }
-
-            if (recommendedPatches) {
-                // Get the latest PSU and its recommended patches
-                aruPatches = AruUtil.rest()
-                    .getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
-
-                if (aruPatches.isEmpty()) {
-                    recommendedPatches = false;
-                    logger.info("IMG-0084", getInstallerVersion());
-                } else if (FmwInstallerType.isBaseWeblogicServer(installerType)) {
-                    // find and remove all ADR patches in the recommended patches list for base WLS installers
-                    List<AruPatch> discard = aruPatches.stream()
-                        .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
-                        .collect(Collectors.toList());
-                    // let the user know that the ADR patches will be discarded
-                    discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
-                    aruPatches.removeAll(discard);
-                }
-            } else {
-                // PSUs for WLS and JRF installers are considered WLS patches
-                aruPatches = AruUtil.rest().getLatestPsu(installerType, getInstallerVersion(), userId, password);
-
-                if (aruPatches.isEmpty()) {
-                    latestPsu = false;
-                    logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
-                }
-            }
-        }
+        List<AruPatch> aruPatches = getRecommendedPatchList(installerType);
 
         if (!aruPatches.isEmpty()) {
             // when applying a new PSU, use that PSU version to find patches where user did not qualify the patch number
@@ -214,6 +182,52 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 .setPatchList(aruPatches);
         }
         logger.exiting();
+    }
+
+    /**
+     * Get all the latest PSU patches for a given installer type (WLS, SOA, etc.) if the user
+     * requested them with --latestPSU.  --recommendedPatches takes precedence over --latestPSU, and
+     * returns all the recommended patches including the PSUs.
+     *
+     * @return recommended patch list or empty list if neither latestPSU nor recommendedPatches was requested
+     *         by the user.
+     */
+    List<AruPatch> getRecommendedPatchList(FmwInstallerType installerType) throws AruException {
+        List<AruPatch> aruPatches = new ArrayList<>();
+        if (recommendedPatches || latestPsu) {
+            if (userId == null || password == null) {
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
+            }
+
+            if (recommendedPatches) {
+                // Get the latest PSU and its recommended patches
+                aruPatches = AruUtil.rest()
+                    .getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
+
+                if (aruPatches.isEmpty()) {
+                    recommendedPatches = false;
+                    logger.info("IMG-0084", getInstallerVersion());
+                } else if (FmwInstallerType.isBaseWeblogicServer(installerType)) {
+                    // find and remove all ADR patches in the recommended patches list for base WLS installers
+                    List<AruPatch> discard = aruPatches.stream()
+                        .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
+                        .collect(Collectors.toList());
+                    // let the user know that the ADR patches will be discarded
+                    discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
+                    aruPatches.removeAll(discard);
+                }
+            } else {
+                // PSUs for WLS and JRF installers are considered WLS patches
+                aruPatches = AruUtil.rest().getLatestPsu(installerType, getInstallerVersion(), userId, password);
+
+                if (aruPatches.isEmpty()) {
+                    latestPsu = false;
+                    logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
+                }
+            }
+        }
+
+        return aruPatches;
     }
 
     private Path createPatchesTempDirectory() throws IOException {

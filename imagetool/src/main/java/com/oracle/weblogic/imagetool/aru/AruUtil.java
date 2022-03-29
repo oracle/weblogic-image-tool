@@ -374,7 +374,7 @@ public class AruUtil {
      * @param password password
      * @return true if credentials are valid
      */
-    public static boolean checkCredentials(String username, String password) {
+    public boolean checkCredentials(String username, String password) {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             return false;
         }
