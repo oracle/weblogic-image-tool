@@ -16,10 +16,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
-    </properties>
-
     <dependencies>
         <dependency>
             <artifactId>imagetool</artifactId>
@@ -85,31 +81,12 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>prepare-agent-it</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <goals>
-                            <goal>report-aggregate</goal>
-                        </goals>
-                        <phase>verify</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <failIfNoTests>false</failIfNoTests>
-                    <argLine>@{argLine} -Xmx1024m -XX:MaxPermSize=256m</argLine>
+                    <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
                     <systemPropertyVariables>
                         <WLSIMG_BLDDIR>${project.build.directory}/blddir</WLSIMG_BLDDIR>
                         <WLSIMG_CACHEDIR>${project.build.directory}/cachedir</WLSIMG_CACHEDIR>
