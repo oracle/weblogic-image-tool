@@ -14,15 +14,9 @@ command to update the existing container images created with the Image Tool.  Fo
 * Deploy a new application to an existing domain
 * Modify the domain configuration (add a data source, change a port number, and such)
 
-**NOTE**: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID [2764636.1](https://support.oracle.com/rs?type=doc&id=2764636.1)), because an SPB is _not_ a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool `update` command with the `--recommendedPatches` option.
+**NOTE**: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID [2764636.1](https://support.oracle.com/rs?type=doc&id=2764636.1)), because an SPB is _not_ a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation.
 
 The required options for the `update` command are marked.
-
-**NOTE**: You can provide the password in one of the three ways:
-
-* Plain text
-* Environment variable
-* File containing the password
 
 ```
 Usage: imagetool update [OPTIONS]
@@ -31,28 +25,29 @@ Update WebLogic Docker image with selected patches
 ```
 | Parameter | Definition | Default |
 | --- | --- | --- |
-| `--fromImage` | (Required) Container image to be updated. The `fromImage` option serves as a starting point for the new image to be created. | `weblogic:12.2.1.3.0`  |
+| `--fromImage` | (Required) Container image to be updated. The `fromImage` option serves as a starting point for the new image to be created. |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
-| `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
-| `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
+| `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). |
+| `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
-| `--latestPSU` | (DEPRECATED) Find and apply the latest PatchSet Update, see [Additional information](#additional-information).  |   |
+| `--latestPSU` | (DEPRECATED) Find and apply the latest PatchSet Update, see [Additional information](#--latestpsu).  |   |
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  | `28186730`  |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
+| `--recommendedPatches` | (DEPRECATED) Find and apply the latest PatchSet Update and recommended patches. This takes precedence over `--latestPSU`. See [Additional information](#--recommendedpatches).  |   |
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
 | `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
-| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
-| `--user` | Oracle support email ID.  |   |
+| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift`. See [Additional information](#--target). | `Default`  |
+| `--user` | Oracle support email ID. When supplying `user`, you must supply the password either as an environment variable using `--passwordEnv`, or as a file using `--passwordFile`, or interactively, on the command line with `--password`.    |   |
 | `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
@@ -118,9 +113,15 @@ the `after-fmw-install` or `before-wdt-command` sections.
 
 #### `--latestPSU`
 
-The `latestPSU` option will continue to be supported for the CREATE option, but has been deprecated for use in the
+The `latestPSU` option will continue to be supported for the CREATE and REBASE option, but has been deprecated for use in the
 UPDATE option.  Because of the number of patches and their size, using `latestPSU` as an update to an existing image can
-increase the size of the image significantly, and is not recommended.
+increase the size of the image _significantly_, and is not recommended.
+
+#### `--recommendedPatches`
+
+The `recommendedPatches` option will continue to be supported for the CREATE and REBASE option, but has been deprecated for use in the
+UPDATE option.  Because of the number of patches and their size, using `recommendedPatches` as an update to an existing image can
+increase the size of the image _significantly_, and is not recommended.
 
 #### `--target`
 
