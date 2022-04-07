@@ -12,20 +12,20 @@
     <title>Rebase Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1647228007" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1647228007" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1649363518" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1649363518" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1647228007"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1649363518"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1647228007"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1647228007"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1649363518"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1649363518"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1647228007"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1649363518"></script>
 
     
   </div>
@@ -735,12 +735,12 @@ similar to the <code>create</code> command.</p>
 </tr>
 <tr>
 <td><code>--additionalBuildCommands</code></td>
-<td>Path to a file with additional build commands. For more details, see <a href="#additional-information">Additional information</a>.</td>
+<td>Path to a file with additional build commands. For more details, see <a href="#--additionalbuildcommands">Additional information</a>.</td>
 <td></td>
 </tr>
 <tr>
 <td><code>--additionalBuildFiles</code></td>
-<td>Additional files that are required by your <code>additionalBuildCommands</code>.  A comma separated list of files that should be copied to the build context.</td>
+<td>Additional files that are required by your <code>additionalBuildCommands</code>.  A comma separated list of files that should be copied to the build context. See <a href="#--additionalbuildfiles">Additional information</a>.</td>
 <td></td>
 </tr>
 <tr>
@@ -804,11 +804,6 @@ similar to the <code>create</code> command.</p>
 <td></td>
 </tr>
 <tr>
-<td><code>--recommendedPatches</code></td>
-<td>Find and apply the latest PatchSet Update and recommended patches. This takes precedence over &ndash;latestPSU</td>
-<td></td>
-</tr>
-<tr>
 <td><code>--opatchBugNumber</code></td>
 <td>The patch number for OPatch (patching OPatch).</td>
 <td><code>28186730</code></td>
@@ -844,6 +839,11 @@ similar to the <code>create</code> command.</p>
 <td></td>
 </tr>
 <tr>
+<td><code>--recommendedPatches</code></td>
+<td>Find and apply the latest PatchSet Update and recommended patches. This takes precedence over <code>--latestPSU</code>.</td>
+<td></td>
+</tr>
+<tr>
 <td><code>--skipcleanup</code></td>
 <td>Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.</td>
 <td></td>
@@ -855,7 +855,7 @@ similar to the <code>create</code> command.</p>
 </tr>
 <tr>
 <td><code>--target</code></td>
-<td>Select the target environment in which the created image will be used. Supported values: <code>Default</code> (Docker/Kubernetes), <code>OpenShift</code></td>
+<td>Select the target environment in which the created image will be used. Supported values: <code>Default</code> (Docker/Kubernetes), <code>OpenShift</code>. See <a href="#--target">Additional information</a>.</td>
 <td><code>Default</code></td>
 </tr>
 <tr>
@@ -870,7 +870,7 @@ similar to the <code>create</code> command.</p>
 </tr>
 <tr>
 <td><code>--user</code></td>
-<td>Your Oracle support email ID.</td>
+<td>Your Oracle support email ID. When supplying <code>user</code>, you must supply the password either as an environment variable using <code>--passwordEnv</code>, or as a file using <code>--passwordFile</code>, or interactively, on the command line with <code>--password</code>.</td>
 <td></td>
 </tr>
 <tr>
@@ -1427,19 +1427,19 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1647228007"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1647228007"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1647228007"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1647228007"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1647228007"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1647228007"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1649363518"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1649363518"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1649363518"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1649363518"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1649363518"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1649363518"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1647228007"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1647228007"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1647228007"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1649363518"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1649363518"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1649363518"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1647228007"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1649363518"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
