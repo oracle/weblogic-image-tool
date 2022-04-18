@@ -4,9 +4,11 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
@@ -131,17 +134,41 @@ class UtilsTest {
 
     @Test
     @DisplayName("Override working directory with system property")
-    void getBuildWorkingDir2() throws IOException {
-        String expected = "./target";
-        System.setProperty("WLSIMG_BLDDIR", expected);
+    void getBuildWorkingDir2(@TempDir Path tempDir) throws IOException {
+        // provide existing directory as input to WLSIMG_BLDDIR should succeed
+        String expected = tempDir.toString();
+        overrideProperties.set("WLSIMG_BLDDIR", expected);
         assertEquals(expected, Utils.getBuildWorkingDir());
+
+        // Create a read-only directory as input for WLSIMG_BLDDIR
+        Path unwritableDir = tempDir.resolve("unwritable");
+        Files.createDirectory(unwritableDir);
+        if (!unwritableDir.toFile().setReadOnly()) {
+            throw new IOException("Unable to mark test directory as read-only");
+        }
+        // read-only directory as input for working directory should throw an exception
+        overrideProperties.set("WLSIMG_BLDDIR", unwritableDir.toString());
+        assertThrows(IOException.class, Utils::getBuildWorkingDir);
     }
 
     @Test
     @DisplayName("Override working directory with invalid directory")
     void getBuildWorkingDir3() {
         String expected = "/this/does/not/exist";
-        System.setProperty("WLSIMG_BLDDIR", expected);
+        overrideProperties.set("WLSIMG_BLDDIR", expected);
+        assertThrows(IOException.class, Utils::getBuildWorkingDir);
+    }
+
+    @Test
+    @DisplayName("Override working directory with invalid file")
+    void getBuildWorkingDir4(@TempDir Path tempDir) throws IOException {
+        Path tempFile = tempDir.resolve("getBuildWorkingDir4.txt");
+        List<String> lines = Arrays.asList("a", "b");
+        Files.write(tempFile, lines);
+
+        String expected = tempFile.toString();
+        overrideProperties.set("WLSIMG_BLDDIR", expected);
+        // The override for WLSIMG_BUILDDIR must be a directory, NOT a file
         assertThrows(IOException.class, Utils::getBuildWorkingDir);
     }
 
