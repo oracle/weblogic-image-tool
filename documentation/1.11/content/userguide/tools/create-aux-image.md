@@ -7,10 +7,10 @@ description: "The createAuxImage command creates a new container image with WDT 
 ---
 
 
-The `createAuxImage` command helps build a container image from a given base OS image. 
-Auxiliary images are very small images providing the WDT install files with WDT models, archives, and variables 
+The `createAuxImage` command helps build a container image from a given base OS image.
+Auxiliary images are very small images providing the WDT install files with WDT models, archives, and variables
 for [WebLogic Kubernetes Operator - Auxiliary Images](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/auxiliary-images/).
-These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files, 
+These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files,
 in your WebLogic Server Kubernetes Operator environment.
 
 There are a number of optional parameters for this feature. The required option for the command is marked.
@@ -22,8 +22,8 @@ Usage: imagetool createAuxImage [OPTIONS]
 | Parameter | Definition | Default |
 | --- | --- | --- |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
-| `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#additional-information). |
-| `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. |
+| `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). |
+| `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
@@ -34,13 +34,13 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `YUM`, `ZYPPER`  |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
 | `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
-| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift` | `Default`  |
+| `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift`. See [Additional information](#--target). | `Default`  |
 | `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
 | `--wdtHome` | The target folder in the image for the WDT install and models.  | `/auxiliary`  |
 | `--wdtModel` | A WDT model file or a comma-separated list of files.  |   |
 | `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
 | `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
-| `--wdtVersion` | WDT version to be installed in the container image in {wdtHome}/weblogic-deploy. For more details, see [Additional information](#additional-information). | `latest`  |
+| `--wdtVersion` | WDT version to be installed in the container image in `{wdtHome}/weblogic-deploy`. For more details, see [Additional information](#--wdtversion). | `latest`  |
 
 ### Additional information
 
@@ -93,7 +93,7 @@ Use the same value for `--target` when creating images with `create` and `create
 #### `--wdtVersion`
 
 As of version 1.11.0, you may opt to install WDT and the model files in separate images.  By default, the cached `wdt_latest`
-version of WDT is installed in the Auxiliary image with the selected models, archives, and variable files.  If you use 
+version of WDT is installed in the Auxiliary image with the selected models, archives, and variable files.  If you use
 `--wdtVersion=none` (case insensitive), the auxiliary image will be created without installing WDT.  
 
 #### Use an argument file
