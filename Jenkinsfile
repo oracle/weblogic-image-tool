@@ -34,7 +34,7 @@ pipeline {
                 sh 'mvn -B -DskipTests -DskipITs clean install'
             }
         }
-        stage ('Test') {
+        stage ('Unit Tests') {
             when {
                 not { changelog '\\[skip-ci\\].*' }
             }
@@ -44,6 +44,25 @@ pipeline {
             post {
                 always {
                     junit 'imagetool/target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage ('Sonar Analysis') {
+            when {
+                anyOf {
+                    changeRequest()
+                    branch "main"
+                }
+            }
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk11'
+            }
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    withCredentials([string(credentialsId: 'encj_github_token', variable: 'GITHUB_TOKEN')]) {
+                        runSonarScanner()
+                    }
                 }
             }
         }
@@ -96,25 +115,6 @@ pipeline {
                     mail to: "${env.WIT_BUILD_NOTIFICATION_EMAIL_TO}", from: 'noreply@oracle.com',
                     subject: "WebLogic Image Tool: ${env.JOB_NAME} - Failed",
                     body: "Job Failed - \"${env.JOB_NAME}\" build: ${env.BUILD_NUMBER}\n\nView the log at:\n ${env.BUILD_URL}\n"
-                }
-            }
-        }
-        stage ('Analyze') {
-            when {
-                anyOf {
-                    changeRequest()
-                    branch "main"
-                }
-            }
-            tools {
-                maven 'maven-3.6.0'
-                jdk 'jdk11'
-            }
-            steps {
-                withSonarQubeEnv('SonarCloud') {
-                    withCredentials([string(credentialsId: 'encj_github_token', variable: 'GITHUB_TOKEN')]) {
-                        runSonarScanner()
-                    }
                 }
             }
         }
