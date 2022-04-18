@@ -471,7 +471,8 @@ public class Utils {
                     if (isEmptyString(retVal)) {
                         retVal = System.getProperty("http.nonProxyHosts", null);
                         if (!isEmptyString(retVal)) {
-                            retVal = retVal.replaceAll("\\|", ",");
+                            //http.nonProxyHosts property uses | instead of , as a separator
+                            retVal = retVal.replace("|", ",");
                         }
                     }
                     break;
@@ -538,13 +539,13 @@ public class Utils {
         boolean pathExists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
 
         if (!pathExists) {
-            throw new IOException("Working Directory does not exists " + workingDir);
+            throw new IOException(Utils.getMessage("IMG-0111", workingDir));
         } else {
             if (!Files.isDirectory(path)) {
-                throw new IOException("Working Directory specified is not a directory " + workingDir);
+                throw new IOException(Utils.getMessage("IMG-0112", workingDir));
             }
             if (!Files.isWritable(path)) {
-                throw new IOException("Working Directory specified is not writable " + workingDir);
+                throw new IOException(Utils.getMessage("IMG-0113", workingDir));
             }
         }
 
