@@ -161,10 +161,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
         } catch (Exception ex) {
             return CommandResponse.error(ex.getMessage());
         } finally {
-            if (!skipcleanup) {
-                Utils.deleteFilesRecursively(buildDir());
-                Utils.removeIntermediateDockerImages(buildEngine, buildId());
-            }
+            cleanup();
         }
         Instant endTime = Instant.now();
         logger.finer("Exiting UpdateImage.call ");

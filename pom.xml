@@ -74,11 +74,13 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>5.8.1</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>29.0-jre</version>
+                <groupId>uk.org.webcompere</groupId>
+                <artifactId>system-stubs-jupiter</artifactId>
+                <version>1.2.0</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.spullara.mustache.java</groupId>
