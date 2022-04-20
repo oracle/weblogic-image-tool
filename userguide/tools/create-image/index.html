@@ -12,20 +12,20 @@
     <title>Create Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1650252678" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1650252678" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1650484889" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1650484889" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1650252678"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1650484889"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1650252678"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1650252678"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1650484889"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1650484889"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1650252678"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1650484889"></script>
 
     
   </div>
@@ -964,6 +964,7 @@ Valid sections for create are:</p>
 <thead>
 <tr>
 <th>Section</th>
+<th>Available Variables</th>
 <th>Build Stage</th>
 <th>Timing</th>
 </tr>
@@ -971,43 +972,51 @@ Valid sections for create are:</p>
 <tbody>
 <tr>
 <td><code>package-manager-packages</code></td>
+<td>None</td>
 <td>All</td>
 <td>A list of OS packages, such as <code>ftp gzip</code>, separated by line or space.</td>
 </tr>
 <tr>
 <td><code>before-jdk-install</code></td>
+<td><code>JAVA_HOME</code></td>
 <td>Intermediate (JDK_BUILD)</td>
 <td>Before the JDK is installed.</td>
 </tr>
 <tr>
 <td><code>after-jdk-install</code></td>
+<td><code>JAVA_HOME</code></td>
 <td>Intermediate (JDK_BUILD)</td>
 <td>After the JDK is installed.</td>
 </tr>
 <tr>
 <td><code>before-fmw-install</code></td>
+<td><code>JAVA_HOME</code> <code>ORACLE_HOME</code></td>
 <td>Intermediate (WLS_BUILD)</td>
 <td>Before the Oracle Home is created.</td>
 </tr>
 <tr>
 <td><code>after-fmw-install</code></td>
+<td><code>JAVA_HOME</code> <code>ORACLE_HOME</code></td>
 <td>Intermediate (WLS_BUILD)</td>
 <td>After all of the Oracle middleware installers are finished.</td>
 </tr>
 <tr>
 <td><code>before-wdt-command</code></td>
+<td><code>DOMAIN_HOME</code></td>
 <td>Intermediate (WDT_BUILD)</td>
 <td>Before WDT is installed.</td>
 </tr>
 <tr>
 <td><code>after-wdt-command</code></td>
+<td><code>DOMAIN_HOME</code></td>
 <td>Intermediate (WDT_BUILD)</td>
 <td>After WDT domain creation/update is complete.</td>
 </tr>
 <tr>
 <td><code>final-build-commands</code></td>
+<td><code>JAVA_HOME</code> <code>ORACLE_HOME</code> <em><code>DOMAIN_HOME</code></em></td>
 <td>Final image</td>
-<td>After all Image Tool actions are complete, and just before the container image is finalized.</td>
+<td>After all Image Tool actions are complete, and just before the container image is finalized. <code>DOMAIN_HOME</code> is only available if WDT was used during the build.</td>
 </tr>
 </tbody>
 </table>
@@ -1546,19 +1555,19 @@ to the cache directory. Use the <a href="/weblogic-image-tool/userguide/tools/ca
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1650252679"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1650252679"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1650252679"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1650252679"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1650252679"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1650252679"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1650484889"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1650484889"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1650484889"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1650484889"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1650484889"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1650484889"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1650252679"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1650252679"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1650252679"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1650484889"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1650484889"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1650484889"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1650252679"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1650484889"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
