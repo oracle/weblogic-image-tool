@@ -6,6 +6,9 @@ package com.oracle.weblogic.imagetool.util;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -23,7 +26,7 @@ class AdditionalBuildCommandsTest {
     @Test
     void loadSingleSectionFile() throws IOException {
         String filename = "one-section.txt";
-        AdditionalBuildCommands cmds = AdditionalBuildCommands.load(getPath(filename));
+        AdditionalBuildCommands cmds = new AdditionalBuildCommands(getPath(filename));
 
         assertEquals(1, cmds.size(), "File did not have expected number of sections: " + filename);
     }
@@ -31,7 +34,7 @@ class AdditionalBuildCommandsTest {
     @Test
     void loadTwoSectionFile() throws IOException {
         String filename = "two-sections.txt";
-        AdditionalBuildCommands cmds = AdditionalBuildCommands.load(getPath(filename));
+        AdditionalBuildCommands cmds = new AdditionalBuildCommands(getPath(filename));
         assertEquals(2, cmds.size(), "File did not have expected number of sections: " + filename);
         assertEquals(3, cmds.getSection(AdditionalBuildCommands.AFTER_FMW).size(),
             "Wrong number of lines in AFTER_FMW section of " + filename);
@@ -40,8 +43,24 @@ class AdditionalBuildCommandsTest {
     }
 
     @Test
-    void loadBadSectionFile() throws IOException {
-        String filename = "bad-section.txt";
-        assertThrows(IllegalArgumentException.class, () -> AdditionalBuildCommands.load(getPath(filename)));
+    void loadBadSectionFile() {
+        Path file = getPath("bad-section.txt");
+        assertThrows(IllegalArgumentException.class, () -> new AdditionalBuildCommands(file));
+    }
+
+    @Test
+    void resolveMustachePlaceHolders() throws Exception {
+        AdditionalBuildCommands cmds = new AdditionalBuildCommands(getPath("two-mustache.txt"));
+        DockerfileOptions options = new DockerfileOptions("123");
+        // default Oracle Home and Java Home are expected, /u01/oracle, /u01/jdk.
+        options.setAdditionalBuildCommands(cmds.getContents(options));
+
+        List<String> expected = Arrays.asList(
+            "echo This is the Oracle Home: /u01/oracle",
+            "echo This is the Java Home: /u01/jdk");
+        assertEquals(expected, options.finalBuildCommands());
+
+        // If a section is requested that is NOT in the file, the getter should return an empty list.
+        assertEquals(Collections.emptyList(), options.beforeFmwInstall());
     }
 }

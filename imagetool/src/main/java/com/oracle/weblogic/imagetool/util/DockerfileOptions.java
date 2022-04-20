@@ -11,18 +11,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.cli.menu.PackageManagerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
+import com.oracle.weblogic.imagetool.logging.LoggingFacade;
+import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
 /**
  * Provides the data used by the Dockerfile templates (in mustache).
  */
 public class DockerfileOptions {
+
+    private static final LoggingFacade logger = LoggingFactory.getLogger(DockerfileOptions.class);
 
     private static final String DEFAULT_JAVA_HOME = "/u01/jdk";
     private static final String DEFAULT_ORACLE_HOME = "/u01/oracle";
@@ -79,7 +84,7 @@ public class DockerfileOptions {
     private String wdtBase;
 
     // Additional Build Commands
-    private Map<String, List<String>> additionalBuildCommands;
+    private Map<String, Callable<List<String>>> additionalBuildCommands;
 
     /**
      * Options to be used with the Mustache template.
@@ -897,16 +902,21 @@ public class DockerfileOptions {
      *
      * @param commands Additional build commands grouped by section.
      */
-    public DockerfileOptions setAdditionalBuildCommands(Map<String, List<String>> commands) {
+    public DockerfileOptions setAdditionalBuildCommands(Map<String, Callable<List<String>>> commands) {
         additionalBuildCommands = commands;
         return this;
     }
 
     private List<String> getAdditionalCommandsForSection(String sectionName) {
-        if (additionalBuildCommands == null) {
+        if (additionalBuildCommands == null || !additionalBuildCommands.containsKey(sectionName)) {
             return Collections.emptyList();
         }
-        return additionalBuildCommands.get(sectionName);
+        try {
+            return additionalBuildCommands.get(sectionName).call();
+        } catch (Exception e) {
+            logger.severe("IMG-0114", sectionName, e.getLocalizedMessage());
+            return Collections.emptyList();
+        }
     }
 
     @SuppressWarnings("unused")
