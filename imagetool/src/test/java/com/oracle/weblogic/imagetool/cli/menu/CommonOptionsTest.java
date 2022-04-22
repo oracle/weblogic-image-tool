@@ -27,6 +27,8 @@ import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("unit")
@@ -201,5 +203,25 @@ class CommonOptionsTest {
                     fail("Unexpected line in resolver.yml: " + line);
             }
         }
+    }
+
+    /**
+     * isChownSet() true if the user provided a user:group on the CLI.
+     */
+    @Test
+    void isChownSet() {
+        CreateImage createImage = new CreateImage();
+        new CommandLine(createImage).parseArgs("--tag", "x:1", "--chown", "oracle:root");
+        assertTrue(createImage.isChownSet());
+    }
+
+    /**
+     * isChownSet() returns false if the user did not provide a user:group on the CLI.
+     */
+    @Test
+    void isChownNotSet() {
+        CreateImage createImage = new CreateImage();
+        new CommandLine(createImage).parseArgs("--tag", "x:1");
+        assertFalse(createImage.isChownSet());
     }
 }

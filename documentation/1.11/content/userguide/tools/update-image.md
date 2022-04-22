@@ -25,13 +25,13 @@ Update WebLogic Docker image with selected patches
 ```
 | Parameter | Definition | Default |
 | --- | --- | --- |
-| `--fromImage` | (Required) Container image to be updated. The `fromImage` option serves as a starting point for the new image to be created. |   |
+| `--fromImage` | (Required) Container image to be extended. The provided image MUST contain an Oracle Home with middleware installed. The `fromImage` option serves as a starting point for the new image to be created. |   |
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
-| `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
+| `--chown` | `userid:groupid` for middleware patches and other operations.  | Owner:Group of the Oracle Home |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
