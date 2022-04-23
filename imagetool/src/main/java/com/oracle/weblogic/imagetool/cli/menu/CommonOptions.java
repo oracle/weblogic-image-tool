@@ -46,7 +46,8 @@ public abstract class CommonOptions {
     private String buildId;
 
     private void handleChown() {
-        if (!isOptionSet("--chown")) {
+        if (!isChownSet()) {
+            // nothing to do, user did not specify --chown on the command line
             return;
         }
 
@@ -170,7 +171,7 @@ public abstract class CommonOptions {
         if (kubernetesTarget == KubernetesTarget.OPENSHIFT) {
             dockerfileOptions.setDomainGroupAsUser(true);
             // if the user did not set the OS user:group, make the default oracle:root, instead of oracle:oracle
-            if (!isOptionSet(osUserAndGroup)) {
+            if (!isChownSet()) {
                 dockerfileOptions.setGroupId("root");
             }
         }
@@ -238,6 +239,15 @@ public abstract class CommonOptions {
         }
         Utils.deleteFilesRecursively(buildDir());
         Utils.removeIntermediateDockerImages(buildEngine, buildId());
+    }
+
+    /**
+     * If the user provided a value to alter the default user:group, return true.
+     *
+     * @return true if the user provided a value to change user:group.
+     */
+    public boolean isChownSet() {
+        return isOptionSet("--chown");
     }
 
     private boolean isOptionSet(String optionName) {

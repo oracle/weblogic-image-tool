@@ -204,6 +204,7 @@ class UtilsTest {
         // No ENV variable set (filed issue on SystemStub)
         environment.set("no_proxy", null);
         environment.set("NO_PROXY", null);
+        overrideProperties.set("http.nonProxyHosts", "");
         assertNull(Utils.findProxyUrl("", "none"));
 
         String expected = ".host.com,.anotherhost.com,.and.another.com";

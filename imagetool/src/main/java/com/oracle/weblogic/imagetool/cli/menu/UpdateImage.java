@@ -77,8 +77,20 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
 
             String baseImageUsr = baseImageProperties.getProperty("oracleHomeUser");
             String baseImageGrp = baseImageProperties.getProperty("oracleHomeGroup");
-            if (!dockerfileOptions.userid().equals(baseImageUsr) || !dockerfileOptions.groupid().equals(baseImageGrp)) {
-                return CommandResponse.error("IMG-0087", fromImage(), baseImageUsr, baseImageGrp);
+
+            if (isChownSet()) {
+                // --chown for UPDATE no longer makes sense if the value must always be what the fromImage is.
+                if (!dockerfileOptions.userid().equals(baseImageUsr)
+                    || !dockerfileOptions.groupid().equals(baseImageGrp)) {
+                    // if the user specified a --chown that did not match the fromImage(), error
+                    return CommandResponse.error("IMG-0087", fromImage(), baseImageUsr, baseImageGrp);
+                }
+            } else {
+                // if the user did not specify --chown, use the user:group for the Oracle Home found in the --fromImage
+                dockerfileOptions.setUserId(baseImageUsr);
+                dockerfileOptions.setGroupId(baseImageGrp);
+                logger.fine("--chown not set by user. Using values found in --fromImage {0} for --chown {1}:{2}",
+                    fromImage(), baseImageUsr, baseImageGrp);
             }
 
             List<InstalledPatch> installedPatches = Collections.emptyList();
