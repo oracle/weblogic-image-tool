@@ -56,13 +56,13 @@ Usage: imagetool rebase [OPTIONS]
 This is an advanced option that let's you provide additional commands to the Docker build step.  
 The input for this parameter is a simple text file that contains one or more of the valid sections. Valid sections for rebase:
 
-| Section | Build Stage | Timing |
-| --- | --- | --- |
-| `before-jdk-install` | Intermediate (JDK_BUILD) | Before the JDK is installed. |
-| `after-jdk-install` | Intermediate (JDK_BUILD) | After the JDK is installed. |
-| `before-fmw-install` | Intermediate (WLS_BUILD) | Before the Oracle Home is created. |
-| `after-fmw-install` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
-| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
+| Section | Available Variables | Build Stage | Timing |
+| --- | --- | --- | --- |
+| `before-jdk-install` | `JAVA_HOME` `DOMAIN_HOME`| Intermediate (JDK_BUILD) | Before the JDK is installed. |
+| `after-jdk-install` | `JAVA_HOME` `DOMAIN_HOME` | Intermediate (JDK_BUILD) | After the JDK is installed. |
+| `before-fmw-install` | `JAVA_HOME` `ORACLE_HOME` `DOMAIN_HOME` | Intermediate (WLS_BUILD) | Before the Oracle Home is created. |
+| `after-fmw-install` | `JAVA_HOME` `ORACLE_HOME` `DOMAIN_HOME` | Intermediate (WLS_BUILD) | After all of the Oracle middleware installers are finished. |
+| `final-build-commands` | `JAVA_HOME` `ORACLE_HOME` `DOMAIN_HOME` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 
 **NOTE**: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.  
 The Image Tool will copy the Java Home and the Oracle Home directories to the final image.  

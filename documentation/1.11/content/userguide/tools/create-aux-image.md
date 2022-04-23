@@ -50,10 +50,10 @@ This is an advanced option that let's you provide additional commands to the Doc
 The input for this parameter is a simple text file that contains one or more of the valid sections.
 Valid sections for `createAuxImage` are:
 
-| Section | Build Stage | Timing |
-| --- | --- | --- |
-| `package-manager-packages` | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
-| `final-build-commands` | Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
+| Section | Available Variables | Build Stage | Timing |
+| --- | --- | --- | --- |
+| `package-manager-packages` | None | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
+| `final-build-commands` | `AUXILIARY_IMAGE_PATH` `WDT_HOME` `WDT_MODEL_HOME`| Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 
 Each section can contain one or more valid Dockerfile commands and would look like the following:
 
