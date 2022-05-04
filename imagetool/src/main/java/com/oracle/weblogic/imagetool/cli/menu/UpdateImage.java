@@ -149,7 +149,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
             }
 
             setImageInstallerType(baseImageProperties.getProperty("oracleInstalledProducts"));
-            if (imageInstallerType == null && applyingLatestPsu()) {
+            if (imageInstallerType == null && applyingRecommendedPatches()) {
                 // This error occurred with the 12.2.1.4 quick slim image because registry.xml was missing data
                 logger.warning("IMG-0096", fromImage());
             } else {
