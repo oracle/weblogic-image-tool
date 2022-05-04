@@ -138,7 +138,7 @@ class CommonPatchingOptionsTest {
         aruRest.setAccessible(true);
         aruRest.set(aruRest, new CommonPatchingOptionsTest.TestAruUtil());
 
-        List<AruPatch> patches = createImage.getRecommendedPatchList(FmwInstallerType.WLS);
+        List<AruPatch> patches = createImage.getRecommendedPatchList();
         assertTrue(patches.isEmpty(), "Neither latestPSU nor recommendedPatches was specified, but returned patches");
     }
 
@@ -154,7 +154,7 @@ class CommonPatchingOptionsTest {
         aruRest.set(aruRest, new CommonPatchingOptionsTest.TestAruUtil());
 
         createImage.initializeOptions();
-        List<AruPatch> patches = createImage.getRecommendedPatchList(FmwInstallerType.WLS);
+        List<AruPatch> patches = createImage.getRecommendedPatchList();
         assertFalse(patches.isEmpty(), "recommendedPatches was specified, but returned patches was empty");
         assertEquals(2, patches.size(),"ADR patch was not removed?");
     }
@@ -171,7 +171,7 @@ class CommonPatchingOptionsTest {
         aruRest.set(aruRest, new CommonPatchingOptionsTest.TestAruUtil());
 
         createImage.initializeOptions();
-        assertThrows(IllegalArgumentException.class, () -> createImage.getRecommendedPatchList(FmwInstallerType.WLS));
+        assertThrows(IllegalArgumentException.class, createImage::getRecommendedPatchList);
     }
 
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -119,7 +119,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
                 logger.finer("Verifying Patches to WLS ");
 
                 if (userId == null) {
-                    logger.warning("IMG-0009");
+                    logger.info("IMG-0009");
                 } else {
                     if (!Utils.validatePatchIds(patches, false)) {
                         return CommandResponse.error("Patch ID validation failed");
@@ -148,19 +148,14 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
                 return CommandResponse.error("IMG-0055");
             }
 
-            FmwInstallerType installerType = FmwInstallerType.fromProductList(
-                baseImageProperties.getProperty("oracleInstalledProducts"));
-            if (installerType == null) {
-                logger.fine("Unable to detect installed products from image {0}", fromImage());
+            setImageInstallerType(baseImageProperties.getProperty("oracleInstalledProducts"));
+            if (imageInstallerType == null && applyingLatestPsu()) {
                 // This error occurred with the 12.2.1.4 quick slim image because registry.xml was missing data
-                if (applyingPatches()) {
-                    return CommandResponse.error("IMG-0096", fromImage());
-                }
+                logger.warning("IMG-0096", fromImage());
             } else {
-                logger.info("IMG-0094", installerType);
-                // resolve required patches
-                handlePatchFiles(installerType, installedPatches);
+                logger.info("IMG-0094", getInstallerType());
             }
+            handlePatchFiles(installedPatches);
 
             // create dockerfile
             String dockerfile = Utils.writeDockerfile(buildDir() + File.separator + "Dockerfile",
@@ -185,6 +180,21 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
                 Duration.between(startTime, endTime).getSeconds(), imageTag());
         }
     }
+
+    private void setImageInstallerType(String value) {
+        imageInstallerType = FmwInstallerType.fromProductList(value);
+    }
+
+    @Override
+    FmwInstallerType getInstallerType() {
+        if (isInstallerTypeSet() || imageInstallerType == null) {
+            return super.getInstallerType();
+        } else {
+            return imageInstallerType;
+        }
+    }
+
+    private FmwInstallerType imageInstallerType;
 
     @Override
     String getInstallerVersion() {

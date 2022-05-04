@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -11,7 +11,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.aru.AruException;
-import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -42,7 +41,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
 
         if (dockerfileOptions.installMiddleware()) {
             MiddlewareInstall install =
-                new MiddlewareInstall(installerType, installerVersion, installerResponseFiles);
+                new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles);
             install.copyFiles(cache(), buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
         } else {
@@ -50,7 +49,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         }
 
         // resolve required patches
-        handlePatchFiles(installerType);
+        handlePatchFiles();
 
         // If patching, patch OPatch first
         if (applyingPatches() && shouldUpdateOpatch()) {
@@ -75,12 +74,6 @@ public class CommonCreateOptions extends CommonPatchingOptions {
     String getInstallerVersion() {
         return installerVersion;
     }
-
-    @Option(
-        names = {"--type"},
-        description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
-    )
-    private FmwInstallerType installerType = FmwInstallerType.WLS;
 
     @Option(
         names = {"--version"},
