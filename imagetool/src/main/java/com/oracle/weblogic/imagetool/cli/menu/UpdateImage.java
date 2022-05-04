@@ -166,6 +166,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
                 wdtOptions.handleResourceTemplates(imageTag());
             }
         } catch (Exception ex) {
+            logger.throwing(ex);
             return CommandResponse.error(ex.getMessage());
         } finally {
             cleanup();

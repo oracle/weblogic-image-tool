@@ -224,7 +224,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
      *         by the user.
      */
     List<AruPatch> getRecommendedPatchList() throws AruException {
-        List<AruPatch> aruPatches = Collections.emptyList();
+        // returned List object should be modifiable
+        List<AruPatch> aruPatches = new ArrayList<>();
         if (!applyingRecommendedPatches()) {
             return aruPatches;
         }

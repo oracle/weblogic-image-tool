@@ -181,12 +181,14 @@ public class Utils {
      */
     public static String writeDockerfile(String destPath, String template, DockerfileOptions options, boolean dryRun)
         throws IOException {
+        logger.entering();
         MustacheFactory mf = new DefaultMustacheFactory("docker-files");
         Mustache mustache = mf.compile(template);
         try (FileWriter fw = new FileWriter(destPath)) {
             mustache.execute(fw, options).flush();
         }
 
+        logger.exiting();
         if (dryRun) {
             return mustache.execute(new StringWriter(), options).toString();
         } else {
