@@ -76,8 +76,8 @@ public abstract class CommonOptions {
                 throw new FileNotFoundException(Utils.getMessage("IMG-0030", additionalBuildCommandsPath));
             }
 
-            AdditionalBuildCommands additionalBuildCommands = AdditionalBuildCommands.load(additionalBuildCommandsPath);
-            dockerfileOptions.setAdditionalBuildCommands(additionalBuildCommands.getContents());
+            AdditionalBuildCommands additionalBuildCommands = new AdditionalBuildCommands(additionalBuildCommandsPath);
+            dockerfileOptions.setAdditionalBuildCommands(additionalBuildCommands.getContents(dockerfileOptions));
         }
 
         if (additionalBuildFiles != null) {

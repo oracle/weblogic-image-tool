@@ -1,0 +1,6 @@
+// Copyright 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+
+[final-build-commands]
+echo This is the Oracle Home: {{{oracle_home}}}
+echo This is the Java Home: {{{java_home}}}
