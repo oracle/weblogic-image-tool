@@ -11,7 +11,7 @@ import picocli.CommandLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("unit")
-public class UpdateImageTest {
+class UpdateImageTest {
     @Test
     void installerTypeTest() {
         UpdateImage updateImage = new UpdateImage();

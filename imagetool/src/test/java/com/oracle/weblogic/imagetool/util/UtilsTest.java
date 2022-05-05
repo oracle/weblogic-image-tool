@@ -1,8 +1,9 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
@@ -216,5 +218,17 @@ class UtilsTest {
         // ENV for no_proxy is set
         environment.set("no_proxy", expected);
         assertEquals(expected, Utils.findProxyUrl("", "none"));
+    }
+
+    @Test
+    void mustacheFactory(@TempDir Path outputDir) throws IOException {
+        String templateString = "{oracle_home}";
+        String oracleHome = "/Oracle/Middleware_12214";
+        DockerfileOptions options = new DockerfileOptions("111");
+        options.setOracleHome(oracleHome);
+        String output = Utils.writeDockerfile(outputDir.toString() + File.separator + "Dockerfile",
+            "mustache-writer-test.mustache", options, true);
+        assertEquals(oracleHome, output);
+        assertEquals(1, Objects.requireNonNull(outputDir.toFile().list()).length);
     }
 }
