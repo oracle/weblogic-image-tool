@@ -222,7 +222,6 @@ class UtilsTest {
 
     @Test
     void mustacheFactory(@TempDir Path outputDir) throws IOException {
-        String templateString = "{oracle_home}";
         String oracleHome = "/Oracle/Middleware_12214";
         DockerfileOptions options = new DockerfileOptions("111");
         options.setOracleHome(oracleHome);
