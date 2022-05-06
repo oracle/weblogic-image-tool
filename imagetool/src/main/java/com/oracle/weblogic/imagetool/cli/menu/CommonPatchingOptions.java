@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -39,6 +39,20 @@ public abstract class CommonPatchingOptions extends CommonOptions {
 
     abstract String getInstallerVersion();
 
+    /**
+     * Get the installer type selected by the user.
+     * This method is overridden by UpdateImage to provide the installer type
+     * from the fromImage.
+     * @return WLS by default, or the value selected by the user on the command line.
+     */
+    FmwInstallerType getInstallerType() {
+        return installerType;
+    }
+
+    boolean isInstallerTypeSet() {
+        return isOptionSet("--type");
+    }
+
     @Override
     void initializeOptions() throws IOException, InvalidCredentialException, InvalidPatchIdFormatException {
         super.initializeOptions();
@@ -63,6 +77,15 @@ public abstract class CommonPatchingOptions extends CommonOptions {
     }
 
     /**
+     * Returns true if latestPsu or recommendedPatches was requested.
+     *
+     * @return true if applying patches
+     */
+    boolean applyingRecommendedPatches() {
+        return (latestPsu || recommendedPatches);
+    }
+
+    /**
      * Should OPatch version be updated.
      * OPatch should be updated to the latest version available unless the user
      * requests that OPatch should not be updated.
@@ -75,9 +98,18 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         return !skipOpatchUpdate;
     }
 
-    void handlePatchFiles(FmwInstallerType installerType) throws AruException, XPathExpressionException, IOException {
+    /**
+     * Process all patches requested by the user, if any.
+     * Downloads and copies patch JARs to the build context directory.
+     *
+     * @throws AruException     if an error occurs trying to read patch metadata from ARU.
+     * @throws IOException      if a transport error occurs trying to access the Oracle REST services.
+     * @throws XPathExpressionException when the payload from the REST service is not formatted as expected
+     *                          or a partial response was returned.
+     */
+    void handlePatchFiles() throws AruException, XPathExpressionException, IOException {
         if (dockerfileOptions.installMiddleware()) {
-            handlePatchFiles(installerType, Collections.emptyList());
+            handlePatchFiles(Collections.emptyList());
         } else {
             if (applyingPatches()) {
                 // user intended to apply patches, but used a fromImage that already had an Oracle Home
@@ -91,23 +123,22 @@ public abstract class CommonPatchingOptions extends CommonOptions {
      * Process all patches requested by the user, if any.
      * Downloads and copies patch JARs to the build context directory.
      *
-     * @param installerType     The installer type used to create the Oracle Home
      * @param installedPatches  a list of patches applied already installed on the target image.
      * @throws AruException     if an error occurs trying to read patch metadata from ARU.
      * @throws IOException      if a transport error occurs trying to access the Oracle REST services.
      * @throws XPathExpressionException when the payload from the REST service is not formatted as expected
      *                          or a partial response was returned.
      */
-    void handlePatchFiles(FmwInstallerType installerType, List<InstalledPatch> installedPatches)
+    void handlePatchFiles(List<InstalledPatch> installedPatches)
         throws AruException, IOException, XPathExpressionException {
-        logger.entering(installerType, installedPatches);
-        String psuVersion = InstalledPatch.getPsuVersion(installedPatches);
+        logger.entering(getInstallerType(), installedPatches);
         if (!applyingPatches()) {
             logger.exiting("not applying patches");
             return;
         }
+        String psuVersion = InstalledPatch.getPsuVersion(installedPatches);
 
-        List<AruPatch> aruPatches = getRecommendedPatchList(installerType);
+        List<AruPatch> aruPatches = getRecommendedPatchList();
 
         if (!aruPatches.isEmpty()) {
             // when applying a new PSU, use that PSU version to find patches where user did not qualify the patch number
@@ -192,38 +223,41 @@ public abstract class CommonPatchingOptions extends CommonOptions {
      * @return recommended patch list or empty list if neither latestPSU nor recommendedPatches was requested
      *         by the user.
      */
-    List<AruPatch> getRecommendedPatchList(FmwInstallerType installerType) throws AruException {
+    List<AruPatch> getRecommendedPatchList() throws AruException {
+        // returned List object should be modifiable
         List<AruPatch> aruPatches = new ArrayList<>();
-        if (recommendedPatches || latestPsu) {
-            if (userId == null || password == null) {
-                throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
+        if (!applyingRecommendedPatches()) {
+            return aruPatches;
+        }
+
+        if (userId == null || password == null) {
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
+        }
+
+        if (recommendedPatches) {
+            // Get the latest PSU and its recommended patches
+            aruPatches = AruUtil.rest()
+                .getRecommendedPatches(getInstallerType(), getInstallerVersion(), userId, password);
+
+            if (aruPatches.isEmpty()) {
+                recommendedPatches = false;
+                logger.info("IMG-0084", getInstallerVersion());
+            } else if (FmwInstallerType.isBaseWeblogicServer(getInstallerType())) {
+                // find and remove all ADR patches in the recommended patches list for base WLS installers
+                List<AruPatch> discard = aruPatches.stream()
+                    .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
+                    .collect(Collectors.toList());
+                // let the user know that the ADR patches will be discarded
+                discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
+                aruPatches.removeAll(discard);
             }
+        } else if (latestPsu) {
+            // PSUs for WLS and JRF installers are considered WLS patches
+            aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(), userId, password);
 
-            if (recommendedPatches) {
-                // Get the latest PSU and its recommended patches
-                aruPatches = AruUtil.rest()
-                    .getRecommendedPatches(installerType, getInstallerVersion(), userId, password);
-
-                if (aruPatches.isEmpty()) {
-                    recommendedPatches = false;
-                    logger.info("IMG-0084", getInstallerVersion());
-                } else if (FmwInstallerType.isBaseWeblogicServer(installerType)) {
-                    // find and remove all ADR patches in the recommended patches list for base WLS installers
-                    List<AruPatch> discard = aruPatches.stream()
-                        .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
-                        .collect(Collectors.toList());
-                    // let the user know that the ADR patches will be discarded
-                    discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
-                    aruPatches.removeAll(discard);
-                }
-            } else {
-                // PSUs for WLS and JRF installers are considered WLS patches
-                aruPatches = AruUtil.rest().getLatestPsu(installerType, getInstallerVersion(), userId, password);
-
-                if (aruPatches.isEmpty()) {
-                    latestPsu = false;
-                    logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
-                }
+            if (aruPatches.isEmpty()) {
+                latestPsu = false;
+                logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
             }
         }
 
@@ -292,19 +326,19 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         names = {"--latestPSU"},
         description = "Whether to apply patches from latest PSU."
     )
-    boolean latestPsu = false;
+    private boolean latestPsu = false;
 
     @Option(
         names = {"--recommendedPatches"},
         description = "Whether to apply recommended patches from latest PSU."
     )
-    boolean recommendedPatches = false;
+    private boolean recommendedPatches = false;
 
     @Option(
         names = {"--strictPatchOrdering"},
         description = "Use OPatch to apply patches one at a time."
     )
-    boolean strictPatchOrdering = false;
+    private boolean strictPatchOrdering = false;
 
     @Option(
         names = {"--patches"},
@@ -325,4 +359,10 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         description = "Do not update OPatch version, even if a newer version is available."
     )
     private boolean skipOpatchUpdate = false;
+
+    @Option(
+        names = {"--type"},
+        description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
+    )
+    private FmwInstallerType installerType = FmwInstallerType.WLS;
 }
