@@ -3,19 +3,18 @@
 
 package com.oracle.weblogic.imagetool.aru;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -23,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
@@ -55,7 +55,7 @@ class AruUtilTest {
         @Override
         Document getAllReleases(String userId, String password) {
             try {
-                return getResource("/releases.xml");
+                return ResourceUtils.instance().getXmlFromResource("/releases.xml");
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException("failed to load releases.xml from resources", e);
@@ -69,9 +69,9 @@ class AruUtilTest {
             try {
                 // these release numbers are fake test data from the fake releases.xml found in test/resources
                 if (releaseNumber.equals("336") || releaseNumber.equals("304")) {
-                    result = getResource("/recommended-patches.xml");
+                    result = ResourceUtils.instance().getXmlFromResource("/recommended-patches.xml");
                 } else {
-                    result = getResource("/no-patches.xml");
+                    result = ResourceUtils.instance().getXmlFromResource("/no-patches.xml");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -80,11 +80,12 @@ class AruUtilTest {
             return result;
         }
 
-        private Document getResource(String path) throws IOException {
-            try (BufferedReader buffer = new BufferedReader(new InputStreamReader(
-                this.getClass().getResourceAsStream(path)))) {
-                String doc = buffer.lines().collect(Collectors.joining("\n"));
-                return HttpUtil.parseXmlString(doc);
+        @Override
+        Document patchConflictCheck(String payload, String userId, String password) throws IOException {
+            if (payload.contains("<patch_group rel_id")) {
+                return ResourceUtils.instance().getXmlFromResource("/conflict-check/simple-conflict.xml");
+            } else {
+                return ResourceUtils.instance().getXmlFromResource("/conflict-check/no-conflict.xml");
             }
         }
     }
@@ -134,4 +135,31 @@ class AruUtilTest {
             AruUtil.rest().getRecommendedPatches(AruProduct.WLS, "3.0.0.0.0", "x", "x");
         assertEquals(0, recommendedPatches.size());
     }
+
+    @Test
+    void testPatchConflictSets() throws IOException {
+        Document value = ResourceUtils.instance().getXmlFromResource("/conflict-check/simple-conflict.xml");
+        List<List<String>> conflicts = AruUtil.rest().getPatchConflictSets(value);
+        assertEquals(1, conflicts.size());
+    }
+
+    @Test
+    void testPatchConflictSets2() throws IOException {
+
+        Document value = ResourceUtils.instance().getXmlFromResource("/conflict-check/double-conflict.xml");
+        List<List<String>> conflicts = AruUtil.rest().getPatchConflictSets(value);
+        assertEquals(2, conflicts.size());
+    }
+
+    @Test
+    void testValidatePatches() throws IOException, AruException {
+        // should not throw a conflict exception
+        AruUtil.rest().validatePatches(new ArrayList<>(), new ArrayList<>(), "blah", "blah");
+
+        List<AruPatch> patches = new ArrayList<>();
+        patches.add(new AruPatch());
+        assertThrows(PatchConflictException.class,
+            () -> AruUtil.rest().validatePatches(new ArrayList<>(), patches, "blah", "blah"));
+    }
+
 }

@@ -1,0 +1,55 @@
+<!-- Copyright (c) 2022, Oracle and/or its affiliates. -->
+<!-- Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. -->
+
+<conflict_check platform_id="2000">
+    <conflict_free_list>
+    </conflict_free_list>
+    <conflict_sets>
+        <set>
+            <merge_patches>
+                <patch flag="candidate" release_id="600000000098910">
+                    <bug>
+                        <number>11111111</number>
+                        <abstract><![CDATA[some bug]]></abstract>
+                    </bug>
+                    <patch_name>11111111</patch_name>
+                </patch>
+                <patch flag="candidate" release_id="600000000098910">
+                    <bug>
+                        <number>22222222</number>
+                        <abstract><![CDATA[another bug]]></abstract>
+                    </bug>
+                    <patch_name>22222222</patch_name>
+                </patch>
+            </merge_patches>
+            <merge_bugs release_id="600000000098910">
+                <bug>11111111</bug>
+                <bug>22222222</bug>
+            </merge_bugs>
+        </set>
+        <set>
+            <merge_patches>
+                <patch flag="candidate" release_id="600000000098910">
+                    <bug>
+                        <number>33333333</number>
+                        <abstract><![CDATA[some bug]]></abstract>
+                    </bug>
+                    <patch_name>33333333</patch_name>
+                </patch>
+                <patch flag="candidate" release_id="600000000098910">
+                    <bug>
+                        <number>44444444</number>
+                        <abstract><![CDATA[another bug]]></abstract>
+                    </bug>
+                    <patch_name>44444444</patch_name>
+                </patch>
+            </merge_patches>
+            <merge_bugs release_id="600000000098910">
+                <bug>33333333</bug>
+                <bug>44444444</bug>
+            </merge_bugs>
+        </set>
+    </conflict_sets>
+    <messages>
+    </messages>
+</conflict_check>

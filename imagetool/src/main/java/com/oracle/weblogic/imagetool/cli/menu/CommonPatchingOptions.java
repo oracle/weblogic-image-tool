@@ -185,7 +185,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             }
         }
 
-        AruUtil.validatePatches(installedPatches, aruPatches, userId, password);
+        AruUtil.rest().validatePatches(installedPatches, aruPatches, userId, password);
 
         String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
         // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed

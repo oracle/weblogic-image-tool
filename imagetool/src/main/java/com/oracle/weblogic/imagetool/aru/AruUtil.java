@@ -5,12 +5,14 @@ package com.oracle.weblogic.imagetool.aru;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.github.mustachejava.DefaultMustacheFactory;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -222,6 +224,16 @@ public class AruUtil {
         return null;
     }
 
+    static class PatchLists {
+        List<InstalledPatch> installedPatches;
+        List<AruPatch> candidatePatches;
+
+        public PatchLists(List<InstalledPatch> installedPatches, List<AruPatch> candidatePatches) {
+            this.installedPatches = installedPatches;
+            this.candidatePatches = candidatePatches;
+        }
+    }
+
     /**
      * Validate patches conflicts by passing a list of patches.
      *
@@ -231,69 +243,38 @@ public class AruUtil {
      * @param password         password for support account
      * @throws IOException when failed to access the aru api
      */
-    public static void validatePatches(List<InstalledPatch> installedPatches, List<AruPatch> patches, String userId,
-                                       String password) throws IOException {
-        validatePatches(installedPatches, patches, new AruHttpHelper(userId, password));
-    }
+    public void validatePatches(List<InstalledPatch> installedPatches, List<AruPatch> patches, String userId,
+                                       String password) throws IOException, AruException {
+        logger.entering(installedPatches, patches, userId);
 
-    /**
-     * Validate patches conflict by passing a list of patches and encapsulated userId and password.
-     *
-     * @param installedPatches opatch lsinventory content (null if non is passed)
-     * @param patches A list of patches number
-     * @param aruHttpHelper encapsulated account credentials
-     * @throws IOException when failed to access the aru api
-     */
-    static void validatePatches(List<InstalledPatch> installedPatches, List<AruPatch> patches,
-                                       AruHttpHelper aruHttpHelper) throws IOException {
-        logger.entering(patches, aruHttpHelper);
-
-        if (aruHttpHelper.userId() == null || aruHttpHelper.password() == null) {
+        if (userId == null || password == null) {
             logger.warning(Utils.getMessage("IMG-0033"));
             return;
         }
         logger.info("IMG-0012");
 
-        StringBuilder payload = new StringBuilder("<conflict_check_request><platform>2000</platform>");
+        // create XML payload for REST call
+        StringWriter payload = new StringWriter();
+        new DefaultMustacheFactory("templates")
+            .compile("conflict-check.mustache")
+            .execute(payload, new PatchLists(installedPatches, patches)).flush();
 
-        if (installedPatches != null && !installedPatches.isEmpty()) {
-            payload.append("<target_patch_list>");
-            for (InstalledPatch patch : installedPatches) {
-                payload.append(String.format("<installed_patch upi=\"%s\"/>", patch.getUniquePatchNumber()));
-            }
-            payload.append("</target_patch_list>");
-        } else {
-            payload.append("<target_patch_list/>");
-        }
+        logger.fine("Posting to ARU conflict check: {0}", payload.toString());
+        // Use ARU conflict_check API to check provided patches and previously installed patches for conflicts
+        Document conflictResults = patchConflictCheck(payload.toString(), userId, password);
+        List<List<String>> conflictSets = getPatchConflictSets(conflictResults);
 
-        if (patches != null && !patches.isEmpty()) {
-            payload.append("<candidate_patch_list>");
-            // add the list of patches to the payload for ARU patch conflict check
-            for (AruPatch patch : patches) {
-                if (patch == null) {
-                    logger.finer("Skipping null patch");
-                    continue;
-                }
-
-                payload.append(String.format("<patch_group rel_id=\"%s\">%s</patch_group>",
-                        patch.release(), patch.patchId()));
-            }
-            payload.append("</candidate_patch_list>");
-        }
-        payload.append("</conflict_check_request>");
-
-        logger.fine("Posting to ARU conflict check");
-        aruHttpHelper = aruHttpHelper.execValidation(CONFLICTCHECKER_URL, payload.toString());
-        aruHttpHelper.validation();
-
-        if (aruHttpHelper.success()) {
+        if (conflictSets.isEmpty()) {
             logger.info("IMG-0006");
         } else {
-            String error = aruHttpHelper.errorMessage();
-            logger.severe(error);
-            throw new IllegalArgumentException(error);
+            AruException ex = new PatchConflictException(conflictSets);
+            logger.throwing(ex);
+            throw ex;
         }
-        logger.exiting(aruHttpHelper);
+    }
+
+    Document patchConflictCheck(String payload, String userId, String password) throws IOException {
+        return HttpUtil.postCheckConflictRequest(CONFLICTCHECKER_URL, payload, userId, password);
     }
 
     private Document allReleasesDocument = null;
@@ -413,6 +394,29 @@ public class AruUtil {
             throw error;
         }
         return response;
+    }
+
+    List<List<String>> getPatchConflictSets(Document conflictCheckResult) throws IOException {
+        List<List<String>> result = new ArrayList<>();
+        try {
+            NodeList conflictSets = XPathUtil.nodelist(conflictCheckResult,"/conflict_check/conflict_sets/set");
+            if (conflictSets.getLength() > 0) {
+                for (int i = 0; i < conflictSets.getLength(); i++) {
+                    NodeList bugNumbers =
+                        XPathUtil.nodelist(conflictSets.item(i), "merge_patches/patch/bug/number/text()");
+                    List<String> bugList = new ArrayList<>();
+                    for (int j = 0; j < bugNumbers.getLength(); j++) {
+                        bugList.add(bugNumbers.item(j).getNodeValue());
+                    }
+                    if (!bugList.isEmpty()) {
+                        result.add(bugList);
+                    }
+                }
+            }
+        } catch (XPathExpressionException xpe) {
+            throw new IOException(xpe);
+        }
+        return result;
     }
 
     /**

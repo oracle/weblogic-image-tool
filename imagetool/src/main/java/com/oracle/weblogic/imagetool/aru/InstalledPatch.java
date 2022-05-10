@@ -62,7 +62,7 @@ public class InstalledPatch {
             "WLS PATCH SET UPDATE (\\d+\\.\\d+\\.\\d+\\.\\d+\\.[1-9]\\d+)");
 
         for (InstalledPatch patch : installedPatches) {
-            String description = patch.getPatchDescription();
+            String description = patch.patchDescription();
             Matcher matchPatternOne = patternOne.matcher(description);
             Matcher matchPatternTwo = patternTwo.matcher(description);
             if (matchPatternOne.find()) {
@@ -78,15 +78,15 @@ public class InstalledPatch {
         return result;
     }
 
-    public String getBugNumber() {
+    public String bugNumber() {
         return bugNumber;
     }
 
-    public String getUniquePatchNumber() {
+    public String uniquePatchNumber() {
         return uniquePatchNumber;
     }
 
-    public String getPatchDescription() {
+    public String patchDescription() {
         return patchDescription;
     }
 

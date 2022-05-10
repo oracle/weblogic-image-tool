@@ -3,11 +3,9 @@
 
 package com.oracle.weblogic.imagetool.cachestore;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,16 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.VersionNotFoundException;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -79,18 +76,18 @@ class PatchFileTest {
      * Intercept calls to the ARU REST API during unit testing.
      */
     public static class TestAruUtil extends AruUtil {
-        private Map<String, Document> responseCache = new HashMap<>();
+        private final Map<String, Document> responseCache = new HashMap<>();
 
         /**
          * Intercept calls to the ARU REST API during unit testing.
          * @throws IOException when XML file cannot be read from the project resources.
          */
         public TestAruUtil() throws IOException {
-            responseCache.put("1110001", getResource("/patch-1110001.xml"));
-            responseCache.put("1110002", getResource("/patch-1110002.xml"));
-            responseCache.put("1110003", getResource("/patch-1110003.xml"));
-            responseCache.put("28186730", getResource("/patch-28186730.xml"));
-            responseCache.put("2818673x", getResource("/patch-2818673x.xml"));
+            responseCache.put("1110001", ResourceUtils.instance().getXmlFromResource("/patch-1110001.xml"));
+            responseCache.put("1110002", ResourceUtils.instance().getXmlFromResource("/patch-1110002.xml"));
+            responseCache.put("1110003", ResourceUtils.instance().getXmlFromResource("/patch-1110003.xml"));
+            responseCache.put("28186730", ResourceUtils.instance().getXmlFromResource("/patch-28186730.xml"));
+            responseCache.put("2818673x", ResourceUtils.instance().getXmlFromResource("/patch-2818673x.xml"));
         }
 
         @Override
@@ -100,14 +97,6 @@ class PatchFileTest {
                 return super.getPatches(bugNumber, userId, password);
             } else {
                 return AruPatch.getPatches(responseCache.get(bugNumber));
-            }
-        }
-
-        private Document getResource(String path) throws IOException {
-            try (BufferedReader buffer = new BufferedReader(new InputStreamReader(
-                this.getClass().getResourceAsStream(path)))) {
-                String doc = buffer.lines().collect(Collectors.joining("\n"));
-                return HttpUtil.parseXmlString(doc);
             }
         }
 
