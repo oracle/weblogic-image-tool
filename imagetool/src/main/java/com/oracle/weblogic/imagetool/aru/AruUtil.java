@@ -261,15 +261,19 @@ public class AruUtil {
 
         logger.fine("Posting to ARU conflict check: {0}", payload.toString());
         // Use ARU conflict_check API to check provided patches and previously installed patches for conflicts
-        Document conflictResults = patchConflictCheck(payload.toString(), userId, password);
-        List<List<String>> conflictSets = getPatchConflictSets(conflictResults);
+        try {
+            Document conflictResults = retry(() -> patchConflictCheck(payload.toString(), userId, password));
+            List<List<String>> conflictSets = getPatchConflictSets(conflictResults);
 
-        if (conflictSets.isEmpty()) {
-            logger.info("IMG-0006");
-        } else {
-            AruException ex = new PatchConflictException(conflictSets);
-            logger.throwing(ex);
-            throw ex;
+            if (conflictSets.isEmpty()) {
+                logger.info("IMG-0006");
+            } else {
+                AruException ex = new PatchConflictException(conflictSets);
+                logger.throwing(ex);
+                throw ex;
+            }
+        }  catch (RetryFailedException e) {
+            logger.warning("IMG-0115");
         }
     }
 
