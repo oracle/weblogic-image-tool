@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
@@ -64,7 +63,7 @@ class AruUtilTest {
 
         @Override
         Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber, String userId,
-                                               String password) throws XPathExpressionException, AruException {
+                                               String password) {
             Document result;
             try {
                 // these release numbers are fake test data from the fake releases.xml found in test/resources
@@ -83,7 +82,7 @@ class AruUtilTest {
         @Override
         Document patchConflictCheck(String payload, String userId, String password) throws IOException {
             if (payload.contains("<patch_group rel_id")) {
-                return ResourceUtils.instance().getXmlFromResource("/conflict-check/simple-conflict.xml");
+                return ResourceUtils.instance().getXmlFromResource("/conflict-check/double-conflict.xml");
             } else {
                 return ResourceUtils.instance().getXmlFromResource("/conflict-check/no-conflict.xml");
             }
