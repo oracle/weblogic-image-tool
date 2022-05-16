@@ -100,20 +100,6 @@ public enum FmwInstallerType {
         return products;
     }
 
-    /**
-     * Create the FMW installer type Enum from the String value.
-     * @param value the installer type string, ignoring case.
-     * @return the enum installer type.
-     */
-    public static FmwInstallerType fromValue(String value) {
-        for (FmwInstallerType type : values()) {
-            if (type.name().equalsIgnoreCase(value)) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException(Utils.getMessage("IMG-0080", value));
-    }
-
     private static final List<FmwInstallerType> weblogicServerTypes = Arrays.asList(WLS, WLSDEV, WLSSLIM);
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(FmwInstallerType.class);
