@@ -101,6 +101,10 @@ public class AruPatch implements Comparable<AruPatch> {
         return this;
     }
 
+    public String psuVersion() {
+        return psuBundle.substring(psuBundle.lastIndexOf(' ') + 1);
+    }
+
     public boolean isPsu() {
         return !Utils.isEmptyString(psuBundle);
     }

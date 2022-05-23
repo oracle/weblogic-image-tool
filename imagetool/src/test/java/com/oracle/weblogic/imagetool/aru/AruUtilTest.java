@@ -54,7 +54,7 @@ class AruUtilTest {
         @Override
         Document getAllReleases(String userId, String password) {
             try {
-                return ResourceUtils.instance().getXmlFromResource("/releases.xml");
+                return ResourceUtils.getXmlFromResource("/releases.xml");
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException("failed to load releases.xml from resources", e);
@@ -68,9 +68,9 @@ class AruUtilTest {
             try {
                 // these release numbers are fake test data from the fake releases.xml found in test/resources
                 if (releaseNumber.equals("336") || releaseNumber.equals("304")) {
-                    result = ResourceUtils.instance().getXmlFromResource("/recommended-patches.xml");
+                    result = ResourceUtils.getXmlFromResource("/patches/recommended-patches.xml");
                 } else {
-                    result = ResourceUtils.instance().getXmlFromResource("/no-patches.xml");
+                    result = ResourceUtils.getXmlFromResource("/patches/no-patches.xml");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -82,9 +82,9 @@ class AruUtilTest {
         @Override
         Document patchConflictCheck(String payload, String userId, String password) throws IOException {
             if (payload.contains("<patch_group rel_id")) {
-                return ResourceUtils.instance().getXmlFromResource("/conflict-check/double-conflict.xml");
+                return ResourceUtils.getXmlFromResource("/conflict-check/double-conflict.xml");
             } else {
-                return ResourceUtils.instance().getXmlFromResource("/conflict-check/no-conflict.xml");
+                return ResourceUtils.getXmlFromResource("/conflict-check/no-conflict.xml");
             }
         }
     }
@@ -137,7 +137,7 @@ class AruUtilTest {
 
     @Test
     void testPatchConflictSets() throws IOException {
-        Document value = ResourceUtils.instance().getXmlFromResource("/conflict-check/simple-conflict.xml");
+        Document value = ResourceUtils.getXmlFromResource("/conflict-check/simple-conflict.xml");
         List<List<String>> conflicts = AruUtil.rest().getPatchConflictSets(value);
         assertEquals(1, conflicts.size());
     }
@@ -145,7 +145,7 @@ class AruUtilTest {
     @Test
     void testPatchConflictSets2() throws IOException {
 
-        Document value = ResourceUtils.instance().getXmlFromResource("/conflict-check/double-conflict.xml");
+        Document value = ResourceUtils.getXmlFromResource("/conflict-check/double-conflict.xml");
         List<List<String>> conflicts = AruUtil.rest().getPatchConflictSets(value);
         assertEquals(2, conflicts.size());
     }

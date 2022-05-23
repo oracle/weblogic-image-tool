@@ -15,23 +15,26 @@ import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * Test helper class for loading/parsing test resource files.
+ */
 public class ResourceUtils {
 
     private static ResourceUtils internal;
 
-    ResourceUtils() {
+    private ResourceUtils() {
         // use instance()
     }
 
-    public static ResourceUtils instance() {
+    private static ResourceUtils instance() {
         if (internal == null) {
             internal = new ResourceUtils();
         }
         return internal;
     }
 
-    public Path resourcePath(String pathOfResource) {
-        URL url = getClass().getResource(pathOfResource);
+    public static Path resourcePath(String pathOfResource) {
+        URL url = instance().getClass().getResource(pathOfResource);
         assertNotNull(url);
         try {
             return Paths.get(url.toURI());
@@ -40,7 +43,7 @@ public class ResourceUtils {
         }
     }
 
-    public Document getXmlFromResource(String pathOfResource) throws IOException {
+    public static Document getXmlFromResource(String pathOfResource) throws IOException {
         return HttpUtil.parseXml(Files.readAllBytes(resourcePath(pathOfResource)));
     }
 }

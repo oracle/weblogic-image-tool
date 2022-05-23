@@ -1,0 +1,199 @@
+
+<!-- Copyright (c) 2022, Oracle and/or its affiliates. -->
+<!-- Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. -->
+
+<results>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100003</number>
+            <abstract><![CDATA[FIXED AN ISSUE SOMEWHERE]]></abstract>
+        </bug>
+        <name>11100003</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000737120022702" name="12.2.1.3.200227" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.200227]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <files>
+            <file>
+                <name>p11100003_12213200227_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100003_12213200227_Generic.zip?aru=23478494&patch_file=p11100003_12213200227_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100003</number>
+            <abstract><![CDATA[Fixes something]]></abstract>
+        </bug>
+        <name>11100003</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000737119121702" name="12.2.1.3.191217" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.191217]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <files>
+            <file>
+                <name>p11100003_12213191217_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100003_12213191217_Generic.zip?aru=23395390&patch_file=p11100003_12213191217_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100003</number>
+            <abstract><![CDATA[Fixes something]]></abstract>
+        </bug>
+        <name>11100003</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000737119100402" name="12.2.1.3.191004" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.191004]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <files>
+            <file>
+                <name>p11100003_12213191004_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100003_12213191004_Generic.zip?aru=23158324&patch_file=p11100003_12213191004_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100003</number>
+            <abstract><![CDATA[Fixes something]]></abstract>
+        </bug>
+        <name>11100003</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000737119052202" name="12.2.1.3.190522" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.190522]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <size>1111</size>
+        <files>
+            <file>
+                <name>p11100003_12213190522_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100003_12213190522_Generic.zip?aru=23024611&patch_file=p11100003_12213190522_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100003</number>
+            <abstract><![CDATA[Fixes something]]></abstract>
+        </bug>
+        <name>11100003</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000737119041602" name="12.2.1.3.190416" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.190416]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <files>
+            <file>
+                <name>p11100003_12213190416_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100003_12213190416_Generic.zip?aru=22853910&patch_file=p11100003_12213190416_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100003</number>
+            <abstract><![CDATA[Fixes something]]></abstract>
+        </bug>
+        <name>11100003</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000737119011502" name="12.2.1.3.190115" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.190115]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <files>
+            <file>
+                <name>p11100003_12213190115_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100003_12213190115_Generic.zip?aru=22718763&patch_file=p11100003_12213190115_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100003</number>
+            <abstract><![CDATA[Fixes something]]></abstract>
+        </bug>
+        <name>11100003</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000073715" name="12.2.1.3.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <files>
+            <file>
+                <name>p11100003_122130_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100003_122130_Generic.zip?aru=22674358&patch_file=p11100003_122130_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100003</number>
+            <abstract><![CDATA[Fixes something]]></abstract>
+        </bug>
+        <name>11100003</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000737118101602" name="12.2.1.3.181016" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.181016]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <files>
+            <file>
+                <name>p11100003_12213181016_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100003_12213181016_Generic.zip?aru=22673961&patch_file=p11100003_12213181016_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+</results>
