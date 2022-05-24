@@ -235,34 +235,15 @@ public class AruPatch implements Comparable<AruPatch> {
      * @throws VersionNotFoundException if the user requested a version that was not in the list.
      */
     public static AruPatch selectPatch(List<AruPatch> patches, String providedVersion, String psuVersion,
-                                       String installerVersion) throws VersionNotFoundException {
+                                       String installerVersion)
+        throws VersionNotFoundException, MultiplePatchVersionsException {
 
         logger.entering(patches, providedVersion, psuVersion, installerVersion);
         AruPatch selected = null;
 
-        if (patches.isEmpty()) {
-            logger.exiting("Patches list is empty");
-            return null;
-        }
-
-        if (patches.size() == 1) {
-            selected = patches.get(0);
-            if (selected.version() == null) {
-                if (providedVersion != null) {
-                    selected.version(providedVersion);
-                } else if (psuVersion != null) {
-                    selected.version(psuVersion);
-                } else {
-                    selected.version(installerVersion);
-                }
-            } else if (providedVersion != null && !selected.version().equals(providedVersion)) {
-                throw new VersionNotFoundException(selected.patchId(), providedVersion, patches);
-            } else {
-                logger.info("IMG-0099", selected.patchId(), selected.version(), selected.description());
-            }
-            
-            logger.exiting(selected);
-            return selected;
+        if (patches.size() < 2) {
+            // 0 or 1 patch, fill in a patch version and just return what have
+            return selectPatchOffline(patches, providedVersion, psuVersion, installerVersion);
         }
 
         Map<String, AruPatch> patchMap = patches.stream().collect(Collectors
@@ -282,11 +263,42 @@ public class AruPatch implements Comparable<AruPatch> {
             selected = patchMap.get(installerVersion);
         }
 
-        if (selected != null) {
-            logger.info("IMG-0099", selected.patchId(), selected.version(), selected.description());
-        }
         logger.exiting(selected);
-        return selected;
+        if (selected == null) {
+            throw logger.throwing(new MultiplePatchVersionsException(patches.get(0).patchId(), patches));
+        } else {
+            logger.info("IMG-0099", selected.patchId(), selected.version(), selected.description());
+            return selected;
+        }
+    }
+
+    private static AruPatch selectPatchOffline(List<AruPatch> patches, String providedVersion, String psuVersion,
+                                               String installerVersion) throws VersionNotFoundException {
+        AruPatch result = null;
+
+        if (patches.isEmpty()) {
+            logger.fine("Patches list is empty");
+        } else if (patches.size() == 1) {
+            result = patches.get(0);
+            // if the version is filled in, we are working online and there is nothing more to do.
+            if (result.version() == null) {
+                // no version means the patch is from the cache. Set the version as best we can.
+                // TODO: this could be improved if the cache was improved to store patch version.
+                if (providedVersion != null) {
+                    result.version(providedVersion);
+                } else if (psuVersion != null) {
+                    result.version(psuVersion);
+                } else {
+                    result.version(installerVersion);
+                }
+            } else if (providedVersion != null && !result.version().equals(providedVersion)) {
+                throw logger.throwing(new VersionNotFoundException(result.patchId(), providedVersion, patches));
+            } else {
+                logger.info("IMG-0099", result.patchId(), result.version(), result.description());
+            }
+        }
+        logger.exiting(result);
+        return result;
     }
 
     /**

@@ -22,7 +22,6 @@ import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.InstalledPatch;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
 import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
-import com.oracle.weblogic.imagetool.aru.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
@@ -187,7 +186,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
     }
 
     String findPsuVersion(AruPatch aruPatch) {
-        if (aruPatch.isPsu() && AruProduct.fromProductId(aruPatch.product()) == AruProduct.WLS) {
+        if (aruPatch != null && aruPatch.isPsu() && AruProduct.fromProductId(aruPatch.product()) == AruProduct.WLS) {
             String psu = aruPatch.psuVersion();
             logger.fine("Using PSU {0} to set preferred patch version to {1}", aruPatch.patchId(), psu);
             return psu;
@@ -237,10 +236,6 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 // if ARU found patches for the provided bug number, try to select the one the user needs by version
                 AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, effectivePsuVersion,
                     getInstallerVersion());
-
-                if (selectedVersion == null) {
-                    throw logger.throwing(new MultiplePatchVersionsException(patchId, patchVersions));
-                }
 
                 String psuVersionOfSelected = findPsuVersion(selectedVersion);
                 if (Utils.isEmptyString(psuVersion) && !Utils.isEmptyString(psuVersionOfSelected)) {
