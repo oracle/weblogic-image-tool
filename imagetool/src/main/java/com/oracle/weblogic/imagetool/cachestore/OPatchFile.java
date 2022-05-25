@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -75,8 +75,12 @@ public class OPatchFile extends PatchFile {
             selectedPatch = patches.stream()
                 .filter(p -> finalProvidedVersion.equals(p.version())).findAny().orElse(null);
             if (selectedPatch == null) {
-                logger.severe("IMG-0101", providedVersion);
-                throw new VersionNotFoundException(patchNumber, providedVersion, patches);
+                if (cache.containsKey(patchId)) {
+                    selectedPatch = new AruPatch().patchId(patchNumber).version(providedVersion);
+                } else {
+                    logger.severe("IMG-0101", providedVersion);
+                    throw new VersionNotFoundException(patchNumber, providedVersion, patches);
+                }
             }
         } else {
             // Sort the patches list from highest to lowest (newest to oldest)

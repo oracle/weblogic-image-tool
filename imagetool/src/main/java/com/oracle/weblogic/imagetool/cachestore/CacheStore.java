@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -31,14 +31,12 @@ public interface CacheStore {
     String getValueFromCache(String key);
 
     /**
-     * Checks if cache has certain key, value combination. This is used to check if a certain artifact
-     * is in the desired location if it has been downloaded previously.
+     * Checks if cache contains the specified key.
      *
      * @param key   artifact identifier
-     * @param value location on disk
      * @return true if found
      */
-    boolean hasMatchingKeyValue(String key, String value);
+    boolean containsKey(String key);
 
     /**
      * Add an entry to the cache metadata file.

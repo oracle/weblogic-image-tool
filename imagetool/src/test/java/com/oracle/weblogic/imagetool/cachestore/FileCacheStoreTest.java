@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -45,8 +45,8 @@ class FileCacheStoreTest {
     void checkValueInCache() {
         // check to see if the key that was just added is there, and value matches expected value
         assertDoesNotThrow(() ->
-                assertTrue(cache().hasMatchingKeyValue(testKey, testVal)),
-            "hasMatchingKeyValue failed to find key or value that was just added");
+                assertTrue(cache().containsKey(testKey)),
+            "containsKey failed to find key or value that was just added");
 
         // check (another way) that the value that was just added
         assertDoesNotThrow(() ->

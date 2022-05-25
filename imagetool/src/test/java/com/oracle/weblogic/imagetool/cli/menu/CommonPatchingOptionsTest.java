@@ -4,19 +4,18 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import javax.xml.xpath.XPathExpressionException;
 
-import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
 import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
+import com.oracle.weblogic.imagetool.aru.MockAruUtil;
 import com.oracle.weblogic.imagetool.aru.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -42,14 +41,10 @@ class CommonPatchingOptionsTest {
     static void setUp() throws NoSuchFieldException, IllegalAccessException {
         oldLevel = logger.getLevel();
         logger.setLevel(Level.SEVERE);
-        TestAruUtil.insertTestAruInstance();
+        TestAruUtil.insertMockAruInstance(new TestAruUtil());
     }
 
-    public static class TestAruUtil extends AruUtil {
-
-        public TestAruUtil() {
-        }
-
+    public static class TestAruUtil extends MockAruUtil {
         @Override
         public boolean checkCredentials(String username, String password) {
             return true;
@@ -80,33 +75,12 @@ class CommonPatchingOptionsTest {
                 return Collections.emptyList();
             }
         }
-
-        @Override
-        public List<AruPatch> getPatches(String bugid, String user, String password)
-            throws IOException, XPathExpressionException {
-            return AruPatch.getPatches(
-                ResourceUtils.getXmlFromResource("/patches/patch-" + bugid + ".xml"));
-        }
-
-        public static void insertTestAruInstance() throws NoSuchFieldException, IllegalAccessException {
-            // insert test class into AruUtil to intercept REST calls to ARU
-            Field aruRest = AruUtil.class.getDeclaredField("instance");
-            aruRest.setAccessible(true);
-            aruRest.set(aruRest, new CommonPatchingOptionsTest.TestAruUtil());
-        }
-
-        public static void removeTestAruInstance() throws NoSuchFieldException, IllegalAccessException {
-            // remove test class from AruUtil instance
-            Field aruRest = AruUtil.class.getDeclaredField("instance");
-            aruRest.setAccessible(true);
-            aruRest.set(aruRest, null);
-        }
     }
 
     @AfterAll
     static void tearDown() throws NoSuchFieldException, IllegalAccessException {
         logger.setLevel(oldLevel);
-        TestAruUtil.removeTestAruInstance();
+        TestAruUtil.removeMockAruInstance();
     }
 
     @Test

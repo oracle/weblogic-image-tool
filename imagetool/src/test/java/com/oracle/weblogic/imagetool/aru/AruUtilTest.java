@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.aru;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -34,33 +33,19 @@ class AruUtilTest {
         oldLevel = logger.getLevel();
         logger.setLevel(Level.SEVERE);
         // insert test class into AruUtil to intercept REST calls to ARU
-        Field aruRest = AruUtil.class.getDeclaredField("instance");
-        aruRest.setAccessible(true);
-        aruRest.set(aruRest, new TestAruUtil());
+        MockAruUtil.insertMockAruInstance(new TestAruUtil());
     }
 
     @AfterAll
-    static void tearDown() {
+    static void tearDown() throws NoSuchFieldException, IllegalAccessException {
         logger.setLevel(oldLevel);
+        MockAruUtil.removeMockAruInstance();
     }
 
     /**
      * Intercept calls to the ARU REST API during unit testing.
      */
-    public static class TestAruUtil extends AruUtil {
-        public TestAruUtil() {
-        }
-
-        @Override
-        Document getAllReleases(String userId, String password) {
-            try {
-                return ResourceUtils.getXmlFromResource("/releases.xml");
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("failed to load releases.xml from resources", e);
-            }
-        }
-
+    public static class TestAruUtil extends MockAruUtil {
         @Override
         Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber, String userId,
                                                String password) {
