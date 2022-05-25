@@ -1,0 +1,95 @@
+<!-- Copyright (c) 2022, Oracle and/or its affiliates. -->
+<!-- Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. -->
+
+<!-- Example patch with multiple versions (12.1.3.0.220118, 12.2.1.4.220105, 12.2.1.3.211222, 14.1.1.0.220105) -->
+<results>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100004</number>
+            <abstract><![CDATA[Fix for Bug 11100004]]></abstract>
+        </bug>
+        <name>11100004</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000168422011802" name="12.1.3.0.220118" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.1.3.0.220118]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <files>
+            <file>
+                <name>p11100004_12130220118_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100004_12130220118_Generic.zip?aru=24611703&patch_file=p11100004_12130220118_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100004</number>
+            <abstract><![CDATA[Fix for Bug 11100004]]></abstract>
+        </bug>
+        <name>11100004</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000989122010502" name="12.2.1.4.220105" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.4.220105]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <life_cycle id="175">Recommended</life_cycle>
+        <files>
+            <file>
+                <name>p11100004_12214220105_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100004_12214220105_Generic.zip?aru=24618320&patch_file=p11100004_12214220105_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100004</number>
+            <abstract><![CDATA[Fix for Bug 11100004]]></abstract>
+        </bug>
+        <name>11100004</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000000737121122202" name="12.2.1.3.211222" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.3.211222]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <files>
+            <file>
+                <name>p11100004_12213211222_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100004_12213211222_Generic.zip?aru=24618221&patch_file=p11100004_12213211222_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+    <patch has_prereqs="y" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100004</number>
+            <abstract><![CDATA[Fix for Bug 11100004]]></abstract>
+        </bug>
+        <name>11100004</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="6000000001236922010502" name="14.1.1.0.220105" platform_patch_not_required="Y" psu="Y" cc="Y"><![CDATA[Oracle WebLogic Server 14.1.1.0.220105]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <size>1</size>
+        <files>
+            <file>
+                <name>p11100004_14110220105_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100004_14110220105_Generic.zip?aru=24612816&patch_file=p11100004_14110220105_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+</results>

@@ -48,14 +48,6 @@ class InstallerTest {
     }
 
     @Test
-    void fmwInstallerFromValue() {
-        assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromValue("FMW"),
-            "fromValue FMW failed for FmwInstallerType");
-        assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromValue("fmw"),
-            "fromValue fmw failed for FmwInstallerType");
-    }
-
-    @Test
     void fromProductList() {
         final String WLS_PRODUCTS = "WLS,COH,TOPLINK,JDBC,FIT";
         final String FMW_PRODUCTS = WLS_PRODUCTS + ",INFRA,OPSS,OWSM";

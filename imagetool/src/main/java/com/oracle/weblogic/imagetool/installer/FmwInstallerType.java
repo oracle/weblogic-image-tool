@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.installer;
@@ -98,20 +98,6 @@ public enum FmwInstallerType {
 
     public Set<AruProduct> products() {
         return products;
-    }
-
-    /**
-     * Create the FMW installer type Enum from the String value.
-     * @param value the installer type string, ignoring case.
-     * @return the enum installer type.
-     */
-    public static FmwInstallerType fromValue(String value) {
-        for (FmwInstallerType type : values()) {
-            if (type.name().equalsIgnoreCase(value)) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException(Utils.getMessage("IMG-0080", value));
     }
 
     private static final List<FmwInstallerType> weblogicServerTypes = Arrays.asList(WLS, WLSDEV, WLSSLIM);

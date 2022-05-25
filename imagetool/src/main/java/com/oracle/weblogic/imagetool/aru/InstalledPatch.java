@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -62,7 +62,7 @@ public class InstalledPatch {
             "WLS PATCH SET UPDATE (\\d+\\.\\d+\\.\\d+\\.\\d+\\.[1-9]\\d+)");
 
         for (InstalledPatch patch : installedPatches) {
-            String description = patch.getPatchDescription();
+            String description = patch.patchDescription();
             Matcher matchPatternOne = patternOne.matcher(description);
             Matcher matchPatternTwo = patternTwo.matcher(description);
             if (matchPatternOne.find()) {
@@ -78,15 +78,15 @@ public class InstalledPatch {
         return result;
     }
 
-    public String getBugNumber() {
+    public String bugNumber() {
         return bugNumber;
     }
 
-    public String getUniquePatchNumber() {
+    public String uniquePatchNumber() {
         return uniquePatchNumber;
     }
 
-    public String getPatchDescription() {
+    public String patchDescription() {
         return patchDescription;
     }
 

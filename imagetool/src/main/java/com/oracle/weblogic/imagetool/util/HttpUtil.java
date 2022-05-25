@@ -1,8 +1,9 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
@@ -69,15 +70,22 @@ public class HttpUtil {
         return builderFactory.newDocumentBuilder();
     }
 
+    public static Document parseXml(byte[] input) throws ClientProtocolException {
+        return parseXml(new InputSource(new ByteArrayInputStream(input)));
+    }
+
+    public static Document parseXml(String input) throws ClientProtocolException {
+        return parseXml(new InputSource(new StringReader(input)));
+    }
+
     /**
-     * Parse a string into an XML Document.
-     * @param xmlString well formatted XML
+     * Parse input into an XML Document.
+     * @param input well formatted XML
      * @return org.w3c.dom.Document built from the provided String
      * @throws ClientProtocolException if the String contains malformed XML
      */
-    public static Document parseXmlString(String xmlString) throws ClientProtocolException {
+    public static Document parseXml(InputSource input) throws ClientProtocolException {
         try {
-            InputSource input = new InputSource(new StringReader(xmlString));
             Document doc = documentBuilder().parse(input);
             logger.finest(doc);
             return doc;
@@ -103,7 +111,7 @@ public class HttpUtil {
                 .socketTimeout(30000))
                 .returnContent().asString();
         logger.exiting(xmlString);
-        return parseXmlString(xmlString);
+        return parseXml(xmlString);
     }
 
     /**
@@ -269,7 +277,7 @@ public class HttpUtil {
             }
         }
         logger.exiting();
-        return parseXmlString(xmlString);
+        return parseXml(xmlString);
 
     }
 }

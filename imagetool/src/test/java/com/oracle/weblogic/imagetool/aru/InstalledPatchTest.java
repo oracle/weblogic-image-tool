@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -25,9 +25,9 @@ class InstalledPatchTest {
         assertEquals(3, result.size(), "Parsing probe data failed to return correct number of bugs");
         List<String> expectedBugNumbers = Arrays.asList("32772437","32698246","122148");
         for (InstalledPatch patch : result) {
-            if (!expectedBugNumbers.contains(patch.getBugNumber())) {
+            if (!expectedBugNumbers.contains(patch.bugNumber())) {
                 //Array has 3, as expected, but one (or more) of those three is not the right bug number
-                fail("List contained unexpected bug number: " + patch.getBugNumber());
+                fail("List contained unexpected bug number: " + patch.bugNumber());
             }
         }
     }

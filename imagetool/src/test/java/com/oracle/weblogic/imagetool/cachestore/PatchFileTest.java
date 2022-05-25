@@ -1,13 +1,11 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,16 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.VersionNotFoundException;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.HttpUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -61,8 +58,8 @@ class PatchFileTest {
         // build a fake cache with fake installers
         addToCache(tempDir, BUGNUMBER + "_" + SOME_VERSION, "patch1.zip");
         addToCache(tempDir, "wls_12.2.1.4.0", "installer.file.122140.jar");
-        addToCache(tempDir, "1110003_12.2.1.3.181016", "p1110003_12213181016_Generic.zip");
-        addToCache(tempDir, "1110003_12.2.1.3.0", "p1110003_122130_Generic.zip");
+        addToCache(tempDir, "11100003_12.2.1.3.181016", "p11100003_12213181016_Generic.zip");
+        addToCache(tempDir, "11100003_12.2.1.3.0", "p11100003_122130_Generic.zip");
 
         // disable console logging
         LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
@@ -79,18 +76,18 @@ class PatchFileTest {
      * Intercept calls to the ARU REST API during unit testing.
      */
     public static class TestAruUtil extends AruUtil {
-        private Map<String, Document> responseCache = new HashMap<>();
+        private final Map<String, Document> responseCache = new HashMap<>();
 
         /**
          * Intercept calls to the ARU REST API during unit testing.
          * @throws IOException when XML file cannot be read from the project resources.
          */
         public TestAruUtil() throws IOException {
-            responseCache.put("1110001", getResource("/patch-1110001.xml"));
-            responseCache.put("1110002", getResource("/patch-1110002.xml"));
-            responseCache.put("1110003", getResource("/patch-1110003.xml"));
-            responseCache.put("28186730", getResource("/patch-28186730.xml"));
-            responseCache.put("2818673x", getResource("/patch-2818673x.xml"));
+            responseCache.put("11100001", ResourceUtils.getXmlFromResource("/patches/patch-11100001.xml"));
+            responseCache.put("11100002", ResourceUtils.getXmlFromResource("/patches/patch-11100002.xml"));
+            responseCache.put("11100003", ResourceUtils.getXmlFromResource("/patches/patch-11100003.xml"));
+            responseCache.put("28186730", ResourceUtils.getXmlFromResource("/patches/patch-28186730.xml"));
+            responseCache.put("2818673x", ResourceUtils.getXmlFromResource("/patches/patch-2818673x.xml"));
         }
 
         @Override
@@ -100,14 +97,6 @@ class PatchFileTest {
                 return super.getPatches(bugNumber, userId, password);
             } else {
                 return AruPatch.getPatches(responseCache.get(bugNumber));
-            }
-        }
-
-        private Document getResource(String path) throws IOException {
-            try (BufferedReader buffer = new BufferedReader(new InputStreamReader(
-                this.getClass().getResourceAsStream(path)))) {
-                String doc = buffer.lines().collect(Collectors.joining("\n"));
-                return HttpUtil.parseXmlString(doc);
             }
         }
 
@@ -123,7 +112,11 @@ class PatchFileTest {
     }
 
     @AfterAll
-    static void teardown() {
+    static void teardown() throws NoSuchFieldException, IllegalAccessException {
+        // remove test class from AruUtil instance
+        Field aruRest = AruUtil.class.getDeclaredField("instance");
+        aruRest.setAccessible(true);
+        aruRest.set(aruRest, null);
         // restore original logging level after this test suite completes
         LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
         logger.setLevel(originalLogLevel);
@@ -152,7 +145,7 @@ class PatchFileTest {
          * Expected:
          *     Patch is found and stored based on version provided in patch ID string.
          */
-        String patchId = "1110001";
+        String patchId = "11100001";
         // ARU contains three patch versions 12.2.1.1.0, 12.2.1.2.0, 12.2.1.3.0
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x");
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.0");
@@ -178,7 +171,7 @@ class PatchFileTest {
          *     Version is ignored, and overridden by value from ARU.
          *     Patch is stored using version in ARU (not provided installer version).
          */
-        String patchId = "1110002";
+        String patchId = "11100002";
         // patch version in XML is actually 12.2.1.1.0, code will warn user and override patch version
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x");
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, null, "12.2.1.3.0");
@@ -202,7 +195,7 @@ class PatchFileTest {
          *     Version is derived from installer version.
          *     Patch is found based on installer version.
          */
-        String patchId = "1110001";
+        String patchId = "11100001";
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x");
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, null, "12.2.1.3.0");
         assertNotNull(aruPatch);
@@ -229,8 +222,8 @@ class PatchFileTest {
          *     It should select the installer version of the patch.
          */
 
-        // 1110001 has multiple patches, but NO patches for a PSU
-        String patchId = "1110001";
+        // 11100001 has multiple patches, but NO patches for a PSU
+        String patchId = "11100001";
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x");
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, "12.2.1.3.181016", "12.2.1.3.0");
         assertNotNull(aruPatch);
@@ -254,8 +247,8 @@ class PatchFileTest {
          *     if the patch has a PSU patch version in ARU, it should select the PSU version of the patch.
          */
 
-        // 1110003 has multiple patches, and most are for different PSUs of 12.2.1.3.0
-        String patchId = "1110003";
+        // 11100003 has multiple patches, and most are for different PSUs of 12.2.1.3.0
+        String patchId = "11100003";
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null);
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, "12.2.1.3.181016", "12.2.1.3.0");
         assertNotNull(aruPatch);
@@ -280,7 +273,7 @@ class PatchFileTest {
          *     It should select the installer version of the patch.
          */
 
-        // 1110001 has multiple patches, but NO patches for a PSU
+        // 11100001 has multiple patches, but NO patches for a PSU
         String patchId = BUGNUMBER;
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null);
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, null, SOME_VERSION);
@@ -305,8 +298,8 @@ class PatchFileTest {
          *     The provided version should be selected.
          */
 
-        // 1110003 has multiple patches, and most are for different PSUs of 12.2.1.3.0
-        String patchId = "1110003";
+        // 11100003 has multiple patches, and most are for different PSUs of 12.2.1.3.0
+        String patchId = "11100003";
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null);
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.1");
         assertNotNull(aruPatch);
@@ -331,7 +324,7 @@ class PatchFileTest {
          *     Throws VersionNotFoundException.
          */
 
-        String patchId = "1110002";
+        String patchId = "11100002";
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x");
         assertThrows(VersionNotFoundException.class,
             () -> AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.1"));

@@ -1,0 +1,13 @@
+<conflict_check_request>
+    <platform>2000</platform>
+    <target_patch_list>
+      {{#installedPatches}}
+        <installed_patch upi="{{{uniquePatchNumber}}}"/>
+      {{/installedPatches}}
+    </target_patch_list>
+    <candidate_patch_list>
+      {{#candidatePatches}}
+        <patch_group rel_id="{{{release}}}">{{{patchId}}}</patch_group>
+      {{/candidatePatches}}
+    </candidate_patch_list>
+</conflict_check_request>

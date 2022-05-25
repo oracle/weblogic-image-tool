@@ -1,0 +1,31 @@
+<!-- Copyright (c) 2022, Oracle and/or its affiliates. -->
+<!-- Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl. -->
+
+<!-- Stack Patch Bundle example patch (SPB) -->
+<results>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100005</number>
+            <abstract><![CDATA[WLS STACK PATCH BUNDLE 12.2.1.4.210411]]></abstract>
+        </bug>
+        <name>11100005</name>
+        <type>Patch</type>
+        <psu_bundle>Oracle WebLogic Server 12.2.1.4.210411</psu_bundle>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <product id="15991" bugdb_id="5242"><![CDATA[Oracle WebLogic Server]]></product>
+        <release id="600000000098910" name="12.2.1.4.0" platform_patch_not_required="Y" cc="Y"><![CDATA[Oracle WebLogic Server 12.2.1.4.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <files>
+            <file>
+                <name>p11100005_122140_Generic.zip</name>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p11100005_122140_Generic.zip?aru=24172184&patch_file=p11100005_122140_Generic.zip]]></download_url>
+            </file>
+        </files>
+    </patch>
+</results>
