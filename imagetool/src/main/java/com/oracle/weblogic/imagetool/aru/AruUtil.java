@@ -344,7 +344,7 @@ public class AruUtil {
             throw new AruException("Could not extract release number with XPath", xpe);
         }
         if (Utils.isEmptyString(result)) {
-            String msg = Utils.getMessage("IMG-0082", version, product);
+            String msg = Utils.getMessage("IMG-0082", version, product.description());
             logger.info(msg);
             throw new ReleaseNotFoundException(msg);
         }

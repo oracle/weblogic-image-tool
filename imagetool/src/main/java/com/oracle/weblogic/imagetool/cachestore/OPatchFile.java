@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -52,30 +52,61 @@ public class OPatchFile extends PatchFile {
             logger.fine("User provided OPatch version {0} {1}", patchNumber, providedVersion);
         }
 
-        List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password);
-        if (!isOffline(userid, password)) {
-            // if working online with ARU metadata, filter results based on access flag (discard protected versions)
-            patches = patches.stream().filter(AruPatch::isOpenAccess).collect(Collectors.toList());
-            logger.fine("Found {0} OPatch versions for id {1}", patches.size(), patchNumber);
+        AruPatch selectedPatch;
+        if (isOffline(userid, password)) {
+            selectedPatch = getAruPatchOffline(patchNumber, providedVersion, cache);
         } else {
-            // if working offline, update the placeholder in the list to have the provided version or the latest cached
-            AruPatch offlinePatch = patches.get(0);
-            if (providedVersion == null) {
-                offlinePatch.version(getLatestCachedVersion(cache, patchNumber));
-            } else {
-                offlinePatch.version(providedVersion);
+            try {
+                selectedPatch = getAruPatchOnline(patchNumber, providedVersion, userid, password);
+            } catch (VersionNotFoundException notFound) {
+                // Could not find the user requested OPatch version on ARU, checking local cache before giving up
+                if (cache.containsKey(patchId)) {
+                    logger.info("OPatch version {0} is not available online, using cached copy.", providedVersion);
+                    selectedPatch = new AruPatch().patchId(patchNumber).version(providedVersion);
+                } else {
+                    logger.severe("IMG-0101", providedVersion);
+                    throw notFound;
+                }
             }
         }
+
+        logger.exiting(selectedPatch);
+        return new OPatchFile(selectedPatch, userid, password);
+    }
+
+    private static boolean isOffline(String userid, String password) {
+        return userid == null || password == null;
+    }
+
+    private static AruPatch getAruPatchOffline(String patchNumber, String providedVersion, CacheStore cache) {
+        // if working offline, update the placeholder in the list to have the provided version or the latest cached
+        AruPatch offlinePatch = new AruPatch().patchId(patchNumber);
+        if (Utils.isEmptyString(providedVersion)) {
+            // user did not request a specific version, find the latest version of OPatch in the cache
+            offlinePatch.version(getLatestCachedVersion(cache, patchNumber));
+        } else {
+            offlinePatch.version(providedVersion);
+        }
+
+        return offlinePatch;
+    }
+
+    private static AruPatch getAruPatchOnline(String patchNumber, String providedVersion,
+                                              String userid, String password)
+        throws XPathExpressionException, IOException, AruException {
+
+        List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password);
+        // filter ARU results based on access flag (discard protected versions)
+        patches = patches.stream().filter(AruPatch::isOpenAccess).collect(Collectors.toList());
+        logger.fine("Found {0} OPatch versions for id {1}", patches.size(), patchNumber);
 
         AruPatch selectedPatch;
         if (patches.isEmpty()) {
             throw new NoPatchesFoundException(Utils.getMessage("IMG-0057", patchNumber));
         } else if (providedVersion != null) {
-            String finalProvidedVersion = providedVersion;
             selectedPatch = patches.stream()
-                .filter(p -> finalProvidedVersion.equals(p.version())).findAny().orElse(null);
+                .filter(p -> providedVersion.equals(p.version())).findAny().orElse(null);
             if (selectedPatch == null) {
-                logger.severe("IMG-0101", providedVersion);
                 throw new VersionNotFoundException(patchNumber, providedVersion, patches);
             }
         } else {
@@ -84,12 +115,7 @@ public class OPatchFile extends PatchFile {
             // Select the newest (highest numbered) patch
             selectedPatch = sortedList.stream().findFirst().orElse(null);
         }
-        logger.exiting(selectedPatch);
-        return new OPatchFile(selectedPatch, userid, password);
-    }
-
-    private static boolean isOffline(String userid, String password) {
-        return userid == null || password == null;
+        return selectedPatch;
     }
 
     /**

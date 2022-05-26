@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -27,11 +27,11 @@ public class CacheStoreTestImpl implements CacheStore {
     }
 
     @Override
-    public boolean hasMatchingKeyValue(String key, String value) {
-        if (key == null || value == null) {
+    public boolean containsKey(String key) {
+        if (key == null) {
             return false;
         }
-        return value.equals(cache.get(key.toLowerCase()));
+        return cache.containsKey(key.toLowerCase());
     }
 
     @Override
