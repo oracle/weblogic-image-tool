@@ -68,12 +68,14 @@ RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-dep
     && rm ./*.cmd \
     {{#domainGroupAsUser}}
         && chmod -R g=u {{{wdt_home}}}/weblogic-deploy/lib \
+        && mkdir {{{wdt_home}}}/weblogic-deploy/logs \
+        && chmod g=u {{{wdt_home}}}/weblogic-deploy/logs \
     {{/domainGroupAsUser}}
     && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
     -oracle_home {{{oracle_home}}} \
     -domain_type {{domainType}} \
     {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}} \
-    && rm -rf {{{wdt_home}}}/weblogic-deploy/logs \
+    && rm {{{wdt_home}}}/weblogic-deploy/logs/* \
     && shopt -s globstar && rm -f {{{wdt_home}}}/weblogic-deploy/lib/python/**/*.class
 {{/isWdtValidateEnabled}}
 
