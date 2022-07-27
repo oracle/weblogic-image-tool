@@ -1,0 +1,3 @@
+patchDirectory: /home/user/patches
+imageBuildDirectory: 1
+someField: someValue

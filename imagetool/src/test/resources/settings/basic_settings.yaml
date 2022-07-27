@@ -1,0 +1,3 @@
+aruRetryInterval: 200
+imageBuildDirectory: ./builds
+patchDirectory: /home/user/patches
