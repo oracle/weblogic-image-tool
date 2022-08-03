@@ -1,3 +1,10 @@
 aruRetryInterval: 200
 imageBuildDirectory: ./builds
+installers:
+  jdk:
+    defaultVersion: 8u241
+  wls:
+    defaultVersion: 12.2.1.4.0
+  wdt:
+    defaultVersion: latest
 patchDirectory: /home/user/patches

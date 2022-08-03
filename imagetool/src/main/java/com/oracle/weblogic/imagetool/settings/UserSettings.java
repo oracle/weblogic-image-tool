@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -66,6 +67,11 @@ public class UserSettings {
     private final Integer aruRetryInterval;
 
     /**
+     * The time between each ARU REST call in milliseconds.
+     */
+    private final Map<String, Object> installers;
+
+    /**
      * Default construct with all default values for settings.
      */
     public UserSettings() {
@@ -77,6 +83,7 @@ public class UserSettings {
 
         aruRetryMax = null;
         aruRetryInterval = null;
+        installers = null;
     }
 
     /**
@@ -94,6 +101,8 @@ public class UserSettings {
 
         aruRetryMax = getValue("aruRetryMax", Integer.class, settings);
         aruRetryInterval = getValue("aruRetryInterval", Integer.class, settings);
+
+        installers = getValue("installers", Map.class, settings);
     }
 
     /**
@@ -130,6 +139,10 @@ public class UserSettings {
     }
 
     private <T> T getValue(String settingName, Class<T> type, Map<String, Object> settings) {
+        if (settings == null) {
+            return null;
+        }
+
         Object value = settings.get(settingName);
         if (value == null) {
             return null;
@@ -137,11 +150,11 @@ public class UserSettings {
 
         if (type.isInstance(value)) {
             return type.cast(value);
-        } else {
-            logger.severe("Setting for {0} could not be loaded.  Expected {1}, but found {2}. Invalid value: {3}",
-                settingName, type, value.getClass(), value.toString());
-            return null;
         }
+
+        logger.severe("Setting for {0} could not be loaded.  Expected {1}, but found {2}. Invalid value: {3}",
+        settingName, type, value.getClass(), value.toString());
+        return null;
     }
 
     /**
@@ -220,6 +233,22 @@ public class UserSettings {
             return 500;
         }
         return aruRetryInterval;
+    }
+
+    /**
+     * The settings asscociated with the installers to be used.
+     * @return a map of settings for installers
+     */
+    public Map<String,Object> getInstallers() {
+        return installers;
+    }
+
+    public String getDefaultInstallerVersion(InstallerType installerType) {
+        if (installers == null) {
+            return null;
+        }
+        Map<String, Object> installerSettings = getValue(installerType.toString(), Map.class, installers);
+        return getValue("defaultVersion", String.class, installerSettings);
     }
 
     /**
