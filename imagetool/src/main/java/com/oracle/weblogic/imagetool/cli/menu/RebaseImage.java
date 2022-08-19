@@ -30,45 +30,42 @@ public class RebaseImage extends CommonCreateOptions implements Callable<Command
         logger.entering();
         Instant startTime = Instant.now();
 
-        String oldOracleHome;
-        String oldJavaHome;
         String newOracleHome = null;
         String newJavaHome = null;
-        String domainHome;
-        String modelHome;
-        boolean modelOnly;
 
         try {
             initializeOptions();
 
-            if (sourceImage != null && !sourceImage.isEmpty()) {
-                logger.finer("IMG-0002", sourceImage);
-                dockerfileOptions.setSourceImage(sourceImage);
-
-                logger.info("IMG-0091", sourceImage);
-                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage,
-                    "/probe-env/inspect-image.sh", buildDir());
-
-                oldOracleHome = baseImageProperties.getProperty("oracleHome", null);
-                oldJavaHome = baseImageProperties.getProperty("javaHome", null);
-                domainHome = baseImageProperties.getProperty("domainHome", null);
-                modelHome = baseImageProperties.getProperty("wdtModelHome", null);
-                modelOnly = Boolean.parseBoolean(baseImageProperties.getProperty("wdtModelOnly", null));
-            } else {
-                return CommandResponse.error("Source Image not set");
+            if (Utils.isEmptyString(sourceImage)) {
+                // sourceImage is a required parameter.  This error will only occur if the user passes an empty string.
+                return CommandResponse.error(Utils.getMessage("IMG-0117"));
             }
 
+            logger.finer("IMG-0002", sourceImage);
+            dockerfileOptions.setSourceImage(sourceImage);
+
+            logger.info("IMG-0091", sourceImage);
+            Properties sourceImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage,
+                "/probe-env/inspect-image.sh", buildDir());
+
+            String oldOracleHome = sourceImageProperties.getProperty("oracleHome", null);
+            String oldJavaHome = sourceImageProperties.getProperty("javaHome", null);
+            String domainHome = sourceImageProperties.getProperty("domainHome", null);
+            String wdtHome = sourceImageProperties.getProperty("wdtHome", null);
+            String modelHome = sourceImageProperties.getProperty("wdtModelHome", null);
+            boolean modelOnly = Boolean.parseBoolean(sourceImageProperties.getProperty("wdtModelOnly", null));
+
+            // If the user specified --targetImage, collect and apply the properties for the new image.
             if (!Utils.isEmptyString(targetImage)) {
                 logger.finer("IMG-0002", targetImage);
                 dockerfileOptions.setTargetImage(targetImage);
                 dockerfileOptions.setRebaseToTarget(true);
 
-                Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, targetImage,
+                Properties targetImageProperties = Utils.getBaseImageProperties(buildEngine, targetImage,
                     "/probe-env/inspect-image.sh", buildDir());
-
-                newOracleHome = baseImageProperties.getProperty("oracleHome", null);
-                newJavaHome = baseImageProperties.getProperty("javaHome", null);
-
+                newOracleHome = targetImageProperties.getProperty("oracleHome", null);
+                newJavaHome = targetImageProperties.getProperty("javaHome", null);
+                useFileOwnerFromTarget(targetImageProperties);
             } else {
                 dockerfileOptions.setRebaseToNew(true);
             }
@@ -94,6 +91,7 @@ public class RebaseImage extends CommonCreateOptions implements Callable<Command
 
             dockerfileOptions
                 .setDomainHome(domainHome)
+                .setWdtHome(wdtHome)
                 .setWdtModelHome(modelHome)
                 .setWdtModelOnly(modelOnly);
 
@@ -115,6 +113,17 @@ public class RebaseImage extends CommonCreateOptions implements Callable<Command
         }
         logger.exiting();
         return successfulBuildResponse(startTime);
+    }
+
+    private void useFileOwnerFromTarget(Properties imageProperties) {
+        String userid = imageProperties.getProperty("oracleHomeUser", null);
+        String groupid = imageProperties.getProperty("oracleHomeGroup", null);
+        if (!Utils.isEmptyString(userid)) {
+            dockerfileOptions.setUserId(userid);
+        }
+        if (!Utils.isEmptyString(groupid)) {
+            dockerfileOptions.setGroupId(groupid);
+        }
     }
 
     @Option(
