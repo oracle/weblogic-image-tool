@@ -11,6 +11,7 @@ public class OperatingSystemProperties {
     private String id;
     private String version;
     private String name;
+    private String releasePackage;
 
     public String id() {
         return id;
@@ -22,6 +23,10 @@ public class OperatingSystemProperties {
 
     public String name() {
         return name;
+    }
+
+    public String releasePackage() {
+        return releasePackage;
     }
 
     /**
@@ -37,6 +42,7 @@ public class OperatingSystemProperties {
             result.version = removeQuotes(imageProperties.getProperty("__OS__VERSION_ID"));
         }
         result.name = removeQuotes(imageProperties.getProperty("__OS__NAME"));
+        result.releasePackage = imageProperties.getProperty("__OS__RELEASE_PACKAGE");
         return result;
     }
 

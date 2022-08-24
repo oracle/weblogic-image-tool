@@ -86,6 +86,10 @@ fi
 
 if [ -f "/etc/os-release" ]; then
   grep '=' /etc/os-release | sed 's/^/__OS__/'
+    releasePackage="$(type rpm >/dev/null 2>&1  && rpm -qf /etc/os-release || echo '')"
+    if [ -n "$releasePackage" ]; then
+      echo __OS__RELEASE_PACKAGE=$releasePackage
+    fi
 elif type busybox > /dev/null 2>&1; then
   echo __OS__ID="bb"
   echo __OS__NAME="$(busybox | head -1 | awk '{ print $1 }')"

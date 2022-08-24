@@ -32,6 +32,7 @@ public enum AruProduct {
 
     private final String productId;
     private final String description;
+
     AruProduct(String productId, String description) {
         this.productId = productId;
         this.description = description;
