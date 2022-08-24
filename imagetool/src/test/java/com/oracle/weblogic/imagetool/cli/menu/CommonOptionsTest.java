@@ -44,6 +44,7 @@ class CommonOptionsTest {
     /**
      * handleChown() should set the Dockerfile userid and groupid.
      * use case: user provides derek:data.  Result should be "derek" for user and "data" for group.
+     *
      * @throws Exception if reflection fails (developer error)
      */
     @Test
@@ -66,6 +67,7 @@ class CommonOptionsTest {
     /**
      * handleChown() should set the Dockerfile userid and groupid.
      * use case: default, no input.  Result should be "oracle" for both.
+     *
      * @throws Exception if reflection fails (developer error)
      */
     @Test
@@ -87,6 +89,7 @@ class CommonOptionsTest {
 
     /**
      * Test CommonOptions handleChown method.
+     *
      * @throws Exception if reflection fails (developer error)
      */
     @Test
@@ -172,7 +175,7 @@ class CommonOptionsTest {
         resourceTemplatesField.setAccessible(true);
         List<Path> resolveFiles =
             Arrays.asList(new File("target/test-classes/templates/resolver.yml").toPath(),
-            new File("target/test-classes/templates/verrazzano.yml").toPath());
+                new File("target/test-classes/templates/verrazzano.yml").toPath());
         resourceTemplatesField.set(wdtOptions, resolveFiles);
 
         Field imageTagField = WdtFullOptions.class.getDeclaredField("wdtDomainHome");
