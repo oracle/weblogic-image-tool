@@ -83,6 +83,7 @@ public enum FmwInstallerType {
 
     private final InstallerType[] installers;
     private final Set<AruProduct> products;
+
     FmwInstallerType(Set<AruProduct> products, InstallerType... installers) {
         this.installers = installers;
         this.products = products;

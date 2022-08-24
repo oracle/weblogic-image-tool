@@ -10,18 +10,18 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Unmatched;
 
 @Command(
-        name = "cache",
-        description = "List and set cache options",
-        versionProvider = HelpVersionProvider.class,
-        commandListHeading = "%nCommands:%n%n",
-        subcommands = {
-                ListCacheItems.class,
-                AddInstallerEntry.class,
-                AddPatchEntry.class,
-                AddEntry.class,
-                DeleteEntry.class
-        },
-        sortOptions = false
+    name = "cache",
+    description = "List and set cache options",
+    versionProvider = HelpVersionProvider.class,
+    commandListHeading = "%nCommands:%n%n",
+    subcommands = {
+        ListCacheItems.class,
+        AddInstallerEntry.class,
+        AddPatchEntry.class,
+        AddEntry.class,
+        DeleteEntry.class
+    },
+    sortOptions = false
 )
 public class CacheCLI {
 
