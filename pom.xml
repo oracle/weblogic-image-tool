@@ -58,7 +58,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>4.5.12</version>
+                <version>4.5.13</version>
             </dependency>
             <dependency>
                 <groupId>info.picocli</groupId>
@@ -73,7 +73,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.8.1</version>
+                <version>5.9.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
