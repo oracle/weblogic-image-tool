@@ -31,6 +31,12 @@ class InspectTest {
             "src/test/resources/inspect/image2.json");
     }
 
+    @Test
+    void testMoreProperties() throws IOException {
+        testPropertiesToJson("src/test/resources/inspect/image3.properties",
+            "src/test/resources/inspect/image3.json");
+    }
+
     void testPropertiesToJson(String propsFile, String jsonFile) throws IOException {
         Properties loaded = new Properties();
         try (InputStream input = new FileInputStream(propsFile)) {

@@ -42,7 +42,7 @@ public class OperatingSystemProperties {
             result.version = removeQuotes(imageProperties.getProperty("__OS__VERSION_ID"));
         }
         result.name = removeQuotes(imageProperties.getProperty("__OS__NAME"));
-        result.releasePackage = imageProperties.getProperty("__OS__RELEASE_PACKAGE");
+        result.releasePackage = removeQuotes(imageProperties.getProperty("__OS__RELEASE_PACKAGE"));
         return result;
     }
 
