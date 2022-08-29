@@ -153,7 +153,7 @@ public class UserSettings {
         }
 
         logger.severe("Setting for {0} could not be loaded.  Expected {1}, but found {2}. Invalid value: {3}",
-        settingName, type, value.getClass(), value.toString());
+            settingName, type, value.getClass(), value.toString());
         return null;
     }
 
@@ -243,6 +243,11 @@ public class UserSettings {
         return installers;
     }
 
+    /**
+     * Given an installer type, returns the user setting for the default installer version to use.
+     * @param installerType Installer type such as JDK, WLS, SOA, etc.
+     * @return the user configured default value
+     */
     public String getDefaultInstallerVersion(InstallerType installerType) {
         if (installers == null) {
             return null;
