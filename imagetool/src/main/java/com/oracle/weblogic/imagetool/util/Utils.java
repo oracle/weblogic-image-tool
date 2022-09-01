@@ -116,7 +116,7 @@ public class Utils {
                 } else if (Files.isRegularFile(child)) {
                     copyLocalFile(child, destPath.resolve(child.getFileName()));
                 } else {
-                    logger.info("IMG-0035", sourcePath.toString());
+                    logger.info("IMG-0035", child.toString());
                 }
             }
         }
