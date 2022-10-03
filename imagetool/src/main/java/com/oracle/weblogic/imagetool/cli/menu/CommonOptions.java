@@ -374,9 +374,11 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--builder", "-b"},
-        description = "Executable to process the Dockerfile. Default: ${DEFAULT-VALUE}."
+        description = "Executable to process the Dockerfile."
+            + " Use the full path of the executable if not on your path."
+            + " Defaults to 'docker', or, when set, to the value in environment variable WLSIMG_BUILDER."
     )
-    String buildEngine = "docker";
+    String buildEngine = Constants.BUILDER_DEFAULT;
 
     @Option(
         names = {"--target"},
