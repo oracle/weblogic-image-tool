@@ -17,6 +17,8 @@ pipeline {
         // variables for SystemTest stages (integration tests)
         STAGING_DIR = "/scratch/artifacts/imagetool"
         DB_IMAGE = "phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim"
+        GITHUB_API_TOKEN = credentials('encj_github_token')
+        GH_TOOL = tool name: 'github-cli', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
     }
 
     stages {
@@ -92,7 +94,6 @@ pipeline {
             when {
                 anyOf {
                     triggeredBy 'TimerTrigger'
-                    tag 'release-*'
                     changelog '\\[full-mats\\].*'
                 }
             }
@@ -118,7 +119,7 @@ pipeline {
                 }
             }
         }
-        stage ('Save Nightly Installer'){
+        stage ('Save Nightly Installer') {
             when {
                 allOf {
                     triggeredBy 'TimerTrigger'
@@ -129,6 +130,18 @@ pipeline {
                 sh '''
                     oci os object put --namespace=weblogick8s --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/imagetool.zip --name=imagetool-main.zip
                 '''
+            }
+        }
+        stage ('Create Draft Release') {
+            when {
+                tag 'release-*'
+            }
+            steps {
+                sh """
+                    echo '${env.GITHUB_API_TOKEN}' | ${GH_TOOL}/bin/gh auth login --with-token
+                    ${GH_TOOL}/bin/gh release create ${TAG_NAME} --draft --generate-notes --repo https://github.com/oracle/weblogic-image-tool
+                    ${GH_TOOL}/bin/gh release upload ${TAG_NAME} installer/target/imagetool.zip --repo https://github.com/oracle/weblogic-image-tool
+                """
             }
         }
      }
