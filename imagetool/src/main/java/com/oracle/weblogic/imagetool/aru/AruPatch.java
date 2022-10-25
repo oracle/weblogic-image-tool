@@ -35,7 +35,6 @@ public class AruPatch implements Comparable<AruPatch> {
     private String downloadPath;
     private String fileName;
     private String access;
-    private String lifecycle;
 
     public String patchId() {
         return patchId;
@@ -149,21 +148,16 @@ public class AruPatch implements Comparable<AruPatch> {
         return "Open access".equals(access);
     }
 
-    public AruPatch lifecycle(String value) {
-        lifecycle = value;
-        return this;
-    }
-
-    public boolean isRecommended() {
-        return "Recommended".equals(lifecycle);
-    }
-
     public boolean notStackPatchBundle() {
         return !isStackPatchBundle();
     }
 
     public boolean isStackPatchBundle() {
         return description != null && description.contains("STACK PATCH BUNDLE");
+    }
+
+    private boolean isCoherenceFeaturePack() {
+        return description != null && description.contains("Coherence 14.1.1 Feature Pack");
     }
 
     /**
@@ -199,7 +193,6 @@ public class AruPatch implements Comparable<AruPatch> {
                     .product(XPathUtil.string(nodeList.item(i), "./product/@id"))
                     .psuBundle(XPathUtil.string(nodeList.item(i), "./psu_bundle"))
                     .access(XPathUtil.string(nodeList.item(i), "./access"))
-                    .lifecycle(XPathUtil.string(nodeList.item(i), "./life_cycle"))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"));
 
@@ -224,7 +217,7 @@ public class AruPatch implements Comparable<AruPatch> {
     }
 
     /**
-     * Select a an ARU patch from the list based on a version number.
+     * Select an ARU patch from the list based on a version number.
      * Version preference is: provided version, PSU version, and then installer version.
      * If there is only one patch in the list, no version checking is done, and that patch is returned.
      * @param patches list of patches to search
@@ -308,6 +301,10 @@ public class AruPatch implements Comparable<AruPatch> {
      */
     public static List<AruPatch> removeStackPatchBundle(List<AruPatch> patches) {
         return patches.stream().filter(AruPatch::notStackPatchBundle).collect(Collectors.toList());
+    }
+
+    public static List<AruPatch> removeCoherenceFeaturePackPatch(List<AruPatch> patches) {
+        return patches.stream().filter(p -> !p.isCoherenceFeaturePack()).collect(Collectors.toList());
     }
 
     @Override
