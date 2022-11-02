@@ -198,19 +198,21 @@ public class AruPatch implements Comparable<AruPatch> {
 
                 int index = patch.downloadPath().indexOf("patch_file=");
                 if (index < 0) {
-                    throw new XPathExpressionException(Utils.getMessage("IMG-0059", patch.patchId()));
-                }
-                patch.fileName(patch.downloadPath().substring(index + "patch_file=".length()));
+                    logger.fine("Unusable patch data from ARU for id:" + patch.patchId()
+                        + "  ver:" + patch.version() + "  url:" + patch.downloadUrl());
+                } else {
+                    patch.fileName(patch.downloadPath().substring(index + "patch_file=".length()));
 
-                logger.fine("AruPatch created id:" + patch.patchId()
-                    + "  ver:" + patch.version()
-                    + "  desc:" + patch.description()
-                    + "  rel:" + patch.release()
-                    + "  product:" + patch.product()
-                    + "  relName:" + patch.releaseName()
-                    + "  psu:" + patch.psuBundle()
-                    + "  url:" + patch.downloadUrl());
-                result.add(patch);
+                    logger.fine("AruPatch created id:" + patch.patchId()
+                        + "  ver:" + patch.version()
+                        + "  desc:" + patch.description()
+                        + "  rel:" + patch.release()
+                        + "  product:" + patch.product()
+                        + "  relName:" + patch.releaseName()
+                        + "  psu:" + patch.psuBundle()
+                        + "  url:" + patch.downloadUrl());
+                    result.add(patch);
+                }
             }
         }
         return result;
