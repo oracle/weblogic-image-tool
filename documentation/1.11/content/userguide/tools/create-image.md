@@ -75,6 +75,7 @@ Valid sections for create are:
 
 | Section | Available Variables | Build Stage | Timing |
 | --- | --- | --- | --- |
+| `initial-build-commands` | None | All | As root, and before any Image Tool actions. |
 | `package-manager-packages` | None | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
 | `before-jdk-install` | `JAVA_HOME` | Intermediate (JDK_BUILD) | Before the JDK is installed. |
 | `after-jdk-install` | `JAVA_HOME` | Intermediate (JDK_BUILD) | After the JDK is installed. |

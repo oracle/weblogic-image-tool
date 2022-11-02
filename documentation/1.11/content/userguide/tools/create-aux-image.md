@@ -52,6 +52,7 @@ Valid sections for `createAuxImage` are:
 
 | Section | Available Variables | Build Stage | Timing |
 | --- | --- | --- | --- |
+| `initial-build-commands` | None | All | As root, and before any Image Tool actions. |
 | `package-manager-packages` | None | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
 | `final-build-commands` | `AUXILIARY_IMAGE_PATH` `WDT_HOME` `WDT_MODEL_HOME`| Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 
