@@ -199,7 +199,7 @@ public class AruPatch implements Comparable<AruPatch> {
                 int index = patch.downloadPath().indexOf("patch_file=");
                 if (index < 0) {
                     logger.fine("Unusable patch data from ARU for id:" + patch.patchId()
-                        + "  ver:" + patch.version()+ "  url:" + patch.downloadUrl());
+                        + "  ver:" + patch.version() + "  url:" + patch.downloadUrl());
                 } else {
                     patch.fileName(patch.downloadPath().substring(index + "patch_file=".length()));
 
