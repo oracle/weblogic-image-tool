@@ -9,7 +9,9 @@ FROM {{baseImage}} as os_update
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 USER root
-
+{{#initialBuildCommands}}
+    {{{.}}}
+{{/initialBuildCommands}}
 # Use package manager to make sure that unzip, tar, and other required packages are installed
 {{> package-managers}}
 
