@@ -58,6 +58,7 @@ The input for this parameter is a simple text file that contains one or more of 
 
 | Section | Available Variables | Build Stage | Timing |
 | --- | --- | --- | --- |
+| `initial-build-commands` | None | All | As root, and before any Image Tool actions. |
 | `before-jdk-install` | `JAVA_HOME` `DOMAIN_HOME`| Intermediate (JDK_BUILD) | Before the JDK is installed. |
 | `after-jdk-install` | `JAVA_HOME` `DOMAIN_HOME` | Intermediate (JDK_BUILD) | After the JDK is installed. |
 | `before-fmw-install` | `JAVA_HOME` `ORACLE_HOME` `DOMAIN_HOME` | Intermediate (WLS_BUILD) | Before the Oracle Home is created. |
