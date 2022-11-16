@@ -9,7 +9,7 @@ description: "The createAuxImage command creates a new container image with WDT 
 
 The `createAuxImage` command helps build a container image from a given base OS image.
 Auxiliary images are very small images providing the WDT install files with WDT models, archives, and variables
-for [WebLogic Kubernetes Operator - Auxiliary Images](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/auxiliary-images/).
+for [WebLogic Kubernetes Operator - Auxiliary Images](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/auxiliary-images/).
 These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files,
 in your WebLogic Server Kubernetes Operator environment.
 
@@ -52,6 +52,7 @@ Valid sections for `createAuxImage` are:
 
 | Section | Available Variables | Build Stage | Timing |
 | --- | --- | --- | --- |
+| `initial-build-commands` | None | All | As root, and before any Image Tool actions. |
 | `package-manager-packages` | None | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
 | `final-build-commands` | `AUXILIARY_IMAGE_PATH` `WDT_HOME` `WDT_MODEL_HOME`| Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 

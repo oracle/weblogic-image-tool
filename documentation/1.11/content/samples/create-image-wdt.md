@@ -39,4 +39,4 @@ The parameter mappings between the Image Tool and the WebLogic Deploy Tool are:
 
 **Note**: If you are creating a JRF domain and want WebLogic Deploy Tool to create the RCU schemas for you, you can
 specify the connection information in the model. See [Specifying RCU
-information in the model](https://github.com/oracle/weblogic-deploy-tooling/blob/master/site/rcuinfo.md).
+information in the model](https://oracle.github.io/weblogic-deploy-tooling/rcuinfo/).

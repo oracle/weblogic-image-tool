@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.oracle.weblogic.lifecycle.imagetool</groupId>
     <artifactId>imagetool-parent</artifactId>
-    <version>1.11.7-SNAPSHOT</version>
+    <version>1.11.8-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>WebLogic Image Tool</name>
@@ -63,7 +63,7 @@
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
-                <version>4.6.3</version>
+                <version>4.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
