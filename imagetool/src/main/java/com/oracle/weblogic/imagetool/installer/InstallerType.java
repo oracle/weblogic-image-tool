@@ -19,6 +19,7 @@ public enum InstallerType {
     MFT("mft"),
     IDM("idm"),
     OAM("oam"),
+    OHS("ohs"),
     OUD("oud"),
     OID("oid"),
     WCC("wcc"),
@@ -27,7 +28,7 @@ public enum InstallerType {
     JDK("jdk"),
     WDT("wdt");
 
-    private String value;
+    private final String value;
 
     /**
      * Create an Enum value for the installer type.
