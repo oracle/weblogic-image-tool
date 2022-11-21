@@ -18,6 +18,7 @@ public enum AruProduct {
     MFT("27538", "Oracle Managed File Transfer"),
     IDM("18391", "Oracle Identity Manager"),
     OAM("18388", "Oracle Access Manager"),
+    OHS("10300", "Oracle HTTP Server"),
     OUD("19748", "Oracle Unified Directory"),
     OID("10040", "Oracle Internet Directory"),
     WCC("13946", "Oracle WebCenter Content"),

@@ -28,6 +28,7 @@ public class DefaultResponseFile implements ResponseFile {
         "Collocated Oracle Identity and Access Manager (Managed through WebLogic server)";
     private static final String R_OAM =
         "Collocated Oracle Identity and Access Manager (Managed through WebLogic server)";
+    private static final String R_OHS = "Standalone HTTP Server (Managed independently of WebLogic server)";
     private static final String R_OUD = "Installation for Oracle Unified Directory";
     private static final String R_OID = "Collocated Oracle Internet Directory Server (Managed through WebLogic server)";
     private static final String R_WCC = "WebCenter Content";
@@ -74,6 +75,9 @@ public class DefaultResponseFile implements ResponseFile {
                 break;
             case OAM:
                 response = R_OAM;
+                break;
+            case OHS:
+                response = R_OHS;
                 break;
             case OUD:
                 response = R_OUD;

@@ -78,7 +78,9 @@ public enum FmwInstallerType {
         InstallerType.FMW, InstallerType.WCP),
     // Oracle WebCenter Sites
     WCS(Utils.toSet(FMW.products, AruProduct.WCS),
-        InstallerType.FMW, InstallerType.WCS)
+        InstallerType.FMW, InstallerType.WCS),
+    OHS(Collections.singleton(AruProduct.OHS),
+        InstallerType.OHS)
     ;
 
     private final InstallerType[] installers;
