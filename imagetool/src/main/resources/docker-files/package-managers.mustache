@@ -6,25 +6,25 @@
 # Ensure necessary OS packages are installed
 {{#useYum}}
     RUN yum -y update \
-    && yum -y --downloaddir={{{tempDir}}} install gzip tar unzip libaio jq findutils diffutils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && yum -y --downloaddir={{{tempDir}}} install gzip tar unzip jq findutils diffutils {{#mwOsPackages}}{{{.}}} {{/mwOsPackages}}{{#osPackages}}{{{.}}} {{/osPackages}}\
     && yum -y --downloaddir={{{tempDir}}} clean all \
     && rm -rf /var/cache/yum/* \
     && rm -rf {{{tempDir}}}
 {{/useYum}}
 {{#useDnf}}
     RUN dnf -y update \
-    && dnf -y install gzip tar unzip libaio jq findutils diffutils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && dnf -y install gzip tar unzip jq findutils diffutils {{#mwOsPackages}}{{{.}}} {{/mwOsPackages}}{{#osPackages}}{{{.}}} {{/osPackages}}\
     && dnf clean all
 {{/useDnf}}
 {{#useMicroDnf}}
     RUN microdnf update \
-    && microdnf install gzip tar unzip libaio jq findutils diffutils shadow-utils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && microdnf install gzip tar unzip jq findutils diffutils shadow-utils {{#mwOsPackages}}{{{.}}} {{/mwOsPackages}}{{#osPackages}}{{{.}}} {{/osPackages}}\
     && microdnf clean all
 {{/useMicroDnf}}
 {{#useAptGet}}
     RUN apt-get -y update \
     && apt-get -y upgrade \
-    && apt-get -y install gzip tar unzip libaio jq findutils diffutils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && apt-get -y install gzip tar unzip jq findutils diffutils {{#mwOsPackages}}{{{.}}} {{/mwOsPackages}}{{#osPackages}}{{{.}}} {{/osPackages}}\
     && apt-get -y clean all
 {{/useAptGet}}
 {{#useApk}}

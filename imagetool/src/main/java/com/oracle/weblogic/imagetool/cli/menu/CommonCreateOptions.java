@@ -44,6 +44,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
                 new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles);
             install.copyFiles(cache(), buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
+            dockerfileOptions.mwOsPackages(install.getRequiredPackages());
         } else {
             dockerfileOptions.setWdtBase("os_update");
         }

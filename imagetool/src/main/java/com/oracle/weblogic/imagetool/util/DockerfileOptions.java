@@ -66,6 +66,7 @@ public class DockerfileOptions {
     private MiddlewareInstall mwInstallers;
     private boolean domainGroupAsUser;
     private boolean usingBusybox;
+    private List<String> mwOsPackages;
 
     // WDT values
     private String wdtHome;
@@ -106,6 +107,7 @@ public class DockerfileOptions {
         username = "oracle";
         groupname = "oracle";
         tempDirectory = "/tmp/imagetool";
+        mwOsPackages = Collections.emptyList();
 
         // WDT values
         useWdt = false;
@@ -1113,5 +1115,13 @@ public class DockerfileOptions {
     public DockerfileOptions usingBusybox(boolean value) {
         usingBusybox = value;
         return this;
+    }
+
+    public List<String> mwOsPackages() {
+        return mwOsPackages;
+    }
+
+    public void mwOsPackages(List<String> value) {
+        mwOsPackages = value;
     }
 }

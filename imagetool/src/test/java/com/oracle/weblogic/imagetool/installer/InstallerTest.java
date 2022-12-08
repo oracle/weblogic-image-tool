@@ -3,7 +3,9 @@
 
 package com.oracle.weblogic.imagetool.installer;
 
+import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.List;
 
 import com.oracle.weblogic.imagetool.aru.AruProduct;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 class InstallerTest {
@@ -58,6 +61,22 @@ class InstallerTest {
         assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromProductList(FMW_PRODUCTS + ",OIM"));
         assertNull(FmwInstallerType.fromProductList(""));
         assertNull(FmwInstallerType.fromProductList(null));
+    }
+
+    @Test
+    void mwInstallerOsPackagesFmw() throws FileNotFoundException {
+        MiddlewareInstall mw = new MiddlewareInstall(FmwInstallerType.SOA, "12.2.1.4.0", null);
+        List<String> response = mw.getRequiredPackages();
+        assertEquals(2, response.size());
+        assertTrue(response.contains("libaio"));
+        assertTrue(response.contains("libnsl"));
+    }
+
+    @Test
+    void mwInstallerOsPackages() throws FileNotFoundException {
+        MiddlewareInstall mw = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0", null);
+        List<String> response = mw.getRequiredPackages();
+        assertEquals(0, response.size());
     }
 }
 

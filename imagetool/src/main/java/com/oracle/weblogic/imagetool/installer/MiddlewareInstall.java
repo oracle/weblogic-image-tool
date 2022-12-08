@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -23,8 +25,9 @@ public class MiddlewareInstall {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(MiddlewareInstall.class);
 
-    private List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
-    private FmwInstallerType fmwInstallerType;
+    private final List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
+    private final FmwInstallerType fmwInstallerType;
+    private boolean includeAdrLibraries;
 
     /**
      * Get the install metadata for a given middleware install type.
@@ -42,6 +45,10 @@ public class MiddlewareInstall {
             pkg.installer = new CachedFile(installer, version);
             pkg.responseFile = new DefaultResponseFile(installer, type);
             addInstaller(pkg);
+            if (installer.equals(InstallerType.FMW)) {
+                // ADR requires OS libraries that are no longer included in Oracle Linux slim releases
+                includeAdrLibraries = true;
+            }
         }
         setResponseFiles(responseFiles);
     }
@@ -123,5 +130,18 @@ public class MiddlewareInstall {
             logger.info("IMG-0041", responseFile, pkg.type);
             pkg.responseFile = new ProvidedResponseFile(responseFile);
         }
+    }
+
+    /**
+     * Get a list of OS packages that are required for this Middleware install.
+     * The only known cases today are the two libraries required by ADR that are no longer included
+     * with Oracle Linux slim images.
+     * @return a list of OS package names that need to be installed
+     */
+    public List<String> getRequiredPackages() {
+        if (includeAdrLibraries) {
+            return Arrays.asList("libaio", "libnsl");
+        }
+        return Collections.emptyList();
     }
 }
