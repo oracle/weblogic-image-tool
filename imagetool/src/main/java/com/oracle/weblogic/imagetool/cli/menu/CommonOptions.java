@@ -156,6 +156,13 @@ public abstract class CommonOptions {
         buildDirectory = value;
     }
 
+    /**
+     * Apply command line values associated with CommonOptions to Dockerfile options.
+     * @throws IOException thrown if WIT version cannot be retrieved, or Proxy URLs cannot be read, or
+     * provided additional build commands file cannot be read.
+     * @throws InvalidCredentialException Overriding classes may throw this exception
+     * @throws InvalidPatchIdFormatException Overriding classes may throw this exception
+     */
     void initializeOptions() throws InvalidCredentialException, IOException, InvalidPatchIdFormatException {
         logger.entering();
         buildId = UUID.randomUUID().toString();
