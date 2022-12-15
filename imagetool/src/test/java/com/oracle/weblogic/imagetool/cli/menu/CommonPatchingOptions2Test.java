@@ -37,7 +37,7 @@ class CommonPatchingOptions2Test {
     void noPassword() {
         // This test requires that ARUUtil instance NOT be overridden
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "derek");
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "derek", "--patches", "12345678");
         assertThrows(InvalidCredentialException.class, createImage::initializeOptions);
     }
 
