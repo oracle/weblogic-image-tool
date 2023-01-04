@@ -62,10 +62,9 @@ class VersionTest {
     void equalObjects() {
         Version a = new Version("1.2.3");
         Version b = new Version("1.2.3");
-        Version c = a;
         assertEquals(a, b);
         assertEquals(b, a);
-        assertEquals(a, c);
+        assertEquals(a, a);
     }
 
     @Test
