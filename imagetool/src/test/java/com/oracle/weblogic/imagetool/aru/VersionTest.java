@@ -43,6 +43,11 @@ class VersionTest {
     }
 
     @Test
+    void nullVersion() {
+        compareDifferingVersions(null, "1.2.3");
+    }
+
+    @Test
     void nonNumericVersion() {
         assertThrows(NumberFormatException.class, () -> new Version("1.A.4"));
         assertThrows(NumberFormatException.class, () -> new Version("1.2.3-SNAP"));
@@ -63,6 +68,7 @@ class VersionTest {
         assertEquals(a, b);
         assertEquals(b, a);
         assertEquals(a, a);
+        assertNotEquals(a, null);
     }
 
     @Test
