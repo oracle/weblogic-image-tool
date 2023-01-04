@@ -20,28 +20,26 @@ class VersionTest {
         assertEquals(0, a.compareTo(b));
     }
 
+    private void compareDifferingVersions(String firstVersion, String laterVersion) {
+        Version v1 = new Version(firstVersion);
+        Version v2 = new Version(laterVersion);
+        assertEquals(1, v2.compareTo(v1));
+        assertEquals(-1, v1.compareTo(v2));
+    }
+
     @Test
     void differentVersionNumbers() {
-        Version a = new Version("1.2.3");
-        Version b = new Version("1.2.4");
-        assertEquals(1, b.compareTo(a));
-        assertEquals(-1, a.compareTo(b));
+        compareDifferingVersions("1.2.3", "1.2.4");
     }
 
     @Test
     void differentVersionLengths() {
-        Version a = new Version("1.2.3");
-        Version b = new Version("1.2.3.1");
-        assertEquals(1, b.compareTo(a));
-        assertEquals(-1, a.compareTo(b));
+        compareDifferingVersions("1.2.3", "1.2.3.1");
     }
 
     @Test
     void integerComparison() {
-        Version a = new Version("13.9.4.2.9");
-        Version b = new Version("13.9.4.2.10");
-        assertEquals(1, b.compareTo(a));
-        assertEquals(-1, a.compareTo(b));
+        compareDifferingVersions("13.9.4.2.9", "13.9.4.2.10");
     }
 
     @Test
