@@ -25,7 +25,7 @@ public class AruPatch implements Comparable<AruPatch> {
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruPatch.class);
 
     private String patchId;
-    private String version;
+    private Version version;
     private String description;
     private String product;
     private String release;
@@ -45,12 +45,20 @@ public class AruPatch implements Comparable<AruPatch> {
         return this;
     }
 
+    /**
+     * The ARU version number of the FMW product associated with this patch.
+     * @return The string value of the version found in ARU.
+     */
     public String version() {
-        return version;
+        if (version != null) {
+            return version.toString();
+        } else {
+            return null;
+        }
     }
 
     public AruPatch version(String value) {
-        version = value;
+        version = new Version(value);
         return this;
     }
 

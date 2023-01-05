@@ -245,7 +245,9 @@ public abstract class CommonOptions {
             return;
         }
         Utils.deleteFilesRecursively(buildDir());
-        Utils.removeIntermediateDockerImages(buildEngine, buildId());
+        if (!dryRun) {
+            Utils.removeIntermediateDockerImages(buildEngine, buildId());
+        }
     }
 
     /**
