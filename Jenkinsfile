@@ -142,7 +142,7 @@ pipeline {
                     ${GH_TOOL}/bin/gh release create ${TAG_NAME} \
                         --draft \
                         --generate-notes \
-                        --title 'WebLogic Image Tool ${TAG_NAME}' \
+                        --title 'WebLogic Image Tool ${TAG_NAME#*-}' \
                         --repo https://github.com/oracle/weblogic-image-tool \
                         installer/target/imagetool.zip
                 """
