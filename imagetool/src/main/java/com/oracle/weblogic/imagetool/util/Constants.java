@@ -29,6 +29,7 @@ public final class Constants {
     public static final String BUSYBOX = "busybox";
     public static final List<String> BUSYBOX_OS_IDS = Collections.unmodifiableList(Arrays.asList("bb", "alpine"));
     public static final String ORACLE_LINUX = "ghcr.io/oracle/oraclelinux:8-slim";
+    public static final String BUILDER_DEFAULT = Utils.getEnvironmentProperty("WLSIMG_BUILDER", "docker");
 
     private Constants() {
         //restrict access

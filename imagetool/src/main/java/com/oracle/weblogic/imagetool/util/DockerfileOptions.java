@@ -973,6 +973,16 @@ public class DockerfileOptions {
      * @return list of commands as Strings.
      */
     @SuppressWarnings("unused")
+    public List<String> initialBuildCommands() {
+        return getAdditionalCommandsForSection(AdditionalBuildCommands.INITIAL_BLD);
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides additional build commands supplied by the user.
+     *
+     * @return list of commands as Strings.
+     */
+    @SuppressWarnings("unused")
     public List<String> beforeJdkInstall() {
         return getAdditionalCommandsForSection(AdditionalBuildCommands.BEFORE_JDK);
     }

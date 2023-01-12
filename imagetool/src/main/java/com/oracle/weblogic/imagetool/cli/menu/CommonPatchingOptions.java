@@ -57,12 +57,14 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         super.initializeOptions();
         password = Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
 
-        // if userid or password is provided, validate the pair of provided values
-        if ((userId != null || password != null) && !AruUtil.rest().checkCredentials(userId, password)) {
-            throw new InvalidCredentialException();
-        }
+        if (applyingPatches()) {
+            // if userid or password is provided, validate the pair of provided values
+            if ((userId != null || password != null) && !AruUtil.rest().checkCredentials(userId, password)) {
+                throw new InvalidCredentialException();
+            }
 
-        Utils.validatePatchIds(patches, false);
+            Utils.validatePatchIds(patches, false);
+        }
     }
 
     /**

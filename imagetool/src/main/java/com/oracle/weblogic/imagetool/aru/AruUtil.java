@@ -200,6 +200,8 @@ public class AruUtil {
 
                 patches = AruPatch.removeStackPatchBundle(AruPatch.getPatches(psuOverrides));
             }
+            // TODO: Need an option for the user to request the Coherence additional feature pack.
+            patches = AruPatch.removeCoherenceFeaturePackPatch(patches);
             patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
             logger.exiting(patches);
             return patches;

@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.inspect.InspectOutput;
+import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -51,9 +52,11 @@ public class InspectImage implements Callable<CommandResponse> {
 
     @Option(
         names = {"--builder", "-b"},
-        description = "Executable to inspect docker images. Default: ${DEFAULT-VALUE}"
+        description = "Executable to inspect docker images."
+            + " Use the full path of the executable if not on your path."
+            + " Defaults to 'docker', or, when set, to the value in environment variable WLSIMG_BUILDER."
     )
-    String buildEngine = "docker";
+    String buildEngine = Constants.BUILDER_DEFAULT;
 
     @Option(
         names = {"--patches"},

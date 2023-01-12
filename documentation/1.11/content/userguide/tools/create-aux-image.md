@@ -9,7 +9,7 @@ description: "The createAuxImage command creates a new container image with WDT 
 
 The `createAuxImage` command helps build a container image from a given base OS image.
 Auxiliary images are very small images providing the WDT install files with WDT models, archives, and variables
-for [WebLogic Kubernetes Operator - Auxiliary Images](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/auxiliary-images/).
+for [WebLogic Kubernetes Operator - Auxiliary Images](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/auxiliary-images/).
 These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files,
 in your WebLogic Server Kubernetes Operator environment.
 
@@ -24,7 +24,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--tag` | (Required) Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |
-| `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | `docker`  |
+| `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`.  |   |
 | `--chown` | `userid:groupid` for JDK/Middleware installs and patches.  | `oracle:oracle` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
@@ -52,6 +52,7 @@ Valid sections for `createAuxImage` are:
 
 | Section | Available Variables | Build Stage | Timing |
 | --- | --- | --- | --- |
+| `initial-build-commands` | None | All | As root, and before any Image Tool actions. |
 | `package-manager-packages` | None | All | A list of OS packages, such as `ftp gzip`, separated by line or space. |
 | `final-build-commands` | `AUXILIARY_IMAGE_PATH` `WDT_HOME` `WDT_MODEL_HOME`| Final image | After all Image Tool actions are complete, and just before the container image is finalized. |
 

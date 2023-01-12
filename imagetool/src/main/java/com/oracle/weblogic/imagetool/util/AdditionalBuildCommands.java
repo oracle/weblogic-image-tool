@@ -28,6 +28,7 @@ public class AdditionalBuildCommands {
     private static final LoggingFacade logger = LoggingFactory.getLogger(AdditionalBuildCommands.class);
 
     public static final String PACKAGES = "package-manager-packages";
+    public static final String INITIAL_BLD = "initial-build-commands";
     public static final String BEFORE_JDK = "before-jdk-install";
     public static final String AFTER_JDK = "after-jdk-install";
     public static final String BEFORE_FMW = "before-fmw-install";
@@ -48,6 +49,7 @@ public class AdditionalBuildCommands {
     public AdditionalBuildCommands(Path file) throws IOException {
         sections = new ArrayList<>();
         sections.add(getPattern(PACKAGES));
+        sections.add(getPattern(INITIAL_BLD));
         sections.add(getPattern(BEFORE_JDK));
         sections.add(getPattern(AFTER_JDK));
         sections.add(getPattern(BEFORE_FMW));
