@@ -139,10 +139,11 @@ pipeline {
             steps {
                 sh """
                     echo '${env.GITHUB_API_TOKEN}' | ${GH_TOOL}/bin/gh auth login --with-token
+                    TAG_VERSION_NUMBER=sh("echo ${TAG_NAME} | sed 's/release-//'"), returnStdout: true).trim(), 
                     ${GH_TOOL}/bin/gh release create ${TAG_NAME} \
                         --draft \
                         --generate-notes \
-                        --title 'WebLogic Image Tool ${TAG_NAME#*-}' \
+                        --title 'WebLogic Image Tool ${TAG_VERSION_NUMBER}' \
                         --repo https://github.com/oracle/weblogic-image-tool \
                         installer/target/imagetool.zip
                 """
