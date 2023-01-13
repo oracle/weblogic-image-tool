@@ -6,11 +6,12 @@ package com.oracle.weblogic.imagetool.logging;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+@Tag("unit")
 class FileFormatterTest {
 
     @Test

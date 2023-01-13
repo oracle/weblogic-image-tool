@@ -1,5 +1,5 @@
 aruRetryInterval: 200
-imageBuildDirectory: ./builds
+buildContextDirectory: ./builds
 installers:
   jdk:
     defaultVersion: 8u241

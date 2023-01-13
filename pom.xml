@@ -226,7 +226,6 @@
                                 <consoleOutput>true</consoleOutput>
                                 <configLocation>weblogic-image-tool/checkstyle/customized_google_checks.xml</configLocation>
                                 <suppressionsLocation>weblogic-image-tool/checkstyle/suppressions.xml</suppressionsLocation>
-                                <encoding>UTF-8</encoding>
                                 <failOnViolation>true</failOnViolation>
                                 <violationSeverity>warning</violationSeverity>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>

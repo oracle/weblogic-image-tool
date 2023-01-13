@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli;
@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cli.cache.CacheCLI;
+import com.oracle.weblogic.imagetool.cli.config.Config;
 import com.oracle.weblogic.imagetool.cli.menu.CreateAuxImage;
 import com.oracle.weblogic.imagetool.cli.menu.CreateImage;
 import com.oracle.weblogic.imagetool.cli.menu.InspectImage;
@@ -28,6 +29,7 @@ import static picocli.CommandLine.ExitCode;
         sortOptions = false,
         subcommands = {
             CacheCLI.class,
+            Config.class,
             CreateImage.class,
             CreateAuxImage.class,
             UpdateImage.class,

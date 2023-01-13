@@ -1,69 +1,78 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2023, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.settings;
 
 import java.io.InputStream;
 
+import com.oracle.weblogic.imagetool.cli.config.ConfigAttributeName;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Tag("unit")
 class UserSettingsTest {
 
-    @Test
-    void testSimpleSettingsFile() {
+    private UserSettings getResourceFile(String resourcePath) {
         InputStream inputStream = this.getClass()
             .getClassLoader()
             .getResourceAsStream("settings/basic_settings.yaml");
-        UserSettings settings = UserSettings.load(inputStream);
+        return UserSettings.load(inputStream);
+    }
+
+    @Test
+    void testSimpleSettingsFile() {
+        UserSettings settings = getResourceFile("settings/basic_settings.yaml");
         assertEquals("/home/user/patches", settings.getPatchDirectory());
-        assertEquals("./builds", settings.getImageBuildDirectory());
-        assertEquals("docker", settings.getBuildEngine());
-        assertEquals("docker", settings.getContainerEngine());
-        assertEquals(10, settings.getAruRetryMax());
+        assertEquals("./builds", settings.getBuildContextDirectory());
+        assertNull(settings.getBuildEngine());
+        assertNull(settings.getContainerEngine());
+        assertNull(settings.getAruRetryMax());
         assertEquals(200, settings.getAruRetryInterval());
+        // value not set, should return default value
+        assertNull(settings.getInstallerDirectory());
     }
 
     @Test
     void testDefaultInstallers() {
-        InputStream inputStream = this.getClass()
-            .getClassLoader()
-            .getResourceAsStream("settings/basic_settings.yaml");
-        UserSettings settings = UserSettings.load(inputStream);
+        UserSettings settings = getResourceFile("settings/basic_settings.yaml");
         assertEquals("8u241", settings.getDefaultInstallerVersion(InstallerType.JDK));
         assertEquals("12.2.1.4.0", settings.getDefaultInstallerVersion(InstallerType.WLS));
     }
 
     @Test
     void testInvalidSettings() {
-        InputStream inputStream = this.getClass()
-            .getClassLoader()
-            .getResourceAsStream("settings/invalid_settings.yaml");
-        UserSettings settings = UserSettings.load(inputStream);
+        UserSettings settings = getResourceFile("settings/invalid_settings.yaml");
         assertEquals("/home/user/patches", settings.getPatchDirectory());
-        assertEquals(".", settings.getImageBuildDirectory());
+        assertEquals("./builds", settings.getBuildContextDirectory());
     }
 
-    //@Test
+    @Test
     void testOutput() {
-        //TODO: re-enable this test
         String expected = "aruRetryInterval: 200\n"
-            + "imageBuildDirectory: ./builds\n"
+            + "buildContextDirectory: ./builds\n"
             + "installers:\n"
-            + "    JDK:\n"
-            + "        defaultVersion: 8u241\n"
-            + "    WLS:\n"
-            + "        defaultVersion: 12.2.1.4.0\n"
-            + "    WDT:\n"
-            + "        defaultVersion: latest"
+            + "  jdk:\n"
+            + "    defaultVersion: 8u241\n"
+            + "  wls:\n"
+            + "    defaultVersion: 12.2.1.4.0\n"
+            + "  wdt:\n"
+            + "    defaultVersion: latest\n"
             + "patchDirectory: /home/user/patches\n";
 
-        InputStream inputStream = this.getClass()
-            .getClassLoader()
-            .getResourceAsStream("settings/basic_settings.yaml");
-        UserSettings settings = UserSettings.load(inputStream);
+        UserSettings settings = getResourceFile("settings/basic_settings.yaml");
         assertEquals(expected, settings.toYamlString());
+    }
+
+    @Test
+    void testSetters() {
+        UserSettings settings = getResourceFile("settings/basic_settings.yaml");
+        ConfigAttributeName attributeName = ConfigAttributeName.patchDirectory;
+        attributeName.set(settings, "./cache/paches");
+        assertEquals("./builds", settings.getBuildContextDirectory());
+        assertEquals("./cache/paches", settings.getPatchDirectory());
     }
 }

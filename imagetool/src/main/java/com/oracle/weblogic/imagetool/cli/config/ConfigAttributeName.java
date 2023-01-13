@@ -1,0 +1,103 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+package com.oracle.weblogic.imagetool.cli.config;
+
+import com.oracle.weblogic.imagetool.settings.UserSettings;
+
+public enum ConfigAttributeName {
+    buildContextDirectory("BuildContextDirectory") {
+        @Override
+        public void set(UserSettings settings, String value) {
+            settings.setBuildContextDirectory(value);
+        }
+
+        @Override
+        public String get(UserSettings settings) {
+            return settings.getBuildContextDirectory();
+        }
+    },
+    patchDirectory("PatchDirectory") {
+        @Override
+        public void set(UserSettings settings, String value) {
+            settings.setPatchDirectory(value);
+        }
+
+        @Override
+        public String get(UserSettings settings) {
+            return settings.getPatchDirectory();
+        }
+    },
+    installerDirectory("InstallerDirectory") {
+        @Override
+        public void set(UserSettings settings, String value) {
+            settings.setInstallerDirectory(value);
+        }
+
+        @Override
+        public String get(UserSettings settings) {
+            return settings.getInstallerDirectory();
+        }
+    },
+    buildEngine("BuildEngine") {
+        @Override
+        public void set(UserSettings settings, String value) {
+            settings.setBuildEngine(value);
+        }
+
+        @Override
+        public String get(UserSettings settings) {
+            return settings.getBuildEngine();
+        }
+    },
+    containerEngine("ContainerEngine") {
+        @Override
+        public void set(UserSettings settings, String value) {
+            settings.setContainerEngine(value);
+        }
+
+        @Override
+        public String get(UserSettings settings) {
+            return settings.getContainerEngine();
+        }
+    },
+    aruRetryMax("AruRetryMax") {
+        @Override
+        public void set(UserSettings settings, String value) {
+            settings.setAruRetryMax(Integer.parseInt(value));
+        }
+
+        @Override
+        public String get(UserSettings settings) {
+            //TODO check for null
+            return settings.getAruRetryMax().toString();
+        }
+    },
+    aruRetryInterval("AruRetryInterval") {
+        @Override
+        public void set(UserSettings settings, String value) {
+            settings.setAruRetryInterval(Integer.parseInt(value));
+        }
+
+        @Override
+        public String get(UserSettings settings) {
+            //TODO check for null
+            return settings.getAruRetryInterval().toString();
+        }
+    };
+
+    private final String value;
+
+    public abstract void set(UserSettings settings, String value);
+
+    public abstract String get(UserSettings settings);
+
+    ConfigAttributeName(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
