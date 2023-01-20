@@ -18,8 +18,8 @@ import picocli.CommandLine.Parameters;
     description = "Set or update a configuration entry",
     sortOptions = false
 )
-public class SetConfigEntry implements Callable<CommandResponse> {
-    private static final LoggingFacade logger = LoggingFactory.getLogger(SetConfigEntry.class);
+public class SetCommand implements Callable<CommandResponse> {
+    private static final LoggingFacade logger = LoggingFactory.getLogger(SetCommand.class);
 
     @Option(
         names = {"--name"},
@@ -29,7 +29,7 @@ public class SetConfigEntry implements Callable<CommandResponse> {
     )
     private ConfigAttributeName name;
 
-    @Parameters(index = "0")
+    @Parameters(index = "0", description = "the new configuration setting value")
     @SuppressWarnings("UnusedDeclaration")
     private String value;
 

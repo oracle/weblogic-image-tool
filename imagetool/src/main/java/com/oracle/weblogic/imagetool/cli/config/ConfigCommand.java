@@ -10,11 +10,11 @@ import picocli.CommandLine;
     description = "Set global configuration options and defaults for the Image Tool",
     commandListHeading = "%nCommands:%n%n",
     subcommands = {
-        SetConfigEntry.class,
-        ReadConfigEntry.class,
-        DeleteConfigEntry.class
+        SetCommand.class,
+        ShowCommand.class,
+        ResetCommand.class
     },
     sortOptions = false
 )
-public class Config {
+public class ConfigCommand {
 }

@@ -12,12 +12,12 @@ import com.oracle.weblogic.imagetool.settings.UserSettings;
 import picocli.CommandLine;
 
 @CommandLine.Command(
-    name = "show",
-    description = "Print a configuration entry",
+    name = "reset",
+    description = "Remove/reset a configuration entry",
     sortOptions = false
 )
-public class ReadConfigEntry  implements Callable<CommandResponse> {
-    private static final LoggingFacade logger = LoggingFactory.getLogger(ReadConfigEntry.class);
+public class ResetCommand implements Callable<CommandResponse> {
+    private static final LoggingFacade logger = LoggingFactory.getLogger(ResetCommand.class);
 
     @CommandLine.Option(
         names = {"--name"},
@@ -32,14 +32,10 @@ public class ReadConfigEntry  implements Callable<CommandResponse> {
         logger.entering();
         UserSettings settings = UserSettings.load();
 
-        String result = name.get(settings);
+        name.set(settings, null);
+        settings.save();
 
         logger.exiting();
-        if (result != null) {
-            System.out.println(result);
-            return new CommandResponse(0, "");
-        } else {
-            return new CommandResponse(CommandLine.ExitCode.SOFTWARE, "Not Found");
-        }
+        return new CommandResponse(0, "");
     }
 }
