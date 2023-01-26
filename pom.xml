@@ -85,7 +85,7 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>23.1.0</version>
+                <version>24.0.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -209,7 +209,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.1</version>
                     <executions>
                         <execution>
                             <id>checkstyle</id>
