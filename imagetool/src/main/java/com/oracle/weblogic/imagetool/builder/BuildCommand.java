@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.builder;
 
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -130,7 +129,7 @@ public class BuildCommand {
      * @throws IOException          if an error occurs reading from the process inputstream.
      * @throws InterruptedException when the process wait is interrupted.
      */
-    public BuildCommand run(Path dockerLog)
+    public void run(Path dockerLog)
         throws IOException, InterruptedException {
         // process builder
         logger.entering(getCommand(false), dockerLog);
@@ -142,7 +141,7 @@ public class BuildCommand {
 
         if (dockerLogPath != null) {
             logger.info("dockerLog: " + dockerLog);
-            outputStreams.add(new FileOutputStream(dockerLogPath.toFile()));
+            outputStreams.add(Files.newOutputStream(dockerLogPath));
         }
 
         ProcessBuilder processBuilder = new ProcessBuilder(getCommand(true));
@@ -154,7 +153,6 @@ public class BuildCommand {
         if (process.waitFor() != 0) {
             Utils.processError(process);
         }
-        return this;
     }
 
     /**
