@@ -237,16 +237,24 @@ public abstract class CommonOptions {
     /**
      * Delete build context directory and remove all intermediate build images.
      *
-     * @throws IOException if an error occurs trying to delete the context directory files.
      * @throws InterruptedException when interrupted.
      */
-    public void cleanup() throws IOException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         if (skipcleanup) {
             return;
         }
-        Utils.deleteFilesRecursively(buildDir());
+        try {
+            Utils.deleteFilesRecursively(buildDirectory);
+        } catch (IOException e) {
+            logger.severe("IMG-0080", buildDirectory);
+        }
+
         if (!dryRun) {
-            Utils.removeIntermediateDockerImages(buildEngine, buildId());
+            try {
+                Utils.removeIntermediateDockerImages(buildEngine, buildId());
+            } catch (IOException e) {
+                logger.severe("IMG-0118", buildId());
+            }
         }
     }
 
