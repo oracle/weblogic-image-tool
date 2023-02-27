@@ -3,84 +3,84 @@
 
 package com.oracle.weblogic.imagetool.cli.config;
 
-import com.oracle.weblogic.imagetool.settings.UserSettings;
+import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 
 public enum ConfigAttributeName {
     buildContextDirectory("BuildContextDirectory") {
         @Override
-        public void set(UserSettings settings, String value) {
+        public void set(UserSettingsFile settings, String value) {
             settings.setBuildContextDirectory(value);
         }
 
         @Override
-        public String get(UserSettings settings) {
+        public String get(UserSettingsFile settings) {
             return settings.getBuildContextDirectory();
         }
     },
     patchDirectory("PatchDirectory") {
         @Override
-        public void set(UserSettings settings, String value) {
+        public void set(UserSettingsFile settings, String value) {
             settings.setPatchDirectory(value);
         }
 
         @Override
-        public String get(UserSettings settings) {
+        public String get(UserSettingsFile settings) {
             return settings.getPatchDirectory();
         }
     },
     installerDirectory("InstallerDirectory") {
         @Override
-        public void set(UserSettings settings, String value) {
+        public void set(UserSettingsFile settings, String value) {
             settings.setInstallerDirectory(value);
         }
 
         @Override
-        public String get(UserSettings settings) {
+        public String get(UserSettingsFile settings) {
             return settings.getInstallerDirectory();
         }
     },
     buildEngine("BuildEngine") {
         @Override
-        public void set(UserSettings settings, String value) {
+        public void set(UserSettingsFile settings, String value) {
             settings.setBuildEngine(value);
         }
 
         @Override
-        public String get(UserSettings settings) {
+        public String get(UserSettingsFile settings) {
             return settings.getBuildEngine();
         }
     },
     containerEngine("ContainerEngine") {
         @Override
-        public void set(UserSettings settings, String value) {
+        public void set(UserSettingsFile settings, String value) {
             settings.setContainerEngine(value);
         }
 
         @Override
-        public String get(UserSettings settings) {
+        public String get(UserSettingsFile settings) {
             return settings.getContainerEngine();
         }
     },
     aruRetryMax("AruRetryMax") {
         @Override
-        public void set(UserSettings settings, String value) {
+        public void set(UserSettingsFile settings, String value) {
             settings.setAruRetryMax(Integer.parseInt(value));
         }
 
         @Override
-        public String get(UserSettings settings) {
+        public String get(UserSettingsFile settings) {
             //TODO check for null
             return settings.getAruRetryMax().toString();
         }
     },
     aruRetryInterval("AruRetryInterval") {
         @Override
-        public void set(UserSettings settings, String value) {
+        public void set(UserSettingsFile settings, String value) {
             settings.setAruRetryInterval(Integer.parseInt(value));
         }
 
         @Override
-        public String get(UserSettings settings) {
+        public String get(UserSettingsFile settings) {
             //TODO check for null
             return settings.getAruRetryInterval().toString();
         }
@@ -88,9 +88,9 @@ public enum ConfigAttributeName {
 
     private final String value;
 
-    public abstract void set(UserSettings settings, String value);
+    public abstract void set(UserSettingsFile settings, String value);
 
-    public abstract String get(UserSettings settings);
+    public abstract String get(UserSettingsFile settings);
 
     ConfigAttributeName(String value) {
         this.value = value;

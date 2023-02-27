@@ -3,7 +3,9 @@
 
 package com.oracle.weblogic.imagetool.settings;
 
-import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 
 import com.oracle.weblogic.imagetool.cli.config.ConfigAttributeName;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
@@ -11,21 +13,25 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
 class UserSettingsTest {
 
-    private UserSettings getResourceFile(String resourcePath) {
-        InputStream inputStream = this.getClass()
-            .getClassLoader()
-            .getResourceAsStream("settings/basic_settings.yaml");
-        return UserSettings.load(inputStream);
+    private UserSettingsFile getResourceFile(String resourcePath) {
+        URL resource = this.getClass().getClassLoader().getResource(resourcePath);
+        assertNotNull(resource, "Unable to load settings file: " + resourcePath);
+        try {
+            return new UserSettingsFile(Paths.get(resource.toURI()));
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException("Yaml resource file unavailable", e);
+        }
     }
 
     @Test
     void testSimpleSettingsFile() {
-        UserSettings settings = getResourceFile("settings/basic_settings.yaml");
+        UserSettingsFile settings = getResourceFile("settings/basic_settings.yaml");
         assertEquals("/home/user/patches", settings.getPatchDirectory());
         assertEquals("./builds", settings.getBuildContextDirectory());
         assertNull(settings.getBuildEngine());
@@ -38,38 +44,31 @@ class UserSettingsTest {
 
     @Test
     void testDefaultInstallers() {
-        UserSettings settings = getResourceFile("settings/basic_settings.yaml");
-        assertEquals("8u241", settings.getDefaultInstallerVersion(InstallerType.JDK));
-        assertEquals("12.2.1.4.0", settings.getDefaultInstallerVersion(InstallerType.WLS));
+        UserSettingsFile settings = getResourceFile("settings/basic_settings.yaml");
+        assertEquals("8u241", settings.getInstallerSettings(InstallerType.JDK).getDefaultVersion());
+        assertEquals("12.2.1.4.0", settings.getInstallerSettings(InstallerType.WLS).getDefaultVersion());
     }
 
     @Test
     void testInvalidSettings() {
-        UserSettings settings = getResourceFile("settings/invalid_settings.yaml");
+        UserSettingsFile settings = getResourceFile("settings/invalid_settings.yaml");
         assertEquals("/home/user/patches", settings.getPatchDirectory());
-        assertEquals("./builds", settings.getBuildContextDirectory());
+        assertNull(settings.getBuildContextDirectory());
     }
 
     @Test
     void testOutput() {
         String expected = "aruRetryInterval: 200\n"
             + "buildContextDirectory: ./builds\n"
-            + "installers:\n"
-            + "  jdk:\n"
-            + "    defaultVersion: 8u241\n"
-            + "  wls:\n"
-            + "    defaultVersion: 12.2.1.4.0\n"
-            + "  wdt:\n"
-            + "    defaultVersion: latest\n"
             + "patchDirectory: /home/user/patches\n";
 
-        UserSettings settings = getResourceFile("settings/basic_settings.yaml");
-        assertEquals(expected, settings.toYamlString());
+        UserSettingsFile settings = getResourceFile("settings/basic_settings.yaml");
+        assertEquals(expected, settings.toString());
     }
 
     @Test
     void testSetters() {
-        UserSettings settings = getResourceFile("settings/basic_settings.yaml");
+        UserSettingsFile settings = getResourceFile("settings/basic_settings.yaml");
         ConfigAttributeName attributeName = ConfigAttributeName.patchDirectory;
         attributeName.set(settings, "./cache/paches");
         assertEquals("./builds", settings.getBuildContextDirectory());

@@ -13,7 +13,7 @@ import com.oracle.weblogic.imagetool.util.Utils;
 public class ConfigSettings {
     private static final LoggingFacade logger = LoggingFactory.getLogger(ConfigSettings.class);
 
-    UserSettings userSettings;
+    UserSettingsFile userSettings;
 
     /**
      * Parent directory for the build context directory.
@@ -35,7 +35,7 @@ public class ConfigSettings {
     public String patchDirectory() {
         String result = userSettings.getPatchDirectory();
         if (Utils.isEmptyString(result)) {
-            return UserSettings.getSettingsDirectory().resolve("patches").toString();
+            return UserSettingsFile.getSettingsDirectory().resolve("patches").toString();
         }
         return result;
     }
@@ -47,7 +47,7 @@ public class ConfigSettings {
     public String installerDirectory() {
         String result = userSettings.getInstallerDirectory();
         if (Utils.isEmptyString(result)) {
-            return UserSettings.getSettingsDirectory().resolve("installers").toString();
+            return UserSettingsFile.getSettingsDirectory().resolve("installers").toString();
         }
         return result;
     }

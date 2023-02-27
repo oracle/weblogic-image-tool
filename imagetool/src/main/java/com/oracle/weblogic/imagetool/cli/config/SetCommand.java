@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.settings.UserSettings;
+import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -35,7 +35,7 @@ public class SetCommand implements Callable<CommandResponse> {
 
     @Override
     public CommandResponse call() throws Exception {
-        UserSettings settings = UserSettings.load();
+        UserSettingsFile settings = new UserSettingsFile();
         logger.entering();
 
         name.set(settings, value);

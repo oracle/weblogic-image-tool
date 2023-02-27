@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.settings.UserSettings;
+import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -30,7 +30,7 @@ public class ResetCommand implements Callable<CommandResponse> {
     @Override
     public CommandResponse call() throws Exception {
         logger.entering();
-        UserSettings settings = UserSettings.load();
+        UserSettingsFile settings = new UserSettingsFile();
 
         name.set(settings, null);
         settings.save();
