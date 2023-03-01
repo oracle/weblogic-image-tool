@@ -282,19 +282,24 @@ public class Utils {
      * @throws IOException in case of error
      */
     public static void deleteFilesRecursively(String pathDir) throws IOException {
-        if (pathDir != null) {
-            Path tmpDir = Paths.get(pathDir);
-            try (Stream<Path> walk = Files.walk(tmpDir)) {
-                walk.sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    //.peek(System.out::println)
-                    .forEach(File::delete);
-            }
-
-            if (Files.exists(tmpDir)) {
-                logger.warning("IMG-0038", tmpDir);
-            }
+        logger.entering(pathDir);
+        if (pathDir == null) {
+            logger.exiting();
+            return;
         }
+
+        Path tmpDir = Paths.get(pathDir);
+        try (Stream<Path> walk = Files.walk(tmpDir)) {
+            walk.sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                //.peek(System.out::println)
+                .forEach(File::delete);
+        }
+
+        if (Files.exists(tmpDir)) {
+            logger.warning("IMG-0038", tmpDir);
+        }
+        logger.exiting();
     }
 
     /**
