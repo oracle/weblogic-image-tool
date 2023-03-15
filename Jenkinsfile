@@ -114,8 +114,8 @@ pipeline {
                 }
                 failure {
                     mail to: "${env.WIT_BUILD_NOTIFICATION_EMAIL_TO}", from: 'noreply@oracle.com',
-                    subject: "WebLogic Image Tool: ${env.JOB_NAME} - Failed",
-                    body: "Job Failed - \"${env.JOB_NAME}\" build: ${env.BUILD_NUMBER}\n\nView the log at:\n ${env.BUILD_URL}\n"
+                            subject: "WebLogic Image Tool: ${env.JOB_NAME} - Failed",
+                            body: "Job Failed - \"${env.JOB_NAME}\" build: ${env.BUILD_NUMBER}\n\nView the log at:\n ${env.BUILD_URL}\n"
                 }
             }
         }
@@ -137,9 +137,12 @@ pipeline {
                 tag 'release-*'
             }
             steps {
+                script {
+                    env.TAG_VERSION_NUMBER = env.TAG_NAME.replaceAll('release-','').trim()
+                }
+
                 sh """
                     echo '${env.GITHUB_API_TOKEN}' | ${GH_TOOL}/bin/gh auth login --with-token
-                    TAG_VERSION_NUMBER=sh("echo ${TAG_NAME} | sed 's/release-//'"), returnStdout: true).trim(), 
                     ${GH_TOOL}/bin/gh release create ${TAG_NAME} \
                         --draft \
                         --generate-notes \
@@ -149,7 +152,7 @@ pipeline {
                 """
             }
         }
-     }
+    }
 }
 
 void runSonarScanner() {
@@ -165,7 +168,7 @@ void runSonarScanner() {
             -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH} \
             -Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
     } else {
-       sh "mvn -B sonar:sonar \
+        sh "mvn -B sonar:sonar \
            -Dsonar.projectKey=${org}_${repo} \
            -Dsonar.branch.name=${env.BRANCH_NAME}"
     }
