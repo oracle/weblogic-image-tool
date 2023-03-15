@@ -223,6 +223,10 @@ public abstract class CommonOptions {
 
             PackageManagerType pkgMgr = PackageManagerType.valueOf(pkgMgrProp);
             logger.fine("fromImage package manager {0}", pkgMgr);
+            if (pkgMgr == PackageManagerType.MICRODNF && os.version() != null && os.version().startsWith("8")) {
+                logger.fine("Using older style format for microdnf for linux 8. ver={0}", os.version());
+                pkgMgr = PackageManagerType.MICRODNF_8;
+            }
             if (packageManager != PackageManagerType.OS_DEFAULT && pkgMgr != packageManager) {
                 // If the user is overriding the detected package manager, use the provided value
                 logger.info("IMG-0079", pkgMgr, packageManager);
