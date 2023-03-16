@@ -9,6 +9,7 @@ public enum PackageManagerType {
     YUM,
     DNF,
     MICRODNF,
+    MICRODNF_8,
     APTGET,
     APK,
     ZYPPER

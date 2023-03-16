@@ -299,7 +299,7 @@ public class DockerfileOptions {
                 pkgMgr = PackageManagerType.NONE;
             } else {
                 // This default must match the Package Manager for the configured fromImage default in baseImageName
-                pkgMgr = PackageManagerType.MICRODNF;
+                pkgMgr = PackageManagerType.MICRODNF_8;
             }
         } else {
             pkgMgr = option;
@@ -315,6 +315,11 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public boolean useMicroDnf() {
         return pkgMgr == PackageManagerType.MICRODNF;
+    }
+
+    @SuppressWarnings("unused")
+    public boolean useMicroDnf8() {
+        return pkgMgr == PackageManagerType.MICRODNF_8;
     }
 
     @SuppressWarnings("unused")
