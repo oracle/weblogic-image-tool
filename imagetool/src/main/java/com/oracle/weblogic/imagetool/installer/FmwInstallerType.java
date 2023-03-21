@@ -80,7 +80,9 @@ public enum FmwInstallerType {
     WCS(Utils.toSet(FMW.products, AruProduct.WCS),
         InstallerType.FMW, InstallerType.WCS),
     OHS(Collections.singleton(AruProduct.OHS),
-        InstallerType.OHS)
+        InstallerType.OHS),
+    ODI(Utils.toSet(AruProduct.ODI),
+        InstallerType.ODI)
     ;
 
     private final InstallerType[] installers;
