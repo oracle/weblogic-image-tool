@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -28,7 +28,8 @@ public enum AruProduct {
     OPSS("16606", "Oracle Platform Security Service"),
     OWSM("12787", "Oracle Webservices Manager"),
     JDBC("9512", "Oracle JDBC for Fusion Middleware"),
-    FIT("33256", "Fusion Internal Tools")
+    FIT("33256", "Fusion Internal Tools"),
+    ODI("13724", "Oracle Data Integrator")
     ;
 
     private final String productId;

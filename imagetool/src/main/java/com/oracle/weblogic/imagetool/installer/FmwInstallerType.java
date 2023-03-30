@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.installer;
@@ -80,7 +80,9 @@ public enum FmwInstallerType {
     WCS(Utils.toSet(FMW.products, AruProduct.WCS),
         InstallerType.FMW, InstallerType.WCS),
     OHS(Collections.singleton(AruProduct.OHS),
-        InstallerType.OHS)
+        InstallerType.OHS),
+    ODI(Collections.singleton(AruProduct.ODI),
+        InstallerType.ODI)
     ;
 
     private final InstallerType[] installers;
