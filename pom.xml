@@ -113,6 +113,10 @@
                                     <variableName>ORACLE_SUPPORT_PASSWORD</variableName>
                                     <message>For integration tests, you must set the environment variable ORACLE_SUPPORT_PASSWORD to match the ORACLE_SUPPORT_USERNAME credential.</message>
                                 </requireEnvironmentVariable>
+                                <requireEnvironmentVariable>
+                                    <variableName>DB_IMAGE</variableName>
+                                    <message>For integration tests, you must set the environment variable DB_IMAGE to a database container image.</message>
+                                </requireEnvironmentVariable>
                                 <requireProperty>
                                     <property>test.staging.dir</property>
                                     <message>For integration tests, you must define the test.staging.dir System property to point to the directory where the installers are staged. Or, set STAGING_DIR environment variable.</message>
@@ -221,7 +225,7 @@
                                 <consoleOutput>true</consoleOutput>
                                 <configLocation>weblogic-image-tool/checkstyle/customized_google_checks.xml</configLocation>
                                 <suppressionsLocation>weblogic-image-tool/checkstyle/suppressions.xml</suppressionsLocation>
-                                <encoding>UTF-8</encoding>
+                                <inputEncoding>UTF-8</inputEncoding>
                                 <failOnViolation>true</failOnViolation>
                                 <violationSeverity>warning</violationSeverity>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
