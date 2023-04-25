@@ -5,7 +5,6 @@ package com.oracle.weblogic.imagetool.tests;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -117,7 +116,7 @@ class ITImagetool {
         // get the build tag from Jenkins build environment variable BUILD_TAG
         build_tag = System.getenv("BUILD_TAG");
         if (build_tag != null) {
-            build_tag = build_tag.toLowerCase();
+            build_tag = build_tag.toLowerCase().replaceAll("\\s+", "-");
         } else {
             build_tag = "imagetool-itest";
         }
@@ -251,7 +250,7 @@ class ITImagetool {
             Files.createDirectories(outputPath.getParent());
             logger.info("Test log: {0}", outputPath.toString());
             return new PrintWriter(
-                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath.toString()))), true);
+                new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outputPath))), true);
         } else {
             throw new IllegalArgumentException("Method is not present in this context, and this method cannot be used");
         }
