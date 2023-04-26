@@ -28,7 +28,7 @@ public enum AruProduct {
     OPSS("16606", "Oracle Platform Security Service"),
     OWSM("12787", "Oracle Webservices Manager"),
     JDBC("9512", "Oracle JDBC for Fusion Middleware"),
-    FIT("33256", "Fusion Internal Tools")
+    FIT("33256", "Middleware Common Libraries and Tools")
     ;
 
     private final String productId;
