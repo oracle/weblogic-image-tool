@@ -17,8 +17,6 @@ pipeline {
         // variables for SystemTest stages (integration tests)
         STAGING_DIR = "${WORKSPACE}/wit-system-test-files"
         DB_IMAGE = "${WKT_OCIR_HOST}/${WKT_TENANCY}/database/enterprise:12.2.0.1-slim"
-//        GITHUB_API_TOKEN = credentials('encj_github_token')
-//        GH_TOOL = tool name: 'github-cli', type: 'com.cloudbees.jenkins.plugins.customtools.CustomTool'
     }
 
     stages {
@@ -150,10 +148,8 @@ pipeline {
         }
         stage ('Save Nightly Installer') {
             when {
-                allOf {
-                    triggeredBy 'TimerTrigger'
-                    branch "main"
-                }
+                triggeredBy 'TimerTrigger'
+                branch "main"
             }
             steps {
                 sh '''
@@ -161,26 +157,43 @@ pipeline {
                 '''
             }
         }
-//        stage ('Create Draft Release') {
-//            when {
-//                tag 'release-*'
-//            }
-//            steps {
-//                script {
-//                    env.TAG_VERSION_NUMBER = env.TAG_NAME.replaceAll('release-','').trim()
-//                }
-//
-//                sh """
-//                    echo '${env.GITHUB_API_TOKEN}' | ${GH_TOOL}/bin/gh auth login --with-token
-//                    ${GH_TOOL}/bin/gh release create ${TAG_NAME} \
-//                        --draft \
-//                        --generate-notes \
-//                        --title 'WebLogic Image Tool ${TAG_VERSION_NUMBER}' \
-//                        --repo https://github.com/oracle/weblogic-image-tool \
-//                        installer/target/imagetool.zip
-//                """
-//            }
-//        }
+        stage ('Sync') {
+            when {
+                branch 'main'
+                anyOf {
+                    not { triggeredBy 'TimerTrigger' }
+                    tag 'release-*'
+                }
+            }
+            steps {
+                build job: "wkt-sync",
+                        parameters: [ string(name: 'REPOSITORY', value: 'weblogic-image-tool') ],
+                        wait: true
+            }
+        }
+        stage ('Create Draft Release') {
+            when {
+                tag 'release-*'
+            }
+            steps {
+                script {
+                    env.TAG_VERSION_NUMBER = env.TAG_NAME.replaceAll('release-','').trim()
+                }
+                withCredentials([string(credentialsId: 'wkt-github-token', variable: 'GITHUB_API_TOKEN')]) {
+                    sh """
+                    mkdir gh-cli
+                    curl -sL https://github.com/cli/cli/releases/download/v2.28.0/gh_2.28.0_linux_amd64.tar.gz | tar xvzf - --strip-components=1 -C ./gh-cli
+                    echo '${GITHUB_API_TOKEN}' | ./gh-cli/bin/gh auth login --with-token
+                    ./gh-cli/bin/gh release create ${TAG_NAME} \
+                        --draft \
+                        --generate-notes \
+                        --title 'WebLogic Image Tool ${TAG_VERSION_NUMBER}' \
+                        --repo https://github.com/oracle/weblogic-image-tool \
+                        installer/target/imagetool.zip
+                    """
+                }
+            }
+        }
     }
 }
 
