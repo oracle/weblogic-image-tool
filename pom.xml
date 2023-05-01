@@ -37,8 +37,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
         <test.groups>gate</test.groups>
         <skipITs>true</skipITs>
+        <test.staging.dir>${env.STAGING_DIR}</test.staging.dir>
+        <test.db.image>${env.DB_IMAGE}</test.db.image>
+        <test.java.image>${env.JRE_IMAGE}</test.java.image>
     </properties>
 
     <modules>
@@ -91,6 +95,7 @@
     </dependencyManagement>
 
     <build>
+        <finalName>imagetool</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -113,10 +118,6 @@
                                     <variableName>ORACLE_SUPPORT_PASSWORD</variableName>
                                     <message>For integration tests, you must set the environment variable ORACLE_SUPPORT_PASSWORD to match the ORACLE_SUPPORT_USERNAME credential.</message>
                                 </requireEnvironmentVariable>
-                                <requireEnvironmentVariable>
-                                    <variableName>DB_IMAGE</variableName>
-                                    <message>For integration tests, you must set the environment variable DB_IMAGE to a database container image.</message>
-                                </requireEnvironmentVariable>
                                 <requireProperty>
                                     <property>test.staging.dir</property>
                                     <message>For integration tests, you must define the test.staging.dir System property to point to the directory where the installers are staged. Or, set STAGING_DIR environment variable.</message>
@@ -134,7 +135,6 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.3.0</version>
                     <configuration>
-                        <finalName>${project.artifactId}</finalName>
                         <archive>
                             <manifest>
                                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>

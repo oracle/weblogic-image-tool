@@ -50,7 +50,6 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>imagetool</finalName>
                             <descriptors>
                                 <descriptor>src/assembly/zip.xml</descriptor>
                             </descriptors>
