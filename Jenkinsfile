@@ -17,6 +17,7 @@ pipeline {
         // variables for SystemTest stages (integration tests)
         STAGING_DIR = "${WORKSPACE}/wit-system-test-files"
         DB_IMAGE = "${WKT_OCIR_HOST}/${WKT_TENANCY}/database/enterprise:12.2.0.1-slim"
+        JRE_IMAGE = "${WKT_OCIR_HOST}/${WKT_TENANCY}/java/serverjre:8"
     }
 
     stages {
@@ -99,7 +100,7 @@ pipeline {
                     withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {
                         sh '''
                             cd tests
-                            mvn -B clean verify -Dtest.staging.dir=${STAGING_DIR} -Dtest.groups=gate -DskipITs=false
+                            mvn -B clean verify -Dtest.groups=gate -DskipITs=false
                         '''
                     }
                 }
@@ -123,12 +124,13 @@ pipeline {
             steps {
                 script {
                     docker.image("${env.DB_IMAGE}").pull()
+                    docker.image("${env.JRE_IMAGE}").pull()
                 }
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'wkt-otn-credential', passwordVariable: 'ORACLE_SUPPORT_PASSWORD', usernameVariable: 'ORACLE_SUPPORT_USERNAME']]) {
                     withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {
                         sh '''
                             cd tests
-                            mvn -B clean verify -Dtest.staging.dir=${STAGING_DIR} -Dtest.groups=gate,nightly -DskipITs=false
+                            mvn -B clean verify -Dtest.groups=gate,nightly -DskipITs=false
                         '''
                     }
                 }
