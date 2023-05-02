@@ -37,8 +37,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
         <test.groups>gate</test.groups>
         <skipITs>true</skipITs>
+        <test.staging.dir>${env.STAGING_DIR}</test.staging.dir>
+        <test.db.image>${env.DB_IMAGE}</test.db.image>
+        <test.java.image>${env.JRE_IMAGE}</test.java.image>
     </properties>
 
     <modules>
@@ -63,12 +67,12 @@
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
-                <version>4.7.1</version>
+                <version>4.7.3</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.9.2</version>
+                <version>5.9.3</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -96,6 +100,7 @@
     </dependencyManagement>
 
     <build>
+        <finalName>imagetool</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -135,7 +140,6 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.3.0</version>
                     <configuration>
-                        <finalName>${project.artifactId}</finalName>
                         <archive>
                             <manifest>
                                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -150,7 +154,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.1.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -214,7 +218,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.2.2</version>
                     <executions>
                         <execution>
                             <id>checkstyle</id>
@@ -226,6 +230,7 @@
                                 <consoleOutput>true</consoleOutput>
                                 <configLocation>weblogic-image-tool/checkstyle/customized_google_checks.xml</configLocation>
                                 <suppressionsLocation>weblogic-image-tool/checkstyle/suppressions.xml</suppressionsLocation>
+                                <inputEncoding>UTF-8</inputEncoding>
                                 <failOnViolation>true</failOnViolation>
                                 <violationSeverity>warning</violationSeverity>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -241,7 +246,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.8.1</version>
+                            <version>10.10.0</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -260,7 +265,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.8</version>
+                    <version>0.8.10</version>
                     <executions>
                         <execution>
                             <id>prepare-agent</id>
@@ -285,7 +290,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.3.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>

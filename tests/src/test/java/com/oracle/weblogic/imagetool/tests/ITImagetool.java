@@ -5,7 +5,6 @@ package com.oracle.weblogic.imagetool.tests;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -57,7 +56,8 @@ class ITImagetool {
     private static final String wlsImgCacheDir = System.getProperty("WLSIMG_CACHEDIR");
 
     // Docker images
-    private static final String DB_IMAGE = System.getProperty("DB_IMAGE");
+    private static String DB_IMAGE = System.getProperty("DB_IMAGE");
+    private static String JRE_IMAGE = System.getProperty("JRE_IMAGE");
 
     // Staging Dir files
     private static final String JDK_INSTALLER = "jdk-8u202-linux-x64.tar.gz";
@@ -104,20 +104,26 @@ class ITImagetool {
             missingSettings.add("STAGING_DIR");
         }
 
-        if (Utils.isEmptyString(DB_IMAGE)) {
-            missingSettings.add("DB_IMAGE");
-        }
-
         if (missingSettings.size() > 0) {
             String error = String.join(", ", missingSettings)
                 + " must be set as a system property in the pom.xml";
             throw new IllegalArgumentException(error);
         }
 
+        if (Utils.isEmptyString(DB_IMAGE)) {
+            //default to container-registry.oracle.com image
+            DB_IMAGE = "container-registry.oracle.com/database/enterprise:12.2.0.1-slim";
+        }
+
+        if (Utils.isEmptyString(JRE_IMAGE)) {
+            //default to container-registry.oracle.com image
+            JRE_IMAGE = "container-registry.oracle.com/java/serverjre:8";
+        }
+
         // get the build tag from Jenkins build environment variable BUILD_TAG
         build_tag = System.getenv("BUILD_TAG");
         if (build_tag != null) {
-            build_tag = build_tag.toLowerCase();
+            build_tag = build_tag.toLowerCase().replaceAll("\\s+", "-");
         } else {
             build_tag = "imagetool-itest";
         }
@@ -127,6 +133,7 @@ class ITImagetool {
         logger.info("WLSIMG_CACHEDIR = " + wlsImgCacheDir);
         logger.info("STAGING_DIR = " + STAGING_DIR);
         logger.info("DB_IMAGE = " + DB_IMAGE);
+        logger.info("JRE_IMAGE = " + JRE_IMAGE);
     }
 
     private static void verifyStagedFiles(String... installers) {
@@ -251,7 +258,7 @@ class ITImagetool {
             Files.createDirectories(outputPath.getParent());
             logger.info("Test log: {0}", outputPath.toString());
             return new PrintWriter(
-                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath.toString()))), true);
+                new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outputPath))), true);
         } else {
             throw new IllegalArgumentException("Method is not present in this context, and this method cannot be used");
         }
@@ -792,7 +799,6 @@ class ITImagetool {
 
     /**
      * create a JRF domain image using WDT
-     * You need to have OCR credentials to pull container-registry.oracle.com/database/enterprise:12.2.0.1-slim
      *
      * @throws Exception - if any error occurs
      */
@@ -976,7 +982,7 @@ class ITImagetool {
         String tagName = build_tag + ":" + getMethodName(testInfo);
         String command = new CreateCommand()
             .tag(tagName)
-            .fromImage("container-registry.oracle.com/java/serverjre:8")
+            .fromImage(JRE_IMAGE)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {

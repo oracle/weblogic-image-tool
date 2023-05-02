@@ -91,7 +91,8 @@
                         <WLSIMG_BLDDIR>${project.build.directory}/blddir</WLSIMG_BLDDIR>
                         <WLSIMG_CACHEDIR>${project.build.directory}/cachedir</WLSIMG_CACHEDIR>
                         <STAGING_DIR>${test.staging.dir}</STAGING_DIR>
-                        <DB_IMAGE>phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim</DB_IMAGE>
+                        <DB_IMAGE>${test.db.image}</DB_IMAGE>
+                        <JRE_IMAGE>${test.java.image}</JRE_IMAGE>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>

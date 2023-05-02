@@ -17,10 +17,15 @@
     && dnf clean all
 {{/useDnf}}
 {{#useMicroDnf}}
+    RUN microdnf -y update \
+    && microdnf -y install gzip tar unzip libaio libnsl jq findutils diffutils shadow-utils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && microdnf clean all
+{{/useMicroDnf}}
+{{#useMicroDnf8}}
     RUN microdnf update \
     && microdnf install gzip tar unzip libaio libnsl jq findutils diffutils shadow-utils {{#osPackages}}{{{.}}} {{/osPackages}}\
     && microdnf clean all
-{{/useMicroDnf}}
+{{/useMicroDnf8}}
 {{#useAptGet}}
     RUN apt-get -y update \
     && apt-get -y upgrade \
