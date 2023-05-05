@@ -3,6 +3,9 @@
 
 package com.oracle.weblogic.imagetool.builder;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +37,39 @@ class BuilderTest {
             .buildArg("http_proxy", "http://blah/blah");
         assertEquals(
             expected("--tag img:2 --pull --force-rm --network private-net --build-arg http_proxy=http://blah/blah"),
+            cmd.toString());
+    }
+
+    @Test
+    void testBuildArgsInMap() {
+        Map<String,String> argMap = new LinkedHashMap<>();
+        argMap.put("something", "else");
+        argMap.put("random", "data");
+
+        BuildCommand cmd = new BuildCommand(BUILD_ENGINE, BUILD_CONTEXT)
+            .tag("img:2")
+            .pull(true)
+            .forceRm(true)
+            .network("private-net")
+            .buildArg(argMap);
+        assertEquals(
+            expected("--tag img:2 --pull --force-rm --network private-net "
+                + "--build-arg something=else --build-arg random=data"),
+            cmd.toString());
+    }
+
+    @Test
+    void testBuildArgsInMap2() {
+        Map<String,String> argMap = null;
+
+        BuildCommand cmd = new BuildCommand(BUILD_ENGINE, BUILD_CONTEXT)
+            .tag("img:2")
+            .pull(true)
+            .forceRm(true)
+            .network("private-net")
+            .buildArg(argMap);
+        assertEquals(
+            expected("--tag img:2 --pull --force-rm --network private-net"),
             cmd.toString());
     }
 

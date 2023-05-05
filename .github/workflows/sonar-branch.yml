@@ -23,7 +23,7 @@ jobs:
           java-version: 11
       - name: Build and Test
         run: |
-          mvn -B clean test
+          mvn -B clean package
       - name: Sonar Scan
         run: |
           mvn -B sonar:sonar \

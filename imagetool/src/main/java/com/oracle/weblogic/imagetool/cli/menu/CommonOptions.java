@@ -417,7 +417,7 @@ public abstract class CommonOptions {
     KubernetesTarget kubernetesTarget = KubernetesTarget.DEFAULT;
 
     @Option(
-        names = {"--buildArgs"},
+        names = {"--build-arg"},
         description = "Additional argument passed directly to the build engine."
     )
     Map<String,String> buildArgs;
