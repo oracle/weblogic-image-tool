@@ -8,7 +8,10 @@ name: "PublishGitHubPages"
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - 'main'
+    paths:
+      - 'documentation/**'
   schedule:
     - cron: '15 3 * * 1'
 
