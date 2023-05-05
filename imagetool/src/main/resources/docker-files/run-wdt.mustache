@@ -4,6 +4,8 @@
 # Create WLS domain (or model)
 
 FROM {{{wdtBase}}} as wdt_build
+{{#buildArgs}}ARG {{{.}}}
+{{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 ENV WLSDEPLOY_PROPERTIES="{{{wlsdeploy_properties}}} -Djava.security.egd=file:/dev/./urandom" \

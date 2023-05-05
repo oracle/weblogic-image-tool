@@ -66,6 +66,7 @@ public class DockerfileOptions {
     private MiddlewareInstall mwInstallers;
     private boolean domainGroupAsUser;
     private boolean usingBusybox;
+    private List<String> buildArgs;
 
     // WDT values
     private String wdtHome;
@@ -97,6 +98,7 @@ public class DockerfileOptions {
         skipMiddlewareInstall = false;
         domainGroupAsUser = false;
         usingBusybox = false;
+        buildArgs = new ArrayList<>();
 
         javaHome = DEFAULT_JAVA_HOME;
         oracleHome = DEFAULT_ORACLE_HOME;
@@ -1117,6 +1119,25 @@ public class DockerfileOptions {
      */
     public DockerfileOptions usingBusybox(boolean value) {
         usingBusybox = value;
+        return this;
+    }
+
+    /**
+     * Used by mustache template to retrieve variable names for ARG in Dockerfile.
+     * @return list of variable names
+     */
+    @SuppressWarnings("unused")
+    public List<String> buildArgs() {
+        return buildArgs;
+    }
+
+    /**
+     * Add ARG statements to the Dockerfile.
+     * @param variableName an ARG name.
+     * @return this
+     */
+    public DockerfileOptions buildArgs(String variableName) {
+        buildArgs.add(variableName);
         return this;
     }
 }

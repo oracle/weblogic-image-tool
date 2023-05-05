@@ -6,6 +6,8 @@
 # Create Auxiliary Image for WebLogic Kubernetes Operator
 
 FROM {{baseImage}} as os_update
+{{#buildArgs}}ARG {{{.}}}
+{{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 USER root

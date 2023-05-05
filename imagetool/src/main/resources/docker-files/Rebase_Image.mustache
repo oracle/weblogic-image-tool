@@ -5,6 +5,8 @@
 {{#isRebaseToTarget}}
 FROM {{sourceImage}} as source_image
 FROM {{targetImage}} as final_build
+{{#buildArgs}}ARG {{{.}}}
+{{/buildArgs}}
 
 ENV DOMAIN_HOME={{{domain_home}}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
@@ -38,7 +40,8 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
     {{/installMiddleware}}
 
     FROM os_update as final_build
-
+    {{#buildArgs}}ARG {{{.}}}
+    {{/buildArgs}}
     ENV ORACLE_HOME={{{oracle_home}}} \
         LD_LIBRARY_PATH={{{oracle_home}}}/oracle_common/adr:$LD_LIBRARY_PATH \
     {{#installJava}}
