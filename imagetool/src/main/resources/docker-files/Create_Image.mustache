@@ -3,6 +3,8 @@
 #
 
 FROM {{baseImage}} as os_update
+{{#buildArgs}}ARG {{{.}}}
+{{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 USER root
 {{#initialBuildCommands}}
@@ -29,7 +31,8 @@ USER root
 {{/isWdtEnabled}}
 
 FROM os_update as final_build
-
+{{#buildArgs}}ARG {{{.}}}
+{{/buildArgs}}
 ENV ORACLE_HOME={{{oracle_home}}} \
     LD_LIBRARY_PATH={{{oracle_home}}}/oracle_common/adr:$LD_LIBRARY_PATH \
 {{#installJava}}

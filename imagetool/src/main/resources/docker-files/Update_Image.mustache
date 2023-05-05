@@ -7,6 +7,8 @@
 {{/isWdtEnabled}}
 
 FROM {{baseImage}} as final_build
+{{#buildArgs}}ARG {{{.}}}
+{{/buildArgs}}
 USER root
 
 ENV OPATCH_NO_FUSER=true
