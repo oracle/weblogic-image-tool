@@ -25,15 +25,15 @@ RUN cd {{{wdt_home}}} \
 && mkdir -p $(dirname {{{domain_home}}})
 
 {{#wdtModels}}
-    COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
+    COPY --chown={{userid}}:{{groupid}} ["{{{.}}}", "{{{wdt_model_home}}}/"]
 {{/wdtModels}}
 
 {{#wdtArchives}}
-    COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
+    COPY --chown={{userid}}:{{groupid}} ["{{{.}}}", "{{{wdt_model_home}}}/"]
 {{/wdtArchives}}
 
 {{#wdtVariables}}
-    COPY --chown={{userid}}:{{groupid}} {{{.}}} {{{wdt_model_home}}}/
+    COPY --chown={{userid}}:{{groupid}} ["{{{.}}}", "{{{wdt_model_home}}}/"]
 {{/wdtVariables}}
 
 RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-deploy || echo Initial WDT install \
