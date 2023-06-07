@@ -227,4 +227,19 @@ class CommonOptionsTest {
         new CommandLine(createImage).parseArgs("--tag", "x:1");
         assertFalse(createImage.isChownSet());
     }
+
+    @Test
+    void buildArgs() throws Exception {
+        CreateImage createImage = new CreateImage();
+        new CommandLine(createImage).parseArgs("--tag", "tag:1",
+            "--build-arg", "something=else", "--build-arg", "fast=break");
+
+        createImage.initializeOptions();
+        // access the private field to view the dockerfile options that will be used at runtime
+        Field options = CommonOptions.class.getDeclaredField("dockerfileOptions");
+        options.setAccessible(true);
+        DockerfileOptions dockerfile = (DockerfileOptions) options.get(createImage);
+        assertEquals(2, dockerfile.buildArgs().size());
+        assertEquals("something", dockerfile.buildArgs().get(0));
+    }
 }

@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -123,6 +124,7 @@ public abstract class CommonOptions {
             .tag(imageTag)
             .network(buildNetwork)
             .pull(buildPull)
+            .buildArg(buildArgs)
             .buildArg("http_proxy", httpProxyUrl, httpProxyUrl != null && httpProxyUrl.contains("@"))
             .buildArg("https_proxy", httpsProxyUrl, httpsProxyUrl != null && httpsProxyUrl.contains("@"))
             .buildArg("no_proxy", nonProxyHosts);
@@ -174,6 +176,12 @@ public abstract class CommonOptions {
         handleProxyUrls();
         handleChown();
         handleAdditionalBuildCommands();
+
+        if (buildArgs != null) {
+            for (String arg : buildArgs.keySet()) {
+                dockerfileOptions.buildArgs(arg);
+            }
+        }
 
         if (kubernetesTarget == KubernetesTarget.OPENSHIFT) {
             dockerfileOptions.setDomainGroupAsUser(true);
@@ -407,6 +415,12 @@ public abstract class CommonOptions {
             + "  Supported values: ${COMPLETION-CANDIDATES}."
     )
     KubernetesTarget kubernetesTarget = KubernetesTarget.DEFAULT;
+
+    @Option(
+        names = {"--build-arg"},
+        description = "Additional argument passed directly to the build engine."
+    )
+    Map<String,String> buildArgs;
 
     @SuppressWarnings("unused")
     @Unmatched

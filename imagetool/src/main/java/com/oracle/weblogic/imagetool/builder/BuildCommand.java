@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -95,6 +96,21 @@ public class BuildCommand {
         arg.value = value;
         arg.conceal = conceal;
         buildArgs.add(arg);
+        return this;
+    }
+
+    /**
+     * Add multiple --build-arg key value pairs to the Docker build command.
+     * @param keyValuePairs A map of key-value pairs to be used directly with the container image builder
+     */
+    public BuildCommand buildArg(Map<String,String> keyValuePairs) {
+        if (keyValuePairs == null || keyValuePairs.isEmpty()) {
+            return this;
+        }
+
+        for (Map.Entry<String,String> entry : keyValuePairs.entrySet()) {
+            buildArg(entry.getKey(), entry.getValue());
+        }
         return this;
     }
 

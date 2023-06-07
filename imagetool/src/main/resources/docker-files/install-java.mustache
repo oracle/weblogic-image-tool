@@ -4,6 +4,8 @@
 # Installing Java
 
 FROM os_update as jdk_build
+{{#buildArgs}}ARG {{{.}}}
+{{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 ENV JAVA_HOME={{{java_home}}}
