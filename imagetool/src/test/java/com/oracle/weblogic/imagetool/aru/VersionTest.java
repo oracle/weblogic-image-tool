@@ -68,7 +68,7 @@ class VersionTest {
         assertEquals(a, b);
         assertEquals(b, a);
         assertEquals(a, a);
-        assertNotEquals(a, null);
+        assertNotEquals(null, a);
     }
 
     @Test
