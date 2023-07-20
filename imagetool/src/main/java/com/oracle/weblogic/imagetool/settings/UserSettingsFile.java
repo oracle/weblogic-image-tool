@@ -244,9 +244,15 @@ public class UserSettingsFile {
         for (Map.Entry<String, Object> entry: installerFolder.entrySet()) {
             String key = entry.getKey();
             if (key != null && !key.isEmpty()) {
-                installers.put(
-                    InstallerType.valueOf(key.toUpperCase()),
-                    new InstallerSettings((Map<String, Object>) entry.getValue()));
+                key = key.toUpperCase();
+                try {
+                    installers.put(
+                        InstallerType.valueOf(key),
+                        new InstallerSettings((Map<String, Object>) entry.getValue()));
+                } catch (IllegalArgumentException illegal) {
+                    logger.warning("settings for {0} could not be loaded.  {0} is not a valid installer type: {1}",
+                                    key, InstallerType.class.getEnumConstants());
+                }
             }
         }
         logger.exiting();
