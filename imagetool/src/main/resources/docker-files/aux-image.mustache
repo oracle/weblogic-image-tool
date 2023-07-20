@@ -27,14 +27,14 @@ RUN mkdir -p {{{wdt_home}}} \
  && chown {{userid}}:{{groupid}} {{{wdt_home}}}
 
 {{#installWdt}}
-    COPY --chown={{userid}}:{{groupid}} {{{wdtInstaller}}} {{{tempDir}}}/
+    COPY --chown={{userid}}:{{groupid}} ["{{{wdtInstaller}}}", "{{{tempDir}}}/"]
 
     RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-deploy || echo Initial WDT install \
     {{#usingWdtTarGzInstaller}}
-        && tar zxf {{{tempDir}}}/{{{wdtInstaller}}} -C {{{wdt_home}}}
+        && tar zxf "{{{tempDir}}}/{{{wdtInstaller}}}" -C {{{wdt_home}}}
     {{/usingWdtTarGzInstaller}}
     {{^usingWdtTarGzInstaller}}
-        && unzip -q {{{tempDir}}}/{{{wdtInstaller}}} -d {{{wdt_home}}}
+        && unzip -q "{{{tempDir}}}/{{{wdtInstaller}}}" -d {{{wdt_home}}}
     {{/usingWdtTarGzInstaller}}
 {{/installWdt}}
 
