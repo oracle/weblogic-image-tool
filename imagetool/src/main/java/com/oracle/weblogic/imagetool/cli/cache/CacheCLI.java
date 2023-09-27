@@ -3,11 +3,8 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
-import java.util.List;
-
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Unmatched;
 
 @Command(
     name = "cache",
@@ -24,7 +21,4 @@ import picocli.CommandLine.Unmatched;
     sortOptions = false
 )
 public class CacheCLI {
-
-    @Unmatched
-    List<String> unmatchedOptions;
 }
