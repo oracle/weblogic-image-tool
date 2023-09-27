@@ -14,6 +14,7 @@ import com.oracle.weblogic.imagetool.cli.menu.RebaseImage;
 import com.oracle.weblogic.imagetool.cli.menu.UpdateImage;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParseResult;
@@ -66,10 +67,10 @@ public class ImageTool {
      * @param args the command line arguments (minus the sub commands themselves)
      */
     public static CommandResponse run(Object entryPoint, PrintWriter out, PrintWriter err, String... args) {
+        System.setProperty("picocli.endofoptions.description", Utils.getMessage("IMG-0119"));
         CommandLine cmd = new CommandLine(entryPoint)
             .setCaseInsensitiveEnumValuesAllowed(true)
             .setToggleBooleanFlags(false)
-            .setUnmatchedArgumentsAllowed(false)
             .setTrimQuotes(true)
             .setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.AUTO))
             .setParameterExceptionHandler(new ExceptionHandler())

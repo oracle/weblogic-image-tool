@@ -30,6 +30,7 @@ public class BuildCommand {
 
     private final List<String> command;
     private final List<BuildArg> buildArgs;
+    private List<String> additionalOptions;
     private final String context;
 
     /**
@@ -68,6 +69,11 @@ public class BuildCommand {
         if (value) {
             command.add("--force-rm");
         }
+        return this;
+    }
+
+    public BuildCommand additionalOptions(List<String> options) {
+        additionalOptions = options;
         return this;
     }
 
@@ -232,6 +238,9 @@ public class BuildCommand {
 
     private List<String> getCommand(boolean showPasswords) {
         List<String> result = new ArrayList<>(command);
+        if (additionalOptions != null && !additionalOptions.isEmpty()) {
+            result.addAll(additionalOptions);
+        }
         for (BuildArg arg : buildArgs) {
             result.addAll(arg.toList(showPasswords));
         }

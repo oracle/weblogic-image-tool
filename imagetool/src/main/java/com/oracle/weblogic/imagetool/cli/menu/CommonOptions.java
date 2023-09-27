@@ -31,8 +31,8 @@ import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Unmatched;
 
 import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX_OS_IDS;
 
@@ -124,6 +124,7 @@ public abstract class CommonOptions {
             .tag(imageTag)
             .network(buildNetwork)
             .pull(buildPull)
+            .additionalOptions(buildOptions)
             .buildArg(buildArgs)
             .buildArg("http_proxy", httpProxyUrl, httpProxyUrl != null && httpProxyUrl.contains("@"))
             .buildArg("https_proxy", httpsProxyUrl, httpsProxyUrl != null && httpsProxyUrl.contains("@"))
@@ -422,9 +423,11 @@ public abstract class CommonOptions {
     )
     Map<String,String> buildArgs;
 
-    @SuppressWarnings("unused")
-    @Unmatched
-    List<String> unmatchedOptions;
+    @Parameters(
+        description = "Container build options.",
+        hidden = true
+    )
+    List<String> buildOptions;
 
     @Spec
     CommandLine.Model.CommandSpec spec;
