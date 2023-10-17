@@ -86,7 +86,7 @@ public class Utils {
         Objects.requireNonNull(sourcePath);
         Objects.requireNonNull(destPath);
         logger.fine("copyLocalFile: copying file {0}->{1}", sourcePath, destPath);
-        Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
     }
 
     /**
