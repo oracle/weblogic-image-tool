@@ -95,9 +95,9 @@ public class OPatchFile extends PatchFile {
                                               String userid, String password)
         throws XPathExpressionException, IOException, AruException {
 
-        List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password);
-        // filter ARU results based on access flag (discard protected versions)
-        patches = patches.stream().filter(AruPatch::isOpenAccess).collect(Collectors.toList());
+        List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password)
+            .filter(AruPatch::isOpenAccess) // filter ARU results based on access flag (discard protected versions)
+            .collect(Collectors.toList());
         logger.fine("Found {0} OPatch versions for id {1}", patches.size(), patchNumber);
 
         AruPatch selectedPatch;
@@ -110,10 +110,8 @@ public class OPatchFile extends PatchFile {
                 throw new VersionNotFoundException(patchNumber, providedVersion, patches);
             }
         } else {
-            // Sort the patches list from highest to lowest (newest to oldest)
-            List<AruPatch> sortedList = patches.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
             // Select the newest (highest numbered) patch
-            selectedPatch = sortedList.stream().findFirst().orElse(null);
+            selectedPatch = patches.stream().max(Comparator.naturalOrder()).orElse(null);
         }
         return selectedPatch;
     }

@@ -226,7 +226,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 providedVersion = patchId.substring(split + 1);
                 patchId = patchId.substring(0, split);
             }
-            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password);
+            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
+                .collect(Collectors.toList());
 
             // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
             if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
