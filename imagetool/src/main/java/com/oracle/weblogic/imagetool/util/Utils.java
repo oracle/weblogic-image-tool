@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -742,5 +743,21 @@ public class Utils {
     @SafeVarargs
     public static <T> Set<T> toSet(T... array) {
         return toSet(Arrays.asList(array));
+    }
+
+    /**
+     * Returns a predicate for function chaining that is the negation
+     * of the supplied predicate.
+     *
+     * @param <T>     the type of argument
+     * @param target  value to negate
+     * @return negated value
+     * @throws NullPointerException if the target is null
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Predicate<T> not(Predicate<? super T> target) {
+        //TODO: remove this method after moving to JDK 11+
+        Objects.requireNonNull(target);
+        return (Predicate<T>)target.negate();
     }
 }

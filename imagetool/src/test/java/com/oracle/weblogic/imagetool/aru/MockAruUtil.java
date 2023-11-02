@@ -5,8 +5,7 @@ package com.oracle.weblogic.imagetool.aru;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
+import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.ResourceUtils;
@@ -28,11 +27,11 @@ public class MockAruUtil extends AruUtil {
     }
 
     @Override
-    public List<AruPatch> getPatches(String bugNumber, String user, String password)
+    public Stream<AruPatch> getPatches(String bugNumber, String user, String password)
         throws IOException, XPathExpressionException {
         if (user == null || password == null) {
             // running in offline mode (no credentials to connect to ARU)
-            return Collections.singletonList(new AruPatch().patchId(bugNumber));
+            return Stream.of(new AruPatch().patchId(bugNumber));
         } else {
             return AruPatch.getPatches(
                 ResourceUtils.getXmlFromResource("/patches/patch-" + bugNumber + ".xml"));
