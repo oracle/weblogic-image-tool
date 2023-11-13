@@ -31,7 +31,7 @@ Update WebLogic Docker image with selected patches
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |  |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`. | |
-| `--chown` | `userid:groupid` for middleware patches and other operations. | Owner:Group of the Oracle Home |
+| `--chown` | `userid:groupid` to be used for creating files and applying middleware patches within the image. The userid and groupid must already exist in the image. | Defaults to the user and group of the Oracle Home in the provided image. |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout. | |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080` |  |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080` |  |
