@@ -12,20 +12,20 @@
     <title>Update Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1699845522" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1699845522" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1699915149" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699845522"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699915149"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699845522"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699845522"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699915149"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699845522"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699915149"></script>
 
     
   </div>
@@ -765,8 +765,8 @@ Update WebLogic Docker image with selected patches
 </tr>
 <tr>
 <td><code>--chown</code></td>
-<td><code>userid:groupid</code> for middleware patches and other operations.</td>
-<td>Owner:Group of the Oracle Home</td>
+<td><code>userid:groupid</code> to be used for creating files and applying middleware patches within the image. The userid and groupid must already exist in the image.</td>
+<td>Defaults to the user and group of the Oracle Home in the provided image.</td>
 </tr>
 <tr>
 <td><code>--dryRun</code></td>
@@ -1515,19 +1515,19 @@ located in a subfolder named <code>wdt</code>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1699845522"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699845522"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699845522"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699845522"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1699845522"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1699845522"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1699915149"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699845522"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1699845522"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1699845522"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1699915149"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699845522"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699915149"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
