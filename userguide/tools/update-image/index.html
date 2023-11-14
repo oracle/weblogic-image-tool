@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="generator" content="Hugo 0.108.0">
     <meta name="description" content="The update command creates a new container image by applying WebLogic patches to an existing image.">
 
 
@@ -12,20 +12,20 @@
     <title>Update Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1699994638" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699994638"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699915149"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699994638"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699994638"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699994638"></script>
 
     
   </div>
@@ -721,9 +721,8 @@ command to update the existing container images created with the Image Tool.  Fo
 </ul>
 <p><strong>NOTE</strong>: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID <a href="https://support.oracle.com/rs?type=doc&amp;id=2764636.1">2764636.1</a>), because an SPB is <em>not</em> a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation.</p>
 <p>The required options for the <code>update</code> command are marked.</p>
-<pre><code>Usage: imagetool update [OPTIONS]
+<pre tabindex="0"><code>Usage: imagetool update [OPTIONS]
 Update WebLogic Docker image with selected patches
-
 </code></pre><table>
 <thead>
 <tr>
@@ -973,13 +972,13 @@ The input for this parameter is a simple text file that contains one or more of 
 The Image Tool will copy the domain home and the WDT home directories to the final image.<br>
 Changes fully contained within these directories do not need an additional <code>COPY</code> command in the <code>final-build-commands</code> section.</p>
 <p>Each section can contain one or more valid Dockerfile commands and would look like the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#f92672">[</span>after-fmw-install<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> rm /some/dir/unnecessary-file<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /u01<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#f92672">[</span>after-fmw-install<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> rm /some/dir/unnecessary-file<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /u01<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
 <p>This option provides a way to supply additional files to the image build command.
 All provided files and directories are copied directly under the <code>files</code> subfolder of the build context.<br>
 To get those files into the image, additional build commands must be provided using the <code>additionalBuildCommands</code> options.
@@ -1061,36 +1060,35 @@ the placeholders will be replaced with values according to the following table.<
 <h4 id="use-an-argument-file">Use an argument file</h4>
 <p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
 <p>For example, create a file called <code>build_args</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">update
---fromImage weblogic:12.2.1.3.0
---tag wls:122130-patched
---patches <span style="color:#ae81ff">123456</span>
---user acmeuser@mycompany.com
---passwordEnv MYPWD
-
-</code></pre></div><p>Use it on the command line, as follows:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool @/path/to/build_args
-</code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>update
+</span></span><span style="display:flex;"><span>--fromImage weblogic:12.2.1.3.0
+</span></span><span style="display:flex;"><span>--tag wls:122130-patched
+</span></span><span style="display:flex;"><span>--patches <span style="color:#ae81ff">123456</span>
+</span></span><span style="display:flex;"><span>--user acmeuser@mycompany.com
+</span></span><span style="display:flex;"><span>--passwordEnv MYPWD
+</span></span></code></pre></div><p>Use it on the command line, as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool @/path/to/build_args
+</span></span></code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
 <p><strong>Note</strong>: Use <code>--passwordEnv</code> or <code>--passwordFile</code> instead of <code>--password</code>.</p>
 <ul>
 <li>
 <p>Update an image named <code>sample:1.0</code> by applying the latest PSU and tag it as <code>sample:1.1</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool update --fromImage sample:1.0 --tag sample:1.1 --latestPSU --user test@xyz.com --passwordEnv MYVAR
+</span></span></code></pre></div></li>
 <li>
 <p>Update an image named <code>sample:1.0</code> with the selected patches applied and tag it as <code>sample:1.1</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,87654321
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,87654321
+</span></span></code></pre></div></li>
 <li>
 <p>Update an image named <code>wls:12.2.1.3.0</code> by creating a new WebLogic domain using WDT and tag it as <code>mydomain:1</code>.  The WDT
 installer is accessed from the cache with key wdt_1.1.1.  The model and archive to use are located in a subfolder named <code>wdt</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool update --fromImage wls:12.2.1.3.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool update --fromImage wls:12.2.1.3.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
+</span></span></code></pre></div></li>
 <li>
 <p>Use <code>deployApps</code> from WDT to deploy a new application, the WLS Metrics Exporter.  The model and archive to use are
 located in a subfolder named <code>wdt</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool update --tag mydomain:2 --fromImage mydomain:1 --wdtOperation deploy --wdtArchive ./wdt/exporter_archive.zip --wdtModel ./wdt/exporter_model.yaml --wdtVersion 1.1.1   
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool update --tag mydomain:2 --fromImage mydomain:1 --wdtOperation deploy --wdtArchive ./wdt/exporter_archive.zip --wdtModel ./wdt/exporter_model.yaml --wdtVersion 1.1.1   
+</span></span></code></pre></div></li>
 </ul>
 
 
@@ -1515,19 +1513,19 @@ located in a subfolder named <code>wdt</code>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1699994638"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1699994638"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699915149"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699994638"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

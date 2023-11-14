@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="generator" content="Hugo 0.108.0">
     <meta name="description" content="The createAuxImage command creates a new container image with WDT install and optional models, archives, and variables files.">
 
 
@@ -12,20 +12,20 @@
     <title>Create Auxiliary Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1699994638" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699994638"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699915149"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699994638"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699994638"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699994638"></script>
 
     
   </div>
@@ -716,7 +716,7 @@ for <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-doma
 These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files,
 in your WebLogic Server Kubernetes Operator environment.</p>
 <p>There are a number of optional parameters for this feature. The required option for the command is marked.</p>
-<pre><code>Usage: imagetool createAuxImage [OPTIONS]
+<pre tabindex="0"><code>Usage: imagetool createAuxImage [OPTIONS]
 </code></pre><table>
 <thead>
 <tr>
@@ -864,10 +864,10 @@ Valid sections for <code>createAuxImage</code> are:</p>
 </tbody>
 </table>
 <p>Each section can contain one or more valid Dockerfile commands and would look like the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /auxiliary<span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /auxiliary<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
 <p>This option provides a way to supply additional files to the image build command.
 All provided files and directories are copied directly under the <code>files</code> subfolder of the build context.<br>
 To get those files into the image, additional build commands must be provided using the <code>additionalBuildCommands</code> options.
@@ -913,24 +913,24 @@ version of WDT is installed in the Auxiliary image with the selected models, arc
 <h4 id="use-an-argument-file">Use an argument file</h4>
 <p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
 <p>For example, create a file called <code>build_args</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">createAuxImage
---tag mydomain:1
---wdtModel ./my_domain.yaml
---wdtArchive ./my_domain.zip
-</code></pre></div><p>Use it on the command line, as follows:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool @/path/to/build_args
-</code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>createAuxImage
+</span></span><span style="display:flex;"><span>--tag mydomain:1
+</span></span><span style="display:flex;"><span>--wdtModel ./my_domain.yaml
+</span></span><span style="display:flex;"><span>--wdtArchive ./my_domain.zip
+</span></span></code></pre></div><p>Use it on the command line, as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool @/path/to/build_args
+</span></span></code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
 <p>The following commands assume that the required WDT installer has been downloaded and added to the ImageTool cache.
 Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command to set it up.</p>
 <ul>
 <li>
 <p>Create an image named <code>wdt:1.10</code> with the latest <a href="https://oracle.github.io/weblogic-deploy-tooling/">WebLogic Deploy Tooling</a> version.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool createAuxImage --tag wdt:1.10
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool createAuxImage --tag wdt:1.10
+</span></span></code></pre></div></li>
 <li>
 <p>Create an image named <code>mydomain:1</code> with the same options as above and add a WDT model and archive.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool create --tag mydomain:1 --wdtModel /path/to/my_domain.yaml --wdtArchive /path/to/my_domain.zip
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool create --tag mydomain:1 --wdtModel /path/to/my_domain.yaml --wdtArchive /path/to/my_domain.zip
+</span></span></code></pre></div></li>
 </ul>
 
 
@@ -1355,19 +1355,19 @@ Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1699994638"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1699994638"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699915149"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699994638"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

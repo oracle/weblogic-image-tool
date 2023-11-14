@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="generator" content="Hugo 0.108.0">
     <meta name="description" content="The rebase command creates a new container image using an existing WebLogic domain from an existing image.">
 
 
@@ -12,20 +12,20 @@
     <title>Rebase Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1699994638" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699994638"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699915149"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699994638"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699994638"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699994638"></script>
 
     
   </div>
@@ -713,7 +713,7 @@
 <p>The <code>rebase</code> command creates a new container image and copies an existing WebLogic domain to that new image.<br>
 The new container image can be based on an existing image in the repository or created as part of the rebase operation
 similar to the <code>create</code> command.</p>
-<pre><code>Usage: imagetool rebase [OPTIONS]
+<pre tabindex="0"><code>Usage: imagetool rebase [OPTIONS]
 </code></pre><table>
 <thead>
 <tr>
@@ -936,13 +936,13 @@ The input for this parameter is a simple text file that contains one or more of 
 The Image Tool will copy the Java Home and the Oracle Home directories to the final image.<br>
 Changes fully contained within these directories do not need an additional <code>COPY</code> command in the <code>final-build-commands</code> section.
 Each section can contain one or more valid Dockerfile commands and would look like the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#f92672">[</span>after-fmw-install<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> rm /some/dir/unnecessary-file<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /u01<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#f92672">[</span>after-fmw-install<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> rm /some/dir/unnecessary-file<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /u01<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
 <p>This option provides a way to supply additional files to the image build command.
 All provided files and directories are copied directly under the <code>files</code> subfolder of the build context.<br>
 To get those files into the image, additional build commands must be provided using the <code>additionalBuildCommands</code> options.
@@ -986,14 +986,14 @@ so that the group permissions match the user permissions.</p>
 <h4 id="use-an-argument-file">Use an argument file</h4>
 <p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
 <p>For example, create a file called <code>build_args</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">rebase
---tag wls:122140
---sourceImage wls:122130
---version 12.2.1.4.0
---jdkVersion 8u221
-</code></pre></div><p>Use it on the command line, as follows:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool @/path/to/build_args
-</code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rebase
+</span></span><span style="display:flex;"><span>--tag wls:122140
+</span></span><span style="display:flex;"><span>--sourceImage wls:122130
+</span></span><span style="display:flex;"><span>--version 12.2.1.4.0
+</span></span><span style="display:flex;"><span>--jdkVersion 8u221
+</span></span></code></pre></div><p>Use it on the command line, as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool @/path/to/build_args
+</span></span></code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
 <p><strong>Note</strong>: Use <code>--passwordEnv</code> or <code>--passwordFile</code> instead of <code>--password</code>.</p>
 <p>The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
 to the cache directory. Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command to set it up.</p>
@@ -1001,20 +1001,20 @@ to the cache directory. Use the <a href="/weblogic-image-tool/userguide/tools/ca
 <li>
 <p>Update the JDK for an existing domain.  Copy the existing domain from <code>sample:v1</code> where the JDK was 8u202 to a new
 image called <code>sample:v2</code> and install the newer JDK 8u221 with WebLogic Server 12.2.1.3.0.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
+</span></span></code></pre></div></li>
 <li>
 <p>Update the Oracle Home for an existing domain with a newer WebLogic version.  Copy a domain from an existing image to
 a new image with a new install of WebLogic Server 12.2.1.4.0.  Copy the domain
 from <code>sample:v1</code> and select the desired WebLogic installer using the <code>--version</code> argument.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
+</span></span></code></pre></div></li>
 <li>
 <p>Update the JDK and/or Oracle Home for an existing domain using another image with pre-installed binaries.
 Copy the domain from the source image named <code>sample:v1</code> to a new image called <code>sample:v2</code> based on a target image
 named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK must be installed in the same same folders on each image.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
+</span></span></code></pre></div></li>
 </ul>
 
 
@@ -1439,19 +1439,19 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1699994638"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1699994638"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699915149"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699994638"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

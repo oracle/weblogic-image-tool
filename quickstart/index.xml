@@ -15,7 +15,7 @@
       <guid>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/</guid>
       <description>Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements.
 Overview The high level steps for creating an image are:
- Download the Java and WebLogic installers from the Oracle Software Delivery Cloud. Add the installers to the cache store. Run the imagetool command to create the image.  Do this   Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
+Download the Java and WebLogic installers from the Oracle Software Delivery Cloud. Add the installers to the cache store. Run the imagetool command to create the image. Do this Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
     </item>
     
   </channel>

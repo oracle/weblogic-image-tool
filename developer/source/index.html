@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="generator" content="Hugo 0.108.0">
     <meta name="description" content="">
 
 
@@ -12,20 +12,20 @@
     <title>Build from source :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1699994638" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699994638"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699915149"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699994638"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699994638"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699994638"></script>
 
     
   </div>
@@ -729,10 +729,10 @@ and <code>STAGING_DIR</code>.  The first two, Oracle Support user name and passw
 The third, <code>STAGING_DIR</code>, should be a local folder where WebLogic Server installers, JDK installers, and pre-downloaded
 patches can be found.  The files required in the <code>STAGING_DIR</code> depend on which tests that you want to run.</p>
 <p><strong>Example</strong>: Run a set of integration tests (available groups are <code>cache</code>, <code>gate</code>, and <code>nightly</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mvn verify -Dtest.groups<span style="color:#f92672">=</span>cache
-</code></pre></div><p><strong>Example</strong>: Run a single integration test:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mvn verify -Dtest.groups<span style="color:#f92672">=</span>gate,nightly -Dit.test<span style="color:#f92672">=</span>ITImagetool#createWlsImg
-</code></pre></div><p>Integration Test groups:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ mvn verify -Dtest.groups<span style="color:#f92672">=</span>cache
+</span></span></code></pre></div><p><strong>Example</strong>: Run a single integration test:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ mvn verify -Dtest.groups<span style="color:#f92672">=</span>gate,nightly -Dit.test<span style="color:#f92672">=</span>ITImagetool#createWlsImg
+</span></span></code></pre></div><p>Integration Test groups:</p>
 <ul>
 <li><code>cache</code> - Tests that build and manipulate the Image Tool cache.</li>
 <li><code>gate</code>  - A basic set of integration tests that are used to validate merge requests, including building several
@@ -1158,19 +1158,19 @@ group first to populate the cache with the WLS and JDK installers.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1699994638"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1699994638"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699915149"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699994638"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

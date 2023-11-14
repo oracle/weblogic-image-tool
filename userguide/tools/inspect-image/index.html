@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="generator" content="Hugo 0.108.0">
     <meta name="description" content="The inspect command reports on the contents of a container image.">
 
 
@@ -12,20 +12,20 @@
     <title>Inspect Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1699915149" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1699915149" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1699994638" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1699994638" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1699994638"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699915149"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1699994638"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1699994638"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699915149"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1699994638"></script>
 
     
   </div>
@@ -712,7 +712,7 @@
 
 <p>The <code>inspect</code> command reports on the contents of a container image providing version and location information for Java
 and WebLogic installations.</p>
-<pre><code>Usage: imagetool inspect [OPTIONS]
+<pre tabindex="0"><code>Usage: imagetool inspect [OPTIONS]
 </code></pre><table>
 <thead>
 <tr>
@@ -747,50 +747,50 @@ and WebLogic installations.</p>
 <h4 id="use-an-argument-file">Use an argument file</h4>
 <p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
 <p>For example, create a file called <code>build_args</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">inspect
---image wls:12.2.1.4.0
---patches
-</code></pre></div><p>Use the argument file on the command line, as follows:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool @/path/to/build_args
-</code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>inspect
+</span></span><span style="display:flex;"><span>--image wls:12.2.1.4.0
+</span></span><span style="display:flex;"><span>--patches
+</span></span></code></pre></div><p>Use the argument file on the command line, as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool @/path/to/build_args
+</span></span></code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
 <ul>
 <li>
 <p>Inspect an image created with the <code>create</code> command where the latest PSU was applied.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool.sh inspect --image example:12214 --patches
-</code></pre></div><p>The output will be in JSON format and will be similar to:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;oraclePatches&#34;</span> : [
-    {
-      <span style="color:#f92672">&#34;patch&#34;</span> : <span style="color:#e6db74">&#34;xxxxxxx&#34;</span>,
-      <span style="color:#f92672">&#34;description&#34;</span> : <span style="color:#e6db74">&#34;WLS PATCH SET UPDATE 12.2.1.4.xxxxxxx&#34;</span>
-    }
-  ],
-  <span style="color:#f92672">&#34;javaHome&#34;</span> : <span style="color:#e6db74">&#34;/u01/jdk&#34;</span>,
-  <span style="color:#f92672">&#34;javaVersion&#34;</span> : <span style="color:#e6db74">&#34;1.8.0_xxx&#34;</span>,
-  <span style="color:#f92672">&#34;opatchVersion&#34;</span> : <span style="color:#e6db74">&#34;13.9.4.2.5&#34;</span>,
-  <span style="color:#f92672">&#34;oracleHome&#34;</span> : <span style="color:#e6db74">&#34;/u01/oracle&#34;</span>,
-  <span style="color:#f92672">&#34;oracleHomeGroup&#34;</span> : <span style="color:#e6db74">&#34;oracle&#34;</span>,
-  <span style="color:#f92672">&#34;oracleHomeUser&#34;</span> : <span style="color:#e6db74">&#34;oracle&#34;</span>,
-  <span style="color:#f92672">&#34;oracleInstalledProducts&#34;</span> : <span style="color:#e6db74">&#34;WLS,COH,TOPLINK&#34;</span>,
-  <span style="color:#f92672">&#34;packageManager&#34;</span> : <span style="color:#e6db74">&#34;YUM&#34;</span>,
-  <span style="color:#f92672">&#34;wlsVersion&#34;</span> : <span style="color:#e6db74">&#34;12.2.1.4.0&#34;</span>
-}
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool.sh inspect --image example:12214 --patches
+</span></span></code></pre></div><p>The output will be in JSON format and will be similar to:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oraclePatches&#34;</span> : [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;patch&#34;</span> : <span style="color:#e6db74">&#34;xxxxxxx&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;description&#34;</span> : <span style="color:#e6db74">&#34;WLS PATCH SET UPDATE 12.2.1.4.xxxxxxx&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;javaHome&#34;</span> : <span style="color:#e6db74">&#34;/u01/jdk&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;javaVersion&#34;</span> : <span style="color:#e6db74">&#34;1.8.0_xxx&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;opatchVersion&#34;</span> : <span style="color:#e6db74">&#34;13.9.4.2.5&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oracleHome&#34;</span> : <span style="color:#e6db74">&#34;/u01/oracle&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oracleHomeGroup&#34;</span> : <span style="color:#e6db74">&#34;oracle&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oracleHomeUser&#34;</span> : <span style="color:#e6db74">&#34;oracle&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oracleInstalledProducts&#34;</span> : <span style="color:#e6db74">&#34;WLS,COH,TOPLINK&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;packageManager&#34;</span> : <span style="color:#e6db74">&#34;YUM&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;wlsVersion&#34;</span> : <span style="color:#e6db74">&#34;12.2.1.4.0&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></li>
 <li>
 <p>Inspect the same image without the optional <code>--patches</code> switch.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ imagetool.sh inspect --image example:12214
-</code></pre></div><p>The output will be in JSON format and will be similar to:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;javaHome&#34;</span> : <span style="color:#e6db74">&#34;/u01/jdk&#34;</span>,
-  <span style="color:#f92672">&#34;javaVersion&#34;</span> : <span style="color:#e6db74">&#34;1.8.0_xxx&#34;</span>,
-  <span style="color:#f92672">&#34;oracleHome&#34;</span> : <span style="color:#e6db74">&#34;/u01/oracle&#34;</span>,
-  <span style="color:#f92672">&#34;oracleHomeGroup&#34;</span> : <span style="color:#e6db74">&#34;oracle&#34;</span>,
-  <span style="color:#f92672">&#34;oracleHomeUser&#34;</span> : <span style="color:#e6db74">&#34;oracle&#34;</span>,
-  <span style="color:#f92672">&#34;oracleInstalledProducts&#34;</span> : <span style="color:#e6db74">&#34;WLS,COH,TOPLINK&#34;</span>,
-  <span style="color:#f92672">&#34;packageManager&#34;</span> : <span style="color:#e6db74">&#34;YUM&#34;</span>,
-  <span style="color:#f92672">&#34;wlsVersion&#34;</span> : <span style="color:#e6db74">&#34;12.2.1.4.0&#34;</span>
-}
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool.sh inspect --image example:12214
+</span></span></code></pre></div><p>The output will be in JSON format and will be similar to:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;javaHome&#34;</span> : <span style="color:#e6db74">&#34;/u01/jdk&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;javaVersion&#34;</span> : <span style="color:#e6db74">&#34;1.8.0_xxx&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oracleHome&#34;</span> : <span style="color:#e6db74">&#34;/u01/oracle&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oracleHomeGroup&#34;</span> : <span style="color:#e6db74">&#34;oracle&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oracleHomeUser&#34;</span> : <span style="color:#e6db74">&#34;oracle&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;oracleInstalledProducts&#34;</span> : <span style="color:#e6db74">&#34;WLS,COH,TOPLINK&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;packageManager&#34;</span> : <span style="color:#e6db74">&#34;YUM&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;wlsVersion&#34;</span> : <span style="color:#e6db74">&#34;12.2.1.4.0&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></li>
 </ul>
 
 
@@ -1215,19 +1215,19 @@ and WebLogic installations.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1699994638"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1699915149"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1699915149"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1699994638"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1699994638"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699915149"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1699994638"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
