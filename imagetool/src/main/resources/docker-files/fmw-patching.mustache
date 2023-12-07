@@ -19,7 +19,8 @@
         # Apply all patches provided at the same time
         RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -nonrollbackable -phBaseDir {{{tempDir}}}/patches \
         && test $? -eq 0 \
-        && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
+        && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
+        || (cat {{{oracle_home}}}/cfgtoollogs/opatch/opatch*.log && exit 1)
     {{/strictPatchOrdering}}
     {{#strictPatchOrdering}}
         # Apply one patch at a time in the order they were specified
