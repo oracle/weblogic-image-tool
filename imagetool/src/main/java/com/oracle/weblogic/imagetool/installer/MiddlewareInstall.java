@@ -15,6 +15,8 @@ import java.util.zip.ZipFile;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -31,7 +33,7 @@ public class MiddlewareInstall {
      * @param type the requested middleware install type
      */
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles)
-        throws FileNotFoundException {
+        throws FileNotFoundException, CacheStoreException {
 
         logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
@@ -41,6 +43,19 @@ public class MiddlewareInstall {
             pkg.type = installer;
             pkg.installer = new CachedFile(installer, version);
             pkg.responseFile = new DefaultResponseFile(installer, type);
+
+            //TODO: Prerequisite file configuration needs to be added to the cache tool
+            String prereqKey = pkg.installer.getKey() + CacheStore.CACHE_KEY_SEPARATOR + "prereq";
+            if (CacheStoreFactory.cache().containsKey(prereqKey)) {
+                logger.fine("Installer prerequisite found: {0}", prereqKey);
+                pkg.prereqZip = new CachedFile(prereqKey, "");
+            }
+            String configKey = prereqKey + CacheStore.CACHE_KEY_SEPARATOR + "configloc";
+            if (CacheStoreFactory.cache().containsKey(configKey)) {
+                logger.fine("Installer prerequisite config location found: {0}", configKey);
+                pkg.prereqConfigLoc = CacheStoreFactory.cache().getValueFromCache(configKey);
+            }
+
             addInstaller(pkg);
         }
         setResponseFiles(responseFiles);
@@ -87,6 +102,10 @@ public class MiddlewareInstall {
             installPackage.isZip = installPackage.installerFilename.endsWith(".zip");
             installPackage.isBin = installPackage.jarName.endsWith(".bin");
             installPackage.responseFile.copyFile(buildContextDir);
+            if (installPackage.prereqZip != null) {
+                Path prereqPath = installPackage.prereqZip.copyFile(cacheStore, buildContextDir);
+                installPackage.prereqFilename = prereqPath.getFileName().toString();
+            }
         }
         logger.exiting();
     }

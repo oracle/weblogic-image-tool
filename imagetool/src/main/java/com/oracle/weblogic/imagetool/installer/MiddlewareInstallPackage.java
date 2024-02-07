@@ -13,4 +13,7 @@ public class MiddlewareInstallPackage {
     String jarName;
     boolean isZip = true;
     boolean isBin = false;
+    CachedFile prereqZip;
+    String prereqFilename;
+    String prereqConfigLoc;
 }
