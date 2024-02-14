@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -25,8 +26,11 @@ import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
+import com.oracle.weblogic.imagetool.installer.MiddlewareInstallPackage;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
@@ -146,25 +150,30 @@ public abstract class CommonPatchingOptions extends CommonOptions {
 
         AruUtil.rest().validatePatches(installedPatches, aruPatches, userId, password);
 
+        // If OHS is being installed, get a reference to that installer in case it needs prerequisite patch info.
+        Optional<MiddlewareInstallPackage> ohsInstaller = dockerfileOptions.installPackages().stream()
+            .filter(mw -> InstallerType.OHS.equals(mw.type()))
+            .findAny();
+
         String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
         // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
         for (AruPatch patch : aruPatches) {
-            PatchFile patchFile = new PatchFile(patch, userId, password);
-            String patchLocation = patchFile.resolve(cache());
-            if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
-                File cacheFile = new File(patchLocation);
-                try {
-                    if (patch.fileName() == null) {
-                        patch.fileName(cacheFile.getName());
-                    }
-                    Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, cacheFile.getName()));
-                } catch (FileAlreadyExistsException ee) {
-                    logger.warning("IMG-0077", patchFile.getKey());
-                }
-            } else {
-                logger.severe("IMG-0024", patchFile.getKey());
+            // Is this patch a normal patch or a prerequisite for the OHS installer
+            boolean ohsPrereq = ohsInstaller.isPresent() && Constants.ohsPrerequisites.containsKey(patch.patchId());
+            String targetFolder = ohsPrereq ? buildDir() : patchesFolderName;
+            copyPatchTo(patch, targetFolder);
+
+            //if installing OHS, and this patch is an installer prerequisite patch, update the installer metadata
+            if (ohsPrereq) {
+                ohsInstaller.get()
+                    .prereqConfigLoc(Constants.ohsPrerequisites.get(patch.patchId()))
+                    .prereqFile(patch.fileName());
             }
         }
+
+        // Remove installer prerequisite patches from the normal patches list. They are not applied with OPatch
+        aruPatches.removeIf(p -> Constants.ohsPrerequisites.containsKey(p.patchId()));
+
         if (!aruPatches.isEmpty()) {
             dockerfileOptions
                 .setPatchingEnabled()
@@ -172,6 +181,28 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 .setPatchList(aruPatches);
         }
         logger.exiting();
+    }
+
+    private void copyPatchTo(AruPatch patch, String targetFolder) throws IOException {
+        PatchFile patchFile = new PatchFile(patch, userId, password);
+        // use resolve() to find the patch file in the cache, or download it into the cache if not found
+        String patchLocation = patchFile.resolve(cache());
+
+        if (!Utils.isEmptyString(patchLocation)) {
+            File cacheFile = new File(patchLocation);
+            try {
+                if (patch.fileName() == null) {
+                    patch.fileName(cacheFile.getName());
+                }
+                logger.finer("Copying patch {0} from {1} to {2} ", cacheFile.getName(), patchLocation, targetFolder);
+                // Copy this patch into the build context so that the Dockerfile can access it
+                Files.copy(Paths.get(patchLocation), Paths.get(targetFolder, cacheFile.getName()));
+            } catch (FileAlreadyExistsException ee) {
+                logger.warning("IMG-0077", patchFile.getKey());
+            }
+        } else {
+            logger.severe("IMG-0024", patchFile.getKey());
+        }
     }
 
     String findPsuVersion(List<AruPatch> aruPatches, String defaultValue) {
@@ -300,9 +331,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
     }
 
     private Path createPatchesTempDirectory() throws IOException {
-        Path tmpPatchesDir = Files.createDirectory(Paths.get(buildDir(), "patches"));
-        Files.createFile(Paths.get(tmpPatchesDir.toAbsolutePath().toString(), "dummy.txt"));
-        return tmpPatchesDir;
+        return Files.createDirectory(Paths.get(buildDir(), "patches"));
     }
 
     void prepareOpatchInstaller(String tmpDir, String opatchBugNumber)

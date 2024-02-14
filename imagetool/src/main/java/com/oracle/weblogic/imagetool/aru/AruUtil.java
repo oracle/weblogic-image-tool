@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -267,7 +267,7 @@ public class AruUtil {
     }
 
     /**
-     * Validate patches conflicts by passing a list of patches.
+     * Check for patch conflicts by passing a list of patches.
      *
      * @param installedPatches opatch lsinventory content (null if none is passed)
      * @param patches          A list of patches number

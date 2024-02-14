@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Installing Middleware
@@ -24,7 +24,7 @@ RUN mkdir -p {{{oracle_home}}} \
 {{#installJava}}COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
 {{/installJava}}
 
-{{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installerFilename}} {{responseFile.name}} {{#prereqZip}}{{{prereqFilename}}} {{/prereqZip}}{{{tempDir}}}/
+{{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installerFilename}} {{responseFile.name}} {{{prereqFile}}} {{{tempDir}}}/
 {{/installPackages}}
 COPY --chown={{userid}}:{{groupid}} oraInst.loc {{inv_loc}}/
 
@@ -36,17 +36,24 @@ USER {{userid}}
 
 RUN echo "INSTALLING MIDDLEWARE" \
 {{#installPackages}}
-    && echo "INSTALLING {{type}}" {{#prereqZip}}&& unzip -q {{{prereqFilename}}}{{/prereqZip}} \
-    && {{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.[jb][ai][rn]" -d {{{tempDir}}} &&{{/isZip}} \
-    {{^isBin}}{{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation {{/isBin}} \
-    {{#isBin}}chmod +x {{{tempDir}}}/{{jarName}} && \
-    {{{tempDir}}}/{{jarName}}{{#prereqConfigLoc}} -prereqConfigLoc {{{prereqConfigLoc}}}{{/prereqConfigLoc}} -force -ignoreSysPrereqs -silent -responseFile {{{tempDir}}}/{{responseFile.name}} \
+  && echo "INSTALLING {{type}}" \
+  {{#prereqFile}}&& unzip -q {{{tempDir}}}/{{{prereqFile}}} -d {{{tempDir}}}{{/prereqFile}} \
+  {{#isZip}}&& unzip -q {{{tempDir}}}/{{installerFilename}} "*.[jb][ai][rn]" -d {{{tempDir}}}{{/isZip}} \
+  {{^isBin}}&& {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} \
+    -silent ORACLE_HOME={{{oracle_home}}} \
+    -responseFile {{{tempDir}}}/{{responseFile.name}} \
+    -invPtrLoc {{inv_loc}}/oraInst.loc \
+    -ignoreSysPrereqs -force -novalidation {{/isBin}} \
+  {{#isBin}}&& chmod +x {{{tempDir}}}/{{jarName}} \
+  && {{{tempDir}}}/{{jarName}} \
+    {{#prereqConfigLoc}}-prereqConfigLoc {{{tempDir}}}/{{{prereqConfigLoc}}}{{/prereqConfigLoc}} \
+    -force -ignoreSysPrereqs -silent \
+    -responseFile {{{tempDir}}}/{{responseFile.name}} \
     -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} -jreLoc {{{java_home}}} {{/isBin}} \
 {{/installPackages}}
-&& test $? -eq 0 \
-&& chmod -R g+r {{{oracle_home}}} \
-|| (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1)
+    && test $? -eq 0 \
+    && chmod -R g+r {{{oracle_home}}} \
+    || (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1)
 
 {{> fmw-patching}}
 

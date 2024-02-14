@@ -1,11 +1,13 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class Constants {
 
@@ -30,6 +32,17 @@ public final class Constants {
     public static final List<String> BUSYBOX_OS_IDS = Collections.unmodifiableList(Arrays.asList("bb", "alpine"));
     public static final String ORACLE_LINUX = "ghcr.io/oracle/oraclelinux:8-slim";
     public static final String BUILDER_DEFAULT = Utils.getEnvironmentProperty("WLSIMG_BUILDER", "docker");
+
+    /**
+     * patchId mapped to path inside patch zip to the config location.
+     */
+    public static final Map<String,String> ohsPrerequisites;
+
+    static {
+        Map<String,String> map = new HashMap<>();
+        map.put("31190532", "31190532/prereq_metadata/oracle.as.install.ohs.prerequisite/prereq");
+        ohsPrerequisites = Collections.unmodifiableMap(map);
+    }
 
     private Constants() {
         //restrict access
