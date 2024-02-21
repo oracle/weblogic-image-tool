@@ -26,6 +26,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
@@ -85,6 +86,8 @@ class MiddlewareInstallTest {
         assertEquals(installerFilename, pkg.installerFilename());
         assertEquals(installerJarname, pkg.jarName());
         assertTrue(pkg.isZip());
+        assertNull(pkg.prereqFile());
+        assertNull(pkg.prereqConfigLoc());
 
         // Verify that the installer was copied to the build directory
         assertTrue(Files.exists(file));
