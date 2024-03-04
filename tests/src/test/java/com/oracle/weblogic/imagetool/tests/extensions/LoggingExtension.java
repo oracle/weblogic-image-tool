@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.tests.extensions;
 
 import java.util.List;
 
+import com.oracle.weblogic.imagetool.logging.AnsiColor;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.tests.annotations.Logger;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
@@ -14,10 +15,16 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 public class LoggingExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
+    // emphasis at the beginning and the end of a line.
+    public static final String EM = "==========";
+    private static final String BEGIN = EM + AnsiColor.BRIGHT_GREEN;
+    private static final String FAIL = EM + AnsiColor.BRIGHT_RED;
+    private static final String END = AnsiColor.RESET + EM;
+
     @Override
     public void beforeTestExecution(ExtensionContext context) throws Exception {
         getLogger(context.getRequiredTestClass())
-            .info("========== Starting test [{0}] method={1} ==========",
+            .info(BEGIN + " Starting test [{0}] method={1} " + END,
                 context.getDisplayName(),
                 context.getRequiredTestMethod().getName());
     }
@@ -28,11 +35,11 @@ public class LoggingExtension implements BeforeTestExecutionCallback, AfterTestE
         boolean testFailed = context.getExecutionException().isPresent();
         LoggingFacade logger = getLogger((context.getRequiredTestClass()));
         if (testFailed) {
-            logger.severe("========== FAILED test [{0}] method={1} ==========",
+            logger.severe(FAIL + " FAILED test [{0}] method={1} " + END,
                 context.getDisplayName(), context.getRequiredTestMethod().getName());
             logger.severe(context.getExecutionException().get().getMessage());
         } else {
-            logger.info("========== Finished test [{0}] method={1} ==========",
+            logger.info(EM + " Finished test [{0}] method={1} " + EM,
                 context.getDisplayName(), context.getRequiredTestMethod().getName());
         }
     }
