@@ -40,7 +40,7 @@ public final class Constants {
 
     static {
         Map<String,String> map = new HashMap<>();
-        map.put("31190532", "31190532/prereq_metadata/oracle.as.install.ohs.prerequisite/prereq");
+        map.put("34761383", "31190532/prereq_metadata/oracle.as.install.ohs.prerequisite/prereq");
         ohsPrerequisites = Collections.unmodifiableMap(map);
     }
 
