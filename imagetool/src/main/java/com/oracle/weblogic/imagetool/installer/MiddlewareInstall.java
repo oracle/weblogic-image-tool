@@ -51,9 +51,6 @@ public class MiddlewareInstall {
     private static String getJarNameFromInstaller(Path installerFile) throws IOException {
         String filename = installerFile.getFileName().toString();
         logger.entering(filename);
-        if (filename == null) {
-            return null;
-        }
 
         if (filename.endsWith(".zip")) {
             logger.finer("locating installer JAR inside installer ZIP");

@@ -77,7 +77,7 @@ class MiddlewareInstallTest {
         assertFalse(Files.exists(file));
 
         MiddlewareInstall install =
-            new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0", null);
+            new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0", null, null);
 
         // Using the fake cache, resolve the WLS installer for 12.2.1.4.0, and copy the files to the build directory
         install.copyFiles(cacheStore, buildDir.toString());
