@@ -14,12 +14,15 @@ import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 public abstract class CacheAddOperation extends CacheOperation {
 
-    CommandResponse addToCache(String key) throws CacheStoreException {
+    public abstract String getKey();
+
+    CommandResponse addToCache() throws CacheStoreException {
         // if file is invalid or does not exist, return an error
         if (filePath == null || !Files.isRegularFile(filePath)) {
             return CommandResponse.error("IMG-0049", filePath);
         }
 
+        String key = getKey();
         // if the new value is the same as the existing cache value, do nothing
         String existingValue = cache().getValueFromCache(key);
         if (absolutePath().toString().equals(existingValue)) {
@@ -36,7 +39,7 @@ public abstract class CacheAddOperation extends CacheOperation {
         return CommandResponse.success("IMG-0050", key, cache().getValueFromCache(key));
     }
 
-    Path absolutePath() {
+    private Path absolutePath() {
         if (absolutePath == null) {
             absolutePath = filePath.toAbsolutePath();
         }
@@ -53,8 +56,8 @@ public abstract class CacheAddOperation extends CacheOperation {
 
 
     @Option(
-        names = {"--path"},
-        description = "Location on disk. For ex: /path/to/patch-or-installer.zip",
+        names = {"-p", "--path"},
+        description = "Location of the file on disk. For ex: /path/to/patch-or-installer.zip",
         required = true
     )
     private Path filePath;

@@ -31,7 +31,7 @@ public class MiddlewareInstall {
      *
      * @param type the requested middleware install type
      */
-    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles)
+    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles, String buildPlatform)
         throws FileNotFoundException {
 
         logger.info("IMG-0039", type.installerListString(), version);
@@ -41,7 +41,7 @@ public class MiddlewareInstall {
         for (InstallerType installer : type.installerList()) {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage()
                 .type(installer)
-                .installer(new CachedFile(installer, version))
+                .installer(new CachedFile(installer, version, buildPlatform))
                 .responseFile(new DefaultResponseFile(installer, type));
             addInstaller(pkg);
         }

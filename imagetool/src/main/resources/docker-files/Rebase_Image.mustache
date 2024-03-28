@@ -80,7 +80,7 @@ RUN mkdir -p {{domain_home}}
 {{/modelOnly}}
 
 {{#domainGroupAsUser}}
-    RUN chmod g=u {{{domain_home}}}
+    RUN chmod -R g=u {{{domain_home}}}
 {{/domainGroupAsUser}}
 
 WORKDIR {{{work_dir}}}

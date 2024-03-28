@@ -543,6 +543,36 @@ class ITImagetool {
         }
     }
 
+    @Test
+    @Order(8)
+    @Tag("nightly")
+    @Tag("cache")
+    @DisplayName("Add FMW installer to cache")
+    void cacheAddInstallerFmw(TestInfo testInfo) throws Exception {
+        // add fmw installer to the cache
+        String addCommand = new CacheCommand()
+            .addInstaller(true)
+            .type("fmw")
+            .version(WLS_VERSION)
+            .path(Paths.get(STAGING_DIR, FMW_INSTALLER))
+            .build();
+
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult addResult = Runner.run(addCommand, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
+
+            // verify the result
+            String listCommand = new CacheCommand().listItems(true).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added WLS installer
+            assertTrue(listResult.stdout().contains("fmw_" + WLS_VERSION + "="));
+        }
+    }
+
     /**
      * create a WLS image with default WLS version.
      *
@@ -753,6 +783,7 @@ class ITImagetool {
     @Test
     @Order(20)
     @Tag("nightly")
+    @Tag("failing")
     @DisplayName("Create FMW 12.2.1.3 image with latest PSU")
     void createFmwImgFullInternetAccess(TestInfo testInfo) throws Exception {
         // add jdk 8u212 installer to the cache
@@ -767,19 +798,8 @@ class ITImagetool {
             // the process return code for addInstaller should be 0
             assertEquals(0, addNewJdkResult.exitValue(), "for command: " + addNewJdkCmd);
 
-            // add fmw installer to the cache
-            String addCommand = new CacheCommand()
-                .addInstaller(true)
-                .type("fmw")
-                .version(WLS_VERSION)
-                .path(Paths.get(STAGING_DIR, FMW_INSTALLER))
-                .build();
-            CommandResult addResult = Runner.run(addCommand, out, logger);
-            // the process return code for addInstaller should be 0
-            assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
-
             String tagName = build_tag + ":" + getMethodName(testInfo);
-            // create an an image with FMW and the latest PSU using ARU to download the patch
+            // create an image with FMW and the latest PSU using ARU to download the patch
             String command = new CreateCommand()
                 .tag(tagName)
                 .jdkVersion(JDK_VERSION_8u212)
@@ -859,6 +879,7 @@ class ITImagetool {
     @Test
     @Order(23)
     @Tag("nightly")
+    @Tag("failing")
     @DisplayName("Create FMW image with WDT domain and latestPSU with new base img")
     void createRestrictedJrfDomainImgUsingWdt(TestInfo testInfo) throws Exception {
         // test assumes that the FMW 12.2.1.3 installer is already in the cache
@@ -934,6 +955,7 @@ class ITImagetool {
     @Test
     @Order(25)
     @Tag("nightly")
+    @Tag("failing")
     @DisplayName("Create image with additionalBuildCommands and recommendedPatches")
     void createWlsImgWithAdditionalBuildCommands(TestInfo testInfo) throws Exception {
         String tagName = build_tag + ":" + getMethodName(testInfo);

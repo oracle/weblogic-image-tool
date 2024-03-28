@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -28,7 +28,7 @@ class DockerfileBuilderTest {
      */
     @Test
     void validateMustacheAliases() throws IOException {
-        MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.3", null);
+        MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.3", null, null);
 
         DockerfileOptions dockerfileOptions = new DockerfileOptions("123")
             .setPatchingEnabled()

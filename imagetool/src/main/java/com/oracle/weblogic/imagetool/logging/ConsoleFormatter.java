@@ -22,7 +22,7 @@ public class ConsoleFormatter extends Formatter {
 
     static {
         // if user is redirecting output, do not print color codes
-        if (System.console() == null) {
+        if (System.getProperty("WLSIMG_IT_ANSICOLOR") == null && System.console() == null) {
             AnsiColor.disable();
         } else {
             // check logging properties to see if the user wants to disable color output

@@ -15,6 +15,7 @@ public class TimingExtension implements BeforeTestExecutionCallback, AfterTestEx
     private static final LoggingFacade logger = LoggingFactory.getLogger(TimingExtension.class);
 
     private static final String START_TIME = "start time";
+    private static final String EM = LoggingExtension.EM;
 
     @Override
     public void beforeTestExecution(ExtensionContext context) throws Exception {
@@ -29,7 +30,7 @@ public class TimingExtension implements BeforeTestExecutionCallback, AfterTestEx
         long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MINUTES.toSeconds(minutes);
 
         LoggingExtension.getLogger((context.getRequiredTestClass()))
-            .info("========== Test duration [{0}] method={1}: {2} min, {3} sec ==========",
+            .info(EM + " Test duration [{0}] method={1}: {2} min, {3} sec " + EM,
                 context.getDisplayName(),
                 context.getRequiredTestMethod().getName(),
                 minutes, seconds);

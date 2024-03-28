@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.builder;
@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -28,10 +26,12 @@ import com.oracle.weblogic.imagetool.util.Utils;
 public class BuildCommand {
     private static final LoggingFacade logger = LoggingFactory.getLogger(BuildCommand.class);
 
+    private final String executable;
     private final List<String> command;
     private final List<BuildArg> buildArgs;
     private List<String> additionalOptions;
     private final String context;
+    private boolean useBuildx = false;
 
     /**
      * Create a build command for creating an image.  At some point, it might
@@ -41,7 +41,8 @@ public class BuildCommand {
     public BuildCommand(String buildEngine, String contextFolder) {
         Objects.requireNonNull(contextFolder);
         buildArgs = new ArrayList<>();
-        command = Stream.of(buildEngine, "build", "--no-cache").collect(Collectors.toList());
+        executable = buildEngine;
+        command = new ArrayList<>();
         context = contextFolder;
     }
 
@@ -56,6 +57,22 @@ public class BuildCommand {
         }
         command.add("--tag");
         command.add(value);
+        return this;
+    }
+
+    /**
+     * Add container build platform.  Pass the desired
+     * build architecture to the build process.
+     * @param value a single platform name.
+     * @return this
+     */
+    public BuildCommand platform(String value) {
+        if (Utils.isEmptyString(value)) {
+            return this;
+        }
+        command.add("--platform");
+        command.add(value);
+        useBuildx = true;
         return this;
     }
 
@@ -237,7 +254,14 @@ public class BuildCommand {
     }
 
     private List<String> getCommand(boolean showPasswords) {
-        List<String> result = new ArrayList<>(command);
+        List<String> result = new ArrayList<>();
+        result.add(executable);
+        if (useBuildx) {
+            result.add("buildx");
+        }
+        result.add("build");
+        result.add("--no-cache");
+        result.addAll(command);
         if (additionalOptions != null && !additionalOptions.isEmpty()) {
             result.addAll(additionalOptions);
         }

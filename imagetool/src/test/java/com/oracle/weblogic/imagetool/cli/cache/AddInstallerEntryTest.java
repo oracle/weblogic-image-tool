@@ -1,67 +1,69 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
-
-import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cli.ImageTool;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import picocli.CommandLine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 class AddInstallerEntryTest {
-
-    private ByteArrayOutputStream byteArrayOutputStream = null;
-    private PrintWriter printStream = null;
-
-    @BeforeEach
-    void setup() {
-        byteArrayOutputStream = new ByteArrayOutputStream();
-        printStream = new PrintWriter(byteArrayOutputStream);
-    }
-
-    @AfterEach
-    void teardown() {
-        if (printStream != null) {
-            printStream.close();
-        }
-    }
-
     @Test
     void testMissingParameters() {
-        ImageTool.run(new AddInstallerEntry(), printStream, printStream);
-        assertTrue(new String(byteArrayOutputStream.toByteArray()).contains("Missing required options"));
+        final AddInstallerEntry addCommand = new AddInstallerEntry();
+        // Empty command line throws exception because the required parameters were not specified
+        assertThrows(CommandLine.MissingParameterException.class, () ->
+            new CommandLine(addCommand).parseArgs()
+        );
     }
 
     @Test
     void testWrongType() {
-        ImageTool.run(new AddInstallerEntry(), printStream, printStream,
-                "--type", "a2z", "--version", "some_value", "--path", "/path/to/a/file");
-        assertTrue(new String(byteArrayOutputStream.toByteArray()).contains(
-                "Invalid value for option '--type'"));
+        final AddInstallerEntry addCommand = new AddInstallerEntry();
+        // The value for --type must be one of the pre-defined types
+        CommandLine.ParameterException pe = assertThrows(CommandLine.ParameterException.class, () ->
+            new CommandLine(addCommand)
+                .parseArgs("--type", "a2z", "--version", "some_value", "--path", "/path/to/a/file")
+        );
+        assertTrue(pe.getMessage().contains("--type"));
+
+        // repeat same command but use a valid type.  No exception should be thrown.
+        new CommandLine(addCommand)
+            .parseArgs("--type", "WLS", "--version", "some_value", "--path", "/path/to/a/file");
     }
 
     @Test
     void testMissingVersion() {
-        ImageTool.run(new AddInstallerEntry(), printStream, printStream,
-                "--type", InstallerType.WLS.toString(), "--path", "/path/to/a/file");
-        assertTrue(new String(byteArrayOutputStream.toByteArray()).contains(
-                "Missing required option: '--version=<version>'"));
+        final AddInstallerEntry addCommand = new AddInstallerEntry();
+        // The value for --version must be specified
+        CommandLine.ParameterException pe = assertThrows(CommandLine.ParameterException.class, () ->
+            new CommandLine(addCommand)
+                .parseArgs("--type", InstallerType.WLS.toString(), "--path", "/path/to/a/file")
+        );
+        assertTrue(pe.getMessage().contains("--version"));
     }
 
     @Test
-    void testInvalidParameters() {
-        CommandResponse response = ImageTool.run(new AddInstallerEntry(), printStream, printStream, "--type",
-                InstallerType.WLS.toString(), "--version", "", "--path", "/path/to/non/existent/file");
-        assertEquals(1, response.getStatus());
+    void testValidParameters() {
+        final AddInstallerEntry addCommand = new AddInstallerEntry();
+        // The cache key should be a string made up of the type and version seperated by an underscore
+        new CommandLine(addCommand)
+            .parseArgs("--type", "WLS", "--version", "12.2.1.4", "--path", "/path/to/a/file");
+        assertEquals("wls_12.2.1.4", addCommand.getKey());
+    }
+
+    @Test
+    void testArchKey() {
+        final AddInstallerEntry addCommand = new AddInstallerEntry();
+        // The cache key should be a string made up of the type, version, and architecture seperated by an underscore
+        new CommandLine(addCommand)
+            .parseArgs("--type", "WLS", "--version", "12.2.1.4", "-a", "amd64", "--path", "/path/to/a/file");
+        assertEquals("wls_12.2.1.4_amd64", addCommand.getKey());
     }
 }
