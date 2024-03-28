@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.installer;
@@ -30,7 +30,7 @@ public class MiddlewareInstall {
      * Get the install metadata for a given middleware install type.
      * @param type the requested middleware install type
      */
-    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles)
+    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles, String buildPlatform)
         throws FileNotFoundException {
 
         logger.info("IMG-0039", type.installerListString(), version);
@@ -39,7 +39,7 @@ public class MiddlewareInstall {
         for (InstallerType installer : type.installerList()) {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
             pkg.type = installer;
-            pkg.installer = new CachedFile(installer, version);
+            pkg.installer = new CachedFile(installer, version, buildPlatform);
             pkg.responseFile = new DefaultResponseFile(installer, type);
             addInstaller(pkg);
         }
