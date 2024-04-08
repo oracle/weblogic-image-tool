@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.builder;
@@ -17,7 +17,7 @@ class BuilderTest {
     private static final String BUILD_ENGINE = "docker";
 
     private String expected(String options) {
-        return String.format("%s build --no-cache %s %s", BUILD_ENGINE, options, BUILD_CONTEXT);
+        return String.format("%s build %s %s", BUILD_ENGINE, options, BUILD_CONTEXT);
     }
 
     @Test

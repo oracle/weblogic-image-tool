@@ -260,7 +260,6 @@ public class BuildCommand {
             result.add("buildx");
         }
         result.add("build");
-        result.add("--no-cache");
         result.addAll(command);
         if (additionalOptions != null && !additionalOptions.isEmpty()) {
             result.addAll(additionalOptions);
