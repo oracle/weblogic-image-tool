@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -41,6 +42,9 @@ public class MiddlewareInstall {
             pkg.type = installer;
             pkg.installer = new CachedFile(installer, version, buildPlatform);
             pkg.responseFile = new DefaultResponseFile(installer, type);
+            if (installer.equals(InstallerType.DB19)) {
+                pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
+            }
             addInstaller(pkg);
         }
         setResponseFiles(responseFiles);

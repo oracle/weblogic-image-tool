@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Installing Middleware
@@ -36,17 +36,26 @@ USER {{userid}}
 
 RUN echo "INSTALLING MIDDLEWARE" \
 {{#installPackages}}
-    && echo "INSTALLING {{type}}" \
-    && {{#isZip}}unzip -q {{{tempDir}}}/{{installerFilename}} "*.[jb][ai][rn]" -d {{{tempDir}}} &&{{/isZip}} \
-    {{^isBin}}{{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{jarName}} -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tempDir}}}/{{responseFile.name}} -invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation {{/isBin}} \
-    {{#isBin}}chmod +x {{{tempDir}}}/{{jarName}} && \
-    {{{tempDir}}}/{{jarName}} -force -ignoreSysPrereqs -silent -responseFile {{{tempDir}}}/{{responseFile.name}} \
-    -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} -jreLoc {{{java_home}}} {{/isBin}} \
+  && echo "INSTALLING {{type}}" \
+  # If installer is packaged in a ZIP, extract it before running it
+  {{#isZip}}&& unzip -q {{{tempDir}}}/{{installerFilename}} -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
+  {{#preinstallCommands}}&& {{{tempDir}}}/{{{type}}}/{{{.}}} {{/preinstallCommands}} \
+  # IF the installer is a JAR file (not a .bin), run the silent install using Java
+  {{^isBin}}  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{{type}}}/{{jarName}} \
+    -silent ORACLE_HOME={{{oracle_home}}} \
+    -responseFile {{{tempDir}}}/{{responseFile.name}} \
+    -invPtrLoc {{inv_loc}}/oraInst.loc \
+    -ignoreSysPrereqs -force -novalidation {{/isBin}}  \
+  # If the installer is a BIN, make sure it is executable and run the installer
+  {{#isBin}}  && chmod +x {{{tempDir}}}/{{{type}}}/{{jarName}} \
+  && {{{tempDir}}}/{{{type}}}/{{jarName}} \
+    -force -ignoreSysPrereqs -silent \
+    -responseFile {{{tempDir}}}/{{responseFile.name}} \
+    -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} -jreLoc {{{java_home}}} {{/isBin}}  \
 {{/installPackages}}
-&& test $? -eq 0 \
-&& chmod -R g+r {{{oracle_home}}} \
-|| (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1)
+  && test $? -eq 0 \
+  && chmod -R g+r {{{oracle_home}}} \
+  || (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1)
 
 {{> fmw-patching}}
 
