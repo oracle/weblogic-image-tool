@@ -1,11 +1,10 @@
-// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
@@ -22,11 +21,11 @@ import org.w3c.dom.NodeList;
  * Metadata for a patch, as defined by ARU.
  * Simple bean for holding metadata obtained from ARU for a given patch ID and version.
  */
-public class AruPatch implements Comparable<AruPatch> {
+public class AruPatch {
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruPatch.class);
 
     private String patchId;
-    private Version version;
+    private String version;
     private String description;
     private String product;
     private String release;
@@ -51,15 +50,11 @@ public class AruPatch implements Comparable<AruPatch> {
      * @return The string value of the version found in ARU.
      */
     public String version() {
-        if (version != null) {
-            return version.toString();
-        } else {
-            return null;
-        }
+        return version;
     }
 
     public AruPatch version(String value) {
-        version = new Version(value);
+        version = value;
         return this;
     }
 
@@ -293,28 +288,5 @@ public class AruPatch implements Comparable<AruPatch> {
     @Override
     public String toString() {
         return patchId + " - " + description;
-    }
-
-    @Override
-    public int compareTo(AruPatch obj) {
-        return version.compareTo(obj.version);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AruPatch aruPatch = (AruPatch) o;
-        return Objects.equals(patchId, aruPatch.patchId) && Objects.equals(version, aruPatch.version)
-            && Objects.equals(release, aruPatch.release);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(patchId, version, release);
     }
 }

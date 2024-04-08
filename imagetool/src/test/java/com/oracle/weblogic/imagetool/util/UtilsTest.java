@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -43,10 +43,117 @@ class UtilsTest {
     private SystemProperties overrideProperties;
 
     @Test
-    void compareVersions() {
-        assertEquals(0, Utils.compareVersions("12.2.1.3.0", "12.2.1.3.0"));
-        assertTrue(Utils.compareVersions("1.0", "1.1") < 0);
-        assertTrue(Utils.compareVersions("1.1", "1.0") > 0);
+    void firstGreaterThanLast() throws Exception {
+        String thisVersion = "12.2.1.3.0";
+        String thatVersion = "12.2.1.2.0";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
+            "Expected this " + thisVersion + " to be newer than that " + thatVersion);
+
+        thisVersion = "0.7.4";
+        thatVersion = "0.7.3";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
+            "Expected this " + thisVersion + " to be newer than that " + thatVersion);
+
+        thisVersion = "0.8";
+        thatVersion = "0.7.4";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
+            "Expected this " + thisVersion + " to be newer than that " + thatVersion);
+
+        thisVersion = "1.2.3";
+        thatVersion = "1.2";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
+            "Expected this " + thisVersion + " to be newer than that " + thatVersion);
+
+        thisVersion = "13.9.4.2.10";
+        thatVersion = "13.9.4.2.9";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
+            "Expected this " + thisVersion + " to be newer than that " + thatVersion);
+
+        thisVersion = "1.2.3";
+        thatVersion = "1.2.3-SNAPSHOT";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
+            "Expected this " + thisVersion + " to be newer than that " + thatVersion);
+
+        thisVersion = "1.2.3-BETA1";
+        thatVersion = "1.2.3-ALPHA3";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
+            "Expected this " + thisVersion + " to be newer than that " + thatVersion);
+
+        thisVersion = "1.2.3-SNAPSHOT";
+        thatVersion = "1.2.2";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
+            "Expected this " + thisVersion + " to be newer than that " + thatVersion);
+    }
+
+    @Test
+    void secondGreaterThanFirst() throws Exception {
+        String thisVersion = "12.2.1.3.0";
+        String thatVersion = "12.2.1.4.0";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
+            "Expected that " + thatVersion + " to be newer than this " + thisVersion);
+
+        thisVersion = "0.7.3";
+        thatVersion = "0.7.4";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
+            "Expected that " + thatVersion + " to be newer than this " + thisVersion);
+
+        thisVersion = "0.7.4";
+        thatVersion = "1";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
+            "Expected that " + thatVersion + " to be newer than this " + thisVersion);
+
+        thisVersion = "1.2";
+        thatVersion = "1.2.3";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
+            "Expected that " + thatVersion + " to be newer than this " + thisVersion);
+
+        thisVersion = "1.2.3-SNAPSHOT";
+        thatVersion = "1.2.3";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
+            "Expected that " + thatVersion + " to be newer than this " + thisVersion);
+
+        thisVersion = "1.2.3-ALPHA4";
+        thatVersion = "1.2.3-ALPHA5";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
+            "Expected that " + thatVersion + " to be newer than this " + thisVersion);
+
+        thisVersion = "1.2.1";
+        thatVersion = "1.2.2-SNAPSHOT";
+        assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
+            "Expected that " + thatVersion + " to be newer than this " + thisVersion);
+    }
+
+    @Test
+    void versionsShouldBeEqual() throws Exception {
+        String thisVersion = "12.2.1.3.0";
+        String thatVersion = "12.2.1.3.0";
+        assertEquals(0, Utils.compareVersions(thisVersion, thatVersion),
+            "Expected server " + thatVersion + " to be the same as client " + thisVersion);
+
+        thisVersion = "0.7.4";
+        thatVersion = "0.7.4";
+        assertEquals(0, Utils.compareVersions(thisVersion, thatVersion),
+            "Expected server " + thatVersion + " to be the same as client " + thisVersion);
+
+        thisVersion = "1";
+        thatVersion = "1";
+        assertEquals(0, Utils.compareVersions(thisVersion, thatVersion),
+            "Expected server " + thatVersion + " to be the same as client " + thisVersion);
+
+        thisVersion = "1.2.3-ALPHA1";
+        thatVersion = "1.2.3-ALPHA1";
+        assertEquals(0, Utils.compareVersions(thisVersion, thatVersion),
+            "Expected server " + thatVersion + " to be the same as client " + thisVersion);
+
+        thisVersion = "1.2.3.4.5.6.7.8.9";
+        thatVersion = "1.2.3.4.5.6.7.8.9";
+        assertEquals(0, Utils.compareVersions(thisVersion, thatVersion),
+            "Expected server " + thatVersion + " to be the same as client " + thisVersion);
+
+        thisVersion = "0.7.4-SNAPSHOT";
+        thatVersion = "0.7.4-SNAPSHOT";
+        assertEquals(0, Utils.compareVersions(thisVersion, thatVersion),
+            "Expected server " + thatVersion + " to be the same as client " + thisVersion);
     }
 
     @Test

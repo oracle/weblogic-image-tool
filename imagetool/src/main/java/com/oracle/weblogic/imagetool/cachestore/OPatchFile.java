@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -110,8 +110,11 @@ public class OPatchFile extends PatchFile {
                 throw new VersionNotFoundException(patchNumber, providedVersion, patches);
             }
         } else {
-            // Select the newest (highest numbered) patch
-            selectedPatch = patches.stream().max(Comparator.naturalOrder()).orElse(null);
+            // Compare the ARU OPatch patches using the patch version field, like 12.2.1.4.0
+            Comparator<AruPatch> patchVersionComparator =
+                Comparator.comparing(AruPatch::version, Utils::compareVersionsNullsFirst);
+            // Select the newest (highest version) OPatch install/patch
+            selectedPatch = patches.stream().max(patchVersionComparator).orElse(null);
         }
         return selectedPatch;
     }

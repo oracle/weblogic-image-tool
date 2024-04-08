@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -304,6 +304,27 @@ public class Utils {
     }
 
     /**
+     * Compares two version strings.  A null-friendly comparator that considers null to be less than non-null.
+     * Any qualifiers are treated as older than the same version without
+     * a qualifier.  If both versions have qualifiers and are otherwise equal, they are compared using
+     * String.compareTo() to determine the result.
+     *
+     * @param thisVersion  - first version
+     * @param otherVersion  - second version
+     * @return returns 0 if the versions are equal, greater than zero if thisVersion is newer,
+     *     and less than zero if thisVersion is older.
+     */
+    public static int compareVersionsNullsFirst(String thisVersion, String otherVersion) {
+        if (isEmptyString(thisVersion)) {
+            return (isEmptyString(otherVersion)) ? 0 : -1;
+        } else if (isEmptyString(otherVersion)) {
+            return 1;
+        } else {
+            return compareVersions(thisVersion, otherVersion);
+        }
+    }
+
+    /**
      * Compares two version strings.  Any qualifiers are treated as older than the same version without
      * a qualifier.  If both versions have qualifiers and are otherwise equal, they are compared using
      * String.compareTo() to determine the result.
@@ -314,8 +335,6 @@ public class Utils {
      *     and less than zero if thisVersion is older.
      */
     public static int compareVersions(String thisVersion, String otherVersion) {
-        int result = 0;
-
         if (isEmptyString(thisVersion) || isEmptyString(otherVersion)) {
             throw new IllegalArgumentException("cannot compare null strings");
         }
@@ -330,24 +349,22 @@ public class Utils {
 
         int fieldsToCompare = Math.min(thisVersionElements.length, otherVersionElements.length);
 
+        int result = 0;
         int idx;
         for (idx = 0; idx < fieldsToCompare; idx++) {
             int thisVersionNumber = Integer.parseInt(thisVersionElements[idx]);
             int otherVersionNumber = Integer.parseInt(otherVersionElements[idx]);
 
-            if (thisVersionNumber > otherVersionNumber) {
-                result = 1;
-                break;
-            } else if (thisVersionNumber < otherVersionNumber) {
-                result = -1;
-                break;
+            result = Integer.compare(thisVersionNumber, otherVersionNumber);
+            if (result != 0) {
+                return result;
             }
         }
 
         // Version fields compared so far are equal so check to see if one version number
         // has more fields than the other.
         //
-        if (result == 0 && thisVersionElements.length != otherVersionElements.length) {
+        if (thisVersionElements.length != otherVersionElements.length) {
             if (thisVersionElements.length > otherVersionElements.length) {
                 result = 1;
             } else {
@@ -355,36 +372,37 @@ public class Utils {
             }
         }
 
+        if (result != 0) {
+            return result;
+        }
+
         // Finally, look to see if one or both versions have a qualifier if they are otherwise the same.
         //
-        if (result == 0) {
-            int useCase = 0;
-            if (thisVersion.indexOf('-') != -1) {
-                useCase += 1;
-            }
-            if (otherVersion.indexOf('-') != -1) {
-                useCase += 2;
-            }
-            switch (useCase) {
-                case 0:
-                    break;
+        int useCase = 0;
+        if (thisVersion.indexOf('-') != -1) {
+            useCase += 1;
+        }
+        if (otherVersion.indexOf('-') != -1) {
+            useCase += 2;
+        }
+        switch (useCase) {
+            case 1:
+                result = -1;
+                break;
 
-                case 1:
-                    result = -1;
-                    break;
+            case 2:
+                result = 1;
+                break;
 
-                case 2:
-                    result = 1;
-                    break;
+            case 3:
+                String thisQualifier = thisVersion.substring(thisVersion.indexOf('-'));
+                String otherQualifier = otherVersion.substring(otherVersion.indexOf('-'));
+                result = thisQualifier.compareTo(otherQualifier);
+                break;
 
-                case 3:
-                    String thisQualifier = thisVersion.substring(thisVersion.indexOf('-'));
-                    String otherQualifier = otherVersion.substring(otherVersion.indexOf('-'));
-                    result = thisQualifier.compareTo(otherQualifier);
-                    break;
-                default:
-                    break;
-            }
+            case 0:
+            default:
+                break;
         }
         return result;
     }
