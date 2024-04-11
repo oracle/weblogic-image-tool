@@ -1,6 +1,6 @@
 ---
 title: "Update Image"
-date: 2019-02-23
+date: 2024-04-11
 draft: false
 weight: 4
 description: "The update command creates a new container image by applying WebLogic patches to an existing image."
@@ -48,7 +48,7 @@ Update WebLogic Docker image with selected patches
 | `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes. |  |
 | `--strictPatchOrdering` | Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |  |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift`. See [Additional information](#--target). | `Default` |
-| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `ODI`, `SOA`, `WCC`, `WCS`, `WCP` | Installer used in `fromImage` |
+| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OHS`, `OHS_DB19`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `ODI`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Oracle support email ID. When supplying `user`, you must supply the password either as an environment variable using `--passwordEnv`, or as a file using `--passwordFile`, or interactively, on the command line with `--password`. |  |
 | `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files. |  |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT. | `/u01/domains/base_domain`    |
