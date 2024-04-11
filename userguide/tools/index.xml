@@ -10,7 +10,7 @@
     <item>
       <title>Create Image</title>
       <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</link>
-      <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 11 Apr 2024 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</guid>
       <description>The create command helps build a WebLogic container image from a given base OS image. There are a number of optional parameters for this feature. The required option for the command is marked.
@@ -30,7 +30,7 @@ There are a number of optional parameters for this feature.</description>
     <item>
       <title>Rebase Image</title>
       <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</link>
-      <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 11 Apr 2024 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</guid>
       <description>The rebase command creates a new container image and copies an existing WebLogic domain to that new image.
@@ -41,7 +41,7 @@ Usage: imagetool rebase [OPTIONS] Parameter Definition Default --sourceImage (Re
     <item>
       <title>Update Image</title>
       <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</link>
-      <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 11 Apr 2024 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</guid>
       <description>After you have created a container image with the Image Tool, you may want to change it from time to time. Use the update command to update the existing container images created with the Image Tool. For example, you may want to:
