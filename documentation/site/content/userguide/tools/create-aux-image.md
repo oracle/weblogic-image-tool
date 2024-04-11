@@ -32,6 +32,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `YUM`, `ZYPPER`  |   |
+| `--platform` | Set the target platform to build.  Supported values: `linux/amd64` or `linux/arm64`. |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
 | `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift`. See [Additional information](#--target). | `Default`  |
