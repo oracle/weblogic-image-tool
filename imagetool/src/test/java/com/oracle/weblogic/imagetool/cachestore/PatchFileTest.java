@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -404,6 +404,7 @@ class PatchFileTest {
         String patchId = "2818673x";
         OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
 
+        assertEquals("13.9.4.2.5", patchFile.getVersion());
         String filePath = patchFile.resolve(cacheStore);
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
