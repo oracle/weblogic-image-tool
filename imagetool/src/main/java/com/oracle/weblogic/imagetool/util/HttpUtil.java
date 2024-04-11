@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -182,18 +182,12 @@ public class HttpUtil {
                 // Do not retry if over max retries
                 return false;
             }
-            if (exception instanceof InterruptedIOException) {
-                // Timeout
+            if (exception instanceof InterruptedIOException   // Timeout
+                || exception instanceof UnknownHostException  // Unknown Host
+                || exception instanceof SSLException) {       // SSL handshake failed
                 return false;
             }
-            if (exception instanceof UnknownHostException) {
-                // Unknown host
-                return false;
-            }
-            if (exception instanceof SSLException) {
-                // SSL handshake failed
-                return false;
-            }
+
             HttpClientContext clientContext = HttpClientContext.adapt(context);
             HttpRequest request = clientContext.getRequest();
             // return true if it is okay to retry this request type
