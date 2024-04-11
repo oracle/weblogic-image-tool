@@ -40,6 +40,7 @@ Usage: imagetool create [OPTIONS]
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
+| `--platform` | Set the target platform to build.  Supported values: `linux/amd64` or `linux/arm64`. |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
 | `--recommendedPatches` | Find and apply the latest PatchSet Update and recommended patches. This takes precedence over `--latestPSU`.  |   |
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
