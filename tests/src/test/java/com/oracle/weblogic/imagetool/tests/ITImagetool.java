@@ -104,7 +104,7 @@ class ITImagetool {
             missingSettings.add("STAGING_DIR");
         }
 
-        if (missingSettings.size() > 0) {
+        if (!missingSettings.isEmpty()) {
             String error = String.join(", ", missingSettings)
                 + " must be set as a system property in the pom.xml";
             throw new IllegalArgumentException(error);
@@ -145,7 +145,7 @@ class ITImagetool {
                 missingInstallers.add(installer);
             }
         }
-        if (missingInstallers.size() > 0) {
+        if (!missingInstallers.isEmpty()) {
             String error = "Could not find these installers in the staging directory: " + STAGING_DIR + "\n   ";
             error += String.join("\n   ", missingInstallers);
             throw new IllegalStateException(error);
@@ -1161,5 +1161,43 @@ class ITImagetool {
             verifyFilePermissions("/u01/domains/simple_domain", "drwxrwxr-x", tagName, out);
         }
 
+    }
+
+    /**
+     * create a WLS image using a JAR installer not in a zip.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(31)
+    @Tag("nightly")
+    @DisplayName("Create WebLogic Server image from a JAR")
+    void createWlsImgFromJar(TestInfo testInfo) throws Exception {
+        // Create an imagetool command to cache the JAR installer for 12.2.1.4.0
+        String cacheCommand = new CacheCommand()
+            .addInstaller(true)
+            .type("wls")
+            .version("12.2.1.4.0")
+            .path(Paths.get(STAGING_DIR, "fmw_12.2.1.4.0_wls_lite_generic.jar"))
+            .build();
+
+        // Create an imagetool command to build the image for 12.2.1.4.0
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String buildCommand = new CreateCommand()
+            .tag(tagName)
+            .version("12.2.1.4.0")
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            // run imagetool cache command
+            CommandResult cacheResult = Runner.run(cacheCommand, out, logger);
+            assertEquals(0, cacheResult.exitValue(), "for command: " + cacheCommand);
+            // run imagetool build command
+            CommandResult buildResult = Runner.run(buildCommand, out, logger);
+            assertEquals(0, buildResult.exitValue(), "for command: " + buildCommand);
+
+            // verify that the container image was created
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+        }
     }
 }

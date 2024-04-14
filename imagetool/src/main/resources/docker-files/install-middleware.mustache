@@ -24,7 +24,7 @@ RUN mkdir -p {{{oracle_home}}} \
 {{#installJava}}COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
 {{/installJava}}
 
-{{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installerFilename}} {{responseFile.name}} {{{tempDir}}}/
+{{#installPackages}}COPY --chown={{userid}}:{{groupid}} {{installerFilename}} {{responseFile.name}} {{{tempDir}}}/{{{type}}}/
 {{/installPackages}}
 COPY --chown={{userid}}:{{groupid}} oraInst.loc {{inv_loc}}/
 
@@ -38,19 +38,19 @@ RUN echo "INSTALLING MIDDLEWARE" \
 {{#installPackages}}
   && echo "INSTALLING {{type}}" \
   # If installer is packaged in a ZIP, extract it before running it
-  {{#isZip}}&& unzip -q {{{tempDir}}}/{{installerFilename}} -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
+  {{#isZip}}&& unzip -q {{{tempDir}}}/{{{type}}}/{{installerFilename}} -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
   {{#preinstallCommands}}&& {{{tempDir}}}/{{{type}}}/{{{.}}} {{/preinstallCommands}} \
   # IF the installer is a JAR file (not a .bin), run the silent install using Java
   {{^isBin}}  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{{type}}}/{{jarName}} \
     -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tempDir}}}/{{responseFile.name}} \
+    -responseFile {{{tempDir}}}/{{{type}}}/{{responseFile.name}} \
     -invPtrLoc {{inv_loc}}/oraInst.loc \
     -ignoreSysPrereqs -force -novalidation {{/isBin}}  \
   # If the installer is a BIN, make sure it is executable and run the installer
   {{#isBin}}  && chmod +x {{{tempDir}}}/{{{type}}}/{{jarName}} \
   && {{{tempDir}}}/{{{type}}}/{{jarName}} \
     -force -ignoreSysPrereqs -silent \
-    -responseFile {{{tempDir}}}/{{responseFile.name}} \
+    -responseFile {{{tempDir}}}/{{{type}}}/{{responseFile.name}} \
     -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} -jreLoc {{{java_home}}} {{/isBin}}  \
 {{/installPackages}}
   && test $? -eq 0 \
