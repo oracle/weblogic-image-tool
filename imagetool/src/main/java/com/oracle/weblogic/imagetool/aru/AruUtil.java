@@ -1,15 +1,19 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -30,6 +34,7 @@ import static com.oracle.weblogic.imagetool.util.Constants.ARU_REST_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.CONFLICTCHECKER_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.RECOMMENDED_PATCHES_URL;
 import static com.oracle.weblogic.imagetool.util.Constants.REL_URL;
+import static com.oracle.weblogic.imagetool.util.Utils.not;
 
 public class AruUtil {
 
@@ -135,7 +140,10 @@ public class AruUtil {
             Document aruRecommendations = retry(
                 () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
             logger.exiting();
-            return AruPatch.removeStackPatchBundle(AruPatch.getPatches(aruRecommendations, "[./psu_bundle]"));
+            return AruPatch.getPatches(aruRecommendations)
+                .filter(AruPatch::isPsu)
+                .filter(not(AruPatch::isStackPatchBundle))
+                .collect(Collectors.toList());
         } catch (NoPatchesFoundException | ReleaseNotFoundException ex) {
             logger.exiting();
             return Collections.emptyList();
@@ -158,7 +166,21 @@ public class AruUtil {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
             List<AruPatch> patches = getRecommendedPatches(product, version, userId, password);
+            // temporary, until OHS stops using same release number and product ID for two different installs
+            if (type == FmwInstallerType.OHS_DB19) {
+                if (product == AruProduct.OHS) {
+                    patches = patches.stream().filter(p -> p.description().contains(" DB19C "))
+                        .collect(Collectors.toList());
+                } else if (product == AruProduct.OAM_WG) {
+                    patches = patches.stream().filter(p -> p.description().contains(" DB19c "))
+                        .collect(Collectors.toList());
+                } else if (product == AruProduct.OSS) {
+                    patches = patches.stream().filter(p -> p.description().contains(" 19C "))
+                        .collect(Collectors.toList());
+                }
+            }
             if (!patches.isEmpty()) {
+                patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
                 result.addAll(patches);
             }
         }
@@ -186,9 +208,15 @@ public class AruUtil {
             String releaseNumber = getReleaseNumber(product, version, userId, password);
             Document aruRecommendations = retry(
                 () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
-            List<AruPatch> patches = AruPatch.removeStackPatchBundle(AruPatch.getPatches(aruRecommendations));
-            String psuVersion = getPsuVersion(patches);
-            if (!Utils.isEmptyString(psuVersion)) {
+            // TODO: Need an option for the user to request the Coherence additional feature pack.
+            List<AruPatch> patches = AruPatch.getPatches(aruRecommendations)
+                .filter(not(AruPatch::isStackPatchBundle)) //remove Stack Patch Bundle
+                .filter(not(AruPatch::isCoherenceFeaturePack)) //remove COH feature pack
+                .collect(Collectors.toList());
+            String psuVersion = getPsuVersion(product.description(), patches);
+            if (psuVersion != null) {
+                //repeat the same process to get recommended patches, but use the PSU release instead of the GA release
+                // All the same patches are in the PSU release, but also the overlay patches (if any)
                 patches.forEach(p -> logger.fine("Discarding recommended patch {0} {1}", p.patchId(), p.description()));
                 logger.fine("Recommended patch list contains a PSU, getting recommendations for PSU version {0}",
                     psuVersion);
@@ -198,11 +226,11 @@ public class AruUtil {
                 Document psuOverrides = retry(
                     () -> getRecommendedPatchesMetadata(product, psuReleaseNumber, userId, password));
 
-                patches = AruPatch.removeStackPatchBundle(AruPatch.getPatches(psuOverrides));
+                patches = AruPatch.getPatches(psuOverrides)
+                    .filter(not(AruPatch::isStackPatchBundle)) // remove the Stack Patch Bundle patch, if returned
+                    .filter(not(AruPatch::isCoherenceFeaturePack)) // remove the Coherence feature pack, if returned
+                    .collect(Collectors.toList());
             }
-            // TODO: Need an option for the user to request the Coherence additional feature pack.
-            patches = AruPatch.removeCoherenceFeaturePackPatch(patches);
-            patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
             logger.exiting(patches);
             return patches;
         } catch (ReleaseNotFoundException nf) {
@@ -215,13 +243,15 @@ public class AruUtil {
         }
     }
 
-    private String getPsuVersion(List<AruPatch> patches) {
-        for (AruPatch patch: patches) {
-            if (patch.isPsu()) {
-                // expected pattern "Oracle WebLogic Server 12.2.1.x.xxxxxx"
-                String[] strings = patch.psuBundle().split(" ");
-                return strings[strings.length - 1];
-            }
+    private String getPsuVersion(String productName, Collection<AruPatch> patches) {
+        String psuBundle = patches.stream()
+            .map(AruPatch::psuBundle)
+            .filter(not(Utils::isEmptyString))
+            .findFirst()
+            .orElse(null);
+
+        if (psuBundle != null) {
+            return psuBundle.substring(productName.length() + 1);
         }
         return null;
     }
@@ -237,7 +267,7 @@ public class AruUtil {
     }
 
     /**
-     * Validate patches conflicts by passing a list of patches.
+     * Check for patch conflicts by passing a list of patches.
      *
      * @param installedPatches opatch lsinventory content (null if none is passed)
      * @param patches          A list of patches number
@@ -435,12 +465,12 @@ public class AruUtil {
      * @throws IOException if there is an error retrieving the XML from ARU
      * @throws XPathExpressionException if AruPatch failed while extracting patch data from the XML
      */
-    public List<AruPatch> getPatches(String bugNumber, String userId, String password)
+    public Stream<AruPatch> getPatches(String bugNumber, String userId, String password)
         throws AruException, IOException, XPathExpressionException {
 
         if (userId == null || password == null) {
             // running in offline mode (no credentials to connect to ARU)
-            return Collections.singletonList(new AruPatch().patchId(bugNumber));
+            return Stream.of(new AruPatch().patchId(bugNumber));
         }
 
         String url = String.format(BUG_SEARCH_URL, bugNumber);
@@ -466,6 +496,18 @@ public class AruUtil {
      */
 
     public String downloadAruPatch(AruPatch aruPatch, String targetDir, String username, String password)
+        throws IOException {
+        try {
+            return retry(() -> downloadPatch(aruPatch, targetDir, username, password));
+        } catch (AruException | RetryFailedException e) {
+            logger.severe("IMG-0120");
+            throw logger.throwing(
+                new FileNotFoundException(Utils.getMessage("IMG-0037", aruPatch.patchId(), aruPatch.version())));
+        }
+
+    }
+
+    private String downloadPatch(AruPatch aruPatch, String targetDir, String username, String password)
         throws IOException {
 
         logger.entering(aruPatch);
@@ -507,12 +549,16 @@ public class AruUtil {
         return restInterval;
     }
 
-    private interface CallToRetry {
-        Document process() throws IOException, XPathExpressionException, AruException;
+    /**
+     * Similar to java.util.function.Supplier.
+     * @param <T> return type of the supplied method.
+     */
+    private interface MethodToRetry<T> {
+        T process() throws IOException, XPathExpressionException, AruException;
     }
 
     // create an environment variable that can override the tries count (undocumented)
-    private static Document retry(CallToRetry call) throws AruException, RetryFailedException {
+    private static <T> T retry(MethodToRetry<T> call) throws AruException, RetryFailedException {
         for (int i = 0; i < rest().getMaxRetries(); i++) {
             try {
                 return call.process();

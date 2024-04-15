@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -31,8 +31,8 @@ import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
-import picocli.CommandLine.Unmatched;
 
 import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX_OS_IDS;
 
@@ -122,8 +122,10 @@ public abstract class CommonOptions {
 
         cmdBuilder.forceRm(!skipcleanup)
             .tag(imageTag)
+            .platform(buildPlatform)
             .network(buildNetwork)
             .pull(buildPull)
+            .additionalOptions(buildOptions)
             .buildArg(buildArgs)
             .buildArg("http_proxy", httpProxyUrl, httpProxyUrl != null && httpProxyUrl.contains("@"))
             .buildArg("https_proxy", httpsProxyUrl, httpsProxyUrl != null && httpsProxyUrl.contains("@"))
@@ -311,6 +313,10 @@ public abstract class CommonOptions {
         return buildId;
     }
 
+    public String getBuildPlatform() {
+        return buildPlatform;
+    }
+
     @Option(
         names = {"--tag"},
         paramLabel = "<image tag>",
@@ -364,12 +370,14 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--additionalBuildCommands"},
+        paramLabel = "<filename>",
         description = "path to a file with additional build commands."
     )
     private Path additionalBuildCommandsPath;
 
     @Option(
         names = {"--additionalBuildFiles"},
+        paramLabel = "<filename>",
         split = ",",
         description = "comma separated list of files that should be copied to the build context folder."
     )
@@ -403,6 +411,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--builder", "-b"},
+        paramLabel = "<executable name>",
         description = "Executable to process the Dockerfile."
             + " Use the full path of the executable if not on your path."
             + " Defaults to 'docker', or, when set, to the value in environment variable WLSIMG_BUILDER."
@@ -411,6 +420,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--target"},
+        paramLabel = "<target environment>",
         description = "Apply settings appropriate to the target environment.  Default: ${DEFAULT-VALUE}."
             + "  Supported values: ${COMPLETION-CANDIDATES}."
     )
@@ -418,13 +428,23 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--build-arg"},
+        paramLabel = "<arg=value>",
         description = "Additional argument passed directly to the build engine."
     )
     Map<String,String> buildArgs;
 
-    @SuppressWarnings("unused")
-    @Unmatched
-    List<String> unmatchedOptions;
+    @Option(
+        names = {"--platform"},
+        paramLabel = "<target platform>",
+        description = "Set the target platform to build. Example: linux/amd64 or linux/arm64"
+    )
+    private String buildPlatform;
+
+    @Parameters(
+        description = "Container build options.",
+        hidden = true
+    )
+    List<String> buildOptions;
 
     @Spec
     CommandLine.Model.CommandSpec spec;

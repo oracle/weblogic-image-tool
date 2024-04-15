@@ -5,7 +5,7 @@ the cloud, and to simplify and speed up the application deployment life cycle. B
 and Kubernetes, WebLogic now runs in a cloud neutral infrastructure.  To help simplify and automate the creation of
 container images for WebLogic Server, we are providing this open source WebLogic Image Tool (WIT).  
 
-WIT let's you create a new Linux based image, with installations of a JDK and WebLogic Server, and optionally,
+WIT lets you create a new Linux based image, with installations of a JDK and WebLogic Server, and optionally,
 configure a WebLogic domain with your applications, apply WebLogic Server patches, or update an existing image.
 
 
@@ -56,6 +56,7 @@ Use WebLogic Image Tool to create, update, and rebase the following FMW product 
 * Oracle WebLogic Server (WLS)
 * Fusion Middleware Infrastructure (FMW)
 * Oracle BPM Suite for business process (SOA)
+* Oracle HTTP Server (OHS_DB19)
 * Oracle Service Bus (OSB)
 * Oracle Data Integrator (ODI)
 * Oracle Access Management (OAM)

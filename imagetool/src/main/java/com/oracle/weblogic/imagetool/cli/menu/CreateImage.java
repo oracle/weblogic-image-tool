@@ -18,6 +18,7 @@ import picocli.CommandLine.Command;
     name = "create",
     description = "Build WebLogic docker image",
     requiredOptionMarker = '*',
+    showEndOfOptionsDelimiterInUsageHelp = true,
     abbreviateSynopsis = true
 )
 public class CreateImage extends CommonCreateOptions implements Callable<CommandResponse> {

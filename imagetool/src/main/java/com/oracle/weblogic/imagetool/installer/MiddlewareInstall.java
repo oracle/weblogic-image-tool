@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.installer;
@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -30,7 +31,7 @@ public class MiddlewareInstall {
      * Get the install metadata for a given middleware install type.
      * @param type the requested middleware install type
      */
-    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles)
+    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles, String buildPlatform)
         throws FileNotFoundException {
 
         logger.info("IMG-0039", type.installerListString(), version);
@@ -39,8 +40,11 @@ public class MiddlewareInstall {
         for (InstallerType installer : type.installerList()) {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
             pkg.type = installer;
-            pkg.installer = new CachedFile(installer, version);
+            pkg.installer = new CachedFile(installer, version, buildPlatform);
             pkg.responseFile = new DefaultResponseFile(installer, type);
+            if (installer.equals(InstallerType.DB19)) {
+                pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
+            }
             addInstaller(pkg);
         }
         setResponseFiles(responseFiles);

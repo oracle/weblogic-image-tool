@@ -1,6 +1,6 @@
 ---
 title: "Update Image"
-date: 2019-02-23
+date: 2024-04-11
 draft: false
 weight: 4
 description: "The update command creates a new container image by applying WebLogic patches to an existing image."
@@ -31,7 +31,7 @@ Update WebLogic Docker image with selected patches
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |  |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
 | `--buildNetwork` | Networking mode for the RUN instructions during the image build.  See `--network` for Docker `build`. | |
-| `--chown` | `userid:groupid` for middleware patches and other operations. | Owner:Group of the Oracle Home |
+| `--chown` | `userid:groupid` to be used for creating files and applying middleware patches within the image. The userid and groupid must already exist in the image. | Defaults to the user and group of the Oracle Home in the provided image. |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout. | |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080` |  |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080` |  |
@@ -41,13 +41,14 @@ Update WebLogic Docker image with selected patches
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`. |  |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |  |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321` |  |
+| `--platform` | Set the target platform to build.  Supported values: `linux/amd64` or `linux/arm64`. |   |
 | `--pull` | Always attempt to pull a newer version of base images during the build. | |
 | `--recommendedPatches` | (DEPRECATED) Find and apply the latest PatchSet Update and recommended patches. This takes precedence over `--latestPSU`. See [Additional information](#--recommendedpatches). |  |
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |  |
 | `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes. |  |
 | `--strictPatchOrdering` | Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |  |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift`. See [Additional information](#--target). | `Default` |
-| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `ODI`, `SOA`, `WCC`, `WCS`, `WCP` | Installer used in `fromImage` |
+| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OHS`, `OHS_DB19`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `ODI`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
 | `--user` | Oracle support email ID. When supplying `user`, you must supply the password either as an environment variable using `--passwordEnv`, or as a file using `--passwordFile`, or interactively, on the command line with `--password`. |  |
 | `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files. |  |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT. | `/u01/domains/base_domain`    |
