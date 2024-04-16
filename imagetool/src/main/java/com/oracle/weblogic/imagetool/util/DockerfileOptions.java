@@ -7,12 +7,14 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.cli.menu.PackageManagerType;
@@ -34,6 +36,10 @@ public class DockerfileOptions {
     private static final String DEFAULT_DOMAIN_HOME = "/u01/domains/base_domain";
     // Default location for the oraInst.loc
     private static final String DEFAULT_INV_LOC = "/u01/oracle";
+
+    private static final List<String> DEFAULT_OS_PACKAGES = Arrays.asList(
+        "gzip", "tar", "unzip", "libaio", "libnsl", "jq", "findutils", "diffutils");
+    private static final String WLSIMG_OS_PACKAGES = System.getenv("WLSIMG_OS_PACKAGES");
 
     private static final String DEFAULT_ORAINV_DIR = "/u01/oracle/oraInventory";
 
@@ -965,16 +971,6 @@ public class DockerfileOptions {
     }
 
     /**
-     * Referenced by Dockerfile template, provides additional OS packages supplied by the user.
-     *
-     * @return list of commands as Strings.
-     */
-    @SuppressWarnings("unused")
-    public List<String> osPackages() {
-        return getAdditionalCommandsForSection(AdditionalBuildCommands.PACKAGES);
-    }
-
-    /**
      * Referenced by Dockerfile template, provides additional build commands supplied by the user.
      *
      * @return list of commands as Strings.
@@ -1139,5 +1135,26 @@ public class DockerfileOptions {
     public DockerfileOptions buildArgs(String variableName) {
         buildArgs.add(variableName);
         return this;
+    }
+
+    /**
+     * Referenced by Dockerfile template, provides a list of packages that the package manager,
+     * like YUM, should install.
+     * @return a list of package names.
+     */
+    @SuppressWarnings("unused")
+    public List<String> osPackages() {
+        List<String> result = new ArrayList<>(32);
+        if (Utils.isEmptyString(WLSIMG_OS_PACKAGES)) {
+            // If the user did not provide a list of OS packages, use the default list
+            result.addAll(DEFAULT_OS_PACKAGES);
+        } else {
+            // When provided in the environment variable, use the list of OS packages provided by the user.
+            result.addAll(Stream.of(WLSIMG_OS_PACKAGES.split(" ")).collect(Collectors.toList()));
+        }
+
+        result.addAll(getAdditionalCommandsForSection(AdditionalBuildCommands.PACKAGES));
+
+        return result;
     }
 }
