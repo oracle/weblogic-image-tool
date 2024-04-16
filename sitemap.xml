@@ -59,6 +59,9 @@
     <loc>https://oracle.github.io/weblogic-image-tool/developer/</loc>
     <lastmod>2019-02-22T15:27:54-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-image-tool/userguide/config/</loc>
+    <lastmod>2024-04-16T08:00:00-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/userguide/logging/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
@@ -69,7 +72,7 @@
     <lastmod>2019-02-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/</loc>
-    <lastmod>2024-04-11T00:00:00+00:00</lastmod>
+    <lastmod>2024-04-16T08:00:00-05:00</lastmod>
     <priority>0</priority>
   </url><url>
     <loc>https://oracle.github.io/weblogic-image-tool/argument-file/</loc>

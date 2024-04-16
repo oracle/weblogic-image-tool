@@ -36,6 +36,16 @@ By default, the Image Tool creates the Docker context directory under the user&a
     </item>
     
     <item>
+      <title>Configuration</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/config/</link>
+      <pubDate>Tue, 16 Apr 2024 08:00:00 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/config/</guid>
+      <description>The default configuration is typically adequate for common use. But, the following environment variables are provided for non-typical use cases when the default values are insufficient.
+Environment variables WLSIMG_CACHEDIR - When Image Tool downloads patches, those patches are saved in the cache directory. Setting this variable to another directory overrides the default of the cache folder in the user&amp;rsquo;s home directory. WLSIMG_BUILDER - During the build process, Image Tool creates a Docker context directory where it will create a Dockerfile and copy necessary files for the container image build.</description>
+    </item>
+    
+    <item>
       <title>Logging</title>
       <link>https://oracle.github.io/weblogic-image-tool/userguide/logging/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
