@@ -8,14 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreTestImpl;
-import com.oracle.weblogic.imagetool.logging.LoggingFacade;
-import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import org.junit.jupiter.api.AfterAll;
+import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -26,26 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
+@ReduceTestLogging(loggerClass = MiddlewareInstall.class)
 class MiddlewareInstallTest {
     static Path cacheDir;
     static CacheStore cacheStore;
-    private static final LoggingFacade commandLogger = LoggingFactory.getLogger(MiddlewareInstall.class);
-    private static Level oldLevel;
 
     @BeforeAll
     static void setup(@TempDir Path cacheDir) throws IOException {
-        oldLevel = commandLogger.getLevel();
-        commandLogger.setLevel(Level.WARNING);
-
         MiddlewareInstallTest.cacheDir = cacheDir;
         cacheStore  = new CacheStoreTestImpl(cacheDir);
         cacheStore.addToCache("wls_12.2.1.4.0",
             ResourceUtils.resourcePath("/dummyInstallers/test-installer.zip").toString());
-    }
-
-    @AfterAll
-    static void tearDown() {
-        commandLogger.setLevel(oldLevel);
     }
 
     @Test

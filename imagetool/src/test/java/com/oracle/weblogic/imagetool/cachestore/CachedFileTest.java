@@ -9,14 +9,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
-import com.oracle.weblogic.imagetool.logging.LoggingFacade;
-import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import com.oracle.weblogic.imagetool.util.BuildPlatform;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -31,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
+@ReduceTestLogging(loggerClass = CachedFile.class)
 class CachedFileTest {
 
     static Path cacheDir;
@@ -139,19 +138,12 @@ class CachedFileTest {
 
     @Test
     void copyFile(@TempDir Path contextDir) throws Exception {
-        LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
-        Level oldLevel = logger.getLevel();
-        logger.setLevel(Level.OFF);
-        try {
-            CachedFile wlsInstallerFile = new CachedFile(InstallerType.WLS, ver12213);
-            // copy the file from the cache store to the fake build context directory
-            Path result = wlsInstallerFile.copyFile(cacheStore, contextDir.toString());
-            // check to see if the file was copied correctly by examining the contents of the resulting file
-            assertLinesMatch(fileContents, Files.readAllLines(result),
-                "copied file contents do not match source");
-        } finally {
-            logger.setLevel(oldLevel);
-        }
+        CachedFile wlsInstallerFile = new CachedFile(InstallerType.WLS, ver12213);
+        // copy the file from the cache store to the fake build context directory
+        Path result = wlsInstallerFile.copyFile(cacheStore, contextDir.toString());
+        // check to see if the file was copied correctly by examining the contents of the resulting file
+        assertLinesMatch(fileContents, Files.readAllLines(result),
+            "copied file contents do not match source");
     }
 
     @Test
