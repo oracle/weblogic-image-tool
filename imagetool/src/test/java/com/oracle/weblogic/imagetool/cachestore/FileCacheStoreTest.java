@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -48,7 +48,7 @@ class FileCacheStoreTest {
                 assertTrue(cache().containsKey(testKey)),
             "containsKey failed to find key or value that was just added");
 
-        // check (another way) that the value that was just added
+        // check (another way) that the value was just added
         assertDoesNotThrow(() ->
                 assertEquals(testVal, cache().getValueFromCache(testKey), "Found unexpected value in cache"),
             "Get from cache threw an exception");
@@ -72,6 +72,10 @@ class FileCacheStoreTest {
     void verifyCacheSize() {
         assertDoesNotThrow(() ->
             assertNotNull(cache().getCacheItems(), "Get cache items should never be null"),
+            "getCacheItems threw an exception");
+
+        assertDoesNotThrow(() ->
+                assertEquals(0, cache().getCacheItems().size(), "Get cache items should never be null"),
             "getCacheItems threw an exception");
     }
 }

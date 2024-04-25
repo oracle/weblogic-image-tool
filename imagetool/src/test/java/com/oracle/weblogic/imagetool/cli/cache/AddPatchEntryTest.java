@@ -1,17 +1,12 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.logging.Level;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.logging.LoggingFacade;
-import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
@@ -22,20 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
 class AddPatchEntryTest {
-    private static final LoggingFacade commandLogger = LoggingFactory.getLogger(AddPatchEntry.class);
-    private static Level oldLevel;
-
-    @BeforeAll
-    static void setUp() {
-        // disable logging for the tested tool to prevent filling up the screen with errors (that are expected)
-        oldLevel = commandLogger.getLevel();
-        commandLogger.setLevel(Level.OFF);
-    }
-
-    @AfterAll
-    static void tearDown() {
-        commandLogger.setLevel(oldLevel);
-    }
 
     private static CommandLine getCommand() {
         AddPatchEntry app = new AddPatchEntry();

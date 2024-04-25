@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.cache;
@@ -20,9 +20,7 @@ public class DeleteEntry extends CacheOperation {
     @Override
     public CommandResponse call() throws Exception {
         if (!Utils.isEmptyString(key)) {
-            if (Constants.CACHE_DIR_KEY.equalsIgnoreCase(key)) {
-                return CommandResponse.success("Cannot delete key: " + key);
-            } else if (Constants.DELETE_ALL_FOR_SURE.equalsIgnoreCase(key)) {
+            if (Constants.DELETE_ALL_FOR_SURE.equalsIgnoreCase(key)) {
                 cache().clearCache();
                 return CommandResponse.success("IMG-0046");
             } else {

@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.aru.AruException;
@@ -18,8 +17,7 @@ import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
 import com.oracle.weblogic.imagetool.aru.MockAruUtil;
 import com.oracle.weblogic.imagetool.aru.MultiplePatchVersionsException;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
-import com.oracle.weblogic.imagetool.logging.LoggingFacade;
-import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,14 +31,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
+@ReduceTestLogging(loggerClass = AruUtil.class)
 class CommonPatchingOptionsTest {
-    private static final LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
-    private static Level oldLevel;
 
     @BeforeAll
     static void setUp() throws NoSuchFieldException, IllegalAccessException {
-        oldLevel = logger.getLevel();
-        logger.setLevel(Level.SEVERE);
         TestAruUtil.insertMockAruInstance(new TestAruUtil());
     }
 
@@ -79,7 +74,6 @@ class CommonPatchingOptionsTest {
 
     @AfterAll
     static void tearDown() throws NoSuchFieldException, IllegalAccessException {
-        logger.setLevel(oldLevel);
         TestAruUtil.removeMockAruInstance();
     }
 
