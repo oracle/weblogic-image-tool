@@ -57,6 +57,13 @@ RUN echo "INSTALLING MIDDLEWARE" \
   && chmod -R g+r {{{oracle_home}}} \
   || (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1)
 
+{{#useOwnerPermsForGroup}}
+  # OPatch needs write permissions to the logs folder and lock file when running in OpenShift
+  RUN mkdir ${ORACLE_HOME}/cfgtoollogs \
+   && chmod g=u ${ORACLE_HOME}/cfgtoollogs \
+   && chmod g=u ${ORACLE_HOME}/inventory/locks/oh.lock
+{{/useOwnerPermsForGroup}}
+
 {{> fmw-patching}}
 
 {{#afterFmwInstall}}

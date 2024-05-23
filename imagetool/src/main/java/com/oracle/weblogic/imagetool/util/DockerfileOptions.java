@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -70,7 +70,7 @@ public class DockerfileOptions {
     private PackageManagerType pkgMgr;
     private List<String> patchFilenames;
     private MiddlewareInstall mwInstallers;
-    private boolean domainGroupAsUser;
+    private boolean useOwnerPermsForGroup;
     private boolean usingBusybox;
     private List<String> buildArgs;
 
@@ -102,7 +102,7 @@ public class DockerfileOptions {
         updateOpatch = false;
         skipJavaInstall = false;
         skipMiddlewareInstall = false;
-        domainGroupAsUser = false;
+        useOwnerPermsForGroup = false;
         usingBusybox = false;
         buildArgs = new ArrayList<>();
 
@@ -1087,14 +1087,26 @@ public class DockerfileOptions {
         return this;
     }
 
-    public DockerfileOptions setDomainGroupAsUser(boolean value) {
-        domainGroupAsUser = value;
+    /**
+     * Let the Dockerfile know that additional write permissions are required.
+     * When running in OpenShift, 755 permissions is inadequate for some tools
+     * and write permissions must be enabled.  For example, OPatch will fail
+     * with code 73 if it does not have write permissions to the cfgtoollogs folder.
+     * @param value true if additional group write permissions are required.
+     * @return this
+     */
+    public DockerfileOptions useOwnerPermsForGroup(boolean value) {
+        useOwnerPermsForGroup = value;
         return this;
     }
 
+    /**
+     * Returns true if additional write permissions should be used for the OS group.
+     * @return true if group should equal owner permissions for some files/dirs.
+     */
     @SuppressWarnings("unused")
-    public boolean domainGroupAsUser() {
-        return domainGroupAsUser;
+    public boolean useOwnerPermsForGroup() {
+        return useOwnerPermsForGroup;
     }
 
     /**

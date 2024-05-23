@@ -186,7 +186,7 @@ public abstract class CommonOptions {
         }
 
         if (kubernetesTarget == KubernetesTarget.OPENSHIFT) {
-            dockerfileOptions.setDomainGroupAsUser(true);
+            dockerfileOptions.useOwnerPermsForGroup(true);
             // if the user did not set the OS user:group, make the default oracle:root, instead of oracle:oracle
             if (!isChownSet()) {
                 dockerfileOptions.setGroupId("root");
