@@ -12,20 +12,20 @@
     <title>Configuration :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1719199174" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1719199174" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1719258258" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1719258258" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1719199174"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1719258258"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1719199174"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1719199174"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1719258258"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1719258258"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1719199174"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1719258258"></script>
 
     
   </div>
@@ -728,8 +728,9 @@
 non-typical use cases when the default values are insufficient.</p>
 <h3 id="environment-variables">Environment variables</h3>
 <ul>
+<li><code>WLSIMG_BLDDIR</code> - During the build process, Image Tool creates a Docker context directory where it will create a Dockerfile and copy necessary files for the container image build. Setting this variable to another directory overrides the default of the user&rsquo;s home directory as the parent folder of the Docker context directory.</li>
+<li><code>WLSIMG_BUILDER</code> - As an alternative to the command-line argument <code>--builder</code>, this variable can be used to override the tool to process the Dockerfile (such as<code>docker</code> or <code>podman</code>). The provided value should be the full path to the executable. For example, <code>WLSIMG_BUILDER=&quot;/usr/bin/docker&quot;</code>.</li>
 <li><code>WLSIMG_CACHEDIR</code> - When Image Tool downloads patches, those patches are saved in the cache directory. Setting this variable to another directory overrides the default of the <code>cache</code> folder in the user&rsquo;s home directory.</li>
-<li><code>WLSIMG_BUILDER</code> - During the build process, Image Tool creates a Docker context directory where it will create a Dockerfile and copy necessary files for the container image build. Setting this variable to another directory overrides the default of the user&rsquo;s home directory for the parent folder of the Docker context directory.</li>
 <li><code>WLSIMG_OS_PACKAGES</code> - There are several packages and libraries that are required by the WebLogic Kubernetes Toolkit. The default packages included at build time are <code>gzip tar unzip libaio libnsl jq findutils diffutils</code>. The names for those libraries can be different depending on your preferred Linux distribution or OS version. The value that you provide in this environment variable will be used in place of the default package list.</li>
 </ul>
 
@@ -1167,19 +1168,19 @@ non-typical use cases when the default values are insufficient.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1719199174"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1719199174"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1719199174"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1719199174"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1719199174"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1719199174"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1719258258"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1719258258"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1719258258"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1719258258"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1719258258"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1719258258"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1719199174"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1719199174"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1719199174"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1719258258"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1719258258"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1719258258"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1719199174"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1719258258"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
