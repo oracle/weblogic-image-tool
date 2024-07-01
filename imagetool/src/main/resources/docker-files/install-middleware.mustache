@@ -59,7 +59,7 @@ RUN echo "INSTALLING MIDDLEWARE" \
 
 {{#useOwnerPermsForGroup}}
   # OPatch needs write permissions to the logs folder and lock file when running in OpenShift
-  RUN mkdir ${ORACLE_HOME}/cfgtoollogs \
+  RUN mkdir -p ${ORACLE_HOME}/cfgtoollogs \
    && chmod g=u ${ORACLE_HOME}/cfgtoollogs \
    && chmod g=u ${ORACLE_HOME}/inventory/locks/oh.lock
 {{/useOwnerPermsForGroup}}
