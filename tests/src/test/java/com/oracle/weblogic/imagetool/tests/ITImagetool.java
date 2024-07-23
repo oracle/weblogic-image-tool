@@ -783,7 +783,6 @@ class ITImagetool {
     @Test
     @Order(20)
     @Tag("nightly")
-    @Tag("failing")
     @DisplayName("Create FMW 12.2.1.3 image with latest PSU")
     void createFmwImgFullInternetAccess(TestInfo testInfo) throws Exception {
         // add jdk 8u212 installer to the cache
@@ -879,7 +878,6 @@ class ITImagetool {
     @Test
     @Order(23)
     @Tag("nightly")
-    @Tag("failing")
     @DisplayName("Create FMW image with WDT domain and latestPSU with new base img")
     void createRestrictedJrfDomainImgUsingWdt(TestInfo testInfo) throws Exception {
         // test assumes that the FMW 12.2.1.3 installer is already in the cache
@@ -955,7 +953,6 @@ class ITImagetool {
     @Test
     @Order(25)
     @Tag("nightly")
-    @Tag("failing")
     @DisplayName("Create image with additionalBuildCommands and recommendedPatches")
     void createWlsImgWithAdditionalBuildCommands(TestInfo testInfo) throws Exception {
         String tagName = build_tag + ":" + getMethodName(testInfo);
