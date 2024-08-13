@@ -44,7 +44,6 @@ class DockerfileBuilderTest {
 
         MustacheFactory mf = new DefaultMustacheFactory(new File("src/main/resources/docker-files"));
         Mustache mustache = mf.compile("Create_Image.mustache");
-        //mustache.execute(new PrintWriter(System.out), dockerfileOptions).flush();
         mustache.execute(new StringWriter(), dockerfileOptions).flush();
         assertTrue(true);
     }

@@ -90,6 +90,7 @@ public class CacheCommand extends ImageToolCommand {
      * Generate the command using the provided command line options.
      * @return the imagetool command as a string suitable for running in ProcessBuilder
      */
+    @Override
     public String build() {
         return super.build()
             + field("listItems", listItems)

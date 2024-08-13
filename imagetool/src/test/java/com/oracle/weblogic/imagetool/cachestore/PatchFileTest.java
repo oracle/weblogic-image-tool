@@ -209,8 +209,6 @@ class PatchFileTest {
         String filePathFromCache = cacheStore.getValueFromCache(patchId + "_12.2.1.3.0");
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
-
-        //assertEquals("600000000073715", patchFile.getReleaseNumber(), "Patch did not find release number");
     }
 
     @Test
