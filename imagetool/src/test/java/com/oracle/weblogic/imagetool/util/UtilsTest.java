@@ -42,7 +42,7 @@ class UtilsTest {
     private SystemProperties overrideProperties;
 
     @Test
-    void firstGreaterThanLast() throws Exception {
+    void firstGreaterThanLast() {
         String thisVersion = "12.2.1.3.0";
         String thatVersion = "12.2.1.2.0";
         assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
@@ -85,7 +85,7 @@ class UtilsTest {
     }
 
     @Test
-    void secondGreaterThanFirst() throws Exception {
+    void secondGreaterThanFirst() {
         String thisVersion = "12.2.1.3.0";
         String thatVersion = "12.2.1.4.0";
         assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
@@ -123,7 +123,7 @@ class UtilsTest {
     }
 
     @Test
-    void versionsShouldBeEqual() throws Exception {
+    void versionsShouldBeEqual() {
         String thisVersion = "12.2.1.3.0";
         String thatVersion = "12.2.1.3.0";
         assertEquals(0, Utils.compareVersions(thisVersion, thatVersion),

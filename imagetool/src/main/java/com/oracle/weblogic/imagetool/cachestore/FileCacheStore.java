@@ -26,7 +26,7 @@ import com.oracle.weblogic.imagetool.util.Utils;
 
 public class FileCacheStore implements CacheStore {
 
-    public static final String CACHEDIR = "WLSIMG_CACHEDIR";
+    public static final String CACHE_DIR_ENV = "WLSIMG_CACHEDIR";
     private static final LoggingFacade logger = LoggingFactory.getLogger(FileCacheStore.class);
 
     private final Properties properties = new Properties();
@@ -144,7 +144,7 @@ public class FileCacheStore implements CacheStore {
      * @return cache directory
      */
     private static String initCacheDir() throws IOException {
-        String cacheDirStr = Utils.getEnvironmentProperty(CACHEDIR, FileCacheStore::defaultCacheDir);
+        String cacheDirStr = Utils.getEnvironmentProperty(CACHE_DIR_ENV, FileCacheStore::defaultCacheDir);
 
         Path cacheDir = Paths.get(cacheDirStr);
 

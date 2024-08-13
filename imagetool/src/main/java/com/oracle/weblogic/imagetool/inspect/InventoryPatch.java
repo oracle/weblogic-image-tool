@@ -5,8 +5,8 @@ package com.oracle.weblogic.imagetool.inspect;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.oracle.weblogic.imagetool.util.Utils;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class InventoryPatch {
     private String bug;
@@ -27,26 +27,23 @@ public class InventoryPatch {
 
     /**
      * Parse the provided string into patch objects, and return the list of patches.
-     * The fields should be separated by a semi-colon with three fields per patch.
+     * The fields should be separated by a semicolon with three fields per patch.
      * @param patchesString patch data from the inspected image
      * @return a list of patch objects
      */
     public static List<InventoryPatch> parseInventoryPatches(String patchesString) {
         List<InventoryPatch> patches = new ArrayList<>();
-        if (!Utils.isEmptyString(patchesString)) {
-            String[] tokens = patchesString.split(";");
-            for (int i = 0; i < tokens.length; i++) {
-                InventoryPatch patch = new InventoryPatch();
-                patch.bug = tokens[i];
-                if (i++ < tokens.length) {
-                    patch.uid = tokens[i];
-                }
-                if (i++ < tokens.length) {
-                    patch.description = tokens[i].replace("\"", "");
-                }
-                patches.add(patch);
-            }
+        // Pattern defines a tuple of three elements: patch ID, patch UID, and patch description.
+        Pattern tuplePattern = Pattern.compile("(\\d+);(\\d+);\\\"(.*?)\\\";");
+        Matcher patchMatcher = tuplePattern.matcher(patchesString);
+        while (patchMatcher.find()) {
+            InventoryPatch patch = new InventoryPatch();
+            patch.bug = patchMatcher.group(1);
+            patch.uid = patchMatcher.group(2);
+            patch.description = patchMatcher.group(3);
+            patches.add(patch);
         }
+
         return patches;
     }
 }

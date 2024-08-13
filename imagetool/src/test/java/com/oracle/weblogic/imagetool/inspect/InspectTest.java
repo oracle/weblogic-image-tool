@@ -20,6 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Tag("unit")
 class InspectTest {
     @Test
+    void testPatchStringParser() {
+        assertEquals(0, InventoryPatch.parseInventoryPatches("").size());
+        assertEquals(1, InventoryPatch.parseInventoryPatches("30319071;23384603;\"One-off\";").size());
+        assertEquals(3, InventoryPatch.parseInventoryPatches(
+            "30319071;23384603;\"One-off\";26355633;21447583;\"One-off\";26287183;21447582;\"One-off\";").size());
+        // same as previous but with last semi-colon removed.  last patch should be discarded but shouldn't fail.
+        assertEquals(2, InventoryPatch.parseInventoryPatches(
+            "30319071;23384603;\"One-off\";26355633;21447583;\"One-off\";26287183;21447582;\"One-off\"").size());
+    }
+
+    @Test
     void testJsonOutput() throws IOException {
         testPropertiesToJson("src/test/resources/inspect/image1.properties",
             "src/test/resources/inspect/image1.json");
