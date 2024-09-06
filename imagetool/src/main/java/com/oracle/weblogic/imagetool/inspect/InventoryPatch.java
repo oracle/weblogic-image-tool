@@ -34,7 +34,7 @@ public class InventoryPatch {
     public static List<InventoryPatch> parseInventoryPatches(String patchesString) {
         List<InventoryPatch> patches = new ArrayList<>();
         // Pattern defines a tuple of three elements: patch ID, patch UID, and patch description.
-        Pattern tuplePattern = Pattern.compile("(\\d+);(\\d+);\\\"(.*?)\\\";");
+        Pattern tuplePattern = Pattern.compile("(\\d+);(\\d+);\\\"(.*?)\\\";?");
         Matcher patchMatcher = tuplePattern.matcher(patchesString);
         while (patchMatcher.find()) {
             InventoryPatch patch = new InventoryPatch();
