@@ -45,8 +45,10 @@ class AruUtilTest {
             Document result;
             try {
                 // these release numbers are fake test data from the fake releases.xml found in test/resources
-                if (releaseNumber.equals("336") || releaseNumber.equals("304")) {
+                if (releaseNumber.equals("336")) {  // 336 == 12.2.1.3.0 (GA release)
                     result = ResourceUtils.getXmlFromResource("/patches/recommended-patches.xml");
+                } else if (releaseNumber.equals("304")) { // 304 == 12.2.1.3.200624 (PSU overlay)
+                    result = ResourceUtils.getXmlFromResource("/patches/recommended-patches-304.xml");
                 } else {
                     result = ResourceUtils.getXmlFromResource("/patches/no-patches.xml");
                 }
@@ -70,14 +72,15 @@ class AruUtilTest {
     @Test
     void testRecommendedPatches() throws Exception {
         List<AruPatch> recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(AruProduct.WLS, "12.2.1.3.0", "x", "x");
-        assertEquals(5, recommendedPatches.size());
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "12.2.1.3.0", "x", "x");
+        assertEquals(6, recommendedPatches.size());
         List<String> bugs = recommendedPatches.stream().map(AruPatch::patchId).collect(Collectors.toList());
         assertTrue(bugs.contains("31544340"));
         assertTrue(bugs.contains("31535411"));
         assertTrue(bugs.contains("31384951"));
         assertTrue(bugs.contains("28512225"));
         assertTrue(bugs.contains("28278427"));
+        assertTrue(bugs.contains("11112222"));
 
         // if no recommended patches are found, method should return an empty list (test data does not have 12.2.1.4)
         recommendedPatches =
@@ -88,7 +91,7 @@ class AruUtilTest {
     @Test
     void testNoRecommendedPatches() throws Exception {
         List<AruPatch> recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(AruProduct.WLS, "12.2.1.4.0", "x", "x");
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "12.2.1.4.0", "x", "x");
         assertEquals(0, recommendedPatches.size());
     }
 
@@ -109,7 +112,7 @@ class AruUtilTest {
         assertEquals(0, latestPsu.size());
 
         List<AruPatch> recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(AruProduct.WLS, "3.0.0.0.0", "x", "x");
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "3.0.0.0.0", "x", "x");
         assertEquals(0, recommendedPatches.size());
     }
 

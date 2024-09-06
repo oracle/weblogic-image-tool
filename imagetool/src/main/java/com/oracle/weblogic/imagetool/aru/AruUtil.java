@@ -170,20 +170,8 @@ public class AruUtil {
                                                      String userId, String password) throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
-            List<AruPatch> patches = getRecommendedPatches(product, version, userId, password);
-            // temporary, until OHS stops using same release number and product ID for two different installs
-            if (type == FmwInstallerType.OHS_DB19) {
-                if (product == AruProduct.OHS) {
-                    patches = patches.stream().filter(p -> p.description().contains(" DB19C "))
-                        .collect(Collectors.toList());
-                } else if (product == AruProduct.OAM_WG) {
-                    patches = patches.stream().filter(p -> p.description().contains(" DB19c "))
-                        .collect(Collectors.toList());
-                } else if (product == AruProduct.OSS) {
-                    patches = patches.stream().filter(p -> p.description().contains(" 19C "))
-                        .collect(Collectors.toList());
-                }
-            }
+            List<AruPatch> patches = getRecommendedPatches(type, product, version, userId, password);
+
             if (!patches.isEmpty()) {
                 patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
                 result.addAll(patches);
@@ -205,8 +193,8 @@ public class AruUtil {
      * @return the recommended patches for the given product and version
      * @throws AruException when response from ARU has an error or fails
      */
-    List<AruPatch> getRecommendedPatches(AruProduct product, String version, String userId, String password)
-        throws AruException {
+    List<AruPatch> getRecommendedPatches(FmwInstallerType type, AruProduct product, String version,
+                                         String userId, String password) throws AruException {
         logger.entering(product, version);
         List<AruPatch> patches = Collections.emptyList();
         try {
@@ -218,6 +206,12 @@ public class AruUtil {
             } else {
                 // Get a list of patches applicable to the given product and release number
                 patches = getReleaseRecommendations(product, releaseNumber, userId, password);
+                logger.fine("Search for {0} recommended patches returned {1}", product, patches.size());
+                if (type == FmwInstallerType.OHS_DB19) {
+                    // Workaround for OHS where the DB19 patches and the DB12 patches have the same product/release ID
+                    patches = filterDb19Patches(patches, product);
+                }
+
                 String psuVersion = getPsuVersion(product.description(), patches);
                 if (psuVersion != null) {
                     // Check to see if there is a release with the PSU version that contains overlay patches.
@@ -227,11 +221,11 @@ public class AruUtil {
                     String psuReleaseNumber = getReleaseNumber(product, psuVersion, userId, password);
                     // If there is a release for the specific PSU, check it for overlay patches
                     if (!Utils.isEmptyString(psuReleaseNumber)) {
-                        // Debug log - useful to know what was thrown away when "patches" is replaced by the new array
-                        patches.forEach(p -> logger.fine("Discarding recommended patch {0} {1}",
-                            p.patchId(), p.description()));
                         // Get recommended patches for PSU release (includes PSU overlay patches)
-                        patches = getReleaseRecommendations(product, psuReleaseNumber, userId, password);
+                        List<AruPatch> overlays =
+                            getReleaseRecommendations(product, psuReleaseNumber, userId, password);
+                        logger.fine("Search for PSU {0} overlay patches returned {1}", psuVersion, overlays.size());
+                        patches.addAll(overlays);
                     } else {
                         // ARU does not have a release number for the PSU version found (no overlays needed)
                         logger.fine("PSU release was not found for {0} : {1}", product, psuVersion);
@@ -245,6 +239,25 @@ public class AruUtil {
         }
         logger.exiting(patches);
         return patches;
+    }
+
+    /**
+     * This is a temporary workaround to select DB19 patches from a recommended list of patches.
+     * Currently, OHS is using the same release number and product ID for two different installs (DB19 and DB12).
+     * @param patches patches list to filter
+     * @param product AruProduct that the supplied patches are for
+     */
+    private List<AruPatch> filterDb19Patches(List<AruPatch> patches, AruProduct product) {
+        List<AruPatch> result = patches;
+        // temporary, until OHS stops using same release number and product ID for two different installs
+        if (product == AruProduct.OHS) {
+            result = patches.stream().filter(p -> p.description().contains(" DB19C ")).collect(Collectors.toList());
+        } else if (product == AruProduct.OAM_WG) {
+            result = patches.stream().filter(p -> p.description().contains(" DB19c ")).collect(Collectors.toList());
+        } else if (product == AruProduct.OSS) {
+            result = patches.stream().filter(p -> p.description().contains(" 19C ")).collect(Collectors.toList());
+        }
+        return result;
     }
 
     private String getPsuVersion(String productName, Collection<AruPatch> patches) {
@@ -270,6 +283,7 @@ public class AruUtil {
             .filter(not(AruPatch::isStackPatchBundle)) // remove the Stack Patch Bundle patch, if returned
             // TODO: Need an option for the user to request the Coherence additional feature pack.
             .filter(not(AruPatch::isCoherenceFeaturePack)) // remove the Coherence feature pack, if returned
+            .filter(p -> p.release().equals(releaseNumber))
             .collect(Collectors.toList());
     }
 
