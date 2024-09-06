@@ -52,8 +52,8 @@ class ITImagetool {
 
     // STAGING_DIR - directory where JDK and other installers are pre-staged before testing
     private static final String STAGING_DIR = System.getProperty("STAGING_DIR");
-    private static final String wlsImgBldDir = System.getProperty("WLSIMG_BLDDIR");
-    private static final String wlsImgCacheDir = System.getProperty("WLSIMG_CACHEDIR");
+    private static final String BLDDIR_ENV = System.getProperty("WLSIMG_BLDDIR");
+    private static final String CACHEDIR_ENV = System.getProperty("WLSIMG_CACHEDIR");
 
     // Docker images
     private static String DB_IMAGE = System.getProperty("DB_IMAGE");
@@ -74,7 +74,7 @@ class ITImagetool {
     private static final String WLS_VERSION = "12.2.1.3.0";
     private static final String OPATCH_VERSION = "13.9.4.2.2";
     private static final String JDK_VERSION = "8u202";
-    private static final String JDK_VERSION_8u212 = "8u212";
+    private static final String JDK_VERSION_212 = "8u212";
     private static final String WDT_VERSION = "1.1.2";
     private static final Path WDT_ARCHIVE = Paths.get("target", "wdt", "archive.zip");
     private static final Path WDT_RESOURCES = Paths.get("src", "test", "resources", "wdt");
@@ -92,11 +92,11 @@ class ITImagetool {
         logger.info("Initializing the tests ...");
 
         List<String> missingSettings = new ArrayList<>();
-        if (Utils.isEmptyString(wlsImgBldDir)) {
+        if (Utils.isEmptyString(BLDDIR_ENV)) {
             missingSettings.add("WLSIMG_BLDDIR");
         }
 
-        if (Utils.isEmptyString(wlsImgCacheDir)) {
+        if (Utils.isEmptyString(CACHEDIR_ENV)) {
             missingSettings.add("WLSIMG_CACHEDIR");
         }
 
@@ -129,8 +129,8 @@ class ITImagetool {
         }
         dbContainerName = "InfraDB4" + build_tag;
         logger.info("build_tag = " + build_tag);
-        logger.info("WLSIMG_BLDDIR = " + wlsImgBldDir);
-        logger.info("WLSIMG_CACHEDIR = " + wlsImgCacheDir);
+        logger.info("WLSIMG_BLDDIR = " + BLDDIR_ENV);
+        logger.info("WLSIMG_CACHEDIR = " + CACHEDIR_ENV);
         logger.info("STAGING_DIR = " + STAGING_DIR);
         logger.info("DB_IMAGE = " + DB_IMAGE);
         logger.info("JRE_IMAGE = " + JRE_IMAGE);
@@ -208,10 +208,10 @@ class ITImagetool {
 
         logger.info("Setting up the test environment ...");
 
-        if (!(new File(wlsImgBldDir)).exists()) {
-            logger.info(wlsImgBldDir + " does not exist, creating it");
-            if (!(new File(wlsImgBldDir)).mkdir()) {
-                throw new IllegalStateException("Unable to create build directory " + wlsImgBldDir);
+        if (!(new File(BLDDIR_ENV)).exists()) {
+            logger.info(BLDDIR_ENV + " does not exist, creating it");
+            if (!(new File(BLDDIR_ENV)).mkdir()) {
+                throw new IllegalStateException("Unable to create build directory " + BLDDIR_ENV);
             }
         }
 
@@ -706,7 +706,7 @@ class ITImagetool {
 
         // test assumes that the default JDK version 8u202 is already in the cache
 
-        Path tmpWdtModel = Paths.get(wlsImgBldDir, WDT_MODEL1);
+        Path tmpWdtModel = Paths.get(BLDDIR_ENV, WDT_MODEL1);
 
         // update wdt model file
         Files.copy(WDT_RESOURCES.resolve(WDT_MODEL1), tmpWdtModel, StandardCopyOption.REPLACE_EXISTING);
@@ -788,7 +788,7 @@ class ITImagetool {
         // add jdk 8u212 installer to the cache
         String addNewJdkCmd = new CacheCommand().addInstaller(true)
             .type("jdk")
-            .version(JDK_VERSION_8u212)
+            .version(JDK_VERSION_212)
             .path(Paths.get(STAGING_DIR, JDK_INSTALLER_NEWER))
             .build();
 
@@ -801,7 +801,7 @@ class ITImagetool {
             // create an image with FMW and the latest PSU using ARU to download the patch
             String command = new CreateCommand()
                 .tag(tagName)
-                .jdkVersion(JDK_VERSION_8u212)
+                .jdkVersion(JDK_VERSION_212)
                 .type("fmw")
                 .user(oracleSupportUsername)
                 .passwordEnv("ORACLE_SUPPORT_PASSWORD")
@@ -835,7 +835,7 @@ class ITImagetool {
 
         // test assumes that the default JDK version 8u202 is already in the cache
 
-        Path tmpWdtModel = Paths.get(wlsImgBldDir, WDT_MODEL1);
+        Path tmpWdtModel = Paths.get(BLDDIR_ENV, WDT_MODEL1);
 
         // update wdt model file
         Files.copy(WDT_RESOURCES.resolve(WDT_MODEL1), tmpWdtModel, StandardCopyOption.REPLACE_EXISTING);
