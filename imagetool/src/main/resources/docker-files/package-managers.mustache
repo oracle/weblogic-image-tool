@@ -6,30 +6,30 @@
 # Ensure necessary OS packages are installed
 {{#useYum}}
     RUN yum -y update \
-    && yum -y --downloaddir={{{tempDir}}} install gzip tar unzip libaio libnsl jq findutils diffutils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && yum -y --downloaddir={{{tempDir}}} install {{#osPackages}}{{{.}}} {{/osPackages}}\
     && yum -y --downloaddir={{{tempDir}}} clean all \
     && rm -rf /var/cache/yum/* \
     && rm -rf {{{tempDir}}}
 {{/useYum}}
 {{#useDnf}}
     RUN dnf -y update \
-    && dnf -y install gzip tar unzip libaio libnsl jq findutils diffutils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && dnf -y install {{#osPackages}}{{{.}}} {{/osPackages}}\
     && dnf clean all
 {{/useDnf}}
 {{#useMicroDnf}}
     RUN microdnf -y update \
-    && microdnf -y install gzip tar unzip libaio libnsl jq findutils diffutils shadow-utils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && microdnf -y install {{#osPackages}}{{{.}}} {{/osPackages}}\
     && microdnf clean all
 {{/useMicroDnf}}
 {{#useMicroDnf8}}
     RUN microdnf update \
-    && microdnf install gzip tar unzip libaio libnsl jq findutils diffutils shadow-utils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && microdnf install {{#osPackages}}{{{.}}} {{/osPackages}}\
     && microdnf clean all
 {{/useMicroDnf8}}
 {{#useAptGet}}
     RUN apt-get -y update \
     && apt-get -y upgrade \
-    && apt-get -y install gzip tar unzip libaio libnsl jq findutils diffutils {{#osPackages}}{{{.}}} {{/osPackages}}\
+    && apt-get -y install {{#osPackages}}{{{.}}} {{/osPackages}}\
     && apt-get -y clean all
 {{/useAptGet}}
 {{#useApk}}

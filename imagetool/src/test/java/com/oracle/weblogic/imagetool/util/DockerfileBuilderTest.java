@@ -14,11 +14,13 @@ import com.github.mustachejava.MustacheFactory;
 import com.oracle.weblogic.imagetool.cli.menu.PackageManagerType;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
+import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ReduceTestLogging(loggerClass = MiddlewareInstall.class)
 @Tag("unit")
 class DockerfileBuilderTest {
 
@@ -42,7 +44,6 @@ class DockerfileBuilderTest {
 
         MustacheFactory mf = new DefaultMustacheFactory(new File("src/main/resources/docker-files"));
         Mustache mustache = mf.compile("Create_Image.mustache");
-        //mustache.execute(new PrintWriter(System.out), dockerfileOptions).flush();
         mustache.execute(new StringWriter(), dockerfileOptions).flush();
         assertTrue(true);
     }

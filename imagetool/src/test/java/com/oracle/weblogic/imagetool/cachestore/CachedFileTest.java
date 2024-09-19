@@ -9,14 +9,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
-import com.oracle.weblogic.imagetool.logging.LoggingFacade;
-import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import com.oracle.weblogic.imagetool.util.BuildPlatform;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -31,12 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
+@ReduceTestLogging(loggerClass = CachedFile.class)
 class CachedFileTest {
 
     static Path cacheDir;
     static CacheStore cacheStore;
     static final List<String> fileContents = Arrays.asList("A", "B", "C");
-    static final String ver12213 = "12.2.1.3.0";
+    static final String VER_12213 = "12.2.1.3.0";
 
     @BeforeAll
     static void setup(@TempDir Path tempDir, @TempDir Path cacheDir) throws IOException {
@@ -50,7 +49,7 @@ class CachedFileTest {
         CachedFileTest.cacheDir = cacheDir;
         cacheStore  = new CacheStoreTestImpl(cacheDir);
         // build a fake cache with several installers
-        cacheStore.addToCache("wls_" + ver12213, path12213.toString());
+        cacheStore.addToCache("wls_" + VER_12213, path12213.toString());
         cacheStore.addToCache("wls_12.2.1.4.0_" + BuildPlatform.getPlatformName(), path12214.toString());
         cacheStore.addToCache("wls_14.1.1.0.0_amd64", path1411.toString());
 
@@ -84,7 +83,7 @@ class CachedFileTest {
     }
 
     @Test
-    void resolveFileNotFound() throws Exception {
+    void resolveFileNotFound() {
         // resolve should fail for a CachedFile that is not in the store
         CachedFile fakeFile = new CachedFile(InstallerType.WLS, "10.3.6.0.0");
         assertThrows(FileNotFoundException.class, () -> fakeFile.resolve(cacheStore));
@@ -93,15 +92,15 @@ class CachedFileTest {
     @Test
     void resolveFileFindsFile() throws IOException {
         // Resolve a CachedFile stored in the cache (created in test setup above)
-        CachedFile wlsInstallerFile = new CachedFile(InstallerType.WLS, ver12213);
-        String expected = cacheStore.getValueFromCache("wls_" + ver12213);
+        CachedFile wlsInstallerFile = new CachedFile(InstallerType.WLS, VER_12213);
+        String expected = cacheStore.getValueFromCache("wls_" + VER_12213);
         assertEquals(expected, wlsInstallerFile.resolve(cacheStore), "CachedFile did not resolve file");
     }
 
     @Test
     void resolveNoArchFile() throws IOException {
         // Look for a cache entry where the user specified the architecture/platform amd64
-        CachedFile wlsNoArch = new CachedFile(InstallerType.WLS, ver12213, "amd64");
+        CachedFile wlsNoArch = new CachedFile(InstallerType.WLS, VER_12213, "amd64");
 
         // verify the cache is setup as expected.
         // wls_12.2.1.3.0 is in the cache, but wls_12.2.1.3.0_amd64 is NOT in the cache
@@ -139,19 +138,12 @@ class CachedFileTest {
 
     @Test
     void copyFile(@TempDir Path contextDir) throws Exception {
-        LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
-        Level oldLevel = logger.getLevel();
-        logger.setLevel(Level.OFF);
-        try {
-            CachedFile wlsInstallerFile = new CachedFile(InstallerType.WLS, ver12213);
-            // copy the file from the cache store to the fake build context directory
-            Path result = wlsInstallerFile.copyFile(cacheStore, contextDir.toString());
-            // check to see if the file was copied correctly by examining the contents of the resulting file
-            assertLinesMatch(fileContents, Files.readAllLines(result),
-                "copied file contents do not match source");
-        } finally {
-            logger.setLevel(oldLevel);
-        }
+        CachedFile wlsInstallerFile = new CachedFile(InstallerType.WLS, VER_12213);
+        // copy the file from the cache store to the fake build context directory
+        Path result = wlsInstallerFile.copyFile(cacheStore, contextDir.toString());
+        // check to see if the file was copied correctly by examining the contents of the resulting file
+        assertLinesMatch(fileContents, Files.readAllLines(result),
+            "copied file contents do not match source");
     }
 
     @Test

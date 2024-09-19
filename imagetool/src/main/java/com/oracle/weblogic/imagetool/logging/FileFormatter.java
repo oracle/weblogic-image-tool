@@ -63,14 +63,14 @@ public class FileFormatter extends Formatter {
     /**
      * Formats the log record.
      *
-     * @param record the log record
+     * @param rec the log record
      * @return the formatted log record
      */
     @Override
-    public synchronized String format(LogRecord record) {
+    public synchronized String format(LogRecord rec) {
         StringBuilder sb = new StringBuilder();
 
-        date.setTime(record.getMillis());
+        date.setTime(rec.getMillis());
         args[0] = date;
 
         StringBuffer text = new StringBuffer();
@@ -79,28 +79,28 @@ public class FileFormatter extends Formatter {
 
         // Level
         sb.append(" <");
-        sb.append(record.getLevel().getLocalizedName());
+        sb.append(rec.getLevel().getLocalizedName());
         sb.append(">");
 
         // Class name
         sb.append(" <");
-        String source = record.getSourceClassName();
+        String source = rec.getSourceClassName();
         if (source != null) {
             sb.append(source.substring(source.lastIndexOf('.') + 1));
         } else {
-            sb.append(record.getLoggerName());
+            sb.append(rec.getLoggerName());
         }
         sb.append(">");
 
         // Method name
         sb.append(" <");
-        if (record.getSourceMethodName() != null) {
-            sb.append(record.getSourceMethodName());
+        if (rec.getSourceMethodName() != null) {
+            sb.append(rec.getSourceMethodName());
         }
         sb.append(">");
 
-        String messageKey = record.getMessage();
-        String message = replaceColorTokens(formatMessage(record));
+        String messageKey = rec.getMessage();
+        String message = replaceColorTokens(formatMessage(rec));
 
         if (messageKey != null) {
             sb.append(" <");
@@ -111,11 +111,11 @@ public class FileFormatter extends Formatter {
         }
         sb.append(" <");
         sb.append(message);
-        if (record.getThrown() != null) {
+        if (rec.getThrown() != null) {
             try {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
-                record.getThrown().printStackTrace(pw);
+                rec.getThrown().printStackTrace(pw);
                 pw.close();
                 sb.append(LINE_SEPARATOR);
                 sb.append(sw.toString());

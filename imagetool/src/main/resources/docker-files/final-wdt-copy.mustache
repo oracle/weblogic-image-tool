@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Copy WDT files or domain into the final image
@@ -10,13 +10,13 @@
     {{#isWdtModelHomeOutsideWdtHome}}
         COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{wdt_model_home}} {{wdt_model_home}}/
     {{/isWdtModelHomeOutsideWdtHome}}
-    {{#domainGroupAsUser}}
+    {{#useOwnerPermsForGroup}}
         RUN chmod -R g=u {{{domain_parent}}} {{{wdt_home}}} {{{wdt_model_home}}}
-    {{/domainGroupAsUser}}
+    {{/useOwnerPermsForGroup}}
 {{/modelOnly}}
 {{^modelOnly}}
     COPY --from=wdt_build --chown={{userid}}:{{groupid}} {{{domain_home}}} {{{domain_home}}}/
-    {{#domainGroupAsUser}}
+    {{#useOwnerPermsForGroup}}
         RUN chmod -R g=u {{{domain_home}}}
-    {{/domainGroupAsUser}}
+    {{/useOwnerPermsForGroup}}
 {{/modelOnly}}

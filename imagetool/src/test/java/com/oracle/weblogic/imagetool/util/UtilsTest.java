@@ -12,11 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.logging.LoggingFacade;
-import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -33,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
+@ReduceTestLogging(loggerClass = CachedFile.class)
 @ExtendWith(SystemStubsExtension.class)
 class UtilsTest {
 
@@ -43,7 +42,7 @@ class UtilsTest {
     private SystemProperties overrideProperties;
 
     @Test
-    void firstGreaterThanLast() throws Exception {
+    void firstGreaterThanLast() {
         String thisVersion = "12.2.1.3.0";
         String thatVersion = "12.2.1.2.0";
         assertTrue(Utils.compareVersions(thisVersion, thatVersion) > 0,
@@ -86,7 +85,7 @@ class UtilsTest {
     }
 
     @Test
-    void secondGreaterThanFirst() throws Exception {
+    void secondGreaterThanFirst() {
         String thisVersion = "12.2.1.3.0";
         String thatVersion = "12.2.1.4.0";
         assertTrue(Utils.compareVersions(thisVersion, thatVersion) < 0,
@@ -124,7 +123,7 @@ class UtilsTest {
     }
 
     @Test
-    void versionsShouldBeEqual() throws Exception {
+    void versionsShouldBeEqual() {
         String thisVersion = "12.2.1.3.0";
         String thatVersion = "12.2.1.3.0";
         assertEquals(0, Utils.compareVersions(thisVersion, thatVersion),
@@ -217,21 +216,14 @@ class UtilsTest {
 
     @Test
     void oracleHomeFromResponseFile() throws Exception {
-        LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
-        Level oldLevel = logger.getLevel();
-        logger.setLevel(Level.WARNING);
-        try {
-            Path responseFile = Paths.get("./src/test/resources/utilsTest/responseFile1.txt");
-            List<Path> responseFiles = new ArrayList<>();
-            responseFiles.add(responseFile);
-            DockerfileOptions options = new DockerfileOptions("tests");
+        Path responseFile = Paths.get("./src/test/resources/utilsTest/responseFile1.txt");
+        List<Path> responseFiles = new ArrayList<>();
+        responseFiles.add(responseFile);
+        DockerfileOptions options = new DockerfileOptions("tests");
 
-            Utils.setOracleHome(responseFiles, options);
-            assertEquals("/my/oraclehomeDir", options.oracle_home(),
-                "set Oracle Home from response file failed");
-        } finally {
-            logger.setLevel(oldLevel);
-        }
+        Utils.setOracleHome(responseFiles, options);
+        assertEquals("/my/oraclehomeDir", options.oracle_home(),
+            "set Oracle Home from response file failed");
     }
 
     @Test

@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -545,13 +546,13 @@ public class Utils {
      * @param defaultValue if no environment variable is defined, nor system property, return this value
      * @return the value defined in the env or system property
      */
-    public static String getEnvironmentProperty(String name, String defaultValue) {
+    public static String getEnvironmentProperty(String name, Supplier<String> defaultValue) {
         String result = System.getenv(name);
         if (isEmptyString(result)) {
             result = System.getProperty(name);
         }
         if (isEmptyString(result)) {
-            return defaultValue;
+            return defaultValue.get();
         }
         return result;
     }
@@ -562,7 +563,7 @@ public class Utils {
      * @return working directory
      */
     public static String getBuildWorkingDir() throws IOException {
-        String workingDir = getEnvironmentProperty("WLSIMG_BLDDIR", System.getProperty("user.home"));
+        String workingDir = getEnvironmentProperty("WLSIMG_BLDDIR", () -> System.getProperty("user.home"));
         Path path = Paths.get(workingDir);
 
         boolean pathExists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);

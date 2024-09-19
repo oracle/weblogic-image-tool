@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FileCacheStoreTest {
 
-    private static final String testKey = "abc_xyz_123";
-    private static final String testVal = "this_is_a_test";
+    private static final String TEST_KEY = "abc_xyz_123";
+    private static final String TEST_VAL = "this_is_a_test";
 
     @BeforeAll
     static void init(@TempDir File tempDir) throws CacheStoreException {
-        System.setProperty(FileCacheStore.CACHEDIR, tempDir.getAbsolutePath());
+        System.setProperty(FileCacheStore.CACHE_DIR_ENV, tempDir.getAbsolutePath());
         cache().clearCache();
     }
 
@@ -37,7 +37,7 @@ class FileCacheStoreTest {
     @Order(1)
     void addingValueToCache() {
         // add value to cache
-        assertDoesNotThrow(() -> cache().addToCache(testKey, testVal), "Add to cache threw an exception");
+        assertDoesNotThrow(() -> cache().addToCache(TEST_KEY, TEST_VAL), "Add to cache threw an exception");
     }
 
     @Test
@@ -45,12 +45,12 @@ class FileCacheStoreTest {
     void checkValueInCache() {
         // check to see if the key that was just added is there, and value matches expected value
         assertDoesNotThrow(() ->
-                assertTrue(cache().containsKey(testKey)),
+                assertTrue(cache().containsKey(TEST_KEY)),
             "containsKey failed to find key or value that was just added");
 
-        // check (another way) that the value that was just added
+        // check (another way) that the value was just added
         assertDoesNotThrow(() ->
-                assertEquals(testVal, cache().getValueFromCache(testKey), "Found unexpected value in cache"),
+                assertEquals(TEST_VAL, cache().getValueFromCache(TEST_KEY), "Found unexpected value in cache"),
             "Get from cache threw an exception");
     }
 
@@ -63,7 +63,7 @@ class FileCacheStoreTest {
             "Delete from cache threw an exception");
 
         assertDoesNotThrow(() ->
-                assertEquals(testVal, cache().deleteFromCache(testKey), "Value from deleted key did not match"),
+                assertEquals(TEST_VAL, cache().deleteFromCache(TEST_KEY), "Value from deleted key did not match"),
             "Delete from cache threw an exception");
     }
 
@@ -72,6 +72,10 @@ class FileCacheStoreTest {
     void verifyCacheSize() {
         assertDoesNotThrow(() ->
             assertNotNull(cache().getCacheItems(), "Get cache items should never be null"),
+            "getCacheItems threw an exception");
+
+        assertDoesNotThrow(() ->
+                assertEquals(0, cache().getCacheItems().size(), "Get cache items should never be null"),
             "getCacheItems threw an exception");
     }
 }
