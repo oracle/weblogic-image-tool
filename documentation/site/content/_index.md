@@ -56,7 +56,6 @@ Use WebLogic Image Tool to create, update, and rebase the following FMW product 
 * Oracle WebLogic Server (WLS)
 * Fusion Middleware Infrastructure (FMW)
 * Oracle BPM Suite for business process (SOA)
-* Oracle HTTP Server (OHS_DB19)
 * Oracle Service Bus (OSB)
 * Oracle Data Integrator (ODI)
 * Oracle Access Management (OAM)
