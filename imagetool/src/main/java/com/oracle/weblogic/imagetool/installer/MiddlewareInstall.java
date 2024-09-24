@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -14,11 +15,16 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.settings.InstallerSettings;
+import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import com.oracle.weblogic.imagetool.util.Utils;
+
+import static com.oracle.weblogic.imagetool.util.BuildPlatform.AMD64;
+import static com.oracle.weblogic.imagetool.util.BuildPlatform.ARM64;
+import static com.oracle.weblogic.imagetool.util.Constants.CTX_FMW;
 
 public class MiddlewareInstall {
 
@@ -31,22 +37,32 @@ public class MiddlewareInstall {
      * Get the install metadata for a given middleware install type.
      * @param type the requested middleware install type
      */
-    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles, String buildPlatform)
+    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
+                             List<String> buildPlatform)
         throws FileNotFoundException {
 
         logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
+        UserSettingsFile settingsFile = new UserSettingsFile();
 
         for (InstallerType installer : type.installerList()) {
-            MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
-            pkg.type = installer;
-            pkg.installer = new CachedFile(installer, version, buildPlatform);
-            pkg.responseFile = new DefaultResponseFile(installer, type);
-            if (installer.equals(InstallerType.DB19)) {
-                pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
+            InstallerSettings installers = settingsFile.getInstallerSettings(installer);
+
+            for (String platform : buildPlatform) {
+                MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
+                pkg.type = installer;
+                //pkg.installer = new CachedFile(installer, version, platform);
+                pkg.installerPath = Paths.get(installers.getInstallerForPlatform(platform, version).getLocation());
+                pkg.installerFilename = pkg.installerPath.getFileName().toString();
+                pkg.responseFile = new DefaultResponseFile(installer, type);
+                pkg.platform = platform;
+                if (installer.equals(InstallerType.DB19)) {
+                    pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
+                }
+                addInstaller(pkg);
             }
-            addInstaller(pkg);
         }
+        // TODO: same response files for all platform?
         setResponseFiles(responseFiles);
     }
 
@@ -84,13 +100,23 @@ public class MiddlewareInstall {
      */
     public void copyFiles(CacheStore cacheStore, String buildContextDir) throws IOException {
         logger.entering();
+
         for (MiddlewareInstallPackage installPackage: installerFiles) {
-            Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDir);
-            installPackage.installerFilename = filePath.getFileName().toString();
-            installPackage.jarName = getJarNameFromInstaller(filePath);
+            String buildContextDestination = buildContextDir;
+            // based on the platform copy to sub directory
+            if (installPackage.platform.equals(AMD64)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_FMW + AMD64;
+            } else if (installPackage.platform.equals(ARM64)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_FMW + ARM64;
+            }
+            //Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDestination);
+            //installPackage.installerFilename = filePath.getFileName().toString();
+            Files.copy(installPackage.installerPath,
+                Paths.get(buildContextDestination).resolve(installPackage.installerPath.getFileName()));
+            installPackage.jarName = getJarNameFromInstaller(installPackage.installerPath);
             installPackage.isZip = installPackage.installerFilename.endsWith(".zip");
             installPackage.isBin = installPackage.jarName.endsWith(".bin");
-            installPackage.responseFile.copyFile(buildContextDir);
+            installPackage.responseFile.copyFile(buildContextDestination);
         }
         logger.exiting();
     }

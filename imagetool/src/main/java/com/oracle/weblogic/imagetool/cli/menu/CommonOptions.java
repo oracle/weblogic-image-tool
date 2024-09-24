@@ -29,12 +29,17 @@ import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
+import jdk.vm.ci.amd64.AMD64;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+import static com.oracle.weblogic.imagetool.util.BuildPlatform.AMD64;
+import static com.oracle.weblogic.imagetool.util.BuildPlatform.ARM64;
 import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX_OS_IDS;
+import static com.oracle.weblogic.imagetool.util.Constants.CTX_FMW;
+import static com.oracle.weblogic.imagetool.util.Constants.CTX_JDK;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
@@ -148,6 +153,24 @@ public abstract class CommonOptions {
             buildDirectory = tmpDir.toAbsolutePath().toString();
             logger.info("IMG-0003", buildDirectory);
         }
+        Path fmwamd64 = Paths.get(CTX_FMW + AMD64);
+        Path fmwarm64 = Paths.get(CTX_FMW + ARM64);
+        Path jdkamd64 = Paths.get(CTX_JDK + AMD64);
+        Path jdkarm64 = Paths.get(CTX_JDK + ARM64);
+
+        if (!Files.exists(fmwamd64)) {
+            Files.createDirectories(Paths.get(buildDirectory).resolve(fmwamd64));
+        }
+        if (!Files.exists(fmwarm64)) {
+            Files.createDirectories(Paths.get(buildDirectory).resolve(fmwarm64));
+        }
+        if (!Files.exists(jdkamd64)) {
+            Files.createDirectories(Paths.get(buildDirectory).resolve(jdkamd64));
+        }
+        if (!Files.exists(jdkarm64)) {
+            Files.createDirectories(Paths.get(buildDirectory).resolve(jdkarm64));
+        }
+
         return buildDirectory;
     }
 
@@ -313,7 +336,7 @@ public abstract class CommonOptions {
         return buildId;
     }
 
-    public String getBuildPlatform() {
+    public List<String> getBuildPlatform() {
         return buildPlatform;
     }
 
@@ -436,9 +459,10 @@ public abstract class CommonOptions {
     @Option(
         names = {"--platform"},
         paramLabel = "<target platform>",
+        split = ",",
         description = "Set the target platform to build. Example: linux/amd64 or linux/arm64"
     )
-    private String buildPlatform;
+    private List<String> buildPlatform;
 
     @Parameters(
         description = "Container build options.",

@@ -239,6 +239,29 @@ public class UserSettingsFile {
         aruRetryMax = SettingsFile.getValue("aruRetryMax", Integer.class, settings);
         aruRetryInterval = SettingsFile.getValue("aruRetryInterval", Integer.class, settings);
 
+        // installers is a list of different installer types jdk, fmw, wdt etc ..
+        // For each installer type,  there is a list of individual installer
+        //jdk:
+        //   defaultVersion: 8u401
+        //   11u22:
+        //     - platform: linux/arm64
+        //       file: /path/to/installerarm.gz
+        //       digest: e6a8e178e73aea2fc512799423822bf065758f5e
+        //       version: 11.0.22
+        //       added: 20241201
+        //    - platform: linux/amd64
+        //      file: /path/to/installeramd.gz
+        //      digest: 1d6dc346ba26bcf1d0c6b5efb030e0dd2f842add
+        //      version: 11.0.22
+        //      added: 20241201
+        //   8u401:
+        //wls:
+        //  defaultVersion: 12.2.1.4.0
+        //  12.2.1.4.0:
+        //    - platform: linux/arm64
+        //        ....
+        //    - platform: linux/arm64
+
         installers.clear();
         Map<String, Object> installerFolder = SettingsFile.getFolder("installers", settings);
         for (Map.Entry<String, Object> entry: installerFolder.entrySet()) {

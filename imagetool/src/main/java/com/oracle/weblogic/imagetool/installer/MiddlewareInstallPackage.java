@@ -3,17 +3,20 @@
 
 package com.oracle.weblogic.imagetool.installer;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 
 public class MiddlewareInstallPackage {
-    InstallerType type;
-    ResponseFile responseFile;
-    CachedFile installer;
-    String installerFilename;
-    String jarName;
-    List<String> preinstallCommands;
-    boolean isZip = true;
-    boolean isBin = false;
+    public InstallerType type;
+    public ResponseFile responseFile;
+    public CachedFile installer;
+    public Path installerPath;
+    public String installerFilename;
+    public String jarName;
+    public List<String> preinstallCommands;
+    public boolean isZip = true;
+    public boolean isBin = false;
+    public String platform;
 }

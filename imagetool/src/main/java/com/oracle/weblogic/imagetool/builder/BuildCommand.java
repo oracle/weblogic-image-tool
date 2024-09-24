@@ -66,12 +66,12 @@ public class BuildCommand {
      * @param value a single platform name.
      * @return this
      */
-    public BuildCommand platform(String value) {
-        if (Utils.isEmptyString(value)) {
+    public BuildCommand platform(List<String> value) {
+        if (value == null || value.isEmpty()) {
             return this;
         }
         command.add("--platform");
-        command.add(value);
+        command.add(String.join(",", value));
         useBuildx = true;
         return this;
     }

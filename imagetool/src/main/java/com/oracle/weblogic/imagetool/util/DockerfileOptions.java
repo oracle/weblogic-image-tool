@@ -22,6 +22,9 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
+import static com.oracle.weblogic.imagetool.util.BuildPlatform.AMD64;
+import static com.oracle.weblogic.imagetool.util.BuildPlatform.ARM64;
+
 /**
  * Provides the data used by the Dockerfile templates (in mustache).
  */
@@ -48,7 +51,7 @@ public class DockerfileOptions {
     private boolean isRebaseToNew;
     private boolean strictPatchOrdering;
 
-    private String javaInstaller;
+    private List<String> javaInstaller;
     private String username;
     private String groupname;
     private String javaHome;
@@ -1064,12 +1067,22 @@ public class DockerfileOptions {
         return mwInstallers.getInstallers();
     }
 
-    public void setJavaInstaller(String value) {
+    public List<MiddlewareInstallPackage> installPackagesForARM() {
+        return mwInstallers.getInstallers().stream().filter(obj -> ARM64.equals(obj.platform))
+            .collect(Collectors.toList());
+    }
+
+    public List<MiddlewareInstallPackage> installPackagesForAMD() {
+        return mwInstallers.getInstallers().stream().filter(obj -> AMD64.equals(obj.platform))
+            .collect(Collectors.toList());
+    }
+
+    public void setJavaInstaller(List<String> value) {
         javaInstaller = value;
     }
 
     @SuppressWarnings("unused")
-    public String java_pkg() {
+    public List<String> java_pkg() {
         return javaInstaller;
     }
 
@@ -1099,6 +1112,28 @@ public class DockerfileOptions {
     @SuppressWarnings("unused")
     public boolean domainGroupAsUser() {
         return domainGroupAsUser;
+    }
+
+    public boolean targetARMPlatform;
+
+    public DockerfileOptions setTargetARMPlatform(boolean value) {
+        this.targetARMPlatform = value;
+        return this;
+    }
+
+    public boolean targetARMPlatform() {
+        return targetARMPlatform;
+    }
+
+    public boolean targetAMDPlatform;
+
+    public DockerfileOptions setTargetAMDPlatform(boolean value) {
+        this.targetAMDPlatform = value;
+        return this;
+    }
+
+    public boolean targetAMDPlatform() {
+        return targetAMDPlatform;
     }
 
     /**

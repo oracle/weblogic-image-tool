@@ -2,7 +2,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 
-FROM {{baseImage}} as os_update
+FROM {{baseImage}} AS os_update
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
@@ -30,7 +30,7 @@ USER root
     {{> run-wdt }}
 {{/isWdtEnabled}}
 
-FROM os_update as final_build
+FROM os_update AS final_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 ENV ORACLE_HOME={{{oracle_home}}} \

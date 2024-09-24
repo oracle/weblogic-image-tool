@@ -3,14 +3,16 @@
 #
 # Installing Java
 
-FROM os_update as jdk_build
+FROM os_update AS jdk_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
+ARG TARGETPLATFORM
+
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 ENV JAVA_HOME={{{java_home}}}
-
-COPY --chown={{userid}}:{{groupid}} ["{{java_pkg}}", "{{{tempDir}}}/"]
+#  stage directory
+COPY --chown={{userid}}:{{groupid}} jdk {{{tempDir}}}/jdk
 
 USER {{userid}}
 
@@ -18,7 +20,8 @@ USER {{userid}}
     {{{.}}}
 {{/beforeJdkInstall}}
 
-RUN tar xzf "{{{tempDir}}}/{{java_pkg}}" -C /u01 \
+
+RUN jdkfile=$(ls {{{tempDir}}}/jdk/$TARGETPLATFORM/*.gz) && tar xzf "$jdkfile" -C /u01 \
 && $(test -d /u01/jdk* && mv /u01/jdk* {{{java_home}}} || mv /u01/graal* {{{java_home}}}) \
 && rm -rf {{{tempDir}}} \
 && rm -f {{{java_home}}}/javafx-src.zip {{{java_home}}}/src.zip
