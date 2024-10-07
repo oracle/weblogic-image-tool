@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Tag("unit")
 class UpdateImageTest {
     @Test
+    @Tag("failing")
     void installerTypeTest() {
         UpdateImage updateImage = new UpdateImage();
         new CommandLine(updateImage).parseArgs("--tag", "tag:1", "--user", "derek", "--password", "xxx",

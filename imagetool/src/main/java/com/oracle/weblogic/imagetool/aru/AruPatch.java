@@ -30,6 +30,7 @@ public class AruPatch {
     private String product;
     private String release;
     private String releaseName;
+    private int platform;
     private String psuBundle;
     private String downloadHost;
     private String downloadPath;
@@ -92,6 +93,15 @@ public class AruPatch {
 
     public AruPatch releaseName(String value) {
         releaseName = value;
+        return this;
+    }
+
+    public Integer platform() {
+        return platform;
+    }
+
+    public AruPatch platform(String value) {
+        platform = Integer.parseInt(value);
         return this;
     }
 
@@ -167,9 +177,9 @@ public class AruPatch {
      * @throws XPathExpressionException if the document is not the expected format from ARU
      */
     public static Stream<AruPatch> getPatches(Document patchList) throws XPathExpressionException {
-        // create list of all patches that apply to the Linux platform
+        // create list of all patches that apply (platforms 2000=generic, 226=amd64, 541=arm64)
         NodeList nodeList = XPathUtil.nodelist(patchList,
-            "/results/patch[./platform[@id='2000' or @id='226']]");
+            "/results/patch[./platform[@id='2000' or @id='226' or @id='541']]");
         Stream.Builder<AruPatch> result = Stream.builder();
         for (int i = 0; i < nodeList.getLength(); i++) {
             if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -183,7 +193,8 @@ public class AruPatch {
                     .psuBundle(XPathUtil.string(nodeList.item(i), "./psu_bundle"))
                     .access(XPathUtil.string(nodeList.item(i), "./access"))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
-                    .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"));
+                    .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"))
+                    .platform(XPathUtil.string(nodeList.item(i), "./platform/@id"));
 
                 int index = patch.downloadPath().indexOf("patch_file=");
                 if (index < 0) {
@@ -197,6 +208,7 @@ public class AruPatch {
                         + "  desc:" + patch.description()
                         + "  rel:" + patch.release()
                         + "  product:" + patch.product()
+                        + "  platform:" + patch.platform()
                         + "  relName:" + patch.releaseName()
                         + "  psu:" + patch.psuBundle()
                         + "  url:" + patch.downloadUrl());
@@ -220,15 +232,10 @@ public class AruPatch {
      */
     public static AruPatch selectPatch(List<AruPatch> patches, String providedVersion, String psuVersion,
                                        String installerVersion)
-        throws VersionNotFoundException, MultiplePatchVersionsException {
+        throws VersionNotFoundException, PatchVersionException {
 
         logger.entering(patches, providedVersion, psuVersion, installerVersion);
         AruPatch selected = null;
-
-        if (patches.size() < 2) {
-            // 0 or 1 patch, fill in a patch version and just return what have
-            return selectPatchOffline(patches, providedVersion, psuVersion, installerVersion);
-        }
 
         Map<String, AruPatch> patchMap = patches.stream().collect(Collectors
             .toMap(AruPatch::version, aruPatch -> aruPatch));
@@ -249,40 +256,22 @@ public class AruPatch {
 
         logger.exiting(selected);
         if (selected == null) {
-            throw logger.throwing(new MultiplePatchVersionsException(patches.get(0).patchId(), patches));
+            throw logger.throwing(new PatchVersionException(patches.get(0).patchId(), patches));
         } else {
             logger.info("IMG-0099", selected.patchId(), selected.version(), selected.description());
             return selected;
         }
     }
 
-    private static AruPatch selectPatchOffline(List<AruPatch> patches, String providedVersion, String psuVersion,
-                                               String installerVersion) throws VersionNotFoundException {
-        AruPatch result = null;
-
-        if (patches.isEmpty()) {
-            logger.fine("Patches list is empty");
-        } else if (patches.size() == 1) {
-            result = patches.get(0);
-            // if the version is filled in, we are working online and there is nothing more to do.
-            if (result.version() == null) {
-                // no version means the patch is from the cache. Set the version as best we can.
-                // TODO: this could be improved if the cache was improved to store patch version.
-                if (providedVersion != null) {
-                    result.version(providedVersion);
-                } else if (psuVersion != null) {
-                    result.version(psuVersion);
-                } else {
-                    result.version(installerVersion);
-                }
-            } else if (providedVersion != null && !result.version().equals(providedVersion)) {
-                throw logger.throwing(new VersionNotFoundException(result.patchId(), providedVersion, patches));
-            } else {
-                logger.info("IMG-0099", result.patchId(), result.version(), result.description());
-            }
-        }
-        logger.exiting(result);
-        return result;
+    /**
+     * Return true if this patch is applicable to the target platform.
+     * Patch platform 2000 is generic and applicable to all platforms.
+     * @param aruPlatform the target ARU platform to check.
+     * @return true if this patch is applicable to the provided platform.
+     */
+    public boolean isApplicableToTarget(int aruPlatform) {
+        // if this patch is for platform 2000, always return true, else return true if platforms are equal.
+        return platform == 2000 || platform == aruPlatform;
     }
 
     @Override

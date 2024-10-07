@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.util.Utils;
 
-public class MultiplePatchVersionsException extends IOException {
+public class PatchVersionException extends IOException {
 
     /**
      * Signals that the bug number provided was not unique, and has multiple versions available.
@@ -17,7 +17,7 @@ public class MultiplePatchVersionsException extends IOException {
      * @param bugNumber         the bug number that was searched
      * @param versionsAvailable the list of versions for patches of that bug
      */
-    public MultiplePatchVersionsException(String bugNumber, List<AruPatch> versionsAvailable) {
+    public PatchVersionException(String bugNumber, List<AruPatch> versionsAvailable) {
         super(Utils.getMessage("IMG-0034", bugNumber,
             versionsAvailable.stream()
                 .map(s -> bugNumber + "_" + s.version())

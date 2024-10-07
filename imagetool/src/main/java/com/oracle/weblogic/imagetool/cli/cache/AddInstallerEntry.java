@@ -7,6 +7,7 @@ import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -58,8 +59,8 @@ public class AddInstallerEntry extends CacheAddOperation {
 
     @Option(
         names = {"-a", "--architecture"},
-        description = "(Optional) Installer architecture. Ex: linux/amd64 or linux/arm64."
+        description = "(Optional) Installer architecture. Valid values: ${COMPLETION-CANDIDATES}"
     )
-    private String architecture;
+    private Architecture architecture;
 
 }

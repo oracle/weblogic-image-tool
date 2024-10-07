@@ -18,29 +18,29 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 public class MiddlewareInstall {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(MiddlewareInstall.class);
 
-    private List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
-    private FmwInstallerType fmwInstallerType;
+    private final List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
+    private final FmwInstallerType fmwInstallerType;
 
     /**
      * Get the install metadata for a given middleware install type.
      * @param type the requested middleware install type
      */
-    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles, String buildPlatform)
-        throws FileNotFoundException {
-
+    public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
+                             Architecture target) throws FileNotFoundException {
         logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
 
         for (InstallerType installer : type.installerList()) {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
             pkg.type = installer;
-            pkg.installer = new CachedFile(installer, version, buildPlatform);
+            pkg.installer = new CachedFile(installer, version, target);
             pkg.responseFile = new DefaultResponseFile(installer, type);
             if (installer.equals(InstallerType.DB19)) {
                 pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
@@ -53,9 +53,6 @@ public class MiddlewareInstall {
     private static String getJarNameFromInstaller(Path installerFile) throws IOException {
         String filename = installerFile.getFileName().toString();
         logger.entering(filename);
-        if (filename == null) {
-            return null;
-        }
 
         if (filename.endsWith(".zip")) {
             logger.finer("locating installer JAR inside installer ZIP");

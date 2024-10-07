@@ -34,14 +34,14 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         copyOptionsFromImage();
 
         if (dockerfileOptions.installJava()) {
-            CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion, getBuildPlatform());
+            CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion, getTargetArchitecture());
             Path installerPath = jdk.copyFile(cache(), buildDir());
             dockerfileOptions.setJavaInstaller(installerPath.getFileName().toString());
         }
 
         if (dockerfileOptions.installMiddleware()) {
-            MiddlewareInstall install =
-                new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, getBuildPlatform());
+            MiddlewareInstall install = new MiddlewareInstall(getInstallerType(), installerVersion,
+                installerResponseFiles, getTargetArchitecture());
             install.copyFiles(cache(), buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
         } else {

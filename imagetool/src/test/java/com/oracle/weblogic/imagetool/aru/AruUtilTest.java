@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -72,7 +73,8 @@ class AruUtilTest {
     @Test
     void testRecommendedPatches() throws Exception {
         List<AruPatch> recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "12.2.1.3.0", "x", "x");
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "12.2.1.3.0",
+                Architecture.AMD64, "x", "x");
         assertEquals(6, recommendedPatches.size());
         List<String> bugs = recommendedPatches.stream().map(AruPatch::patchId).collect(Collectors.toList());
         assertTrue(bugs.contains("31544340"));
@@ -84,21 +86,22 @@ class AruUtilTest {
 
         // if no recommended patches are found, method should return an empty list (test data does not have 12.2.1.4)
         recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, "12.2.1.4.0", "x", "x");
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, "12.2.1.4.0", Architecture.AMD64, "x", "x");
         assertTrue(recommendedPatches.isEmpty());
     }
 
     @Test
     void testNoRecommendedPatches() throws Exception {
         List<AruPatch> recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "12.2.1.4.0", "x", "x");
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "12.2.1.4.0",
+                Architecture.AMD64, "x", "x");
         assertEquals(0, recommendedPatches.size());
     }
 
     @Test
     void testGetLatestPsu() throws Exception {
         List<AruPatch> latestPsu =
-            AruUtil.rest().getLatestPsu(AruProduct.WLS, "12.2.1.3.0", "x", "x");
+            AruUtil.rest().getLatestPsu(AruProduct.WLS, "12.2.1.3.0", Architecture.AMD64, "x", "x");
         assertEquals(1, latestPsu.size());
         List<String> bugs = latestPsu.stream().map(AruPatch::patchId).collect(Collectors.toList());
         assertTrue(bugs.contains("31535411"));
@@ -108,11 +111,12 @@ class AruUtilTest {
     void testReleaseNotFound() throws Exception {
         // should not throw an exception, and return no patches when release does not exist
         List<AruPatch> latestPsu =
-            AruUtil.rest().getLatestPsu(AruProduct.WLS, "3.0.0.0.0", "x", "x");
+            AruUtil.rest().getLatestPsu(AruProduct.WLS, "3.0.0.0.0", Architecture.AMD64, "x", "x");
         assertEquals(0, latestPsu.size());
 
         List<AruPatch> recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "3.0.0.0.0", "x", "x");
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "3.0.0.0.0",
+                Architecture.AMD64, "x", "x");
         assertEquals(0, recommendedPatches.size());
     }
 
