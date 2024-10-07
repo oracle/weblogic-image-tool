@@ -96,6 +96,7 @@ public class OPatchFile extends PatchFile {
         throws XPathExpressionException, IOException, AruException {
 
         List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password)
+            .filter(p -> p.isApplicableToTarget(2000)) // OPatch is always platform 2000/generic
             .filter(AruPatch::isOpenAccess) // filter ARU results based on access flag (discard protected versions)
             .collect(Collectors.toList());
         logger.fine("Found {0} OPatch versions for id {1}", patches.size(), patchNumber);

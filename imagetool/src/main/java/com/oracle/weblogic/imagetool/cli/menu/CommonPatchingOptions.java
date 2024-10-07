@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -228,6 +227,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 patchId = patchId.substring(0, split);
             }
             List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
+                .filter(p -> p.isApplicableToTarget(getTargetArchitecture().getAruPlatform()))
                 .collect(Collectors.toList());
 
             // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
@@ -273,7 +273,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         if (recommendedPatches) {
             // Get the latest PSU and its recommended patches
             aruPatches = AruUtil.rest()
-                .getRecommendedPatches(getInstallerType(), getInstallerVersion(), userId, password);
+                .getRecommendedPatches(getInstallerType(), getInstallerVersion(), getTargetArchitecture(),
+                    userId, password);
 
             if (aruPatches.isEmpty()) {
                 recommendedPatches = false;
@@ -289,7 +290,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             }
         } else if (latestPsu) {
             // PSUs for WLS and JRF installers are considered WLS patches
-            aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(), userId, password);
+            aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(), getTargetArchitecture(),
+                userId, password);
 
             if (aruPatches.isEmpty()) {
                 latestPsu = false;
@@ -396,20 +398,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
     )
     private boolean skipOpatchUpdate = false;
 
-    // Temporary change to hide OHS install options due to unresolved patching issues
-    static class InstallerTypeCandidates extends ArrayList<String> {
-        InstallerTypeCandidates() {
-            super(Arrays.stream(FmwInstallerType.values())
-                .filter(e -> e != FmwInstallerType.OHS)
-                .filter(e -> e != FmwInstallerType.OHS_DB19)
-                .map(Enum::toString)
-                .collect(Collectors.toList()));
-        }
-    }
-
     @Option(
         names = {"--type"},
-        completionCandidates = InstallerTypeCandidates.class,
         description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
     )
     private FmwInstallerType installerType = FmwInstallerType.WLS;

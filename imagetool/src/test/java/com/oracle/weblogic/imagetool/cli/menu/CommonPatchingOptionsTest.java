@@ -15,9 +15,10 @@ import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
 import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
 import com.oracle.weblogic.imagetool.aru.MockAruUtil;
-import com.oracle.weblogic.imagetool.aru.MultiplePatchVersionsException;
+import com.oracle.weblogic.imagetool.aru.PatchVersionException;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,7 +47,7 @@ class CommonPatchingOptionsTest {
         }
 
         @Override
-        public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version,
+        public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version, Architecture architecture,
                                                     String userId, String password) {
             if (type.equals(FmwInstallerType.WLS)) {
                 List<AruPatch> list = new ArrayList<>();
@@ -61,7 +62,8 @@ class CommonPatchingOptionsTest {
         }
 
         @Override
-        public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, String userId, String password) {
+        public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, Architecture architecture,
+                                           String userId, String password) {
             if (type.equals(FmwInstallerType.WLS)) {
                 List<AruPatch> list = new ArrayList<>();
                 list.add(new AruPatch().patchId("1").description("psu").psuBundle("x"));
@@ -240,7 +242,7 @@ class CommonPatchingOptionsTest {
             "--patches", "11100004");
         createImage.initializeOptions();
         // User does not select a patch version and no PSU is present
-        assertThrows(MultiplePatchVersionsException.class, () -> createImage.resolveUserRequestedPatches(null));
+        assertThrows(PatchVersionException.class, () -> createImage.resolveUserRequestedPatches(null));
     }
 
     @Test

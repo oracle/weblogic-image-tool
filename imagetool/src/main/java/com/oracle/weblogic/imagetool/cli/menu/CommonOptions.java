@@ -25,6 +25,7 @@ import com.oracle.weblogic.imagetool.inspect.OperatingSystemProperties;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
@@ -313,8 +314,17 @@ public abstract class CommonOptions {
         return buildId;
     }
 
-    public String getBuildPlatform() {
-        return buildPlatform;
+    /**
+     * Given the provided --buildPlatform, derive the architecture from the provided string.
+     * Docker/Podman refer to the target architecture as the build platform.
+     * @return The specified target architecture, or the local OS architecture if none was provided.
+     */
+    public Architecture getTargetArchitecture() {
+        if (buildPlatform != null) {
+            return Architecture.fromString(buildPlatform);
+        }
+
+        return Architecture.getLocalArchitecture();
     }
 
     @Option(

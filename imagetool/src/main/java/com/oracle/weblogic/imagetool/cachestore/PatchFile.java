@@ -11,6 +11,7 @@ import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 public class PatchFile extends CachedFile {
@@ -29,7 +30,7 @@ public class PatchFile extends CachedFile {
      * @param password the password to use with the userId to retrieve the patch
      */
     public PatchFile(AruPatch aruPatch, String userId, String password) {
-        super(aruPatch.patchId(), aruPatch.version());
+        super(aruPatch.patchId(), aruPatch.version(), Architecture.fromAruPlatform(aruPatch.platform()));
         this.aruPatch = aruPatch;
         this.userId = userId;
         this.password = password;
@@ -54,22 +55,17 @@ public class PatchFile extends CachedFile {
 
     @Override
     public String resolve(CacheStore cacheStore) throws IOException {
-        String cacheKey = getKey();
-        logger.entering(cacheKey);
-
+        String key = getKey();
+        logger.entering(key);
         String filePath;
-        boolean fileExists;
 
-        filePath = cacheStore.getValueFromCache(cacheKey);
-        fileExists = isFileOnDisk(filePath);
-
-        if (fileExists) {
-            logger.info("IMG-0017", getKey(), filePath);
-        } else {
-            logger.info("IMG-0061", getKey(), aruPatch.patchId());
-
+        try {
+            filePath = super.resolve(cacheStore);
+            logger.info("IMG-0017", key, filePath);
+        } catch (FileNotFoundException fnfe) {
+            logger.info("IMG-0061", key, aruPatch.patchId());
             if (offlineMode()) {
-                throw new FileNotFoundException(Utils.getMessage("IMG-0056", getKey()));
+                throw new FileNotFoundException(Utils.getMessage("IMG-0056", key));
             }
             filePath = downloadPatch(cacheStore);
         }

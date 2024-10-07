@@ -13,6 +13,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -103,6 +104,20 @@ public class FileCacheStore implements CacheStore {
             e -> String.valueOf(e.getValue())));
     }
 
+    /**
+     * Find the cache keys for entries that match the provided type.
+     * Cache keys are of the form type_version_architecture.
+     * @param type The patch type like "wls" or for bugs "12355678"
+     * @return a list of cache keys that start with the provided string
+     */
+    @Override
+    public List<String> getKeysForType(String type) {
+        return properties.keySet().stream()
+            .map(Object::toString)
+            .filter(k -> k.startsWith(type))
+            .collect(Collectors.toList());
+    }
+
     private void persistToDisk() throws CacheStoreException {
         logger.entering();
         synchronized (properties) {
@@ -138,25 +153,28 @@ public class FileCacheStore implements CacheStore {
         return System.getProperty("user.home") + File.separator + "cache";
     }
 
+    String getCacheDirSetting() {
+        return Utils.getEnvironmentProperty(CACHE_DIR_ENV, FileCacheStore::defaultCacheDir);
+    }
+
     /**
      * Initialize the cache store directory.
      *
      * @return cache directory
      */
-    private static String initCacheDir() throws IOException {
-        String cacheDirStr = Utils.getEnvironmentProperty(CACHE_DIR_ENV, FileCacheStore::defaultCacheDir);
+    private String initCacheDir() throws IOException {
+        String cacheDirStr = getCacheDirSetting();
+        Path cacheDirectory = Paths.get(cacheDirStr);
 
-        Path cacheDir = Paths.get(cacheDirStr);
-
-        boolean pathExists = Files.exists(cacheDir, LinkOption.NOFOLLOW_LINKS);
+        boolean pathExists = Files.exists(cacheDirectory, LinkOption.NOFOLLOW_LINKS);
 
         if (!pathExists) {
-            Files.createDirectory(cacheDir);
+            Files.createDirectory(cacheDirectory);
         } else {
-            if (!Files.isDirectory(cacheDir)) {
+            if (!Files.isDirectory(cacheDirectory)) {
                 throw new IOException("Cache Directory specified is not a directory " + cacheDirStr);
             }
-            if (!Files.isWritable(cacheDir)) {
+            if (!Files.isWritable(cacheDirectory)) {
                 throw new IOException("Cache Directory specified is not writable " + cacheDirStr);
             }
         }
