@@ -22,9 +22,12 @@ import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.aru.AruUtil;
+import com.oracle.weblogic.imagetool.aru.PatchVersionException;
 import com.oracle.weblogic.imagetool.aru.VersionNotFoundException;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Architecture;
+import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -33,11 +36,13 @@ import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
 class PatchFileTest {
+    @TempDir
     static Path cacheDir;
     static CacheStore cacheStore;
     static final List<String> fileContents = Arrays.asList("A", "B", "C");
@@ -52,16 +57,18 @@ class PatchFileTest {
     }
 
     @BeforeAll
-    static void setup(@TempDir Path tempDir, @TempDir Path cacheDir)
+    static void setup(@TempDir Path tempDir)
         throws IOException, NoSuchFieldException, IllegalAccessException {
 
-        PatchFileTest.cacheDir = cacheDir;
-        cacheStore  = new CacheStoreTestImpl(cacheDir);
+        cacheStore  = new FileStoreTestImpl();
         // build a fake cache with fake installers
         addToCache(tempDir, BUGNUMBER + "_" + SOME_VERSION, "patch1.zip");
         addToCache(tempDir, "wls_12.2.1.4.0", "installer.file.122140.jar");
         addToCache(tempDir, "11100003_12.2.1.3.181016", "p11100003_12213181016_Generic.zip");
         addToCache(tempDir, "11100003_12.2.1.3.0", "p11100003_122130_Generic.zip");
+        addToCache(tempDir, "11100007_12.2.1.4.0_arm64", "p11100007_122140_ARM64.zip");
+        addToCache(tempDir, "11100007_12.2.1.4.0_amd64", "p11100007_122140_AMD64.zip");
+        addToCache(tempDir, "11100007_12.2.1.4.0", "p11100007_122140_GENERIC.zip");
 
         // disable console logging
         LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
@@ -72,6 +79,22 @@ class PatchFileTest {
         Field aruRest = AruUtil.class.getDeclaredField("instance");
         aruRest.setAccessible(true);
         aruRest.set(aruRest, new TestAruUtil());
+
+        // insert test class into CacheStoreFactory to intercept cache calls
+        Field cacheFactory = CacheStoreFactory.class.getDeclaredField("store");
+        cacheFactory.setAccessible(true);
+        cacheFactory.set(cacheFactory, cacheStore);
+    }
+
+    public static class FileStoreTestImpl extends FileCacheStore {
+        public FileStoreTestImpl() throws CacheStoreException {
+            super();
+        }
+
+        @Override
+        String getCacheDirSetting() {
+            return PatchFileTest.cacheDir.toString();
+        }
     }
 
     /**
@@ -90,6 +113,7 @@ class PatchFileTest {
             responseCache.put("11100003", ResourceUtils.getXmlFromResource("/patches/patch-11100003.xml"));
             responseCache.put("28186730", ResourceUtils.getXmlFromResource("/patches/patch-28186730.xml"));
             responseCache.put("2818673x", ResourceUtils.getXmlFromResource("/patches/patch-2818673x.xml"));
+            responseCache.put("11100007", ResourceUtils.getXmlFromResource("/patches/patch-11100007.xml"));
         }
 
         @Override
@@ -119,6 +143,12 @@ class PatchFileTest {
         Field aruRest = AruUtil.class.getDeclaredField("instance");
         aruRest.setAccessible(true);
         aruRest.set(aruRest, null);
+
+        // remove test class from CacheStoreFactory instance
+        Field cacheStore = CacheStoreFactory.class.getDeclaredField("store");
+        cacheStore.setAccessible(true);
+        cacheStore.set(cacheStore, null);
+
         // restore original logging level after this test suite completes
         LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
         logger.setLevel(originalLogLevel);
@@ -170,21 +200,15 @@ class PatchFileTest {
          *     ARU result contains only one version of the patch.
          *     ARU result does not contain matching version of the installer version.
          * Expected:
-         *     Version is ignored, and overridden by value from ARU.
-         *     Patch is stored using version in ARU (not provided installer version).
+         *     Version is derived from installer version.
+         *     Throws exception, user must specify the version of the patch since derived version is unmatched
          */
         String patchId = "11100002";
         // patch version in XML is actually 12.2.1.1.0, code will warn user and override patch version
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x").collect(Collectors.toList());
-        AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, null, "12.2.1.3.0");
-        assertNotNull(aruPatch);
-        PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
-        String filePath = patchFile.resolve(cacheStore);
+        assertThrows(PatchVersionException.class,
+            () -> AruPatch.selectPatch(aruPatches, null, null, "12.2.1.3.0"));
 
-        assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_12.2.1.1.0");
-        assertNotNull(filePathFromCache, "Could not find new patch in cache");
-        assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
 
     @Test
@@ -408,6 +432,43 @@ class PatchFileTest {
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
         assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
         String filePathFromCache = cacheStore.getValueFromCache("28186730_13.9.4.2.5");
+        assertNotNull(filePathFromCache, "Could not find new patch in cache");
+        assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
+    }
+
+    @Test
+    void resolveArmFile() throws IOException {
+        // Look for patch 11100007
+        AruPatch aruPatch = new AruPatch().patchId("11100007").version("12.2.1.4.0");
+
+        aruPatch.platform("541"); // if local system is ARM
+        PatchFile p1 = new PatchFile(aruPatch, null,null);
+        assertFalse(Utils.isEmptyString(p1.resolve(cacheStore)));
+        assertEquals("11100007_12.2.1.4.0_arm64", p1.toString());
+
+        aruPatch.platform("226"); // if local system is x86-64
+        PatchFile p2 = new PatchFile(aruPatch, null,null);
+        assertFalse(Utils.isEmptyString(p2.resolve(cacheStore)));
+        assertEquals("11100007_12.2.1.4.0_amd64", p2.toString());
+    }
+
+    @Test
+    void findArmPatch() throws Exception {
+        // 11100007 has multiple patches, 1 ARM, 1 AMD, and 1 GENERIC
+        String patchId = "11100007";
+        String version = "12.2.1.4.0";
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null)
+            .filter(p -> p.isApplicableToTarget(Architecture.ARM64.getAruPlatform()))
+            .collect(Collectors.toList());
+        AruPatch aruPatch = AruPatch.selectPatch(aruPatches, version, null, version);
+        assertNotNull(aruPatch);
+        PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
+
+        String filePath = patchFile.resolve(cacheStore);
+
+        assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
+        String key = patchId + "_" + version + "_" + Architecture.ARM64;
+        String filePathFromCache = cacheStore.getValueFromCache(key);
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }

@@ -1,0 +1,52 @@
+
+<results md5_sum="1234">
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>11100007</number>
+            <abstract><![CDATA[TEST PATCH FOR OSS 12.2.1.4.0 ON ARM]]></abstract>
+        </bug>
+        <name>11100007</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=1234]]></patch_readme>
+            <patch_details><![CDATA[/download/11100007.html]]></patch_details>
+        </url>
+        <request_id>1234</request_id>
+        <urm_components>
+            <qparts ctype_id="201">
+                <qpart cid="32596" version="Q991"><![CDATA[Oracle Security Service]]></qpart>
+            </qparts>
+            <urm_releases ctype_id="5">
+                <urm_release cid="847839" version="12.2.1.4.0"><![CDATA[Oracle Security Service]]></urm_release>
+            </urm_releases>
+        </urm_components>
+        <product id="16609" bugdb_id="991"><![CDATA[Oracle Security Service]]></product>
+        <release id="600000000098873" name="12.2.1.4.0" platform_patch_not_required="Y" cc="N"><![CDATA[Oracle Security Service 12.2.1.4.0]]></release>
+        <platform id="541" bugdb_id="541"><![CDATA[Linux ARM 64-bit]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <fixes_bugs truncated="no">
+            <bug>
+                <number>11100007</number>
+                <abstract><![CDATA[TEST PATCH FOR OSS 12.2.1.4.0 ON ARM]]></abstract>
+            </bug>
+        </fixes_bugs>
+        <size>100</size>
+        <files>
+            <file>
+                <name>p11100007_122140_Linux-ARM-64.zip</name>
+                <size>500</size>
+                <download_url host="https://updates-uat.oracle.com"><![CDATA[/Orion/Services/download/p11100007_122140_Linux-ARM-64.zip?aru=89000080&patch_file=p11100007_122140_Linux-ARM-64.zip]]></download_url>
+                <digest type="SHA-256">1234</digest>
+                <digest type="SHA-1">1234</digest>
+            </file>
+        </files>
+    </patch>
+</results>

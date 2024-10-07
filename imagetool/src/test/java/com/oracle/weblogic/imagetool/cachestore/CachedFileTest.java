@@ -15,7 +15,7 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
-import com.oracle.weblogic.imagetool.util.BuildPlatform;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -50,8 +50,9 @@ class CachedFileTest {
         cacheStore  = new CacheStoreTestImpl(cacheDir);
         // build a fake cache with several installers
         cacheStore.addToCache("wls_" + VER_12213, path12213.toString());
-        cacheStore.addToCache("wls_12.2.1.4.0_" + BuildPlatform.getPlatformName(), path12214.toString());
+        cacheStore.addToCache("wls_12.2.1.4.0_" + Architecture.getLocalArchitecture(), path12214.toString());
         cacheStore.addToCache("wls_14.1.1.0.0_amd64", path1411.toString());
+        cacheStore.addToCache("wls_14.1.1.0.0_linux/arm64", path1411.toString());
 
         // OPatch files
         cacheStore.addToCache(DEFAULT_BUG_NUM + "_13.9.2.0.0", "/not/used");
@@ -72,7 +73,7 @@ class CachedFileTest {
     @Test
     void userProvidedPatchVersionAsId() {
         // User provided a patch ID with the version string in the ID
-        CachedFile cf = new CachedFile("something_versionString", "12.2.1.2.0");
+        CachedFile cf = new CachedFile("something_versionString", "12.2.1.2.0", Architecture.AMD64);
         // if the patch ID has the version, CachedFile should ignore the installer version passed to the constructor,
         // and use the version in the ID.
         assertEquals("something_versionString", cf.getKey(),
@@ -100,7 +101,7 @@ class CachedFileTest {
     @Test
     void resolveNoArchFile() throws IOException {
         // Look for a cache entry where the user specified the architecture/platform amd64
-        CachedFile wlsNoArch = new CachedFile(InstallerType.WLS, VER_12213, "amd64");
+        CachedFile wlsNoArch = new CachedFile(InstallerType.WLS, VER_12213, Architecture.fromString("amd64"));
 
         // verify the cache is setup as expected.
         // wls_12.2.1.3.0 is in the cache, but wls_12.2.1.3.0_amd64 is NOT in the cache
@@ -114,7 +115,7 @@ class CachedFileTest {
     @Test
     void resolveWithArchitecture() throws IOException {
         // Look for a cache entry where the user specified the architecture/platform amd64
-        CachedFile wlsArch = new CachedFile(InstallerType.WLS, "14.1.1.0.0", "amd64");
+        CachedFile wlsArch = new CachedFile(InstallerType.WLS, "14.1.1.0.0", Architecture.fromString("amd64"));
 
         // verify the cache is setup as expected.  wls_14.1.1.0.0_amd64 is in the cache
         String expected = cacheStore.getValueFromCache("wls_14.1.1.0.0_amd64");
@@ -130,7 +131,7 @@ class CachedFileTest {
 
         // verify the cache is setup as expected.  wls_14.1.1.0.0_amd64 is in the cache, but wls_14.1.1.0.0 is not
         assertNull(cacheStore.getValueFromCache("wls_12.2.1.4.0"));
-        String expected = cacheStore.getValueFromCache("wls_12.2.1.4.0_" + BuildPlatform.getPlatformName());
+        String expected = cacheStore.getValueFromCache("wls_12.2.1.4.0_" + Architecture.getLocalArchitecture());
         assertNotNull(expected);
 
         assertEquals(expected, wlsArch.resolve(cacheStore), "CachedFile failed to check local architecture");

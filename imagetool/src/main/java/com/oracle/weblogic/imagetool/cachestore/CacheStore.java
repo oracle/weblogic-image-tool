@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.cachestore;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,4 +67,5 @@ public interface CacheStore {
      */
     Map<String, String> getCacheItems();
 
+    List<String> getKeysForType(String type);
 }

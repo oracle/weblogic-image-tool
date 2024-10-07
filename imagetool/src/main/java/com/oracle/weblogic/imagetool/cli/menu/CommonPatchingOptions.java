@@ -227,6 +227,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 patchId = patchId.substring(0, split);
             }
             List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
+                .filter(p -> p.isApplicableToTarget(getTargetArchitecture().getAruPlatform()))
                 .collect(Collectors.toList());
 
             // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
@@ -272,7 +273,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         if (recommendedPatches) {
             // Get the latest PSU and its recommended patches
             aruPatches = AruUtil.rest()
-                .getRecommendedPatches(getInstallerType(), getInstallerVersion(), userId, password);
+                .getRecommendedPatches(getInstallerType(), getInstallerVersion(), getTargetArchitecture(),
+                    userId, password);
 
             if (aruPatches.isEmpty()) {
                 recommendedPatches = false;
@@ -288,7 +290,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             }
         } else if (latestPsu) {
             // PSUs for WLS and JRF installers are considered WLS patches
-            aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(), userId, password);
+            aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(), getTargetArchitecture(),
+                userId, password);
 
             if (aruPatches.isEmpty()) {
                 latestPsu = false;
