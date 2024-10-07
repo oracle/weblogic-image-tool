@@ -4,7 +4,8 @@
   "os" : {
     "id" : "ol",
     "name" : "Oracle Linux Server",
-    "version" : "7.9"
+    "version" : "7.9",
+    "architecture" : "x86_64"
   },
   "domainHome" : "/u01/domains/base_domain",
   "javaHome" : "/u01/jdk",

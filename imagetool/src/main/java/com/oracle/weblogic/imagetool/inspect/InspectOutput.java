@@ -72,7 +72,8 @@ public class InspectOutput {
             result.append(pad(1)).append('\"').append("os").append('\"').append(" : {\n");
             result.append(jsonKeyValuePair(2, "id", os.id())).append(",\n");
             result.append(jsonKeyValuePair(2, "name", os.name())).append(",\n");
-            result.append(jsonKeyValuePair(2, "version", os.version()));
+            result.append(jsonKeyValuePair(2, "version", os.version())).append(",\n");
+            result.append(jsonKeyValuePair(2, "architecture", os.architecture()));
             if (os.releasePackage() != null) {
                 result.append(",\n");
                 result.append(jsonKeyValuePair(2, "releasePackage", os.releasePackage())).append("\n");

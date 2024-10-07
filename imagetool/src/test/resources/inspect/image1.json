@@ -24,7 +24,8 @@
   "os" : {
     "id" : "ol",
     "name" : "Oracle Linux Server",
-    "version" : "7.9"
+    "version" : "7.9",
+    "architecture" : "x86_64"
   },
   "javaHome" : "/u01/jdk",
   "javaVersion" : "1.8.0_202",
