@@ -12,6 +12,7 @@ public class OperatingSystemProperties {
     private String version;
     private String name;
     private String releasePackage;
+    private String architecture;
 
     public String id() {
         return id;
@@ -29,6 +30,10 @@ public class OperatingSystemProperties {
         return releasePackage;
     }
 
+    public String architecture() {
+        return architecture;
+    }
+
     /**
      * Using the properties obtained from the image, extract the OS properties prefixed with __OS__.
      * @param imageProperties properties returned from the image inspection
@@ -43,6 +48,7 @@ public class OperatingSystemProperties {
         }
         result.name = removeQuotes(imageProperties.getProperty("__OS__NAME"));
         result.releasePackage = removeQuotes(imageProperties.getProperty("__OS__RELEASE_PACKAGE"));
+        result.architecture = imageProperties.getProperty("__OS__arch");
         return result;
     }
 
