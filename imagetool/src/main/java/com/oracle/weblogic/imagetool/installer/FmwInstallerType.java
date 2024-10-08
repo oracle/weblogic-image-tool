@@ -82,9 +82,6 @@ public enum FmwInstallerType {
     OHS(Utils.toSet(AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC, AruProduct.FMWPLAT,
         AruProduct.OSS, AruProduct.FIT),
         InstallerType.OHS, InstallerType.DB19),
-    OHS_DB19(Utils.toSet(AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC, AruProduct.FMWPLAT,
-        AruProduct.OSS, AruProduct.FIT),
-        InstallerType.OHS, InstallerType.DB19), // Deprecated, need to just use OHS
     ODI(Collections.singleton(AruProduct.ODI),
         InstallerType.ODI)
     ;
