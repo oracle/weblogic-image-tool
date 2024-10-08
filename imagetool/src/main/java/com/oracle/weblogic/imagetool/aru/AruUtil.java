@@ -215,7 +215,7 @@ public class AruUtil {
                 // Get a list of patches applicable to the given product and release number
                 patches = getReleaseRecommendations(product, releaseNumber, architecture, userId, password);
                 logger.fine("Search for {0} recommended patches returned {1}", product, patches.size());
-                if (type == FmwInstallerType.OHS_DB19 || type == FmwInstallerType.OHS) {
+                if (type == FmwInstallerType.OHS) {
                     // Workaround for the Apache Plugin patch currently uploaded as an OHS patch.
                     patches = patches.stream().filter(p ->
                         !p.description().contains("APACHE PLUGIN")).collect(Collectors.toList());
