@@ -25,7 +25,7 @@ public class AddPatchEntry extends CacheAddOperation {
     public CommandResponse call() throws Exception {
         try {
             if (patchId != null && !patchId.isEmpty()) {
-                Utils.validatePatchIds(Collections.singletonList(patchId), true);
+                Utils.validatePatchIds(Collections.singletonList(patchId), false);
                 return addToCache();
             } else {
                 return CommandResponse.error("IMG-0076", "--patchId");
