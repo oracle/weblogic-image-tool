@@ -23,8 +23,6 @@ public final class Constants {
     public static final String DELETE_ALL_FOR_SURE = "deleteAll4Sure";
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
-    public static final String PATCH_ID_REGEX =  "^(\\d{8})(?:[_][0-9][0-9](?:\\.[0-9]){3,8}\\.(\\d+))?";
-    public static final String RIGID_PATCH_ID_REGEX =  "^(\\d{8})[_][0-9][0-9](?:\\.[0-9]){3,8}\\.(\\d+)";
     public static final String BUSYBOX = "busybox";
     public static final List<String> BUSYBOX_OS_IDS = Collections.unmodifiableList(Arrays.asList("bb", "alpine"));
     public static final String ORACLE_LINUX = "ghcr.io/oracle/oraclelinux:8-slim";

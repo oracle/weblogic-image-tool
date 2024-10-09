@@ -5,8 +5,11 @@ package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
+import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
@@ -14,6 +17,7 @@ import picocli.CommandLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
 class AddPatchEntryTest {
@@ -33,7 +37,7 @@ class AddPatchEntryTest {
         // missing valid parameters should generate USAGE output
         int exitCode = cmd.execute("-x", "-y=123");
         CommandResponse result = cmd.getExecutionResult();
-        assertNull(result, "Should not have a response, picoli should intercept usage error");
+        assertNull(result, "Should not have a response, picocli should intercept usage error");
         assertEquals(CommandLine.ExitCode.USAGE, exitCode);
     }
 
@@ -41,7 +45,7 @@ class AddPatchEntryTest {
     void testInvalidFileParameter() {
         CommandLine cmd = getCommand();
         // invalid file (file does not exist), should generate an error response
-        int exitCode = cmd.execute("--patchId=12345678_12.2.1.3.0", "--path=/here/there");
+        cmd.execute("--patchId=12345678_12.2.1.3.0", "--path=/here/there");
         CommandResponse result = cmd.getExecutionResult();
         assertNotNull(result, "Response missing from call to addPatch");
         assertEquals(1, result.getStatus());
@@ -55,5 +59,25 @@ class AddPatchEntryTest {
         CommandResponse result = cmd.getExecutionResult();
         assertNotNull(result, "Response missing from call to addPatch");
         assertEquals(1, result.getStatus());
+    }
+
+    @Test
+    void validPatchIds() throws InvalidPatchIdFormatException {
+        String[] patchIds = {"12345678_12.2.1.4.0", "12345678_12.2.1.4.241001", "12345678_12.2.1.4.0_arm64"};
+        Utils.validatePatchIds(Arrays.asList(patchIds), false);
+    }
+
+    @Test
+    void invalidPatchIds1() {
+        String[] patchIds = {"12345678_12.2.1.4.0", "12345678", "12345678_12.2.1.4.0_arm64"};
+        assertThrows(InvalidPatchIdFormatException.class,
+            () -> Utils.validatePatchIds(Arrays.asList(patchIds), false));
+    }
+
+    @Test
+    void invalidPatchIds2() {
+        String[] patchIds = {"12345678_12.2.1.4.0", "12345678_arm64", "12345678_12.2.1.4.0_arm64"};
+        assertThrows(InvalidPatchIdFormatException.class,
+            () -> Utils.validatePatchIds(Arrays.asList(patchIds), false));
     }
 }

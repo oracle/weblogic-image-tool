@@ -43,6 +43,7 @@ import com.github.mustachejava.MustacheFactory;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
 public class Utils {
@@ -582,38 +583,36 @@ public class Utils {
         return workingDir;
     }
 
-    /**
-     * validatePatchIds validate the format of the patch ids.
-     *
-     * @param patches list of patch ids
-     * @return true if all patch IDs are valid , false otherwise.
-     */
-
-    public static boolean validatePatchIds(List<String> patches, boolean rigid) throws InvalidPatchIdFormatException {
-        Pattern patchIdPattern;
-        if (rigid) {
-            patchIdPattern = Pattern.compile(Constants.RIGID_PATCH_ID_REGEX);
-        } else {
-            patchIdPattern = Pattern.compile(Constants.PATCH_ID_REGEX);
-        }
-        if (patches != null && !patches.isEmpty()) {
-            for (String patchId : patches) {
-                logger.finer("pattern matching patchId: {0}", patchId);
-                Matcher matcher = patchIdPattern.matcher(patchId);
-                if (!matcher.matches()) {
-                    String errorFormat;
-                    if (rigid) {
-                        errorFormat = "12345678_12.2.1.3.0";
-                    } else {
-                        errorFormat = "12345678[_12.2.1.3.0]";
-                    }
-
-                    throw new InvalidPatchIdFormatException(patchId, errorFormat);
-                }
+    private static void validatePatchIds(List<String> patches, Pattern pattern,
+                                            String example) throws InvalidPatchIdFormatException {
+        for (String patchId: patches) {
+            Matcher matcher = pattern.matcher(patchId);
+            if (!matcher.matches()) {
+                throw new InvalidPatchIdFormatException(patchId, example);
             }
         }
+    }
 
-        return true;
+    /**
+     * Validate the format of the patch ID.
+     * Simple ID: 12345678
+     * Full ID: {bug number}_{version}_{architecture}
+     *
+     * @param patches   List of patch IDs to validate against the required format.
+     * @param allowSimpleId Allow simple bug number without version or architecture
+     * @throws InvalidPatchIdFormatException if any of the provide patch IDs are of invalid format
+     */
+    public static void validatePatchIds(@NotNull List<String> patches,
+                                        boolean allowSimpleId) throws InvalidPatchIdFormatException {
+        if (allowSimpleId) {
+            validatePatchIds(patches,
+                Pattern.compile("^(\\d{8,9})(?:_\\d\\d(?:\\.\\d){3,8}\\.(\\d+)(_.*)?)?"),
+                "12345678[_12.2.1.3.0[_arm64]]");
+        } else {
+            validatePatchIds(patches,
+                Pattern.compile("^(\\d{8,9})_\\d\\d(?:\\.\\d){3,8}\\.(\\d+)(_.*)?"),
+                "12345678_12.2.1.3.0[_arm64]");
+        }
     }
 
     /**
