@@ -64,6 +64,7 @@ if [ -n "$ORACLE_HOME" ]; then
   echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' "$ORACLE_HOME"/inventory/registry.xml | sed 's/,$//')"
 fi
 
+echo __OS__arch="$(uname -m)"
 if [ -f "/etc/os-release" ]; then
   grep '=' /etc/os-release | sed 's/^/__OS__/'
   releasePackage="$(type rpm >/dev/null 2>&1  && rpm -qf /etc/os-release || echo '')"

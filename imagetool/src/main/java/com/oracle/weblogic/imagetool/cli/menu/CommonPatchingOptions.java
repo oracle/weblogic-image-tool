@@ -63,7 +63,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 throw new InvalidCredentialException();
             }
 
-            Utils.validatePatchIds(patches, false);
+            Utils.validatePatchIds(patches, true);
         }
     }
 
