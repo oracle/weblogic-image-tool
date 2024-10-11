@@ -3,9 +3,9 @@
 
 package com.oracle.weblogic.imagetool.aru;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -237,8 +237,14 @@ public class AruPatch {
         logger.entering(patches, providedVersion, psuVersion, installerVersion);
         AruPatch selected = null;
 
-        Map<String, AruPatch> patchMap = patches.stream().collect(Collectors
-            .toMap(AruPatch::version, aruPatch -> aruPatch));
+        Map<String, AruPatch> patchMap = new HashMap<>();
+        for (AruPatch patch: patches) {
+            if (patchMap.containsKey(patch.version())) {
+                throw new IllegalStateException(Utils.getMessage("IMG-0122", patch.patchId(), patch.version()));
+            }
+            patchMap.put(patch.version(), patch);
+        }
+
         // select the correct patch version (priority order: user provided version, PSU version, GA installer version)
         if (providedVersion != null) {
             // if the user provided a specific version, select the provided version, or fail
@@ -270,6 +276,7 @@ public class AruPatch {
      * @return true if this patch is applicable to the provided platform.
      */
     public boolean isApplicableToTarget(int aruPlatform) {
+        logger.finer("AruPatch id {0} platform {1} checking against {2}", patchId, platform, aruPlatform);
         // if this patch is for platform 2000, always return true, else return true if platforms are equal.
         return platform == 2000 || platform == aruPlatform;
     }

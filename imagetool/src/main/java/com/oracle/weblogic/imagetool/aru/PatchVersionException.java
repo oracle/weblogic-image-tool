@@ -12,7 +12,7 @@ import com.oracle.weblogic.imagetool.util.Utils;
 public class PatchVersionException extends IOException {
 
     /**
-     * Signals that the bug number provided was not unique, and has multiple versions available.
+     * Signals that the bug number provided was unavailable for the requested or derived version.
      *
      * @param bugNumber         the bug number that was searched
      * @param versionsAvailable the list of versions for patches of that bug
