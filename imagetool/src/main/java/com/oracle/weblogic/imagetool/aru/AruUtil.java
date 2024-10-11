@@ -518,8 +518,11 @@ public class AruUtil {
             if (matcher.groupCount() == 3 && matcher.group(3) != null) {
                 int aruPlatform = Architecture.fromString(matcher.group(3)).getAruPlatform();
                 patch.platform(Integer.toString(aruPlatform));
+            } else {
+                // architecture was not specified in the cache key, assume generic platform
+                patch.platform("2000");
             }
-            patch.description("UNAVAILABLE WHILE OFFLINE");
+            patch.description("description unavailable while working offline");
             patchesInCache.add(patch);
         }
         return patchesInCache;

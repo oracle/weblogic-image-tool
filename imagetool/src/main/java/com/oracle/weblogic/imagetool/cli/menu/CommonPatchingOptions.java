@@ -211,6 +211,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
     List<AruPatch> resolveUserRequestedPatches(String psuVersion)
         throws XPathExpressionException, IOException, AruException {
 
+        logger.entering(psuVersion);
         List<AruPatch> result = new ArrayList<>(patches.size());
         // if the user specified the PSU as a normal bug number in the list of --patches, use that
         String effectivePsuVersion = psuVersion;
@@ -248,6 +249,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 result.add(selectedVersion);
             }
         }
+        logger.exiting(result);
         return result;
     }
 

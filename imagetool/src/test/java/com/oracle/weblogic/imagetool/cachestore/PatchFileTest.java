@@ -68,8 +68,9 @@ class PatchFileTest {
         addToCache(tempDir, "11100003_12.2.1.3.0", "p11100003_122130_Generic.zip");
         addToCache(tempDir, "11100007_12.2.1.4.0_arm64", "p11100007_122140_ARM64.zip");
         addToCache(tempDir, "11100007_12.2.1.4.0_amd64", "p11100007_122140_AMD64.zip");
-        addToCache(tempDir, "11100007_12.2.1.4.0", "p11100007_122140_GENERIC.zip");
-
+        addToCache(tempDir, "11100008_12.2.1.4.0_arm64", "p11100008_122140_ARM64.zip");
+        addToCache(tempDir, "11100008_12.2.1.4.0_amd64", "p11100008_122140_AMD64.zip");
+        addToCache(tempDir, "11100008_12.2.1.4.0", "p11100008_122140_GENERIC.zip");
         // disable console logging
         LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
         originalLogLevel = logger.getLevel();
@@ -454,7 +455,7 @@ class PatchFileTest {
 
     @Test
     void findArmPatch() throws Exception {
-        // 11100007 has multiple patches, 1 ARM, 1 AMD, and 1 GENERIC
+        // 11100007 has multiple patches, 1 ARM and 1 AMD
         String patchId = "11100007";
         String version = "12.2.1.4.0";
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null)
@@ -471,5 +472,17 @@ class PatchFileTest {
         String filePathFromCache = cacheStore.getValueFromCache(key);
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
+    }
+
+    @Test
+    void illegalCacheEntry() throws Exception {
+        // 11100008 has multiple patches, 1 ARM, 1 AMD, and 1 GENERIC, generic and architecture specific cannot coexist
+        String patchId = "11100008";
+        String version = "12.2.1.4.0";
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null)
+            .filter(p -> p.isApplicableToTarget(Architecture.ARM64.getAruPlatform()))
+            .collect(Collectors.toList());
+        assertThrows(IllegalStateException.class,
+            () -> AruPatch.selectPatch(aruPatches, version, null, version));
     }
 }
