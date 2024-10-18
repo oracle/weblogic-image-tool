@@ -347,6 +347,9 @@ public class UserSettingsFile {
     public InstallerMetaData getInstallerForPlatform(InstallerType installerType, String platformName,
                                                      String installerVersion) {
 
+        if (platformName == null) {
+            platformName = "generic";
+        }
         Map<String, List<InstallerMetaData>> installers = getInstallers().get(installerType);
         if (installers != null && !installers.isEmpty()) {
             List<InstallerMetaData> installerMetaDataList = installers.get(installerVersion);
