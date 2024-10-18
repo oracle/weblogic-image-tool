@@ -3,10 +3,13 @@
 
 package com.oracle.weblogic.imagetool.cli.menu;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
@@ -17,7 +20,6 @@ import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.settings.InstallerSettings;
 import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -41,11 +43,14 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         copyOptionsFromImage();
         UserSettingsFile settingsFile = new UserSettingsFile();
 
+        List<String> buildPlatforms = getBuildPlatform();
+        // Verify version and installers exists first
+        verifyInstallers(settingsFile, buildPlatforms);
+
         if (dockerfileOptions.installJava()) {
-            InstallerSettings jdkInstallers = settingsFile.getInstallerSettings(InstallerType.JDK);
 
             List<String> jdkFilePathList = new ArrayList<>();
-            for (String jdkPlatform : getBuildPlatform()) {
+            for (String jdkPlatform : buildPlatforms) {
                 String buildContextDestination = buildDir();
                 if (jdkPlatform.equals(AMD64)) {
                     buildContextDestination = buildContextDestination + "/" + CTX_JDK + AMD64;
@@ -56,7 +61,8 @@ public class CommonCreateOptions extends CommonPatchingOptions {
                 }
                 //CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion, jdkPlatform);
                 //Path installerPath = jdk.copyFile(cache(), buildContextDestination);
-                InstallerMetaData installerMetaData = jdkInstallers.getInstallerForPlatform(jdkPlatform, jdkVersion);
+                InstallerMetaData installerMetaData = settingsFile.getInstallerForPlatform(InstallerType.JDK,
+                    jdkPlatform, jdkVersion);
                 Path installerPath = Paths.get(installerMetaData.getLocation());
                 Files.copy(installerPath, Paths.get(buildContextDestination).resolve(installerPath.getFileName()));
                 jdkFilePathList.add(installerPath.getFileName().toString());
@@ -67,7 +73,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
 
         if (dockerfileOptions.installMiddleware()) {
             MiddlewareInstall install =
-                new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, getBuildPlatform());
+                new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, buildPlatforms);
             install.copyFiles(cache(), buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
         } else {
@@ -95,6 +101,61 @@ public class CommonCreateOptions extends CommonPatchingOptions {
             Utils.copyResourceAsFile("/response-files/oraInst.loc", buildDir());
         }
         logger.exiting();
+    }
+
+
+    void verifyInstallers(UserSettingsFile settingsFile, List<String> buildPlatforms) throws IOException {
+
+        // Verify version and installers exists first
+        for (String buildPlatform : buildPlatforms) {
+            InstallerMetaData jdkInstallerMetaData = settingsFile.getInstallerForPlatform(InstallerType.JDK,
+                buildPlatform, jdkVersion);
+            if (jdkInstallerMetaData == null) {
+                throw new IOException("Could not find installer for jdk " + jdkVersion + "  " + buildPlatform);
+            } else {
+                // If needed
+                verifyInstallerHash(jdkInstallerMetaData);
+            }
+
+            for (InstallerType installerType : getInstallerType().installerList()) {
+                InstallerMetaData installerMetaData = settingsFile.getInstallerForPlatform(installerType,
+                    buildPlatform, installerVersion);
+                if (installerMetaData == null) {
+                    throw new IOException(String.format("Could not find installer type %s, platform %s and version %s",
+                        installerType, buildPlatform, installerVersion));
+                } else {
+                    // If needed
+                    verifyInstallerHash(installerMetaData);
+                }
+            }
+        }
+
+    }
+
+    private static void verifyInstallerHash(InstallerMetaData installerMetaData) throws IOException {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IOException(ex);
+        }
+        try (FileInputStream fis = new FileInputStream(installerMetaData.getLocation())) {
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = fis.read(buffer)) != -1) {
+                digest.update(buffer, 0, read);
+            }
+        }
+        byte[] hash = digest.digest();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hash) {
+            sb.append(String.format("%02x", b));
+        }
+        String hashString = sb.toString();
+        if (!hashString.equals(installerMetaData.getHash())) {
+            throw new IOException(String.format("Installer hash mismatch, expected %s but got %s for file %s",
+                installerMetaData.getHash(), hashString, installerMetaData.getLocation()));
+        }
     }
 
     String getInstallerVersion() {

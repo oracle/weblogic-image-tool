@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.settings.InstallerSettings;
 import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import com.oracle.weblogic.imagetool.util.Utils;
 
@@ -45,18 +45,17 @@ public class MiddlewareInstall {
         fmwInstallerType = type;
         UserSettingsFile settingsFile = new UserSettingsFile();
 
-        for (InstallerType installer : type.installerList()) {
-            InstallerSettings installers = settingsFile.getInstallerSettings(installer);
-
+        for (InstallerType installerType : type.installerList()) {
             for (String platform : buildPlatform) {
                 MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
-                pkg.type = installer;
-                //pkg.installer = new CachedFile(installer, version, platform);
-                pkg.installerPath = Paths.get(installers.getInstallerForPlatform(platform, version).getLocation());
+                pkg.type = installerType;
+                pkg.installer = new CachedFile(installerType, version, platform);
+                InstallerMetaData metaData = settingsFile.getInstallerForPlatform(installerType, platform, version);
+                pkg.installerPath = Paths.get(metaData.getLocation());
                 pkg.installerFilename = pkg.installerPath.getFileName().toString();
-                pkg.responseFile = new DefaultResponseFile(installer, type);
+                pkg.responseFile = new DefaultResponseFile(installerType, type);
                 pkg.platform = platform;
-                if (installer.equals(InstallerType.DB19)) {
+                if (installerType.equals(InstallerType.DB19)) {
                     pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
                 }
                 addInstaller(pkg);

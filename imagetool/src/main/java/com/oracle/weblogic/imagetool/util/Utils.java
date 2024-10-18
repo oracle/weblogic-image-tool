@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -18,7 +19,11 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -778,4 +783,46 @@ public class Utils {
         Objects.requireNonNull(target);
         return (Predicate<T>)target.negate();
     }
+
+    /**
+     * Return the sha256 hash string of the file.
+     * @param filename file to check for sha256 hash
+     * @return sha256 hash value
+     */
+    public static String getSha256Hash(String filename) {
+        try {
+            MessageDigest digest;
+            try {
+                digest = MessageDigest.getInstance("SHA-256");
+            } catch (NoSuchAlgorithmException ex) {
+                throw new IOException(ex);
+            }
+            try (FileInputStream fis = new FileInputStream(filename)) {
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = fis.read(buffer)) != -1) {
+                    digest.update(buffer, 0, read);
+                }
+            }
+            byte[] hash = digest.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString().toUpperCase();
+
+        } catch (Exception ie) {
+            return "";
+        }
+    }
+
+    /**
+     * Get today's date in yyyy-mm-dd format.
+     * @return date format
+     */
+    public static String getTodayDate() {
+        LocalDate today = LocalDate.now();
+        return today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
 }

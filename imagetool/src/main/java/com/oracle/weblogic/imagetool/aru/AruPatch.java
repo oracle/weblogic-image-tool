@@ -17,6 +17,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatform;
+
 /**
  * Metadata for a patch, as defined by ARU.
  * Simple bean for holding metadata obtained from ARU for a given patch ID and version.
@@ -35,6 +37,8 @@ public class AruPatch {
     private String downloadPath;
     private String fileName;
     private String access;
+    private String platform;
+    private String sha256Hash;
 
     public String patchId() {
         return patchId;
@@ -76,6 +80,15 @@ public class AruPatch {
         return this;
     }
 
+    public String platform() {
+        return platform;
+    }
+
+    public AruPatch platform(String platform) {
+        this.platform = platform;
+        return this;
+    }
+
     public String release() {
         return release;
     }
@@ -85,6 +98,14 @@ public class AruPatch {
         return this;
     }
 
+    public AruPatch sha256Hash(String value) {
+        sha256Hash = value;
+        return this;
+    }
+
+    public String sha256Hash() {
+        return sha256Hash;
+    }
 
     public String releaseName() {
         return releaseName;
@@ -182,6 +203,9 @@ public class AruPatch {
                     .product(XPathUtil.string(nodeList.item(i), "./product/@id"))
                     .psuBundle(XPathUtil.string(nodeList.item(i), "./psu_bundle"))
                     .access(XPathUtil.string(nodeList.item(i), "./access"))
+                    .sha256Hash(XPathUtil.string(nodeList.item(i),
+                        "./files/file/digest[@type='SHA-256']/text()"))
+                    .platform(getAruPlatform(XPathUtil.string(nodeList.item(i), "./platform/@id")))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"));
 
@@ -287,6 +311,20 @@ public class AruPatch {
 
     @Override
     public String toString() {
-        return patchId + " - " + description;
+        return "AruPatch{"
+            + "patchId='" + patchId + '\''
+            + ", version='" + version + '\''
+            + ", description='" + description + '\''
+            + ", product='" + product + '\''
+            + ", release='" + release + '\''
+            + ", releaseName='" + releaseName + '\''
+            + ", psuBundle='" + psuBundle + '\''
+            + ", downloadHost='" + downloadHost + '\''
+            + ", downloadPath='" + downloadPath + '\''
+            + ", fileName='" + fileName + '\''
+            + ", access='" + access + '\''
+            + ", platform='" + platform + '\''
+            + ", sha256Hash='" + sha256Hash + '\''
+            + '}';
     }
 }

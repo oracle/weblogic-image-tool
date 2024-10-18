@@ -8,7 +8,7 @@ public class InstallerMetaData {
     private String location;
     private String hash;
     private String dateAdded;
-    private String version;
+    private String productVersion;
 
     /**
      * Constructor InstallerMetaData stores details about this installer.
@@ -17,12 +17,12 @@ public class InstallerMetaData {
      * @param hash      hash value
      * @param dateAdded  date added
      */
-    public InstallerMetaData(String platform, String location, String hash, String dateAdded, String version) {
+    public InstallerMetaData(String platform, String location, String hash, String dateAdded, String productVersion) {
         this.platform = platform;
         this.location = location;
         this.hash = hash;
         this.dateAdded = dateAdded;
-        this.version = version;
+        this.productVersion = productVersion;
     }
 
     public String getPlatform() {
@@ -41,12 +41,12 @@ public class InstallerMetaData {
         return dateAdded;
     }
 
-    public String getVersion() {
-        return version;
+    public String getProductVersion() {
+        return productVersion;
     }
 
     public String toString() {
         return "InstallerMetaData [platform=" + platform + ", location=" + location + ", hash=" + hash + ", "
-            + "dateAdded=" + dateAdded + ", version=" + version + "]";
+            + "dateAdded=" + dateAdded + ", version=" + productVersion + "]";
     }
 }

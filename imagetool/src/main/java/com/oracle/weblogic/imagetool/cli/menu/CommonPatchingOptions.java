@@ -27,11 +27,12 @@ import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.patch.PatchMetaData;
+import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 public abstract class CommonPatchingOptions extends CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonPatchingOptions.class);
@@ -148,9 +149,29 @@ public abstract class CommonPatchingOptions extends CommonOptions {
 
         String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
         // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
+        UserSettingsFile userSettingsFile = new UserSettingsFile();
         for (AruPatch patch : aruPatches) {
-            PatchFile patchFile = new PatchFile(patch, userId, password);
-            String patchLocation = patchFile.resolve(cache());
+            String platform = patch.platform();
+            // TODO
+            if (platform == null) {
+                platform = "generic";
+            }
+            PatchMetaData metaData = userSettingsFile.getPatchForPlatform(platform, patch.patchId());
+
+            if (metaData == null) {
+                // download the patch first
+                if (userId != null && password != null) {
+                    PatchFile patchFile = new PatchFile(patch, userId, password);
+                    String filePath = patchFile.resolve();
+                    metaData = userSettingsFile.getPatchForPlatform(platform, patch.patchId());
+                } else {
+                    throw logger.throwing(new IOException("No user credentials provided and "
+                        + "no offline patch downloaded: " + patch.patchId()));
+                }
+            }
+            //PatchFile patchFile = new PatchFile(patch, userId, password);
+
+            String patchLocation = metaData.getLocation();
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File cacheFile = new File(patchLocation);
                 try {
@@ -159,10 +180,10 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                     }
                     Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, cacheFile.getName()));
                 } catch (FileAlreadyExistsException ee) {
-                    logger.warning("IMG-0077", patchFile.getKey());
+                    logger.warning("IMG-0077", patch.patchId());
                 }
             } else {
-                logger.severe("IMG-0024", patchFile.getKey());
+                logger.severe("IMG-0024", patch.patchId());
             }
         }
         if (!aruPatches.isEmpty()) {
@@ -308,7 +329,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
     void prepareOpatchInstaller(String tmpDir, String opatchBugNumber)
         throws IOException, XPathExpressionException, AruException {
         logger.entering(opatchBugNumber);
-        String filePath = OPatchFile.getInstance(opatchBugNumber, userId, password, cache()).resolve(cache());
+        String filePath = OPatchFile.getInstance(opatchBugNumber, userId, password).resolve();
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();

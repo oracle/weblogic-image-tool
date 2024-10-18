@@ -580,5 +580,20 @@ public class AruUtil {
         // When all retries are exhausted, raise an ARU exception to exit the process (give up)
         throw logger.throwing(new RetryFailedException());
     }
+
+    /**
+     * Get the translated aru platform.
+     * @param id from aru result
+     * @return text string fromm id number
+     */
+    public static String getAruPlatform(String id) {
+        if ("2000".equals(id)) {
+            return "generic";
+        }
+        if ("1000".equals(id)) {
+            return "linux/arm64";
+        }
+        return "generic";
+    }
 }
 
