@@ -249,18 +249,18 @@ public class UserSettingsFile {
 
     private InstallerMetaData createInstallerMetaData(Map<String, Object> objectData) {
         String hash = (String) objectData.get("digest");
-        String dateAdded = (String) objectData.get("added");
-        String location = (String) objectData.get("file");
+        String dateAdded = getTodayDate();
+        String location = (String) objectData.get("location");
         String productVersion = (String) objectData.get("version");
         String platform = (String) objectData.get("platform");
         return new InstallerMetaData(platform, location, hash, dateAdded, productVersion);
     }
 
     private PatchMetaData createPatchMetaData(Map<String, Object> objectData) {
-        String hash = (String) objectData.get("hash");
+        String hash = (String) objectData.get("digest");
         String dateAdded = getTodayDate();
         String location = (String) objectData.get("location");
-        String productVersion = (String) objectData.get("patchVersion");
+        String productVersion = (String) objectData.get("version");
         String platform = (String) objectData.get("platform");
         return new PatchMetaData(platform, location, hash, dateAdded, productVersion);
     }
@@ -432,20 +432,20 @@ public class UserSettingsFile {
                 if (entry.getValue() instanceof ArrayList) {
                     for (PatchMetaData patchMetaData: entry.getValue()) {
                         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                        map.put("patchVersion", patchMetaData.getPatchVersion());
+                        map.put("version", patchMetaData.getPatchVersion());
                         map.put("location", patchMetaData.getLocation());
-                        map.put("hash", patchMetaData.getHash());
-                        map.put("dateAdded", patchMetaData.getDateAdded());
+                        map.put("digest", patchMetaData.getHash());
+                        map.put("added", patchMetaData.getDateAdded());
                         map.put("platform", patchMetaData.getPlatform());
                         list.add(map);
                     }
                 } else {
                     PatchMetaData patchMetaData = (PatchMetaData) entry.getValue();
                     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                    map.put("patchVersion", patchMetaData.getPatchVersion());
+                    map.put("version", patchMetaData.getPatchVersion());
                     map.put("location", patchMetaData.getLocation());
-                    map.put("hash", patchMetaData.getHash());
-                    map.put("dateAdded", patchMetaData.getDateAdded());
+                    map.put("digest", patchMetaData.getHash());
+                    map.put("added", patchMetaData.getDateAdded());
                     map.put("platform", patchMetaData.getPlatform());
                     list.add(map);
                 }

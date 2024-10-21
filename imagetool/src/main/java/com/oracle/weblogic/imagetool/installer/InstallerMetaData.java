@@ -6,7 +6,7 @@ package com.oracle.weblogic.imagetool.installer;
 public class InstallerMetaData {
     private String platform;
     private String location;
-    private String hash;
+    private String digest;
     private String dateAdded;
     private String productVersion;
 
@@ -14,13 +14,13 @@ public class InstallerMetaData {
      * Constructor InstallerMetaData stores details about this installer.
      * @param platform   platform linux/arm64, linux/amd64
      * @param location   file path of the installer
-     * @param hash      hash value
+     * @param digest     sha256 hash value
      * @param dateAdded  date added
      */
-    public InstallerMetaData(String platform, String location, String hash, String dateAdded, String productVersion) {
+    public InstallerMetaData(String platform, String location, String digest, String dateAdded, String productVersion) {
         this.platform = platform;
         this.location = location;
-        this.hash = hash;
+        this.digest = digest;
         this.dateAdded = dateAdded;
         this.productVersion = productVersion;
     }
@@ -33,8 +33,8 @@ public class InstallerMetaData {
         return location;
     }
 
-    public String getHash() {
-        return hash;
+    public String getDigest() {
+        return digest;
     }
 
     public String getDateAdded() {
@@ -46,7 +46,7 @@ public class InstallerMetaData {
     }
 
     public String toString() {
-        return "InstallerMetaData [platform=" + platform + ", location=" + location + ", hash=" + hash + ", "
+        return "InstallerMetaData [platform=" + platform + ", location=" + location + ", hash=" + digest + ", "
             + "dateAdded=" + dateAdded + ", version=" + productVersion + "]";
     }
 }

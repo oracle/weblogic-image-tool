@@ -152,9 +152,9 @@ public class CommonCreateOptions extends CommonPatchingOptions {
             sb.append(String.format("%02x", b));
         }
         String hashString = sb.toString();
-        if (!hashString.equals(installerMetaData.getHash())) {
+        if (!hashString.equals(installerMetaData.getDigest())) {
             throw new IOException(String.format("Installer hash mismatch, expected %s but got %s for file %s",
-                installerMetaData.getHash(), hashString, installerMetaData.getLocation()));
+                installerMetaData.getDigest(), hashString, installerMetaData.getLocation()));
         }
     }
 
