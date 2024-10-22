@@ -32,18 +32,19 @@ class InstallerTest {
 
     @Test
     void fmwInstallerProductIds() {
-        AruProduct[] list1 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JDBC, AruProduct.FIT,
-            AruProduct.OSS};
+        AruProduct[] list1 = {AruProduct.WLS, AruProduct.FMW_GLCM, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JDBC,
+            AruProduct.FIT, AruProduct.OSS};
         assertEquals(Utils.toSet(list1), FmwInstallerType.WLS.products(),
             "WLS product list is incorrect or out of order");
 
-        AruProduct[] list2 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JDBC, AruProduct.FIT,
-            AruProduct.OSS, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM};
+        AruProduct[] list2 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMW_GLCM, AruProduct.FMWPLAT, AruProduct.JDBC,
+            AruProduct.FIT, AruProduct.OSS, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM};
         assertEquals(Utils.toSet(list2), FmwInstallerType.FMW.products(),
             "FMW product list is incorrect or out of order");
 
-        AruProduct[] list3 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.JDBC, AruProduct.FIT,
-            AruProduct.OSS, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM, AruProduct.SOA};
+        AruProduct[] list3 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMW_GLCM, AruProduct.FMWPLAT, AruProduct.JDBC,
+            AruProduct.FIT, AruProduct.OSS, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM,
+            AruProduct.SOA};
         assertEquals(Utils.toSet(list3), FmwInstallerType.SOA.products(),
             "SOA product list is incorrect or out of order");
     }
