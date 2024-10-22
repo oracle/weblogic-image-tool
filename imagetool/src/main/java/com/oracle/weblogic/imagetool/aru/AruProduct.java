@@ -32,6 +32,7 @@ public enum AruProduct {
     ODI("13724", "Oracle Data Integrator"),
     OSS("16609", "Oracle Security Service"),
     OAM_WG("18388", "Oracle Access Manager Web Gates"),
+    FMW_GLCM("31939", "Oracle Global Lifecycle Management FMW Installer")
     ;
 
     private final String productId;

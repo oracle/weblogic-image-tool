@@ -25,6 +25,7 @@ public enum FmwInstallerType {
 
     // Oracle WebLogic Server
     WLS(Utils.toSet(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.FIT, AruProduct.JDBC,
+        AruProduct.FMW_GLCM,
         AruProduct.OSS), InstallerType.WLS), // Added OSS for a special patching issue for 12.2.1.4 JDBC fix
     WLSSLIM(Utils.toSet(WLS.products),
         InstallerType.WLSSLIM),
@@ -80,7 +81,7 @@ public enum FmwInstallerType {
     WCS(Utils.toSet(FMW.products, AruProduct.WCS),
         InstallerType.FMW, InstallerType.WCS),
     OHS(Utils.toSet(AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC, AruProduct.FMWPLAT,
-        AruProduct.OSS, AruProduct.FIT),
+        AruProduct.OSS, AruProduct.FIT, AruProduct.FMW_GLCM),
         InstallerType.OHS, InstallerType.DB19),
     ODI(Collections.singleton(AruProduct.ODI),
         InstallerType.ODI)
@@ -111,8 +112,8 @@ public enum FmwInstallerType {
     private static final LoggingFacade logger = LoggingFactory.getLogger(FmwInstallerType.class);
 
     /**
-     * Return a list of all WebLogic Server types (not JRF types).
-     * @return list of WLS enum types.
+     * Returns true if the installer type is a WLS installer, WLS, WLSDEV, or WLSSLIM.
+     * @return true if the installer is a WLS installer type.
      */
     public static boolean isBaseWeblogicServer(FmwInstallerType value) {
         return weblogicServerTypes.contains(value);
