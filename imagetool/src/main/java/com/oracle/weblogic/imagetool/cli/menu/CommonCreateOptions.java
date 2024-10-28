@@ -11,6 +11,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.aru.AruException;
+import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -44,6 +45,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
                 installerResponseFiles, getTargetArchitecture());
             install.copyFiles(cache(), buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
+            dockerfileOptions.includeBinaryOsPackages(getInstallerType().equals(FmwInstallerType.OHS));
         } else {
             dockerfileOptions.setWdtBase("os_update");
         }

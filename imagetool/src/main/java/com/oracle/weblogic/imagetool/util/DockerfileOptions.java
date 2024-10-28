@@ -39,6 +39,7 @@ public class DockerfileOptions {
 
     private static final List<String> DEFAULT_OS_PACKAGES = Arrays.asList(
         "gzip", "tar", "unzip", "libaio", "libnsl", "jq", "findutils", "diffutils");
+    private static final List<String> BINARY_OS_PACKAGES = Arrays.asList("binutils", "make", "glibc-devel");
     private static final String WLSIMG_OS_PACKAGES = System.getenv("WLSIMG_OS_PACKAGES");
 
     private static final String DEFAULT_ORAINV_DIR = "/u01/oracle/oraInventory";
@@ -72,6 +73,7 @@ public class DockerfileOptions {
     private MiddlewareInstall mwInstallers;
     private boolean useOwnerPermsForGroup;
     private boolean usingBusybox;
+    private boolean includeBinaryOsPackages;
     private List<String> buildArgs;
 
     // WDT values
@@ -104,6 +106,7 @@ public class DockerfileOptions {
         skipMiddlewareInstall = false;
         useOwnerPermsForGroup = false;
         usingBusybox = false;
+        includeBinaryOsPackages = false;
         buildArgs = new ArrayList<>();
 
         javaHome = DEFAULT_JAVA_HOME;
@@ -1110,6 +1113,24 @@ public class DockerfileOptions {
     }
 
     /**
+     * Include OS packages for binary patching such as make for OPatch.
+     * @param value true if additional OS patches for binary patching should be added to the image.
+     * @return this
+     */
+    public DockerfileOptions includeBinaryOsPackages(boolean value) {
+        includeBinaryOsPackages = value;
+        return this;
+    }
+
+    /**
+     * Returns true if additional OS patches for binary patching should be added to the image.
+     * @return true if additional OS patches for binary patching should be added to the image, false otherwise.
+     */
+    public boolean includeBinaryOsPackages() {
+        return includeBinaryOsPackages;
+    }
+
+    /**
      * Returns true if BusyBox options should be used in the Dockerfile.
      *
      * @return true if BusyBox options should be used in the Dockerfile.
@@ -1160,6 +1181,9 @@ public class DockerfileOptions {
         if (Utils.isEmptyString(WLSIMG_OS_PACKAGES)) {
             // If the user did not provide a list of OS packages, use the default list
             result.addAll(DEFAULT_OS_PACKAGES);
+            if (includeBinaryOsPackages()) {
+                result.addAll(BINARY_OS_PACKAGES);
+            }
         } else {
             // When provided in the environment variable, use the list of OS packages provided by the user.
             result.addAll(Stream.of(WLSIMG_OS_PACKAGES.split(" ")).collect(Collectors.toList()));

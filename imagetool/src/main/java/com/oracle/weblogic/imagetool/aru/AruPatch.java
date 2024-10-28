@@ -166,6 +166,22 @@ public class AruPatch {
         return description != null && description.contains("STACK PATCH BUNDLE");
     }
 
+    /**
+     * Returns true if this patch is known irregular patch (not an actual patch).
+     * <ol>
+     *     <li>Stack Patch Bundle is a zip of patches, but is not a patch itself.</li>
+     *     <li>DB Client 19c Upgrade (34761383) is an installer, and not a patch.</li>
+     * </ol>
+     * @return true if this patch is a StackPatchBundle or known installer, false otherwise.
+     */
+    public boolean isIrregularPatch() {
+        boolean result = "34761383".equals(patchId) || isStackPatchBundle();
+        if (result) {
+            logger.fine("Detected irregular patch {0}: {1}", patchId, description);
+        }
+        return result;
+    }
+
     public boolean isCoherenceFeaturePack() {
         return description != null && description.contains("Coherence 14.1.1 Feature Pack");
     }
