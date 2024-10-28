@@ -81,7 +81,7 @@ public enum FmwInstallerType {
     WCS(Utils.toSet(FMW.products, AruProduct.WCS),
         InstallerType.FMW, InstallerType.WCS),
     OHS(Utils.toSet(AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC, AruProduct.FMWPLAT,
-        AruProduct.OSS, AruProduct.FIT, AruProduct.FMW_GLCM),
+        AruProduct.OSS, AruProduct.FIT, AruProduct.JRF, AruProduct.FMW_GLCM),
         InstallerType.OHS, InstallerType.DB19),
     ODI(Collections.singleton(AruProduct.ODI),
         InstallerType.ODI)
