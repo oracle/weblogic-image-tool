@@ -17,7 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatform;
+import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatformName;
 
 /**
  * Metadata for a patch, as defined by ARU.
@@ -38,7 +38,7 @@ public class AruPatch {
     private String downloadPath;
     private String fileName;
     private String access;
-    private String platform;
+    private String platformName = "Generic";
     private String sha256Hash;
 
     public String patchId() {
@@ -67,6 +67,7 @@ public class AruPatch {
         return description;
     }
 
+
     public AruPatch description(String value) {
         description = value;
         return this;
@@ -81,12 +82,12 @@ public class AruPatch {
         return this;
     }
 
-    public String platform() {
-        return platform;
+    public String platformName() {
+        return platformName;
     }
 
-    public AruPatch platform(String platform) {
-        this.platform = platform;
+    public AruPatch platformName(String platform) {
+        this.platformName = platform;
         return this;
     }
 
@@ -121,8 +122,14 @@ public class AruPatch {
         return platform;
     }
 
+    /**
+     * Setting platform value.
+     * @param value value of the platform
+     * @return this
+     */
     public AruPatch platform(String value) {
         platform = Integer.parseInt(value);
+        platformName = getAruPlatformName(value);
         return this;
     }
 
@@ -215,7 +222,7 @@ public class AruPatch {
                     .access(XPathUtil.string(nodeList.item(i), "./access"))
                     .sha256Hash(XPathUtil.string(nodeList.item(i),
                         "./files/file/digest[@type='SHA-256']/text()"))
-                    .platform(getAruPlatform(XPathUtil.string(nodeList.item(i), "./platform/@id")))
+                    .platformName(getAruPlatformName(XPathUtil.string(nodeList.item(i), "./platform/@id")))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"))
                     .platform(XPathUtil.string(nodeList.item(i), "./platform/@id"));
@@ -320,6 +327,7 @@ public class AruPatch {
             + ", fileName='" + fileName + '\''
             + ", access='" + access + '\''
             + ", platform='" + platform + '\''
+            + ", platformName='" + platformName + '\''
             + ", sha256Hash='" + sha256Hash + '\''
             + '}';
     }

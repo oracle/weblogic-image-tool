@@ -16,7 +16,7 @@ import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
-import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 import static com.oracle.weblogic.imagetool.util.Utils.getSha256Hash;
@@ -49,19 +49,21 @@ public class PatchFile {
     /**
      * download patch.
      * @param aruPatch patch
-     * @param userSettingsFile settings
+     * @param configManager configuration manager
      * @return filname  path of the patch downloaded
      * @throws IOException error
      */
-    public String downloadPatch(AruPatch aruPatch, UserSettingsFile userSettingsFile) throws IOException {
-        String filename = AruUtil.rest().downloadAruPatch(aruPatch, userSettingsFile.getPatchDirectory(),
+    public String downloadPatch(AruPatch aruPatch, ConfigManager configManager) throws IOException {
+        String filename = AruUtil.rest().downloadAruPatch(aruPatch, configManager.getPatchDirectory(),
             userId, password);
         String hashString = getSha256Hash(filename);
-        if (!hashString.equals(aruPatch.sha256Hash())) {
-            throw new IOException("Patch file hash mismatch");
+        if (aruPatch.sha256Hash() != null && !aruPatch.sha256Hash().isEmpty()
+            && !hashString.equals(aruPatch.sha256Hash())) {
+            throw new IOException(String.format("Patch file hash mismatch local: %s aru: %s",
+                hashString, aruPatch.sha256Hash()));
         }
         try {
-            Map<String, List<PatchMetaData>> allPatches = userSettingsFile.getAllPatches();
+            Map<String, List<PatchMetaData>> allPatches = configManager.getAllPatches();
             List<PatchMetaData> patches;
             if (allPatches.containsKey(aruPatch.patchId())) {
                 patches = allPatches.get(aruPatch.patchId());
@@ -81,10 +83,10 @@ public class PatchFile {
                     aruPatch.version()));
                 allPatches.put(aruPatch.patchId(),patches);
             }
-            userSettingsFile.saveAllPatches(allPatches, userSettingsFile.getPatchDetailsFile());
+            configManager.saveAllPatches(allPatches, configManager.getPatchDetailsFile());
 
         } catch (Exception k) {
-            k.printStackTrace();
+            throw new IOException(k.getMessage(), k);
         }
         return filename;
     }
@@ -95,27 +97,28 @@ public class PatchFile {
      * @throws IOException when file is not there
      */
     public String resolve() throws IOException {
-        String cacheKey = aruPatch.patchId();
-        logger.entering(cacheKey);
+        String patchId = aruPatch.patchId();
+        logger.entering(patchId);
 
         String filePath = null;
         boolean fileExists = false;
-        UserSettingsFile userSettingsFile = new UserSettingsFile();
-        PatchMetaData patchSettings = userSettingsFile.getPatchForPlatform(aruPatch.platformName(), aruPatch.patchId());
+        ConfigManager configManager = ConfigManager.getInstance();
+        PatchMetaData patchSettings = configManager.getPatchForPlatform(aruPatch.platformName(),
+            aruPatch.patchId(), aruPatch.version());
         if (patchSettings != null) {
             filePath = patchSettings.getLocation();
             fileExists = isFileOnDisk(filePath);
         }
 
         if (fileExists) {
-            logger.info("IMG-0017", cacheKey, filePath);
+            logger.info("IMG-0017", patchId, filePath);
         } else {
-            logger.info("IMG-0061", cacheKey, aruPatch.patchId());
+            logger.info("IMG-0061", patchId, aruPatch.patchId());
 
             if (offlineMode()) {
-                throw new FileNotFoundException(Utils.getMessage("IMG-0056", cacheKey));
+                throw new FileNotFoundException(Utils.getMessage("IMG-0056", patchId));
             }
-            filePath = downloadPatch(aruPatch, userSettingsFile);
+            filePath = downloadPatch(aruPatch, configManager);
         }
 
         logger.exiting(filePath);
@@ -126,4 +129,7 @@ public class PatchFile {
         return filePath != null && Files.isRegularFile(Paths.get(filePath));
     }
 
+    public String getVersion() {
+        return aruPatch.version();
+    }
 }

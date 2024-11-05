@@ -15,7 +15,8 @@ import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 
@@ -27,11 +28,8 @@ public class CachedFile {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
 
     private final String version;
-    private final String architecture;
+    private final Architecture architecture;
     private final InstallerType installerType;
-    private final UserSettingsFile userSettingsFile = new UserSettingsFile();
-    private final boolean isPatch;
-    private final String patchId;
 
     /**
      * Represents a locally cached file.
@@ -40,12 +38,10 @@ public class CachedFile {
      * @param version      version number for the patch or installer.
      * @param architecture the system architecture that this file/installer is applicable
      */
-    public CachedFile(InstallerType id, String version, String architecture) {
+    public CachedFile(InstallerType id, String version, Architecture architecture) {
         this.installerType = id;
         this.version = version;
         this.architecture = architecture;
-        this.isPatch = false;
-        this.patchId = null;
     }
 
     /**
@@ -65,31 +61,15 @@ public class CachedFile {
      * @param version version
      * @param architecture architecture
      */
-    public CachedFile(boolean isPatch, String patchId, String version, String architecture) {
-        this.isPatch = isPatch;
+    public CachedFile(boolean isPatch, String patchId, String version, Architecture architecture) {
         this.version = version;
         this.architecture = architecture;
         this.installerType = null;
-        this.patchId = patchId;
     }
 
     public static boolean isFileOnDisk(String filePath) {
         return filePath != null && Files.isRegularFile(Paths.get(filePath));
     }
-
-    public String getPatchId() {
-        return patchId;
-    }
-
-    public UserSettingsFile getUserSettingsFile() {
-        return userSettingsFile;
-    }
-
-    //private List<String> getPossibleKeys(Architecture architecture) {
-    //    ArrayList<String> result = new ArrayList<>();
-    //    architecture.getAcceptableNames().forEach(name -> result.add(getCacheKey(name)));
-    //    return result;
-    //}
 
     /**
      * Get the version number for this cache entry/file.
@@ -103,7 +83,7 @@ public class CachedFile {
      * Get the system architecture name for this cache entry/file.
      * @return the system architecture name applicable fo this cached file.
      */
-    public String getArchitecture() {
+    public Architecture getArchitecture() {
         return architecture;
     }
 
@@ -123,8 +103,13 @@ public class CachedFile {
         logger.entering();
         String filePath = null;
 
-        InstallerMetaData metaData = userSettingsFile.getInstallerForPlatform(installerType, getArchitecture(),
-            getVersion());
+        InstallerMetaData metaData = ConfigManager.getInstance()
+            .getInstallerForPlatform(installerType, getArchitecture(), getVersion());
+        if (metaData == null) {
+            metaData = ConfigManager.getInstance()
+                .getInstallerForPlatform(installerType, Architecture.getLocalArchitecture(), getVersion());
+        }
+
         if (metaData != null) {
             filePath = metaData.getLocation();
         }

@@ -19,12 +19,12 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 
-import static com.oracle.weblogic.imagetool.util.Constants.AMD64_SUBDIR;
-import static com.oracle.weblogic.imagetool.util.Constants.ARM64_SUBDIR;
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
 import static com.oracle.weblogic.imagetool.util.Constants.CTX_FMW;
 
 public class MiddlewareInstall {
@@ -43,14 +43,19 @@ public class MiddlewareInstall {
         throws FileNotFoundException {
         logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
-        UserSettingsFile settingsFile = new UserSettingsFile();
-
+        ConfigManager configManager = ConfigManager.getInstance();
         for (InstallerType installerType : type.installerList()) {
             for (String platform : buildPlatform) {
                 MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
+                Architecture arch = Architecture.valueOf(platform);
                 pkg.type = installerType;
-                pkg.installer = new CachedFile(installerType, version, platform);
-                InstallerMetaData metaData = settingsFile.getInstallerForPlatform(installerType, platform, version);
+                if (AMD64_BLD.equals(platform)) {
+                    pkg.installer = new CachedFile(installerType, version, Architecture.AMD64);
+                }
+                if (ARM64_BLD.equals(platform)) {
+                    pkg.installer = new CachedFile(installerType, version, Architecture.ARM64);
+                }
+                InstallerMetaData metaData = configManager.getInstallerForPlatform(installerType, arch, version);
                 pkg.installerPath = Paths.get(metaData.getLocation());
                 pkg.installerFilename = pkg.installerPath.getFileName().toString();
                 pkg.responseFile = new DefaultResponseFile(installerType, type);
@@ -100,10 +105,10 @@ public class MiddlewareInstall {
         for (MiddlewareInstallPackage installPackage: installerFiles) {
             String buildContextDestination = buildContextDir;
             // based on the platform copy to sub directory
-            if (installPackage.platform.equals(AMD64_SUBDIR)) {
-                buildContextDestination = buildContextDestination + "/" + CTX_FMW + AMD64_SUBDIR;
-            } else if (installPackage.platform.equals(ARM64_SUBDIR)) {
-                buildContextDestination = buildContextDestination + "/" + CTX_FMW + ARM64_SUBDIR;
+            if (installPackage.platform.equals(AMD64_BLD)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_FMW + AMD64_BLD;
+            } else if (installPackage.platform.equals(ARM64_BLD)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_FMW + ARM64_BLD;
             }
             //Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDestination);
             //installPackage.installerFilename = filePath.getFileName().toString();

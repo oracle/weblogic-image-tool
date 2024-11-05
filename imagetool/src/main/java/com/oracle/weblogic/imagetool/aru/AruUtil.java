@@ -24,6 +24,7 @@ import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -487,7 +488,7 @@ public class AruUtil {
         throws AruException, IOException, XPathExpressionException {
 
         if (userId == null || password == null) {
-            return getPatchesOffline(bugNumber).stream();
+            return ConfigManager.getInstance().getAruPatchForBugNumber(bugNumber).stream();
         }
 
         String url = String.format(BUG_SEARCH_URL, bugNumber);
@@ -507,6 +508,7 @@ public class AruUtil {
         // Cache keys are in the form {bug number}_{version} or {bug number}_{version}_{architecture}
         Pattern pattern = Pattern.compile("^([^_]+)_([^_]+)(?:_(.+))?$");
         // Get a list of patches in the cache for the given bug number
+
         for (String patchId: CacheStoreFactory.cache().getKeysForType(bugNumber)) {
             AruPatch patch = new AruPatch();
             Matcher matcher = pattern.matcher(patchId);
@@ -626,17 +628,41 @@ public class AruUtil {
 
     /**
      * Get the translated aru platform.
-     * @param id from aru result
+     * @param id from aru id
      * @return text string fromm id number
      */
-    public static String getAruPlatform(String id) {
+    public static String getAruPlatformName(String id) {
         if ("2000".equals(id)) {
-            return "generic";
+            return "Generic";
         }
-        if ("1000".equals(id)) {
+        if ("541".equals(id)) {
             return "linux/arm64";
         }
-        return "generic";
+        if ("226".equals(id)) {
+            return "linux/amd64";
+        }
+
+        return "Generic";
     }
+
+    /**
+     * Get the translated aru platform.
+     * @param id from aru platform string
+     * @return platform number
+     */
+    public static String getAruPlatformId(String id) {
+        if ("Generic".equalsIgnoreCase(id)) {
+            return "2000";
+        }
+        if ("linux/arm64".equals(id)) {
+            return "541";
+        }
+        if ("linux/amd64".equals(id)) {
+            return "226";
+        }
+
+        return "2000";
+    }
+
 }
 

@@ -24,8 +24,9 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
-import static com.oracle.weblogic.imagetool.util.BuildPlatform.AMD64;
-import static com.oracle.weblogic.imagetool.util.BuildPlatform.ARM64;
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
+
 
 /**
  * Provides the data used by the Dockerfile templates (in mustache).
@@ -1064,12 +1065,12 @@ public class DockerfileOptions {
     }
 
     public List<MiddlewareInstallPackage> installPackagesForARM() {
-        return mwInstallers.getInstallers().stream().filter(obj -> ARM64.equals(obj.platform))
+        return mwInstallers.getInstallers().stream().filter(obj -> ARM64_BLD.equals(obj.platform))
             .collect(Collectors.toList());
     }
 
     public List<MiddlewareInstallPackage> installPackagesForAMD() {
-        return mwInstallers.getInstallers().stream().filter(obj -> AMD64.equals(obj.platform))
+        return mwInstallers.getInstallers().stream().filter(obj -> AMD64_BLD.equals(obj.platform))
             .collect(Collectors.toList());
     }
 

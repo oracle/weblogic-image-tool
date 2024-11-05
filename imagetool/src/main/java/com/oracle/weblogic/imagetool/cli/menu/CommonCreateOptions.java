@@ -20,14 +20,15 @@ import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
-import static com.oracle.weblogic.imagetool.util.Constants.AMD64_SUBDIR;
-import static com.oracle.weblogic.imagetool.util.Constants.ARM64_SUBDIR;
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
 import static com.oracle.weblogic.imagetool.util.Constants.CTX_JDK;
 
 public class CommonCreateOptions extends CommonPatchingOptions {
@@ -41,28 +42,29 @@ public class CommonCreateOptions extends CommonPatchingOptions {
 
         logger.entering();
         copyOptionsFromImage();
-        UserSettingsFile settingsFile = new UserSettingsFile();
+
 
         List<String> buildPlatforms = getBuildPlatform();
         // Verify version and installers exists first
-        verifyInstallers(settingsFile, buildPlatforms);
+        verifyInstallers(buildPlatforms);
 
         if (dockerfileOptions.installJava()) {
 
             List<String> jdkFilePathList = new ArrayList<>();
             for (String jdkPlatform : buildPlatforms) {
                 String buildContextDestination = buildDir();
-                if (jdkPlatform.equals(AMD64_SUBDIR)) {
-                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + AMD64_SUBDIR;
+                Architecture arch = Architecture.fromString(jdkPlatform);
+                if (jdkPlatform.equals(AMD64_BLD)) {
+                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + AMD64_BLD;
                     dockerfileOptions.setTargetAMDPlatform(true);
-                } else if (jdkPlatform.equals(ARM64_SUBDIR)) {
-                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + ARM64_SUBDIR;
+                } else if (jdkPlatform.equals(ARM64_BLD)) {
+                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + ARM64_BLD;
                     dockerfileOptions.setTargetARMPlatform(true);
                 }
                 //CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion, jdkPlatform);
                 //Path installerPath = jdk.copyFile(cache(), buildContextDestination);
-                InstallerMetaData installerMetaData = settingsFile.getInstallerForPlatform(InstallerType.JDK,
-                    jdkPlatform, jdkVersion);
+                InstallerMetaData installerMetaData = ConfigManager.getInstance()
+                    .getInstallerForPlatform(InstallerType.JDK, arch, jdkVersion);
                 Path installerPath = Paths.get(installerMetaData.getLocation());
                 Files.copy(installerPath, Paths.get(buildContextDestination).resolve(installerPath.getFileName()));
                 jdkFilePathList.add(installerPath.getFileName().toString());
@@ -104,12 +106,13 @@ public class CommonCreateOptions extends CommonPatchingOptions {
     }
 
 
-    void verifyInstallers(UserSettingsFile settingsFile, List<String> buildPlatforms) throws IOException {
-
+    void verifyInstallers(List<String> buildPlatforms) throws IOException {
+        ConfigManager configManager = ConfigManager.getInstance();
         // Verify version and installers exists first
         for (String buildPlatform : buildPlatforms) {
-            InstallerMetaData jdkInstallerMetaData = settingsFile.getInstallerForPlatform(InstallerType.JDK,
-                buildPlatform, jdkVersion);
+            Architecture arch = Architecture.fromString(buildPlatform);
+            InstallerMetaData jdkInstallerMetaData = configManager.getInstallerForPlatform(InstallerType.JDK,
+                arch, jdkVersion);
             if (jdkInstallerMetaData == null) {
                 throw new IOException("Could not find installer for jdk " + jdkVersion + "  " + buildPlatform);
             } else {
@@ -118,8 +121,8 @@ public class CommonCreateOptions extends CommonPatchingOptions {
             }
 
             for (InstallerType installerType : getInstallerType().installerList()) {
-                InstallerMetaData installerMetaData = settingsFile.getInstallerForPlatform(installerType,
-                    buildPlatform, installerVersion);
+                InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(installerType,
+                    arch, installerVersion);
                 if (installerMetaData == null) {
                     throw new IOException(String.format("Could not find installer type %s, platform %s and version %s",
                         installerType, buildPlatform, installerVersion));

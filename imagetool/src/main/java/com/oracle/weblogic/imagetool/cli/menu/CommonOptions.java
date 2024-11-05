@@ -34,8 +34,8 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
-import static com.oracle.weblogic.imagetool.util.Constants.AMD64_SUBDIR;
-import static com.oracle.weblogic.imagetool.util.Constants.ARM64_SUBDIR;
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
 import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX_OS_IDS;
 import static com.oracle.weblogic.imagetool.util.Constants.CTX_FMW;
 import static com.oracle.weblogic.imagetool.util.Constants.CTX_JDK;
@@ -152,10 +152,10 @@ public abstract class CommonOptions {
             buildDirectory = tmpDir.toAbsolutePath().toString();
             logger.info("IMG-0003", buildDirectory);
         }
-        Path fmwamd64 = Paths.get(CTX_FMW + AMD64_SUBDIR);
-        Path fmwarm64 = Paths.get(CTX_FMW + ARM64_SUBDIR);
-        Path jdkamd64 = Paths.get(CTX_JDK + AMD64_SUBDIR);
-        Path jdkarm64 = Paths.get(CTX_JDK + ARM64_SUBDIR);
+        Path fmwamd64 = Paths.get(CTX_FMW + AMD64_BLD);
+        Path fmwarm64 = Paths.get(CTX_FMW + ARM64_BLD);
+        Path jdkamd64 = Paths.get(CTX_JDK + AMD64_BLD);
+        Path jdkarm64 = Paths.get(CTX_JDK + ARM64_BLD);
 
         if (!Files.exists(fmwamd64)) {
             Files.createDirectories(Paths.get(buildDirectory).resolve(fmwamd64));
