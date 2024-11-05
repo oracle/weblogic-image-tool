@@ -14,9 +14,7 @@ import picocli.CommandLine.Command;
     subcommands = {
         ListCacheItems.class,
         AddInstallerEntry.class,
-        AddPatchEntry.class,
-        AddEntry.class,
-        DeleteEntry.class
+        AddPatchEntry.class
     },
     sortOptions = false
 )

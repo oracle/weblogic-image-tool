@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -24,7 +25,9 @@ import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
 import com.oracle.weblogic.imagetool.inspect.OperatingSystemProperties;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
@@ -335,7 +338,19 @@ public abstract class CommonOptions {
         return buildId;
     }
 
+    /**
+     * Return build platforms from cli or settings or default system.
+     * @return architecture list
+     */
     public List<String> getBuildPlatform() {
+        if (buildPlatform == null) {
+            buildPlatform = new ArrayList<>();
+            java.lang.String platform = ConfigManager.getInstance().getDefaultBuildPlatform();
+            if (platform == null) {
+                platform = Architecture.getLocalArchitecture().toString();
+            }
+            buildPlatform.add(platform);
+        }
         return buildPlatform;
     }
 

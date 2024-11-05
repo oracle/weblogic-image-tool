@@ -268,6 +268,9 @@ public class BuildCommand {
             result.addAll(arg.toList(showPasswords));
         }
         result.add(context);
+        if (useBuildx) {
+            result.add("--progress=plain");
+        }
         return result;
     }
 

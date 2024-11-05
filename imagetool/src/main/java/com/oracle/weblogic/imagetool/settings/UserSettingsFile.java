@@ -77,6 +77,8 @@ public class UserSettingsFile {
 
     private String patchDetailsFile = null;
 
+    private String defaultBuildPlatform = null;
+
     public String getPatchDetailsFile() {
         return patchDetailsFile;
     }
@@ -603,6 +605,7 @@ public class UserSettingsFile {
         buildContextDirectory = SettingsFile.getValue("buildContextDirectory", String.class, settings);
         buildEngine = SettingsFile.getValue("buildEngine", String.class, settings);
         containerEngine = SettingsFile.getValue("containerEngine", String.class, settings);
+        defaultBuildPlatform = SettingsFile.getValue("defaultBuildPlatform", String.class, settings);
 
         aruRetryMax = SettingsFile.getValue("aruRetryMax", Integer.class, settings);
         aruRetryInterval = SettingsFile.getValue("aruRetryInterval", Integer.class, settings);
@@ -631,6 +634,10 @@ public class UserSettingsFile {
 
     public String getInstallerDetailsFile() {
         return installerDetailsFile;
+    }
+
+    public String getDefaultBuildPlatform() {
+        return defaultBuildPlatform;
     }
 
     @Override

@@ -105,7 +105,6 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         logger.exiting();
     }
 
-
     void verifyInstallers(List<String> buildPlatforms) throws IOException {
         ConfigManager configManager = ConfigManager.getInstance();
         // Verify version and installers exists first

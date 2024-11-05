@@ -102,6 +102,17 @@ public class ConfigManager {
         return userSettingsFile.getInstallers();
     }
 
+    public String getInstallerDetailsFile() {
+        return userSettingsFile.getInstallerDetailsFile();
+    }
+
+    /**
+     * Add installer.
+     * @param installerType installer type
+     * @param commonName common name
+     * @param metaData meta data of the installer
+     * @throws IOException when error
+     */
     public void addInstaller(InstallerType installerType, String commonName, InstallerMetaData metaData)
         throws IOException {
         userSettingsFile.addInstaller(installerType,commonName, metaData);
@@ -128,6 +139,9 @@ public class ConfigManager {
         return userSettingsFile.getAruPatchForBugNumber(bugNumber);
     }
 
+    public String getDefaultBuildPlatform() {
+        return userSettingsFile.getDefaultBuildPlatform();
+    }
 
     private InstallerMetaData createInstallerMetaData(Map<String, Object> objectData) {
         String hash = (String) objectData.get("digest");

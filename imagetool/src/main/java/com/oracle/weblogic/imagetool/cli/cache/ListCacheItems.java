@@ -3,15 +3,17 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
-import java.util.Map;
-import java.util.regex.Pattern;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 @Command(
         name = "listItems",
@@ -21,24 +23,28 @@ public class ListCacheItems extends CacheOperation {
 
     @Override
     public CommandResponse call() throws CacheStoreException {
-        Map<String, String> resultMap = cache().getCacheItems();
-        if (resultMap == null || resultMap.isEmpty()) {
-            return CommandResponse.success("IMG-0047");
+        String fileName;
+        if ("patches".equalsIgnoreCase(type)) {
+            fileName = ConfigManager.getInstance().getPatchDetailsFile();
         } else {
-            System.out.println("Cache contents");
-
-            Pattern pattern = Pattern.compile(key == null ? ".*" : key);
-            resultMap.entrySet().stream()
-                .filter(entry -> pattern.matcher(entry.getKey()).matches())
-                .forEach(System.out::println);
-
-            return CommandResponse.success(null);
+            fileName = ConfigManager.getInstance().getInstallerDetailsFile();
         }
+        if (fileName != null) {
+            try {
+                Path path = Paths.get(fileName);
+                Files.lines(path).forEach(System.out::println);
+            } catch (IOException ioException) {
+                System.err.println("Unable to read file: " + fileName);
+            }
+        }
+        return CommandResponse.success(null);
+
     }
 
     @Option(
-        names = {"--key"},
-        description = "list only cached items where the key matches this regex"
+        names = {"--type"},
+        description = "list type type : patches, installers (default: installers)"
     )
-    private String key;
+    private String type;
+
 }

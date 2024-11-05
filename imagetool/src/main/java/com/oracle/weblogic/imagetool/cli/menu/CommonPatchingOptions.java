@@ -151,9 +151,9 @@ public abstract class CommonPatchingOptions extends CommonOptions {
 
         AruUtil.rest().validatePatches(installedPatches, aruPatches, userId, password);
 
-        String patchesFolderNameAMD = createPatchesTempDirectory().toAbsolutePath().toString() + "/" + AMD64_BLD;
-        String patchesFolderNameARM = createPatchesTempDirectory().toAbsolutePath().toString() + "/" + ARM64_BLD;
-
+        String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
+        Files.createDirectories(Paths.get(patchesFolderName, AMD64_BLD));
+        Files.createDirectories(Paths.get(patchesFolderName, ARM64_BLD));
         // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
         ConfigManager configManager = ConfigManager.getInstance();
         for (AruPatch patch : aruPatches) {
@@ -185,9 +185,11 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                         patch.fileName(cacheFile.getName());
                     }
                     if (platform.equals(AMD64_BLD)) {
-                        Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderNameAMD, cacheFile.getName()));
+                        Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, AMD64_BLD,
+                            cacheFile.getName()));
                     } else {
-                        Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderNameARM, cacheFile.getName()));
+                        Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, ARM64_BLD,
+                            cacheFile.getName()));
                     }
                 } catch (FileAlreadyExistsException ee) {
                     logger.warning("IMG-0077", patch.patchId());
