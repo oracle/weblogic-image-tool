@@ -1,4 +1,4 @@
-# Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Description
@@ -36,7 +36,7 @@ jobs:
         with:
           ref: gh-pages
           path: gh-pages
-          token: ${{ secrets.PUBLISH_SECRET }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and publish site
         run: |

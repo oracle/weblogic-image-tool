@@ -90,6 +90,13 @@ RUN echo "INSTALLING MIDDLEWARE" \
      fi
 {{/targetAMDPlatform}}
 
+{{#useOwnerPermsForGroup}}
+  # OPatch needs write permissions to the logs folder and lock file when running in OpenShift
+  RUN mkdir -p ${ORACLE_HOME}/cfgtoollogs \
+   && chmod g=u ${ORACLE_HOME}/cfgtoollogs \
+   && chmod g=u ${ORACLE_HOME}/inventory/locks/oh.lock
+{{/useOwnerPermsForGroup}}
+
 {{> fmw-patching}}
 
 {{#afterFmwInstall}}

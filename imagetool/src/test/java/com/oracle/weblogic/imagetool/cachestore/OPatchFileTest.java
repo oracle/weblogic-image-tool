@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -11,6 +11,8 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.MockAruUtil;
+import com.oracle.weblogic.imagetool.cli.menu.CommonOptions;
+import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -22,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ReduceTestLogging(loggerClass = CommonOptions.class)
 @Tag("unit")
 class OPatchFileTest {
     private static CacheStore cacheStore;

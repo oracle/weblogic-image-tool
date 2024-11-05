@@ -13,13 +13,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
+import com.oracle.weblogic.imagetool.util.Architecture;
 
+import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatformId;
 import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
 public class UserSettingsFile {
@@ -294,6 +297,9 @@ public class UserSettingsFile {
         //    - platform: linux/arm64
 
         Map<String, Object> allInstallers = new SettingsFile(Paths.get(installerDetailsFile)).load();
+        if (allInstallers == null) {
+            allInstallers = new HashMap<>();
+        }
         EnumMap<InstallerType, Map<String, List<InstallerMetaData>>> installerDetails
             = new EnumMap<>(InstallerType.class);
         for (Map.Entry<String, Object> entry: allInstallers.entrySet()) {
@@ -337,6 +343,38 @@ public class UserSettingsFile {
         return installerDetails;
     }
 
+
+    /**
+     * Add installer to local file.
+     * @param installerType installer type
+     * @param commonName common name used
+     * @param metaData installer metadata
+     */
+    public void addInstaller(InstallerType installerType, String commonName, InstallerMetaData metaData)
+        throws IOException {
+
+        EnumMap<InstallerType, Map<String, List<InstallerMetaData>>> installerDetails = getInstallers();
+        Map<String, List<InstallerMetaData>> installerMetaDataMap;
+        List<InstallerMetaData> installerMetaDataList;
+
+        if (installerDetails.containsKey(installerType)) {
+            installerMetaDataMap = installerDetails.get(installerType);
+        } else {
+            installerDetails.put(installerType, new HashMap<>());
+            installerMetaDataMap = installerDetails.get(installerType);
+        }
+        if (installerMetaDataMap.containsKey(commonName)) {
+            installerMetaDataList = installerMetaDataMap.get(commonName);
+        } else {
+            installerMetaDataMap.put(commonName, new ArrayList<>());
+            installerMetaDataList = installerMetaDataMap.get(commonName);
+        }
+        installerMetaDataList.add(metaData);
+        // Update the list
+        installerDetails.put(installerType, installerMetaDataMap);
+        saveAllInstallers(installerDetails, installerDetailsFile);
+    }
+
     /**
      * Return the metadata for the platformed installer.
      * @param platformName platform name
@@ -344,18 +382,18 @@ public class UserSettingsFile {
      * @return InstallerMetaData meta data for the installer
      */
 
-    public InstallerMetaData getInstallerForPlatform(InstallerType installerType, String platformName,
+    public InstallerMetaData getInstallerForPlatform(InstallerType installerType, Architecture platformName,
                                                      String installerVersion) {
 
         if (platformName == null) {
-            platformName = "generic";
+            platformName = Architecture.GENERIC;
         }
         Map<String, List<InstallerMetaData>> installers = getInstallers().get(installerType);
         if (installers != null && !installers.isEmpty()) {
             List<InstallerMetaData> installerMetaDataList = installers.get(installerVersion);
             if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {
                 for (InstallerMetaData installerMetaData: installerMetaDataList) {
-                    if (installerMetaData.getPlatform().equals(platformName)) {
+                    if (platformName.getAcceptableNames().contains(installerMetaData.getPlatform())) {
                         return installerMetaData;
                     }
                 }
@@ -366,25 +404,52 @@ public class UserSettingsFile {
     }
 
     /**
+     * Add a patch to the local system.
+     * @param bugNumber bug number
+     * @param patchArchitecture architecture of the patch
+     * @param patchLocation file location of the patch
+     * @param patchVersion version of the patch
+     * @throws IOException error
+     */
+    public void addPatch(String bugNumber, String patchArchitecture, String patchLocation,
+                           String patchVersion) throws IOException {
+        ConfigManager configManager = ConfigManager.getInstance();
+        Map<String, List<PatchMetaData>> patches = configManager.getAllPatches();
+        List<PatchMetaData> latestPatches = patches.get(bugNumber);
+        PatchMetaData latestPatch = new PatchMetaData(patchArchitecture, patchLocation, patchVersion);
+        latestPatches.add(latestPatch);
+        patches.put(bugNumber, latestPatches);
+        configManager.saveAllPatches(patches, configManager.getPatchDetailsFile());
+    }
+
+    /**
      * Return the metadata for the platformed installer.
      * @param platformName platform name
-     * @param installerVersion version of the installer
+     * @param bugNumber version of the installer
      * @return InstallerMetaData meta data for the installer
      */
 
-    public PatchMetaData getPatchForPlatform(String platformName,  String installerVersion) {
+    public PatchMetaData getPatchForPlatform(String platformName,  String bugNumber, String version) {
         Map<String, List<PatchMetaData>> patches = getAllPatches();
         if (patches != null && !patches.isEmpty()) {
-            List<PatchMetaData> installerMetaDataList = patches.get(installerVersion);
-            if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {
-                for (PatchMetaData patchMetaData: installerMetaDataList) {
-                    if (patchMetaData.getPlatform().equals(platformName)) {
-                        return patchMetaData;
+            List<PatchMetaData> patchMetaDataList = patches.get(bugNumber);
+            if (patchMetaDataList != null && !patchMetaDataList.isEmpty()) {
+                for (PatchMetaData patchMetaData: patchMetaDataList) {
+                    if (platformName == null || platformName.isEmpty()) {
+                        if (patchMetaData.getPlatform().equalsIgnoreCase("Generic")
+                            && patchMetaData.getPatchVersion().equals(version)) {
+                            return patchMetaData;
+                        }
+                    } else {
+                        if (patchMetaData.getPlatform().equalsIgnoreCase(platformName)
+                            && patchMetaData.getPatchVersion().equals(version)) {
+                            return patchMetaData;
+                        }
                     }
                 }
                 // search for generic for opatch only??
-                if (OPatchFile.DEFAULT_BUG_NUM.equals(installerVersion)) {
-                    for (PatchMetaData patchMetaData: installerMetaDataList) {
+                if (OPatchFile.DEFAULT_BUG_NUM.equals(bugNumber)) {
+                    for (PatchMetaData patchMetaData: patchMetaDataList) {
                         if ("generic".equals(patchMetaData.getPlatform())) {
                             return patchMetaData;
                         }
@@ -397,31 +462,66 @@ public class UserSettingsFile {
     }
 
     /**
+     * Return the list of AruPatch data from  for the patches by bug number from local.
+     * @param bugNumber version of the installer
+     * @return list of AruPatch
+     */
+
+    public List<AruPatch> getAruPatchForBugNumber(String bugNumber) {
+        Map<String, List<PatchMetaData>> patches = getAllPatches();
+        List<AruPatch> aruPatchList = new ArrayList<>();
+        if (patches != null && !patches.isEmpty()) {
+            List<PatchMetaData> resultPatchMetaDataList = patches.get(bugNumber);
+            if (resultPatchMetaDataList != null && !resultPatchMetaDataList.isEmpty()) {
+                for (PatchMetaData patchMetaData: resultPatchMetaDataList) {
+                    AruPatch aruPatch = new AruPatch();
+
+                    aruPatch.platformName(patchMetaData.getPlatform())
+                        .platform(getAruPlatformId(patchMetaData.getPlatform()))
+                        .patchId(bugNumber)
+                        .fileName(patchMetaData.getLocation())
+                        .version(patchMetaData.getPatchVersion());
+                    aruPatchList.add(aruPatch);
+                }
+            }
+        }
+
+        return aruPatchList;
+    }
+
+    /**
      * return all the patches.
      * @return patch settings
      */
     public Map<String, List<PatchMetaData>> getAllPatches() {
+
+
         Map<String, Object> allPatches = new SettingsFile(Paths.get(patchDetailsFile)).load();
         Map<String, List<PatchMetaData>> patchList = new HashMap<>();
-        for (Map.Entry<String, Object> entry: allPatches.entrySet()) {
-            String key = entry.getKey(); // bug number
-            List<PatchMetaData> patchMetaDataList = new ArrayList<>();
-            if (key != null) {
-                if (entry.getValue() instanceof ArrayList) {
-                    for (Object installerValue: (ArrayList<Object>) entry.getValue()) {
-                        patchMetaDataList.add(createPatchMetaData((Map<String, Object>)installerValue));
+        if (allPatches != null && !allPatches.isEmpty()) {
+            for (Map.Entry<String, Object> entry: allPatches.entrySet()) {
+                String key = entry.getKey(); // bug number
+                List<PatchMetaData> patchMetaDataList = new ArrayList<>();
+                if (key != null) {
+                    if (entry.getValue() instanceof ArrayList) {
+                        for (Object installerValue: (ArrayList<Object>) entry.getValue()) {
+                            patchMetaDataList.add(createPatchMetaData((Map<String, Object>)installerValue));
+                        }
+                    } else {
+                        patchMetaDataList.add(createPatchMetaData((Map<String, Object>)entry.getValue()));
                     }
-                } else {
-                    patchMetaDataList.add(createPatchMetaData((Map<String, Object>)entry.getValue()));
                 }
+                patchList.put(key, patchMetaDataList);
             }
-            patchList.put(key, patchMetaDataList);
         }
         return patchList;
     }
 
     /**
-     * save all the patches.
+     * Save all patches in the local metadata file.
+     * @param allPatches Map of all patch metadata
+     * @param location file location for store
+     * @throws IOException when error
      */
     public void saveAllPatches(Map<String, List<PatchMetaData>> allPatches, String location) throws IOException {
         Map<String, Object> patchList = new HashMap<>();
@@ -453,6 +553,42 @@ public class UserSettingsFile {
             }
         }
         new SettingsFile(Paths.get(location)).save(patchList);
+    }
+
+    /**
+     * Save all installers in the local metadata file.
+     * @param allInstallers Map of all installers metadata
+     * @param location file location for store
+     * @throws IOException when error
+     */
+    public void saveAllInstallers(Map<InstallerType, Map<String, List<InstallerMetaData>>> allInstallers,
+                                     String location) throws IOException {
+        LinkedHashMap<String, Object> installerList = new LinkedHashMap<>();
+
+        if (allInstallers != null && !allInstallers.isEmpty()) {
+            for (Map.Entry<InstallerType, Map<String, List<InstallerMetaData>>> entry: allInstallers.entrySet()) {
+                InstallerType installerType = entry.getKey();
+                Map<String, List<InstallerMetaData>> installerMetaDataList = entry.getValue();
+                LinkedHashMap<String, Object> typedInstallers = new LinkedHashMap<>();
+
+                for (String installerMetaData : installerMetaDataList.keySet()) {
+                    List<InstallerMetaData> mdList = installerMetaDataList.get(installerMetaData);
+                    ArrayList<Object> installerMetaDataArray = new ArrayList<>();
+                    for (InstallerMetaData md : mdList) {
+                        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+                        map.put("version", md.getProductVersion());
+                        map.put("location", md.getLocation());
+                        map.put("digest", md.getDigest());
+                        map.put("added", md.getDateAdded());
+                        map.put("platform", md.getPlatform());
+                        installerMetaDataArray.add(map);
+                    }
+                    typedInstallers.put(installerMetaData, installerMetaDataArray);
+                }
+                installerList.put(installerType.toString(), typedInstallers);
+            }
+        }
+        new SettingsFile(Paths.get(location)).save(installerList);
     }
 
     private void applySettings(Map<String, Object> settings) {
@@ -493,8 +629,24 @@ public class UserSettingsFile {
         logger.exiting();
     }
 
-    public String toString() {
-        return SettingsFile.asYaml(this);
+    public String getInstallerDetailsFile() {
+        return installerDetailsFile;
     }
 
+    @Override
+    public String toString() {
+        return "UserSettingsFile{"
+            + "installerSettings=" + installerSettings
+            + ", buildContextDirectory='" + buildContextDirectory + '\''
+            + ", patchDirectory='" + patchDirectory + '\''
+            + ", installerDirectory='" + installerDirectory + '\''
+            + ", buildEngine='" + buildEngine + '\''
+            + ", containerEngine='" + containerEngine + '\''
+            + ", aruRetryMax=" + aruRetryMax
+            + ", aruRetryInterval=" + aruRetryInterval
+            + ", settingsFile=" + settingsFile
+            + ", installerDetailsFile='" + installerDetailsFile + '\''
+            + ", patchDetailsFile='" + patchDetailsFile + '\''
+            + '}';
+    }
 }

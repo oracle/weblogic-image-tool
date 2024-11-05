@@ -18,6 +18,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import com.oracle.weblogic.imagetool.util.Utils;
 
+
 /**
  * Base class to represent either an installer or a patch file.
  */
@@ -83,6 +84,12 @@ public class CachedFile {
     public UserSettingsFile getUserSettingsFile() {
         return userSettingsFile;
     }
+
+    //private List<String> getPossibleKeys(Architecture architecture) {
+    //    ArrayList<String> result = new ArrayList<>();
+    //    architecture.getAcceptableNames().forEach(name -> result.add(getCacheKey(name)));
+    //    return result;
+    //}
 
     /**
      * Get the version number for this cache entry/file.

@@ -11,7 +11,7 @@ import java.util.Arrays;
 public enum AruProduct {
     WLS("15991", "Oracle WebLogic Server"),
     COH("13964", "Oracle Coherence"),
-    JRF("10120", "Oracle Java Required Files"),
+    JRF("10120", "Oracle Fusion Middleware"),
     FMWPLAT("27638", "FMW Platform"),
     OSB("16011", "Oracle Service Bus"),
     SOA("12745", "Oracle SOA Suite"),

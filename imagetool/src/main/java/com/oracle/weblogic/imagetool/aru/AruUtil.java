@@ -12,14 +12,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
+import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.XPathUtil;
@@ -100,11 +105,12 @@ public class AruUtil {
      * @return a list of patches from ARU
      * @throws AruException when an error occurs trying to access ARU metadata
      */
-    public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, String userId, String password)
+    public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, Architecture architecture,
+                                       String userId, String password)
         throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
-            List<AruPatch> psuList = getLatestPsu(product, version, userId, password);
+            List<AruPatch> psuList = getLatestPsu(product, version, architecture, userId, password);
             if (!psuList.isEmpty()) {
                 for (AruPatch psu: psuList) {
                     String patchAndVersion = psu.patchId() + "_" + psu.version();
@@ -131,20 +137,27 @@ public class AruUtil {
      * @return the latest PSU for the given product and version
      * @throws AruException when response from ARU has an error or fails
      */
-    List<AruPatch> getLatestPsu(AruProduct product, String version, String userId, String password)
+    List<AruPatch> getLatestPsu(AruProduct product, String version, Architecture architecture,
+                                String userId, String password)
         throws AruException {
         logger.entering(product, version);
         try {
             logger.info("IMG-0019", product.description());
             String releaseNumber = getReleaseNumber(product, version, userId, password);
+            if (Utils.isEmptyString(releaseNumber)) {
+                // ARU does not have a release number for the given product and version, return empty patch list
+                logger.info(Utils.getMessage("IMG-0082", version, product.description()));
+                return Collections.emptyList();
+            }
             Document aruRecommendations = retry(
                 () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
             logger.exiting();
             return AruPatch.getPatches(aruRecommendations)
+                .filter(p -> p.isApplicableToTarget(architecture.getAruPlatform()))
                 .filter(AruPatch::isPsu)
                 .filter(not(AruPatch::isStackPatchBundle))
                 .collect(Collectors.toList());
-        } catch (NoPatchesFoundException | ReleaseNotFoundException ex) {
+        } catch (NoPatchesFoundException ex) {
             logger.exiting();
             return Collections.emptyList();
         } catch (RetryFailedException | XPathExpressionException e) {
@@ -154,31 +167,19 @@ public class AruUtil {
     }
 
     /**
-     * Get list of recommended patches available for a given product and version.
+     * Get list of recommended patches available for all the products that are part of the FMW installer type.
      *
      * @param type FMW installer type
      * @param version  version number like 12.2.1.3.0
      * @param userId   user
      * @return Document listing of all patches (full details)
      */
-    public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version,
-                                                     String userId, String password) throws AruException {
+    public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version, Architecture architecture,
+                                                String userId, String password) throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
-            List<AruPatch> patches = getRecommendedPatches(product, version, userId, password);
-            // temporary, until OHS stops using same release number and product ID for two different installs
-            if (type == FmwInstallerType.OHS_DB19) {
-                if (product == AruProduct.OHS) {
-                    patches = patches.stream().filter(p -> p.description().contains(" DB19C "))
-                        .collect(Collectors.toList());
-                } else if (product == AruProduct.OAM_WG) {
-                    patches = patches.stream().filter(p -> p.description().contains(" DB19c "))
-                        .collect(Collectors.toList());
-                } else if (product == AruProduct.OSS) {
-                    patches = patches.stream().filter(p -> p.description().contains(" 19C "))
-                        .collect(Collectors.toList());
-                }
-            }
+            List<AruPatch> patches = getRecommendedPatches(type, product, version, architecture, userId, password);
+
             if (!patches.isEmpty()) {
                 patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
                 result.addAll(patches);
@@ -200,48 +201,55 @@ public class AruUtil {
      * @return the recommended patches for the given product and version
      * @throws AruException when response from ARU has an error or fails
      */
-    List<AruPatch> getRecommendedPatches(AruProduct product, String version, String userId, String password)
-        throws AruException {
+    List<AruPatch> getRecommendedPatches(FmwInstallerType type, AruProduct product, String version,
+                                        Architecture architecture, String userId, String password) throws AruException {
         logger.entering(product, version);
+        List<AruPatch> patches = Collections.emptyList();
         try {
             logger.info("IMG-0067", product.description());
             String releaseNumber = getReleaseNumber(product, version, userId, password);
-            Document aruRecommendations = retry(
-                () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
-            // TODO: Need an option for the user to request the Coherence additional feature pack.
-            List<AruPatch> patches = AruPatch.getPatches(aruRecommendations)
-                .filter(not(AruPatch::isStackPatchBundle)) //remove Stack Patch Bundle
-                .filter(not(AruPatch::isCoherenceFeaturePack)) //remove COH feature pack
-                .collect(Collectors.toList());
-            String psuVersion = getPsuVersion(product.description(), patches);
-            if (psuVersion != null) {
-                //repeat the same process to get recommended patches, but use the PSU release instead of the GA release
-                // All the same patches are in the PSU release, but also the overlay patches (if any)
-                patches.forEach(p -> logger.fine("Discarding recommended patch {0} {1}", p.patchId(), p.description()));
-                logger.fine("Recommended patch list contains a PSU, getting recommendations for PSU version {0}",
-                    psuVersion);
-                // get release number for PSU
-                String psuReleaseNumber = getReleaseNumber(product, psuVersion, userId, password);
-                // get recommended patches for PSU release (Overlay patches are only recommended on the PSU release)
-                Document psuOverrides = retry(
-                    () -> getRecommendedPatchesMetadata(product, psuReleaseNumber, userId, password));
+            if (Utils.isEmptyString(releaseNumber)) {
+                // ARU does not have a release number for the given product and version, return an empty patch list
+                logger.info(Utils.getMessage("IMG-0082", version, product.description()));
+            } else {
+                // Get a list of patches applicable to the given product and release number
+                patches = getReleaseRecommendations(product, releaseNumber, architecture, userId, password);
+                logger.fine("Search for {0} recommended patches returned {1}", product, patches.size());
+                if (type == FmwInstallerType.OHS) {
+                    // Workaround for the Apache Plugin patch currently uploaded as an OHS patch.
+                    patches = patches.stream().filter(p ->
+                        !p.description().contains("APACHE PLUGIN")).collect(Collectors.toList());
+                }
 
-                patches = AruPatch.getPatches(psuOverrides)
-                    .filter(not(AruPatch::isStackPatchBundle)) // remove the Stack Patch Bundle patch, if returned
-                    .filter(not(AruPatch::isCoherenceFeaturePack)) // remove the Coherence feature pack, if returned
-                    .collect(Collectors.toList());
+                String psuVersion = getPsuVersion(product.description(), patches);
+                if (psuVersion != null) {
+                    // Check to see if there is a release with the PSU version that contains overlay patches.
+                    logger.fine("Recommended patch list contains a PSU, getting recommendations for PSU version {0}",
+                        psuVersion);
+                    // Get the release number for the PSU version number
+                    String psuReleaseNumber = getReleaseNumber(product, psuVersion, userId, password);
+                    // If there is a release for the specific PSU, check it for overlay patches
+                    if (!Utils.isEmptyString(psuReleaseNumber)) {
+                        // Get recommended patches for PSU release (includes PSU overlay patches)
+                        List<AruPatch> overlays =
+                            getReleaseRecommendations(product, psuReleaseNumber, architecture, userId, password);
+                        logger.fine("Search for PSU {0} overlay patches returned {1}", psuVersion, overlays.size());
+                        patches.addAll(overlays);
+                    } else {
+                        // ARU does not have a release number for the PSU version found (no overlays needed)
+                        logger.fine("PSU release was not found for {0} : {1}", product, psuVersion);
+                    }
+                }
             }
-            logger.exiting(patches);
-            return patches;
-        } catch (ReleaseNotFoundException nf) {
-            return Collections.emptyList();
         } catch (NoPatchesFoundException npf) {
             logger.info("IMG-0069", product.description(), version);
-            return Collections.emptyList();
         } catch (RetryFailedException | XPathExpressionException e) {
             throw new AruException(Utils.getMessage("IMG-0070", product.description(), version), e);
         }
+        logger.exiting(patches);
+        return patches;
     }
+
 
     private String getPsuVersion(String productName, Collection<AruPatch> patches) {
         String psuBundle = patches.stream()
@@ -254,6 +262,22 @@ public class AruUtil {
             return psuBundle.substring(productName.length() + 1);
         }
         return null;
+    }
+
+    List<AruPatch> getReleaseRecommendations(AruProduct product, String releaseNumber, Architecture architecture,
+                                             String userId, String password)
+        throws AruException, XPathExpressionException, RetryFailedException {
+
+        Document patchesDocument = retry(
+            () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
+
+        return AruPatch.getPatches(patchesDocument)
+            .filter(p -> p.isApplicableToTarget(architecture.getAruPlatform()))
+            .filter(not(AruPatch::isStackPatchBundle)) // remove the Stack Patch Bundle patch, if returned
+            // TODO: Need an option for the user to request the Coherence additional feature pack.
+            .filter(not(AruPatch::isCoherenceFeaturePack)) // remove the Coherence feature pack, if returned
+            .filter(p -> p.release().equals(releaseNumber))
+            .collect(Collectors.toList());
     }
 
     static class PatchLists {
@@ -358,7 +382,6 @@ public class AruUtil {
      * @param password OTN credential password
      * @return release number for the product and version provided
      * @throws AruException if the call to ARU fails, or the response from ARU had an error
-     * @throws ReleaseNotFoundException if the specified version for the requested product was not found
      */
     private String getReleaseNumber(AruProduct product, String version, String userId, String password)
         throws AruException {
@@ -374,11 +397,6 @@ public class AruUtil {
             logger.fine("Release number for {0} is {1}", product.description(), result);
         } catch (XPathExpressionException xpe) {
             throw new AruException("Could not extract release number with XPath", xpe);
-        }
-        if (Utils.isEmptyString(result)) {
-            String msg = Utils.getMessage("IMG-0082", version, product.description());
-            logger.info(msg);
-            throw new ReleaseNotFoundException(msg);
         }
         logger.exiting(result);
         return result;
@@ -469,8 +487,7 @@ public class AruUtil {
         throws AruException, IOException, XPathExpressionException {
 
         if (userId == null || password == null) {
-            // running in offline mode (no credentials to connect to ARU)
-            return Stream.of(new AruPatch().patchId(bugNumber));
+            return getPatchesOffline(bugNumber).stream();
         }
 
         String url = String.format(BUG_SEARCH_URL, bugNumber);
@@ -483,6 +500,32 @@ public class AruUtil {
         } catch (RetryFailedException retryEx) {
             throw new AruException(Utils.getMessage("IMG-0110", retryEx));
         }
+    }
+
+    private List<AruPatch> getPatchesOffline(String bugNumber) throws CacheStoreException {
+        List<AruPatch> patchesInCache = new ArrayList<>();
+        // Cache keys are in the form {bug number}_{version} or {bug number}_{version}_{architecture}
+        Pattern pattern = Pattern.compile("^([^_]+)_([^_]+)(?:_(.+))?$");
+        // Get a list of patches in the cache for the given bug number
+        for (String patchId: CacheStoreFactory.cache().getKeysForType(bugNumber)) {
+            AruPatch patch = new AruPatch();
+            Matcher matcher = pattern.matcher(patchId);
+            if (matcher.find() && matcher.groupCount() < 2) {
+                logger.fine("While getting patches for {0}, discarded bad cache key {1}", bugNumber, patchId);
+            }
+            patch.patchId(matcher.group(1));
+            patch.version(matcher.group(2));
+            if (matcher.groupCount() == 3 && matcher.group(3) != null) {
+                int aruPlatform = Architecture.fromString(matcher.group(3)).getAruPlatform();
+                patch.platform(Integer.toString(aruPlatform));
+            } else {
+                // architecture was not specified in the cache key, assume generic platform
+                patch.platform("2000");
+            }
+            patch.description("description unavailable while working offline");
+            patchesInCache.add(patch);
+        }
+        return patchesInCache;
     }
 
     /**

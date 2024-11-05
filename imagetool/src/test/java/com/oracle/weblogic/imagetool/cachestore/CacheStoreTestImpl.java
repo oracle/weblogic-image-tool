@@ -4,13 +4,15 @@
 package com.oracle.weblogic.imagetool.cachestore;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CacheStoreTestImpl implements CacheStore {
 
-    private HashMap<String, String> cache = new HashMap<>();
-    private Path cacheDir;
+    private final HashMap<String, String> cache = new HashMap<>();
+    private final Path cacheDir;
 
     public CacheStoreTestImpl(Path cacheDir) {
         this.cacheDir = cacheDir;
@@ -46,10 +48,16 @@ public class CacheStoreTestImpl implements CacheStore {
 
     @Override
     public void clearCache() {
+        cache.clear();
     }
 
     @Override
     public Map<String, String> getCacheItems() {
         return cache;
+    }
+
+    @Override
+    public List<String> getKeysForType(String type) {
+        return new ArrayList<>();
     }
 }

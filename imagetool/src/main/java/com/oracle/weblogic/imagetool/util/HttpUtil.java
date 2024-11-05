@@ -110,7 +110,8 @@ public class HttpUtil {
         String xmlString = getHttpExecutor(username,password).execute(Request.Get(url).connectTimeout(30000)
                 .socketTimeout(30000))
                 .returnContent().asString();
-        logger.exiting(xmlString);
+        logger.finest(xmlString);
+        logger.exiting();
         return parseXml(xmlString);
     }
 

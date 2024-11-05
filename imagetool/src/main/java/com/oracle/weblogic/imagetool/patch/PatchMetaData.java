@@ -3,6 +3,8 @@
 
 package com.oracle.weblogic.imagetool.patch;
 
+import com.oracle.weblogic.imagetool.util.Utils;
+
 public class PatchMetaData {
     private String platform;
     private String location;
@@ -23,6 +25,20 @@ public class PatchMetaData {
         this.location = location;
         this.hash = hash;
         this.dateAdded = dateAdded;
+        this.patchVersion = patchVersion;
+    }
+
+    /**
+     * Constructor.
+     * @param platform platform
+     * @param location file path of the patch
+     * @param patchVersion version
+     */
+    public PatchMetaData(String platform, String location, String patchVersion) {
+        this.platform = platform;
+        this.location = location;
+        this.hash = Utils.getSha256Hash(location);
+        this.dateAdded = Utils.getTodayDate();
         this.patchVersion = patchVersion;
     }
 

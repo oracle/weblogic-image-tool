@@ -26,8 +26,8 @@ import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
-import static com.oracle.weblogic.imagetool.util.BuildPlatform.AMD64;
-import static com.oracle.weblogic.imagetool.util.BuildPlatform.ARM64;
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_SUBDIR;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_SUBDIR;
 import static com.oracle.weblogic.imagetool.util.Constants.CTX_JDK;
 
 public class CommonCreateOptions extends CommonPatchingOptions {
@@ -52,11 +52,11 @@ public class CommonCreateOptions extends CommonPatchingOptions {
             List<String> jdkFilePathList = new ArrayList<>();
             for (String jdkPlatform : buildPlatforms) {
                 String buildContextDestination = buildDir();
-                if (jdkPlatform.equals(AMD64)) {
-                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + AMD64;
+                if (jdkPlatform.equals(AMD64_SUBDIR)) {
+                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + AMD64_SUBDIR;
                     dockerfileOptions.setTargetAMDPlatform(true);
-                } else if (jdkPlatform.equals(ARM64)) {
-                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + ARM64;
+                } else if (jdkPlatform.equals(ARM64_SUBDIR)) {
+                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + ARM64_SUBDIR;
                     dockerfileOptions.setTargetARMPlatform(true);
                 }
                 //CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion, jdkPlatform);

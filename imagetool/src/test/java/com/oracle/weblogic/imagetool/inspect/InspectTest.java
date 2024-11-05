@@ -4,11 +4,12 @@
 package com.oracle.weblogic.imagetool.inspect;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Tag;
@@ -19,6 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Tag("unit")
 class InspectTest {
+    @Test
+    void testPatchStringParser() {
+        assertEquals(0, InventoryPatch.parseInventoryPatches("").size());
+        assertEquals(1, InventoryPatch.parseInventoryPatches("30319071;23384603;\"One-off\";").size());
+        assertEquals(3, InventoryPatch.parseInventoryPatches(
+            "30319071;23384603;\"One-off\";26355633;21447583;\"One-off\";26287183;21447582;\"One-off\";").size());
+        // same as previous but with last semicolon removed, parser should return same number of patches.
+        assertEquals(3, InventoryPatch.parseInventoryPatches(
+            "30319071;23384603;\"One-off\";26355633;21447583;\"One-off\";26287183;21447582;\"One-off\"").size());
+    }
+
     @Test
     void testJsonOutput() throws IOException {
         testPropertiesToJson("src/test/resources/inspect/image1.properties",
@@ -39,7 +51,7 @@ class InspectTest {
 
     void testPropertiesToJson(String propsFile, String jsonFile) throws IOException {
         Properties loaded = new Properties();
-        try (InputStream input = new FileInputStream(propsFile)) {
+        try (InputStream input = Files.newInputStream(Paths.get(propsFile))) {
             loaded.load(input);
         }
 

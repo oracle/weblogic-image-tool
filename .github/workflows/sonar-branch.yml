@@ -27,7 +27,7 @@ jobs:
       - name: Sonar Scan
         run: |
           mvn -B sonar:sonar \
-          -Dsonar.branch.name=main \
+          -Dsonar.branch.name=${GITHUB_REF##*/} \
           -Dsonar.projectKey=oracle_weblogic-image-tool
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

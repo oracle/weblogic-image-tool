@@ -20,18 +20,19 @@ import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 
-import static com.oracle.weblogic.imagetool.util.BuildPlatform.AMD64;
-import static com.oracle.weblogic.imagetool.util.BuildPlatform.ARM64;
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_SUBDIR;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_SUBDIR;
 import static com.oracle.weblogic.imagetool.util.Constants.CTX_FMW;
 
 public class MiddlewareInstall {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(MiddlewareInstall.class);
 
-    private List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
-    private FmwInstallerType fmwInstallerType;
+    private final List<MiddlewareInstallPackage> installerFiles = new ArrayList<>();
+    private final FmwInstallerType fmwInstallerType;
 
     /**
      * Get the install metadata for a given middleware install type.
@@ -40,7 +41,6 @@ public class MiddlewareInstall {
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
                              List<String> buildPlatform)
         throws FileNotFoundException {
-
         logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
         UserSettingsFile settingsFile = new UserSettingsFile();
@@ -68,9 +68,6 @@ public class MiddlewareInstall {
     private static String getJarNameFromInstaller(Path installerFile) throws IOException {
         String filename = installerFile.getFileName().toString();
         logger.entering(filename);
-        if (filename == null) {
-            return null;
-        }
 
         if (filename.endsWith(".zip")) {
             logger.finer("locating installer JAR inside installer ZIP");
@@ -103,10 +100,10 @@ public class MiddlewareInstall {
         for (MiddlewareInstallPackage installPackage: installerFiles) {
             String buildContextDestination = buildContextDir;
             // based on the platform copy to sub directory
-            if (installPackage.platform.equals(AMD64)) {
-                buildContextDestination = buildContextDestination + "/" + CTX_FMW + AMD64;
-            } else if (installPackage.platform.equals(ARM64)) {
-                buildContextDestination = buildContextDestination + "/" + CTX_FMW + ARM64;
+            if (installPackage.platform.equals(AMD64_SUBDIR)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_FMW + AMD64_SUBDIR;
+            } else if (installPackage.platform.equals(ARM64_SUBDIR)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_FMW + ARM64_SUBDIR;
             }
             //Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDestination);
             //installPackage.installerFilename = filePath.getFileName().toString();

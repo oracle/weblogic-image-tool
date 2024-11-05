@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -13,7 +13,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -27,32 +27,23 @@ import com.oracle.weblogic.imagetool.util.Utils;
 
 public class FileCacheStore implements CacheStore {
 
-    public static final String CACHEDIR = "WLSIMG_CACHEDIR";
+    public static final String CACHE_DIR_ENV = "WLSIMG_CACHEDIR";
     private static final LoggingFacade logger = LoggingFactory.getLogger(FileCacheStore.class);
 
     private final Properties properties = new Properties();
-    private final String metadataPath;
+    private final File metadataFile;
+    private final String cacheDir;
 
     FileCacheStore() throws CacheStoreException {
         try {
-            String userCacheDir = initCacheDir();
-            metadataPath = userCacheDir + File.separator + Constants.DEFAULT_META_FILE;
-            File metadataFile = new File(metadataPath);
+            cacheDir = initCacheDir();
+            metadataFile = Paths.get(cacheDir, Constants.DEFAULT_META_FILE).toFile();
             if (metadataFile.exists() && metadataFile.isFile()) {
                 loadProperties(metadataFile);
             } else {
                 if (!metadataFile.createNewFile()) {
                     throw new IOException("Failed to create file cache metadata file " + metadataFile.getName());
                 }
-            }
-            if (properties.getProperty(Constants.CACHE_DIR_KEY) == null) {
-                properties.put(Constants.CACHE_DIR_KEY, userCacheDir);
-                persistToDisk();
-            }
-            File cacheDir = new File(properties.getProperty(Constants.CACHE_DIR_KEY));
-            if (!cacheDir.exists() && !cacheDir.mkdirs()) {
-                // the cache directory did not exist, and the mkdirs failed to create it
-                throw new IOException("Failed to create cache directory: " + cacheDir.getName());
             }
         } catch (IOException e) {
             CacheStoreException error =
@@ -64,7 +55,7 @@ public class FileCacheStore implements CacheStore {
 
     @Override
     public String getCacheDir() {
-        return properties.getProperty(Constants.CACHE_DIR_KEY);
+        return cacheDir;
     }
 
     @Override
@@ -92,9 +83,6 @@ public class FileCacheStore implements CacheStore {
     @Override
     public String deleteFromCache(String key) throws CacheStoreException {
         Objects.requireNonNull(key, Utils.getMessage("IMG-0066"));
-        if (Constants.CACHE_DIR_KEY.equalsIgnoreCase(key)) {
-            return properties.getProperty(Constants.CACHE_DIR_KEY, null);
-        }
         String oldValue = (String) properties.remove(key.toLowerCase());
         if (oldValue != null) {
             persistToDisk();
@@ -104,12 +92,7 @@ public class FileCacheStore implements CacheStore {
 
     @Override
     public void clearCache() throws CacheStoreException {
-        // remove all cache entries except the cache directory
-        for (Object key: new HashSet<>(properties.keySet())) {
-            if (!key.equals(Constants.CACHE_DIR_KEY)) {
-                properties.remove(key);
-            }
-        }
+        properties.clear();
         persistToDisk();
     }
 
@@ -121,10 +104,24 @@ public class FileCacheStore implements CacheStore {
             e -> String.valueOf(e.getValue())));
     }
 
+    /**
+     * Find the cache keys for entries that match the provided type.
+     * Cache keys are of the form type_version_architecture.
+     * @param type The patch type like "wls" or for bugs "12355678"
+     * @return a list of cache keys that start with the provided string
+     */
+    @Override
+    public List<String> getKeysForType(String type) {
+        return properties.keySet().stream()
+            .map(Object::toString)
+            .filter(k -> k.startsWith(type))
+            .collect(Collectors.toList());
+    }
+
     private void persistToDisk() throws CacheStoreException {
         logger.entering();
         synchronized (properties) {
-            try (FileOutputStream outputStream = new FileOutputStream(metadataPath)) {
+            try (FileOutputStream outputStream = new FileOutputStream(metadataFile)) {
                 properties.store(outputStream, "changed on:" + LocalDateTime.now());
             } catch (IOException e) {
                 CacheStoreException error = new CacheStoreException("Could not persist cache file", e);
@@ -143,8 +140,6 @@ public class FileCacheStore implements CacheStore {
             } else {
                 Properties tmpProperties = new Properties();
                 tmpProperties.load(bufferedReader);
-                // Do not let cache.dir to be modified outside setCacheDir
-                tmpProperties.remove(Constants.CACHE_DIR_KEY);
                 tmpProperties.forEach((key, value) -> properties.put(((String) key).toLowerCase(), value));
             }
         } catch (IOException e) {
@@ -154,30 +149,32 @@ public class FileCacheStore implements CacheStore {
         logger.exiting();
     }
 
+    private static String defaultCacheDir() {
+        return System.getProperty("user.home") + File.separator + "cache";
+    }
+
+    String getCacheDirSetting() {
+        return Utils.getEnvironmentProperty(CACHE_DIR_ENV, FileCacheStore::defaultCacheDir);
+    }
+
     /**
      * Initialize the cache store directory.
      *
      * @return cache directory
      */
-    private static String initCacheDir() throws IOException {
-        String cacheDirStr = System.getenv(CACHEDIR);
-        if (cacheDirStr == null) {
-            cacheDirStr = System.getProperty(CACHEDIR);
-        }
-        if (cacheDirStr == null) {
-            cacheDirStr = System.getProperty("user.home") + File.separator + "cache";
-        }
-        Path cacheDir = Paths.get(cacheDirStr);
+    private String initCacheDir() throws IOException {
+        String cacheDirStr = getCacheDirSetting();
+        Path cacheDirectory = Paths.get(cacheDirStr);
 
-        boolean pathExists = Files.exists(cacheDir, LinkOption.NOFOLLOW_LINKS);
+        boolean pathExists = Files.exists(cacheDirectory, LinkOption.NOFOLLOW_LINKS);
 
         if (!pathExists) {
-            Files.createDirectory(cacheDir);
+            Files.createDirectory(cacheDirectory);
         } else {
-            if (!Files.isDirectory(cacheDir)) {
+            if (!Files.isDirectory(cacheDirectory)) {
                 throw new IOException("Cache Directory specified is not a directory " + cacheDirStr);
             }
-            if (!Files.isWritable(cacheDir)) {
+            if (!Files.isWritable(cacheDirectory)) {
                 throw new IOException("Cache Directory specified is not writable " + cacheDirStr);
             }
         }

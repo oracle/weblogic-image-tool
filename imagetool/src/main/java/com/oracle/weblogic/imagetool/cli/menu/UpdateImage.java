@@ -120,9 +120,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
                 if (userId == null) {
                     logger.info("IMG-0009");
                 } else {
-                    if (!Utils.validatePatchIds(patches, false)) {
-                        return CommandResponse.error("Patch ID validation failed");
-                    }
+                    Utils.validatePatchIds(patches, true);
 
                     String oraclePatches = baseImageProperties.getProperty("oraclePatches", null);
                     if (oraclePatches != null) {

@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Create WLS domain (or model)
@@ -61,18 +61,18 @@ RUN test -d {{{wdt_home}}}/weblogic-deploy && rm -rf {{{wdt_home}}}/weblogic-dep
         -run_rcu \
     {{/runRcu}}
     {{{wdtVariableFileArgument}}} {{{wdtModelFileArgument}}} {{{wdtArchiveFileArgument}}}
-    {{#domainGroupAsUser}}
+    {{#useOwnerPermsForGroup}}
         RUN chmod -R g=u {{{domain_home}}}
-    {{/domainGroupAsUser}}
+    {{/useOwnerPermsForGroup}}
 {{/modelOnly}}
 {{#isWdtValidateEnabled}}
     RUN cd {{{wdt_home}}}/weblogic-deploy/bin \
     && rm ./*.cmd \
-    {{#domainGroupAsUser}}
+    {{#useOwnerPermsForGroup}}
         && chmod -R g=u {{{wdt_home}}}/weblogic-deploy/lib \
         && mkdir {{{wdt_home}}}/weblogic-deploy/logs \
         && chmod g=u {{{wdt_home}}}/weblogic-deploy/logs \
-    {{/domainGroupAsUser}}
+    {{/useOwnerPermsForGroup}}
     && ./validateModel.sh {{^strictValidation}}-method lax{{/strictValidation}} \
     -oracle_home {{{oracle_home}}} \
     -domain_type {{domainType}} \

@@ -24,8 +24,8 @@ public enum FmwInstallerType {
     // data from https://updates.oracle.com/Orion/Services/metadata?table=aru_products
 
     // Oracle WebLogic Server
-    WLS(Utils.toSet(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.FIT, AruProduct.JDBC),
-        InstallerType.WLS),
+    WLS(Utils.toSet(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.FIT, AruProduct.JDBC,
+        AruProduct.OSS), InstallerType.WLS), // Added OSS for a special patching issue for 12.2.1.4 JDBC fix
     WLSSLIM(Utils.toSet(WLS.products),
         InstallerType.WLSSLIM),
     WLSDEV(Utils.toSet(WLS.products),
@@ -80,9 +80,6 @@ public enum FmwInstallerType {
     WCS(Utils.toSet(FMW.products, AruProduct.WCS),
         InstallerType.FMW, InstallerType.WCS),
     OHS(Utils.toSet(AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC, AruProduct.FMWPLAT,
-        AruProduct.OSS, AruProduct.FIT),
-        InstallerType.OHS),
-    OHS_DB19(Utils.toSet(AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC, AruProduct.FMWPLAT,
         AruProduct.OSS, AruProduct.FIT),
         InstallerType.OHS, InstallerType.DB19),
     ODI(Collections.singleton(AruProduct.ODI),

@@ -65,7 +65,7 @@ public class PatchFile {
             List<PatchMetaData> patches;
             if (allPatches.containsKey(aruPatch.patchId())) {
                 patches = allPatches.get(aruPatch.patchId());
-                patches.add(new PatchMetaData(aruPatch.platform(),
+                patches.add(new PatchMetaData(aruPatch.platformName(),
                     filename,
                     aruPatch.sha256Hash(),
                     getTodayDate(),
@@ -74,7 +74,7 @@ public class PatchFile {
                 allPatches.put(aruPatch.patchId(),patches);
             } else {
                 patches = new ArrayList<>();
-                patches.add(new PatchMetaData(aruPatch.platform(),
+                patches.add(new PatchMetaData(aruPatch.platformName(),
                     filename,
                     aruPatch.sha256Hash(),
                     getTodayDate(),
@@ -101,7 +101,7 @@ public class PatchFile {
         String filePath = null;
         boolean fileExists = false;
         UserSettingsFile userSettingsFile = new UserSettingsFile();
-        PatchMetaData patchSettings = userSettingsFile.getPatchForPlatform(aruPatch.platform(), aruPatch.patchId());
+        PatchMetaData patchSettings = userSettingsFile.getPatchForPlatform(aruPatch.platformName(), aruPatch.patchId());
         if (patchSettings != null) {
             filePath = patchSettings.getLocation();
             fileExists = isFileOnDisk(filePath);

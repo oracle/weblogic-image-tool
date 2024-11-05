@@ -46,7 +46,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--strictPatchOrdering` |  Instruct OPatch to apply patches one at a time (uses `apply` instead of `napply`). |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift`. See [Additional information](#--target). | `Default`  |
 | `--targetImage` | Container image to extend for the domain's new image. |   |
-| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `OHS`, `OHS_DB19`, `OSB`, `OUD_WLS`, `SOA_OSB`, `SOA_OSB_B2B`, `MFT`, `WCP`, `OAM`, `OIG`, `OUD`, `OID`, `ODI`, `SOA`, `WCC`, `WCS`, `WCP`  | `WLS`  |
+| `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `MFT`, `OAM`, `ODI`, `OHS`, `OIG`, `OUD`, `OUD_WLS`, `OID`, `OSB`, `SOA`, `SOA_OSB`, `SOA_OSB_B2B`, `WCC`, `WCP`, `WCS`  | `WLS`  |
 | `--user` | Your Oracle support email ID. When supplying `user`, you must supply the password either as an environment variable using `--passwordEnv`, or as a file using `--passwordFile`, or interactively, on the command line with `--password`. |   |
 | `--version` | Installer version. | `12.2.1.3.0`  |
 
