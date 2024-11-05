@@ -285,6 +285,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                         effectivePsuVersion = psuVersionOfSelected;
                     }
                     result.add(selectedVersion);
+                } else {
+                    logger.warning("IMG-0123", patchId, buildPlatform);
                 }
 
             }

@@ -12,7 +12,8 @@ import picocli.CommandLine.Command;
     versionProvider = HelpVersionProvider.class,
     commandListHeading = "%nCommands:%n%n",
     subcommands = {
-        ListCacheItems.class,
+        ListPatches.class,
+        ListInstallers.class,
         AddInstallerEntry.class,
         AddPatchEntry.class
     },

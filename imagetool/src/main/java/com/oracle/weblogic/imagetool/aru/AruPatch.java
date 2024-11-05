@@ -290,7 +290,6 @@ public class AruPatch {
         } else if (patchMap.containsKey(installerVersion)) {
             selected = patchMap.get(installerVersion);
         }
-
         logger.exiting(selected);
         if (selected == null) {
             throw logger.throwing(new PatchVersionException(patches.get(0).patchId(), patches));
