@@ -15,7 +15,9 @@ import picocli.CommandLine.Command;
         ListPatches.class,
         ListInstallers.class,
         AddInstallerEntry.class,
-        AddPatchEntry.class
+        AddPatchEntry.class,
+        DeleteInstaller.class,
+        DeletePatch.class
     },
     sortOptions = false
 )
