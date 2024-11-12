@@ -45,6 +45,12 @@ public class OPatchFile extends PatchFile {
         if (patchId == null) {
             // if the user did not provide a patch number, assume the default OPatch bug number
             patchNumber = DEFAULT_BUG_NUM;
+        } else if (patchId.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
+            // if the user provides a specific version, use that version or fail.  like 28186730_13.9.4.2.4
+            int separator = patchId.indexOf(CacheStore.CACHE_KEY_SEPARATOR);
+            patchNumber = patchId.substring(0, separator);
+            providedVersion = patchId.substring(separator + 1);
+            logger.fine("User provided OPatch version {0} {1}", patchNumber, providedVersion);
         }
 
         AruPatch selectedPatch;

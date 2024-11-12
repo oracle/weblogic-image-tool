@@ -109,6 +109,10 @@ public class CachedFile {
             metaData = ConfigManager.getInstance()
                 .getInstallerForPlatform(installerType, Architecture.getLocalArchitecture(), getVersion());
         }
+        if (metaData == null) {
+            metaData = ConfigManager.getInstance()
+                .getInstallerForPlatform(installerType, Architecture.GENERIC, getVersion());
+        }
 
         if (metaData != null) {
             filePath = metaData.getLocation();

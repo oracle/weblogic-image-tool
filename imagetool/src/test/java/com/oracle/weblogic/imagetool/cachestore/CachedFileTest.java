@@ -85,13 +85,6 @@ class CachedFileTest {
         configManager.addInstaller(InstallerType.WLS, "14.1.1.0.0", installer3);
         configManager.addInstaller(InstallerType.WLS, "14.1.1.0.0", installer4);
 
-        //CachedFileTest.cacheDir = cacheDir;
-        //cacheStore  = new CacheStoreTestImpl(cacheDir);
-        //// build a fake cache with several installers
-        //cacheStore.addToCache("wls_" + VER_12213, path12213.toString());
-        //cacheStore.addToCache("wls_12.2.1.4.0_" + Architecture.getLocalArchitecture(), path12214.toString());
-        //cacheStore.addToCache("wls_14.1.1.0.0_amd64", path1411.toString());
-        //cacheStore.addToCache("wls_14.1.1.0.0_linux/arm64", path1411.toString());
         addPatchesToLocal(tempDir, configManager, patchFile, DEFAULT_BUG_NUM,
             "Generic", "patch1.zip", "13.9.2.0.0");
         addPatchesToLocal(tempDir, configManager, patchFile, DEFAULT_BUG_NUM,
@@ -162,14 +155,17 @@ class CachedFileTest {
     @Test
     void resolveNoArchFile() throws IOException {
         // Look for a cache entry where the user specified the architecture/platform amd64
-        CachedFile wlsNoArch = new CachedFile(InstallerType.WLS, VER_12213, Architecture.fromString("amd64"));
+        CachedFile wlsNoArch = new CachedFile(InstallerType.WLS, VER_12213, Architecture.getLocalArchitecture());
         InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.WLS,
             Architecture.AMD64, VER_12213);
 
         // verify the cache is setup as expected.
         // wls_12.2.1.3.0 is in the cache, but wls_12.2.1.3.0_amd64 is NOT in the cache
         assertNull(metaData);
-
+        metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.WLS,
+            Architecture.GENERIC, VER_12213);
+        String expected = metaData.getLocation();
+        assertEquals(expected, wlsNoArch.resolve(), "CachedFile returned wrong file");
     }
 
     @Test

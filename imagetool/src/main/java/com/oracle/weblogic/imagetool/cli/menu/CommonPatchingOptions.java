@@ -158,10 +158,6 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         ConfigManager configManager = ConfigManager.getInstance();
         for (AruPatch patch : aruPatches) {
             String platform = patch.platformName();
-            // TODO
-            if (platform == null) {
-                platform = "generic";
-            }
             PatchMetaData metaData = configManager.getPatchForPlatform(platform, patch.patchId(), patch.version());
 
             if (metaData == null) {
@@ -453,4 +449,5 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
     )
     private FmwInstallerType installerType = FmwInstallerType.WLS;
+
 }

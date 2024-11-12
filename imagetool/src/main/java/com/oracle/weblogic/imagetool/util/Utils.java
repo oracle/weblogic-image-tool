@@ -609,6 +609,15 @@ public class Utils {
      */
     public static void validatePatchIds(@NotNull List<String> patches,
                                         boolean allowSimpleId) throws InvalidPatchIdFormatException {
+        if (allowSimpleId) {
+            validatePatchIds(patches,
+                Pattern.compile("^(\\d{8,9})(?:_\\d\\d(?:\\.\\d){3,8}\\.(\\d+)(_.*)?)?"),
+                "12345678[_12.2.1.3.0[_arm64]]");
+        } else {
+            validatePatchIds(patches,
+                Pattern.compile("^(\\d{8,9})_\\d\\d(?:\\.\\d){3,8}\\.(\\d+)(_.*)?"),
+                "12345678_12.2.1.3.0[_arm64]");
+        }
     }
 
     /**
