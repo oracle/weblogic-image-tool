@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -128,11 +127,10 @@ public class CachedFile {
 
     /**
      * Copy file from cacheStore to Docker build context directory.
-     * @param cacheStore cache to copy file from
      * @param buildContextDir directory to copy file to
      * @return the path of the file copied to the Docker build context directory
      */
-    public Path copyFile(CacheStore cacheStore, String buildContextDir) throws IOException {
+    public Path copyFile(String buildContextDir) throws IOException {
         logger.entering(installerType, version, architecture, buildContextDir);
         Path result;
         String sourceFile = resolve();

@@ -204,7 +204,7 @@ class CachedFileTest {
     void copyFile(@TempDir Path contextDir) throws Exception {
         CachedFile wlsInstallerFile = new CachedFile(InstallerType.WLS, VER_12213);
         // copy the file from the cache store to the fake build context directory
-        Path result = wlsInstallerFile.copyFile(cacheStore, contextDir.toString());
+        Path result = wlsInstallerFile.copyFile(contextDir.toString());
         // check to see if the file was copied correctly by examining the contents of the resulting file
         assertLinesMatch(fileContents, Files.readAllLines(result),
             "copied file contents do not match source");

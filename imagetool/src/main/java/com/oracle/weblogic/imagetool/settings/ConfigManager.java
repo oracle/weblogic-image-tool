@@ -51,9 +51,8 @@ public class ConfigManager {
      * @return ConfigManager instance
      */
     public static synchronized ConfigManager getInstance(Path fileName) {
-        if (instance == null) {
-            instance = new ConfigManager(fileName);
-        }
+        // Always reload with file provided
+        instance = new ConfigManager(fileName);
         return instance;
     }
 

@@ -45,7 +45,7 @@ class AddPatchEntryTest {
     void testInvalidFileParameter() {
         CommandLine cmd = getCommand();
         // invalid file (file does not exist), should generate an error response
-        cmd.execute("--patchId=12345678_12.2.1.3.0", "--path=/here/there");
+        cmd.execute("--patchId=12345678_12.2.1.3.0", "--path=/here/there", "--version=12.2.1.3.0");
         CommandResponse result = cmd.getExecutionResult();
         assertNotNull(result, "Response missing from call to addPatch");
         assertEquals(1, result.getStatus());
@@ -55,7 +55,7 @@ class AddPatchEntryTest {
     void testInvalidPatchId() {
         CommandLine cmd = getCommand();
         // invalid patch ID should generate an error response
-        cmd.execute("--patchId=12345678", "--path=pom.xml");
+        cmd.execute("--patchId=12345678", "--path=pom.xml", "--version=12.2.1.3.0");
         CommandResponse result = cmd.getExecutionResult();
         assertNotNull(result, "Response missing from call to addPatch");
         assertEquals(1, result.getStatus());

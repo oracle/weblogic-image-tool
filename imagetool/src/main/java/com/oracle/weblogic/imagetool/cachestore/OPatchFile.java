@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -62,7 +63,14 @@ public class OPatchFile extends PatchFile {
             } catch (VersionNotFoundException notFound) {
                 // Could not find the user requested OPatch version on ARU, checking local cache before giving up
                 Map<String, List<PatchMetaData>> patchSettings = ConfigManager.getInstance().getAllPatches();
-                if (patchSettings.containsKey(patchId)) {
+                final String searchVersion = providedVersion;
+                Optional<String> p = patchSettings.entrySet().stream()
+                    .filter(e -> e.getValue().stream()
+                        .anyMatch(m -> m.getPatchVersion().equalsIgnoreCase(searchVersion)))
+                    .map(Map.Entry::getKey)
+                    .findFirst();
+
+                if (p.isPresent()) {
                     logger.info("OPatch version {0} is not available online, using cached copy.", providedVersion);
                     selectedPatch = new AruPatch().patchId(patchNumber).version(providedVersion);
                 } else {

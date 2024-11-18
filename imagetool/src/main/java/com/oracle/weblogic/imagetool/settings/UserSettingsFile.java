@@ -79,10 +79,6 @@ public class UserSettingsFile {
 
     private String defaultBuildPlatform = null;
 
-    public String getPatchDetailsFile() {
-        return patchDetailsFile;
-    }
-
     /**
      * DLoads the settings.yaml file from ~/.imagetool/settings.yaml and applies the values found.
      */
@@ -234,6 +230,14 @@ public class UserSettingsFile {
      */
     public void setAruRetryInterval(Integer value) {
         aruRetryInterval = value;
+    }
+
+    public String getPatchDetailsFile() {
+        return patchDetailsFile;
+    }
+
+    public void setPatchDetailsFile(String value) {
+        patchDetailsFile = value;
     }
 
     /**
@@ -636,8 +640,16 @@ public class UserSettingsFile {
         return installerDetailsFile;
     }
 
+    public String setInstallerDetailsFile(String value) {
+        return installerDetailsFile = value;
+    }
+
     public String getDefaultBuildPlatform() {
         return defaultBuildPlatform;
+    }
+
+    public String setDefaultBuildPlatform(String value) {
+        return defaultBuildPlatform = value;
     }
 
     @Override

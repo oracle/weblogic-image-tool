@@ -73,6 +73,39 @@ public enum ConfigAttributeName {
             return settings.getAruRetryMax().toString();
         }
     },
+    defaultBuildPlatform("DefaultBuildPlatform") {
+        @Override
+        public void set(UserSettingsFile settings, String value) {
+            settings.setDefaultBuildPlatform(value);
+        }
+
+        @Override
+        public String get(UserSettingsFile settings) {
+            return settings.getDefaultBuildPlatform();
+        }
+    },
+    installerSettingsFile("InstallerSettingsFile") {
+        @Override
+        public void set(UserSettingsFile settings, String value) {
+            settings.setInstallerDetailsFile(value);
+        }
+
+        @Override
+        public String get(UserSettingsFile settings) {
+            return settings.getInstallerDetailsFile();
+        }
+    },
+    patchSettingsFile("PatchSettingsFile") {
+        @Override
+        public void set(UserSettingsFile settings, String value) {
+            settings.setPatchDetailsFile(value);
+        }
+
+        @Override
+        public String get(UserSettingsFile settings) {
+            return settings.getPatchDetailsFile();
+        }
+    },
     aruRetryInterval("AruRetryInterval") {
         @Override
         public void set(UserSettingsFile settings, String value) {

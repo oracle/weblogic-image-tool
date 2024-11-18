@@ -16,7 +16,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
@@ -44,6 +43,16 @@ public class MiddlewareInstall {
         logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
         ConfigManager configManager = ConfigManager.getInstance();
+        if (buildPlatform == null) {
+            buildPlatform = new ArrayList<>();
+        }
+        if (buildPlatform.isEmpty()) {
+            if (configManager.getDefaultBuildPlatform() != null) {
+                buildPlatform.add(configManager.getDefaultBuildPlatform());
+            } else {
+                buildPlatform.add(Architecture.getLocalArchitecture().name());
+            }
+        }
         for (InstallerType installerType : type.installerList()) {
             for (String platform : buildPlatform) {
                 MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
@@ -95,11 +104,10 @@ public class MiddlewareInstall {
 
     /**
      * Copy all necessary installers to the build context directory.
-     * @param cacheStore cache where the installers are defined.
      * @param buildContextDir the directory where the installers should be copied.
      * @throws IOException if any of the copy commands fails.
      */
-    public void copyFiles(CacheStore cacheStore, String buildContextDir) throws IOException {
+    public void copyFiles(String buildContextDir) throws IOException {
         logger.entering();
 
         for (MiddlewareInstallPackage installPackage: installerFiles) {

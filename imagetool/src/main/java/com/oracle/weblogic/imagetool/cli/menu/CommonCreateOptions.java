@@ -26,7 +26,6 @@ import com.oracle.weblogic.imagetool.util.Constants;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
 import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
 import static com.oracle.weblogic.imagetool.util.Constants.CTX_JDK;
@@ -76,7 +75,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         if (dockerfileOptions.installMiddleware()) {
             MiddlewareInstall install =
                 new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, buildPlatforms);
-            install.copyFiles(cache(), buildDir());
+            install.copyFiles(buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
         } else {
             dockerfileOptions.setWdtBase("os_update");

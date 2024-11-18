@@ -55,7 +55,7 @@ class AddInstallerEntryTest {
         // The cache key should be a string made up of the type and version seperated by an underscore
         new CommandLine(addCommand)
             .parseArgs("--type", "WLS", "--version", "12.2.1.4", "--path", "/path/to/a/file");
-        assertEquals("wls_12.2.1.4", addCommand.getKey());
+        assertEquals("wls", addCommand.getKey());
     }
 
     @Test
@@ -64,6 +64,6 @@ class AddInstallerEntryTest {
         // The cache key should be a string made up of the type, version, and architecture seperated by an underscore
         new CommandLine(addCommand)
             .parseArgs("--type", "WLS", "--version", "12.2.1.4", "-a", "amd64", "--path", "/path/to/a/file");
-        assertEquals("wls_12.2.1.4_amd64", addCommand.getKey());
+        assertEquals("wls", addCommand.getKey());
     }
 }

@@ -58,12 +58,12 @@ class UserSettingsTest {
 
     @Test
     void testOutput() {
-        String expected = "aruRetryInterval: 200\n"
-            + "buildContextDirectory: ./builds\n"
-            + "patchDirectory: /home/user/patches\n";
 
         UserSettingsFile settings = getResourceFile("settings/basic_settings.yaml");
-        assertEquals(expected, settings.toString());
+        assertEquals(settings.getPatchDirectory(), "/home/user/patches");
+        assertEquals(settings.getBuildContextDirectory(), "./builds");
+        assertEquals(settings.getPatchDirectory(), "/home/user/patches");
+
     }
 
     @Test

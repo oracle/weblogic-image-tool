@@ -1,5 +1,6 @@
 aruRetryInterval: 200
 buildContextDirectory: ./builds
+patchDirectory: /home/user/patches
 installers:
   jdk:
     defaultVersion: 8u241
@@ -7,4 +8,3 @@ installers:
     defaultVersion: 12.2.1.4.0
   wdt:
     defaultVersion: latest
-patchDirectory: /home/user/patches
