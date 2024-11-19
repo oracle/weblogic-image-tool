@@ -40,6 +40,7 @@ public class AruPatch {
     private String access;
     private String platformName = "Generic";
     private String sha256Hash;
+    private String releasedDate;
 
     public String patchId() {
         return patchId;
@@ -164,6 +165,15 @@ public class AruPatch {
         return this;
     }
 
+    public AruPatch releasedDate(String value) {
+        releasedDate = value;
+        return this;
+    }
+
+    public String releasedDate() {
+        return Utils.getReleaseDate(releasedDate);
+    }
+
     public String downloadUrl() {
         return downloadHost + downloadPath;
     }
@@ -225,6 +235,7 @@ public class AruPatch {
                     .platformName(getAruPlatformName(XPathUtil.string(nodeList.item(i), "./platform/@id")))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"))
+                    .releasedDate(XPathUtil.string(nodeList.item(i), "./released_date/text()"))
                     .platform(XPathUtil.string(nodeList.item(i), "./platform/@id"));
 
                 int index = patch.downloadPath().indexOf("patch_file=");

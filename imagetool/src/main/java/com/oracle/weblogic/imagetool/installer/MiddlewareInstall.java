@@ -55,6 +55,7 @@ public class MiddlewareInstall {
         }
         for (InstallerType installerType : type.installerList()) {
             for (String platform : buildPlatform) {
+                platform = Utils.standardPlatform(platform);
                 MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
                 Architecture arch = Architecture.fromString(platform);
                 pkg.type = installerType;

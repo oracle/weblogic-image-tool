@@ -825,4 +825,36 @@ public class Utils {
         return today.format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
+    /**
+     * Get epoch date in yyyy-mm-dd HH:MM:SS format.
+     * @return date format
+     */
+    public static String getReleaseDate(String epoch) {
+        if (epoch == null) {
+            return getTodayDate();
+        } else {
+            String [] dates = epoch.split(" ");
+            if (dates.length == 2) {
+                return dates[0];
+            } else {
+                return getTodayDate();
+            }
+        }
+    }
+
+    /**
+     * Return standard platform name from the possible names.
+     * @param platform input value to convert
+     * @return standardized platform name
+     */
+    public static String standardPlatform(String platform) {
+        if (Architecture.AMD64.getAcceptableNames().contains(platform)) {
+            return "linux/amd64";
+        }
+        if (Architecture.ARM64.getAcceptableNames().contains(platform)) {
+            return "linux/arm64";
+        }
+        return "Generic";
+    }
+
 }

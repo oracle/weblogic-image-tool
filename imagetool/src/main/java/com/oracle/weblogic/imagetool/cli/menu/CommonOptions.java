@@ -347,7 +347,7 @@ public abstract class CommonOptions {
             buildPlatform = new ArrayList<>();
             java.lang.String platform = ConfigManager.getInstance().getDefaultBuildPlatform();
             if (platform == null) {
-                platform = Architecture.getLocalArchitecture().toString();
+                platform = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
             }
             buildPlatform.add(platform);
         }

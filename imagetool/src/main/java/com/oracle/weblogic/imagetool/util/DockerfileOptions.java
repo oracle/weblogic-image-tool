@@ -1064,14 +1064,36 @@ public class DockerfileOptions {
         return mwInstallers.getInstallers();
     }
 
+    /**
+     * List of packaged to be installed for ARM.
+     * @return list of packages
+     */
     public List<MiddlewareInstallPackage> installPackagesForARM() {
-        return mwInstallers.getInstallers().stream().filter(obj -> ARM64_BLD.equals(obj.platform))
+        List<MiddlewareInstallPackage> result = mwInstallers.getInstallers()
+            .stream().filter(obj -> ARM64_BLD.equalsIgnoreCase(obj.platform))
             .collect(Collectors.toList());
+        if (result.isEmpty()) {
+            result = mwInstallers.getInstallers()
+                .stream().filter(obj -> "Generic".equalsIgnoreCase(obj.platform))
+                .collect(Collectors.toList());
+        }
+        return result;
     }
 
+    /**
+     * List of packaged to be installed for AMD.
+     * @return list of packages
+     */
     public List<MiddlewareInstallPackage> installPackagesForAMD() {
-        return mwInstallers.getInstallers().stream().filter(obj -> AMD64_BLD.equals(obj.platform))
+        List<MiddlewareInstallPackage> result = mwInstallers.getInstallers()
+            .stream().filter(obj -> AMD64_BLD.equalsIgnoreCase(obj.platform))
             .collect(Collectors.toList());
+        if (result.isEmpty()) {
+            result = mwInstallers.getInstallers()
+                .stream().filter(obj -> "Generic".equalsIgnoreCase(obj.platform))
+                .collect(Collectors.toList());
+        }
+        return result;
     }
 
     public void setJavaInstaller(List<String> value) {

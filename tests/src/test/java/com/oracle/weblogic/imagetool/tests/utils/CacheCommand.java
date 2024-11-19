@@ -93,11 +93,8 @@ public class CacheCommand extends ImageToolCommand {
     @Override
     public String build() {
         return super.build()
-            + field("listItems", listItems)
             + field("addInstaller", addInstaller)
             + field("addPatch", addPatch)
-            + field("addEntry", addEntry)
-            + field("deleteEntry", deleteEntry)
             + field("--key", key)
             + field("--value", value)
             + field("--version", version)

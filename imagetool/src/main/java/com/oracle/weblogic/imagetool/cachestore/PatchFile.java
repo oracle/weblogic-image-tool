@@ -20,7 +20,6 @@ import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 import static com.oracle.weblogic.imagetool.util.Utils.getSha256Hash;
-import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
 public class PatchFile {
 
@@ -70,7 +69,7 @@ public class PatchFile {
                 patches.add(new PatchMetaData(aruPatch.platformName(),
                     filename,
                     aruPatch.sha256Hash(),
-                    getTodayDate(),
+                    aruPatch.releasedDate(),
                     aruPatch.version()));
                 allPatches.remove(aruPatch.patchId());
                 allPatches.put(aruPatch.patchId(),patches);
@@ -79,7 +78,7 @@ public class PatchFile {
                 patches.add(new PatchMetaData(aruPatch.platformName(),
                     filename,
                     aruPatch.sha256Hash(),
-                    getTodayDate(),
+                    aruPatch.releasedDate(),
                     aruPatch.version()));
                 allPatches.put(aruPatch.patchId(),patches);
             }

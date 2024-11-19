@@ -40,14 +40,19 @@ public abstract class CacheAddOperation extends CacheOperation {
             name = getVersion();
         }
 
-        InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.valueOf(type),
+        InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.fromString(type),
             getArchitecture(), name);
         if (metaData != null) {
             return CommandResponse.success("IMG-0075");
         }
-
-        metaData = new InstallerMetaData(type, filePath.toAbsolutePath().toString(), getVersion());
-        ConfigManager.getInstance().addInstaller(InstallerType.valueOf(type), getCommonName(), metaData);
+        // TODO
+        Architecture arch = getArchitecture();
+        if (arch == null) {
+            arch = Architecture.GENERIC;
+        }
+        metaData = new InstallerMetaData(arch.toString(), filePath.toAbsolutePath().toString(),
+            getVersion());
+        ConfigManager.getInstance().addInstaller(InstallerType.fromString(type), getCommonName(), metaData);
         // if the new value is the same as the existing cache value, do nothing
 
         return CommandResponse.success("IMG-0050", type, metaData.getLocation());

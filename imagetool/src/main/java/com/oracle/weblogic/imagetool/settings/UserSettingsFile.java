@@ -258,7 +258,10 @@ public class UserSettingsFile {
 
     private InstallerMetaData createInstallerMetaData(Map<String, Object> objectData) {
         String hash = (String) objectData.get("digest");
-        String dateAdded = getTodayDate();
+        String dateAdded = (String) objectData.get("added");
+        if (dateAdded == null) {
+            dateAdded = getTodayDate();
+        }
         String location = (String) objectData.get("location");
         String productVersion = (String) objectData.get("version");
         String platform = (String) objectData.get("platform");
@@ -267,7 +270,10 @@ public class UserSettingsFile {
 
     private PatchMetaData createPatchMetaData(Map<String, Object> objectData) {
         String hash = (String) objectData.get("digest");
-        String dateAdded = getTodayDate();
+        String dateAdded = (String) objectData.get("added");
+        if (dateAdded == null) {
+            dateAdded = getTodayDate();
+        }
         String location = (String) objectData.get("location");
         String productVersion = (String) objectData.get("version");
         String platform = (String) objectData.get("platform");
@@ -391,6 +397,7 @@ public class UserSettingsFile {
     public InstallerMetaData getInstallerForPlatform(InstallerType installerType, Architecture platformName,
                                                      String installerVersion) {
 
+        // TODO
         if (platformName == null) {
             platformName = Architecture.GENERIC;
         }
@@ -400,6 +407,12 @@ public class UserSettingsFile {
             if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {
                 for (InstallerMetaData installerMetaData: installerMetaDataList) {
                     if (platformName.getAcceptableNames().contains(installerMetaData.getPlatform())) {
+                        return installerMetaData;
+                    }
+                }
+                // If it can't find the specialized platform, try generic.
+                for (InstallerMetaData installerMetaData: installerMetaDataList) {
+                    if (Architecture.GENERIC.getAcceptableNames().contains(installerMetaData.getPlatform())) {
                         return installerMetaData;
                     }
                 }

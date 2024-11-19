@@ -31,17 +31,6 @@ public class AddInstallerEntry extends CacheAddOperation {
     @Override
     public String getKey() {
         return type.toString();
-        //StringBuilder key = new StringBuilder(25)
-        //    .append(type)
-        //    .append(CacheStore.CACHE_KEY_SEPARATOR)
-        //    .append(version);
-        //
-        //if (architecture != null) {
-        //    key.append(CacheStore.CACHE_KEY_SEPARATOR)
-        //        .append(architecture);
-        //}
-        //
-        //return key.toString();
     }
 
     @Override
@@ -51,6 +40,9 @@ public class AddInstallerEntry extends CacheAddOperation {
 
     @Override
     public String getCommonName() {
+        if (commonName == null) {
+            return version;
+        }
         return commonName;
     }
 

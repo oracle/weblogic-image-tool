@@ -24,7 +24,7 @@ public class InstallerMetaData {
      * @param dateAdded  date added
      */
     public InstallerMetaData(String platform, String location, String digest, String dateAdded, String productVersion) {
-        this.platform = standardPlatform(platform);
+        this.platform = Utils.standardPlatform(platform);
         this.location = location;
         this.digest = digest;
         this.dateAdded = dateAdded;
@@ -38,7 +38,7 @@ public class InstallerMetaData {
      * @param productVersion real version of this installer
      */
     public InstallerMetaData(String platform, String location, String productVersion) {
-        this.platform = standardPlatform(platform);
+        this.platform = Utils.standardPlatform(platform);
         this.location = location;
         this.productVersion = productVersion;
         if (location != null) {

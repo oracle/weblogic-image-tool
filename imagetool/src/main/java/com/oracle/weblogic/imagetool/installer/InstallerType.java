@@ -41,8 +41,23 @@ public enum InstallerType {
         this.value = value;
     }
 
+    /**
+     * Return the enum value from string.
+     * @param value input value
+     * @return InstallerType
+     */
+    public static InstallerType fromString(String value) {
+        for (InstallerType installerType : InstallerType.values()) {
+            if (installerType.toString().equals(value)) {
+                return installerType;
+            }
+        }
+        throw new IllegalArgumentException(value);
+    }
+
     @Override
     public String toString() {
         return value;
     }
+
 }

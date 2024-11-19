@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
+import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 
@@ -28,10 +29,9 @@ public class CacheConversion {
     /**
      * convert cache file to nee format.
      * @param inputFile input cache file
-     * @param outputDir output directory
      * @throws IOException when error
      */
-    public void convert(String inputFile, String outputDir) throws IOException {
+    public void convert(String inputFile) throws IOException {
         Pattern patchPattern = Pattern.compile(PATCH_PATTERN);
         Pattern installerPattern = Pattern.compile(INSTALLER_PATTERN);
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
@@ -40,6 +40,7 @@ public class CacheConversion {
                 if (line.charAt(0) == '#') {
                     continue;
                 }
+                // patches
                 if (Character.isDigit(line.charAt(0))) {
                     Matcher matcher = patchPattern.matcher(line);
                     if (matcher.matches()) {
@@ -47,18 +48,23 @@ public class CacheConversion {
                         String version = matcher.group(2);
                         String arch = matcher.group(3);
                         String filepath = matcher.group(4);
+                        //ConfigManager.getInstance().addPatch(key, arch, filepath, version);
                         // TODO
                     } else {
                         logger.warning("IMG-0128", line);
                     }
                 } else {
+                    // installer
                     Matcher matcher = installerPattern.matcher(line);
                     if (matcher.matches()) {
                         String key = matcher.group(1);
                         String version = matcher.group(2);
                         String arch = matcher.group(3);
                         String filepath = matcher.group(4);
-                        // TODO
+                        InstallerMetaData metaData = new InstallerMetaData(arch, filepath,
+                            Utils.getSha256Hash(filepath), Utils.getTodayDate(), version);
+                        //ConfigManager.getInstance().addInstaller(InstallerType.valueOf(key), version, metaData);
+                        //// TODO
                     } else {
                         logger.warning("IMG-0128", line);
                     }
@@ -70,6 +76,6 @@ public class CacheConversion {
 
     public static void main(String[] args) throws IOException {
         CacheConversion cacheConversion = new CacheConversion();
-        cacheConversion.convert("/Users/JSHUM/dimtemp23/cache/.metadata", "");
+        cacheConversion.convert("/Users/JSHUM/dimtemp23/cache/.metadata");
     }
 }

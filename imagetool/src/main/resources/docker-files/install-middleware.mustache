@@ -39,56 +39,28 @@ USER {{userid}}
 # If installer is packaged in a ZIP, extract it before running it
 # IF the installer is a JAR file (not a .bin), run the silent install using Java
 # If the installer is a BIN, make sure it is executable and run the installer
+#
+# installPackagesForARM - list of packages to install for arm64 platform
+# installPackagesForAMD - list of packages to install for amd64 platform
 
-RUN echo "INSTALLING MIDDLEWARE" \
-{{#targetARMPlatform}}
-    && if [ "$TARGETPLATFORM" == "linux/arm64" ] ; then \
-      {{#installPackagesForARM}}
-       echo "INSTALLING {{type}}" \
-      {{#isZip}}&& unzip -q {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
-      {{#preinstallCommands}}&& {{{tempDir}}}/{{{type}}}/{{{.}}} {{/preinstallCommands}} \
-              {{^isBin}} && if [ ! -f {{{tempDir}}}/{{{type}}}/{{jarName}} ] ; then (cp {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} {{{tempDir}}}/{{{type}}})  fi \
-              && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{{type}}}/{{jarName}} \
-        -silent ORACLE_HOME={{{oracle_home}}} \
-        -responseFile {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{responseFile.name}} \
-        -invPtrLoc {{inv_loc}}/oraInst.loc \
-                -ignoreSysPrereqs -force -novalidation {{/isBin}}  \
-              {{#isBin}}  && if [ ! -f {{{tempDir}}}/{{{type}}}/{{jarName}} ] ; then (cp {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} {{{tempDir}}}/{{{type}}})  fi \
-              && chmod +x {{{tempDir}}}/{{{type}}}/{{jarName}} \
-      && {{{tempDir}}}/{{{type}}}/{{jarName}} \
-        -force -ignoreSysPrereqs -silent \
-        -responseFile {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{responseFile.name}} \
-                -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} -jreLoc {{{java_home}}} {{/isBin}}  \
-            {{/installPackagesForARM}}
+
+RUN if [ "$TARGETPLATFORM" == "linux/arm64" ] ; then \
+        echo "INSTALLING MIDDLEWARE" \
+        {{#installPackagesForARM}}
+          {{> install-middleware-pkg }}
+      {{/installPackagesForARM}}
       && test $? -eq 0 \
       && chmod -R g+r {{{oracle_home}}} \
       || (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1) \
-     fi   {{#targetAMDPlatform}}\{{/targetAMDPlatform}}
-{{/targetARMPlatform}}
-{{#targetAMDPlatform}}
-    && if [ "$TARGETPLATFORM" == "linux/amd64" ] ; then \
-    {{#installPackagesForAMD}}
-        echo "INSTALLING {{type}}" \
-        {{#isZip}}&& unzip -q {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM//{{installerFilename}} -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
-        {{#preinstallCommands}}&& {{{tempDir}}}/{{{type}}}/{{{.}}} {{/preinstallCommands}} \
-        {{^isBin}}&& if [ ! -f {{{tempDir}}}/{{{type}}}/{{jarName}} ] ; then (cp {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} {{{tempDir}}}/{{{type}}})  fi \
-        && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{{type}}}/{{jarName}} \
-        -silent ORACLE_HOME={{{oracle_home}}} \
-        -responseFile {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{responseFile.name}} \
-        -invPtrLoc {{inv_loc}}/oraInst.loc \
-        -ignoreSysPrereqs -force -novalidation {{/isBin}}  \
-        {{#isBin}} && if [ ! -f {{{tempDir}}}/{{{type}}}/{{jarName}} ] ; then (cp {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} {{{tempDir}}}/{{{type}}})  fi \
-        && chmod +x {{{tempDir}}}/{{{type}}}/{{jarName}} \
-        && {{{tempDir}}}/{{{type}}}/{{jarName}} \
-        -force -ignoreSysPrereqs -silent \
-        -responseFile {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{responseFile.name}} \
-        -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} -jreLoc {{{java_home}}} {{/isBin}}  \
-    {{/installPackagesForAMD}}
+     fi  && if [ "$TARGETPLATFORM" == "linux/amd64" ] ; then \
+        echo "INSTALLING MIDDLEWARE" \
+        {{#installPackagesForAMD}}
+          {{> install-middleware-pkg }}
+        {{/installPackagesForAMD}}
     && test $? -eq 0 \
     && chmod -R g+r {{{oracle_home}}} \
     || (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1) \
      fi
-{{/targetAMDPlatform}}
 
 {{#useOwnerPermsForGroup}}
   # OPatch needs write permissions to the logs folder and lock file when running in OpenShift

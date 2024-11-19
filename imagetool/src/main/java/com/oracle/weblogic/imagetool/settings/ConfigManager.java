@@ -144,7 +144,10 @@ public class ConfigManager {
 
     private InstallerMetaData createInstallerMetaData(Map<String, Object> objectData) {
         String hash = (String) objectData.get("digest");
-        String dateAdded = getTodayDate();
+        String dateAdded = (String) objectData.get("added");
+        if (dateAdded == null) {
+            dateAdded = getTodayDate();
+        }
         String location = (String) objectData.get("location");
         String productVersion = (String) objectData.get("version");
         String platform = (String) objectData.get("platform");
@@ -153,7 +156,10 @@ public class ConfigManager {
 
     private PatchMetaData createPatchMetaData(Map<String, Object> objectData) {
         String hash = (String) objectData.get("digest");
-        String dateAdded = getTodayDate();
+        String dateAdded = (String) objectData.get("added");
+        if (dateAdded == null) {
+            dateAdded = getTodayDate();
+        }
         String location = (String) objectData.get("location");
         String productVersion = (String) objectData.get("version");
         String platform = (String) objectData.get("platform");
