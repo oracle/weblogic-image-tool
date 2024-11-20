@@ -65,8 +65,8 @@ public class ConfigManager {
     }
 
     public void addPatch(String bugNumber, String patchArchitecture, String patchLocation,
-                                          String patchVersion) throws IOException {
-        userSettingsFile.addPatch(bugNumber, patchArchitecture, patchLocation, patchVersion);
+                                          String patchVersion, String description) throws IOException {
+        userSettingsFile.addPatch(bugNumber, patchArchitecture, patchLocation, patchVersion, description);
     }
 
     public PatchMetaData getPatchForPlatform(String platformName,  String bugNumber, String version) {
@@ -163,7 +163,8 @@ public class ConfigManager {
         String location = (String) objectData.get("location");
         String productVersion = (String) objectData.get("version");
         String platform = (String) objectData.get("platform");
-        return new PatchMetaData(platform, location, hash, dateAdded, productVersion);
+        String description = (String) objectData.get("description");
+        return new PatchMetaData(platform, location, hash, dateAdded, productVersion, description);
     }
 
 

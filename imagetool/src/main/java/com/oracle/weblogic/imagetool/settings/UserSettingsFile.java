@@ -21,6 +21,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.util.Architecture;
+import com.oracle.weblogic.imagetool.util.Utils;
 
 import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatformId;
 import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
@@ -277,7 +278,8 @@ public class UserSettingsFile {
         String location = (String) objectData.get("location");
         String productVersion = (String) objectData.get("version");
         String platform = (String) objectData.get("platform");
-        return new PatchMetaData(platform, location, hash, dateAdded, productVersion);
+        String description = (String) objectData.get("description");
+        return new PatchMetaData(platform, location, hash, dateAdded, productVersion, description);
     }
 
     /**
@@ -410,12 +412,14 @@ public class UserSettingsFile {
                         return installerMetaData;
                     }
                 }
-                //If it can't find the specialized platform, try generic.
-                //for (InstallerMetaData installerMetaData: installerMetaDataList) {
-                //    if (Architecture.GENERIC.getAcceptableNames().contains(installerMetaData.getPlatform())) {
-                //        return installerMetaData;
-                //    }
-                //}
+                if (Utils.isGenericInstallerAcceptable(installerType)) {
+                    //If it can't find the specialized platform, try generic.
+                    for (InstallerMetaData installerMetaData: installerMetaDataList) {
+                        if (Architecture.GENERIC.getAcceptableNames().contains(installerMetaData.getPlatform())) {
+                            return installerMetaData;
+                        }
+                    }
+                }
             }
         }
         return null;
@@ -431,12 +435,15 @@ public class UserSettingsFile {
      * @throws IOException error
      */
     public void addPatch(String bugNumber, String patchArchitecture, String patchLocation,
-                           String patchVersion) throws IOException {
+                           String patchVersion, String description) throws IOException {
         ConfigManager configManager = ConfigManager.getInstance();
         Map<String, List<PatchMetaData>> patches = configManager.getAllPatches();
         List<PatchMetaData> latestPatches = patches.get(bugNumber);
-        PatchMetaData latestPatch = new PatchMetaData(patchArchitecture, patchLocation, patchVersion);
-        latestPatches.add(latestPatch);
+        if (latestPatches == null) {
+            latestPatches = new ArrayList<>();
+        }
+        PatchMetaData newPatch = new PatchMetaData(patchArchitecture, patchLocation, patchVersion, description);
+        latestPatches.add(newPatch);
         patches.put(bugNumber, latestPatches);
         configManager.saveAllPatches(patches, configManager.getPatchDetailsFile());
     }
@@ -556,6 +563,9 @@ public class UserSettingsFile {
                         map.put("digest", patchMetaData.getHash());
                         map.put("added", patchMetaData.getDateAdded());
                         map.put("platform", patchMetaData.getPlatform());
+                        if (patchMetaData.getDescription() != null) {
+                            map.put("description", patchMetaData.getDescription());
+                        }
                         list.add(map);
                     }
                 } else {
@@ -566,6 +576,9 @@ public class UserSettingsFile {
                     map.put("digest", patchMetaData.getHash());
                     map.put("added", patchMetaData.getDateAdded());
                     map.put("platform", patchMetaData.getPlatform());
+                    if (patchMetaData.getDescription() != null) {
+                        map.put("description", patchMetaData.getDescription());
+                    }
                     list.add(map);
                 }
                 patchList.put(key, list);

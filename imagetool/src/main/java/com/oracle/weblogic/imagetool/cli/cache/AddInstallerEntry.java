@@ -51,6 +51,11 @@ public class AddInstallerEntry extends CacheAddOperation {
         return architecture;
     }
 
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
     @Option(
             names = {"-t", "--type"},
             description = "Type of installer. Valid values: ${COMPLETION-CANDIDATES}",
@@ -68,13 +73,15 @@ public class AddInstallerEntry extends CacheAddOperation {
 
     @Option(
         names = {"-a", "--architecture"},
-        description = "(Optional) Installer architecture. Valid values: ${COMPLETION-CANDIDATES}"
+        required = true,
+        description = "Installer architecture. Valid values: ${COMPLETION-CANDIDATES}"
     )
     private Architecture architecture;
 
     @Option(
-        names = {"-cn", "--commonName"},
-        description = "(Optional) common name. Valid values:  Alphanumeric values with no special characters"
+        names = {"-c", "--commonName"},
+        description = "(Optional) common name. Valid values:  Alphanumeric values with no special characters. "
+            + "If not specified, default to the version value."
     )
     private String commonName;
 

@@ -38,10 +38,15 @@ public class AddPatchEntry extends CacheAddOperation {
     }
 
     @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
     public CommandResponse call() throws Exception {
         try {
             if (patchId != null && !patchId.isEmpty()) {
-                Utils.validatePatchIds(Collections.singletonList(patchId), false);
+                Utils.validatePatchIds(Collections.singletonList(patchId), true);
                 return addPatchToCache();
             } else {
                 return CommandResponse.error("IMG-0076", "--patchId");
@@ -67,8 +72,14 @@ public class AddPatchEntry extends CacheAddOperation {
 
     @Option(
         names = {"-a", "--architecture"},
-        description = "(Optional) Installer architecture. Valid values: ${COMPLETION-CANDIDATES}"
+        required = true,
+        description = "Patch architecture. Valid values: arm64, amd64, Generic"
     )
     private Architecture architecture;
 
+    @Option(
+        names = {"-d", "--description"},
+        description = "Patch description."
+    )
+    private String description;
 }

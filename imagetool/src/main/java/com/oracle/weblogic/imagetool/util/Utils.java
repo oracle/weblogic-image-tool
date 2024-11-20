@@ -45,6 +45,7 @@ import java.util.stream.Stream;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.jetbrains.annotations.NonNls;
@@ -857,4 +858,16 @@ public class Utils {
         return "Generic";
     }
 
+    /**
+     * Return true if it is ok to return the generic installer if the specific architecture is not available.
+     * @param type installer type
+     * @return true if it is ok return the generic installer if the specific architecture is not available
+     */
+    public static boolean isGenericInstallerAcceptable(InstallerType type) {
+        List<InstallerType> types = Arrays.asList(InstallerType.WDT);
+        if (types.contains(type)) {
+            return true;
+        }
+        return false;
+    }
 }

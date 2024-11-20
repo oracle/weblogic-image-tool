@@ -11,6 +11,7 @@ public class PatchMetaData {
     private String hash;
     private String dateAdded;
     private String patchVersion;
+    private String description;
 
     /**
      * Constructor.
@@ -20,12 +21,14 @@ public class PatchMetaData {
      * @param dateAdded date added
      * @param patchVersion version
      */
-    public PatchMetaData(String platform, String location, String hash, String dateAdded, String patchVersion) {
+    public PatchMetaData(String platform, String location, String hash, String dateAdded, String patchVersion,
+                         String description) {
         this.platform = platform;
         this.location = location;
         this.hash = hash;
         this.dateAdded = dateAdded;
         this.patchVersion = patchVersion;
+        this.description = description;
     }
 
     /**
@@ -34,12 +37,13 @@ public class PatchMetaData {
      * @param location file path of the patch
      * @param patchVersion version
      */
-    public PatchMetaData(String platform, String location, String patchVersion) {
+    public PatchMetaData(String platform, String location, String patchVersion, String description) {
         this.platform = platform;
         this.location = location;
         this.hash = Utils.getSha256Hash(location);
         this.dateAdded = Utils.getTodayDate();
         this.patchVersion = patchVersion;
+        this.description = description;
     }
 
     public String getPlatform() {
@@ -62,6 +66,10 @@ public class PatchMetaData {
         return patchVersion;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     @Override
     public String toString() {
         return "PatchMetaData{"
@@ -70,6 +78,7 @@ public class PatchMetaData {
             + ", hash='" + hash + '\''
             + ", dateAdded='" + dateAdded + '\''
             + ", patchVersion='" + patchVersion + '\''
+            + ", description='" + description + '\''
             + '}';
     }
 }

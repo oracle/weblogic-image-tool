@@ -569,7 +569,8 @@ class ITImagetool {
             // the process return code for listItems should be 0
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
             // output should show newly added WLS installer
-            assertTrue(listResult.stdout().contains("fmw_" + WLS_VERSION + "="));
+            assertTrue(listResult.stdout().contains("type: fmw"));
+            assertTrue(listResult.stdout().contains("version: " + WLS_VERSION));
         }
     }
 

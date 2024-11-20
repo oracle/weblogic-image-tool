@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
@@ -16,7 +17,6 @@ import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.Architecture;
 import picocli.CommandLine.Option;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 public abstract class CacheAddOperation extends CacheOperation {
 
@@ -27,6 +27,8 @@ public abstract class CacheAddOperation extends CacheOperation {
     public abstract String getCommonName();
 
     public abstract Architecture getArchitecture();
+
+    public abstract String getDescription();
 
     CommandResponse addInstallerToCache() throws IOException, CacheStoreException {
         if (filePath == null || !Files.isRegularFile(filePath)) {
@@ -40,25 +42,21 @@ public abstract class CacheAddOperation extends CacheOperation {
             name = getVersion();
         }
 
+        Architecture arch = getArchitecture();
         InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.fromString(type),
-            getArchitecture(), name);
+            arch, name);
         if (metaData != null) {
             return CommandResponse.success("IMG-0075");
-        }
-        // TODO
-        Architecture arch = getArchitecture();
-        if (arch == null) {
-            arch = Architecture.GENERIC;
         }
         metaData = new InstallerMetaData(arch.toString(), filePath.toAbsolutePath().toString(),
             getVersion());
         ConfigManager.getInstance().addInstaller(InstallerType.fromString(type), getCommonName(), metaData);
         // if the new value is the same as the existing cache value, do nothing
 
-        return CommandResponse.success("IMG-0050", type, metaData.getLocation());
+        return CommandResponse.success("IMG-0050", type, metaData.getProductVersion(), metaData.getLocation());
     }
 
-    CommandResponse addPatchToCache() throws CacheStoreException {
+    CommandResponse addPatchToCache() throws IOException, CacheStoreException {
         // if file is invalid or does not exist, return an error
         if (filePath == null || !Files.isRegularFile(filePath)) {
             return CommandResponse.error("IMG-0049", filePath);
@@ -67,6 +65,12 @@ public abstract class CacheAddOperation extends CacheOperation {
         String bugNumber = getKey();
         String version = getVersion();
 
+        int separator = bugNumber.indexOf(CacheStore.CACHE_KEY_SEPARATOR);
+        if (separator > 0) {
+            version = bugNumber.substring(separator + 1);
+            bugNumber = bugNumber.substring(0, separator);
+        }
+
         PatchMetaData metaData = ConfigManager.getInstance().getPatchForPlatform(getArchitecture().toString(),
             bugNumber, version);
 
@@ -74,21 +78,13 @@ public abstract class CacheAddOperation extends CacheOperation {
             return CommandResponse.success("IMG-0075");
         }
 
+        Architecture arch = getArchitecture();
 
-        // if the new value is the same as the existing cache value, do nothing
-        String existingValue = cache().getValueFromCache(bugNumber);
-        if (absolutePath().toString().equals(existingValue)) {
-            return CommandResponse.success("IMG-0075");
-        }
+        ConfigManager.getInstance().addPatch(bugNumber, arch.toString(), filePath.toAbsolutePath().toString(),
+            version, getDescription());
 
-        // if there is already a cache entry and the user did not ask to force it, return an error
-        if (!force && existingValue != null) {
-            return CommandResponse.error("IMG-0048", bugNumber, existingValue);
-        }
-
-        // input appears valid, add the entry to the cache and exit
-        cache().addToCache(bugNumber, absolutePath().toString());
-        return CommandResponse.success("IMG-0050", bugNumber, cache().getValueFromCache(bugNumber));
+        return CommandResponse.success("IMG-0130", bugNumber, version,
+            filePath.toAbsolutePath().toString());
     }
 
     private Path absolutePath() {

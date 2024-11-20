@@ -3,15 +3,22 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,6 +28,28 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("unit")
 class AddPatchEntryTest {
+
+    @BeforeAll
+    static void setup(@TempDir Path tempDir)
+        throws IOException, NoSuchFieldException, IllegalAccessException {
+        Path settingsFileName = tempDir.resolve("settings.yaml");
+        Path installerFile = tempDir.resolve("installers.yaml");
+        Path patchFile = tempDir.resolve("patches.yaml");
+        Files.createFile(settingsFileName);
+        Files.createFile(installerFile);
+        Files.createFile(patchFile);
+
+
+        List<String> lines = Arrays.asList(
+            "installerSettingsFile: " + installerFile.toAbsolutePath().toString(),
+            "patchSettingsFile: " + patchFile.toAbsolutePath().toString(),
+            "installerDirectory: " + tempDir.toAbsolutePath().toString(),
+            "patchDirectory: " + tempDir.toAbsolutePath().toString()
+        );
+        Files.write(settingsFileName, lines);
+        ConfigManager.getInstance(settingsFileName);
+    }
+
 
     private static CommandLine getCommand() {
         AddPatchEntry app = new AddPatchEntry();
@@ -45,20 +74,20 @@ class AddPatchEntryTest {
     void testInvalidFileParameter() {
         CommandLine cmd = getCommand();
         // invalid file (file does not exist), should generate an error response
-        cmd.execute("--patchId=12345678_12.2.1.3.0", "--path=/here/there", "--version=12.2.1.3.0");
+        cmd.execute("--patchId=12345678_12.2.1.3.0", "--path=/here/there", "--version=12.2.1.3.0",
+            "-a=amd64");
         CommandResponse result = cmd.getExecutionResult();
         assertNotNull(result, "Response missing from call to addPatch");
         assertEquals(1, result.getStatus());
     }
 
     @Test
-    void testInvalidPatchId() {
+    void testValidPatchId() {
         CommandLine cmd = getCommand();
-        // invalid patch ID should generate an error response
-        cmd.execute("--patchId=12345678", "--path=pom.xml", "--version=12.2.1.3.0");
+        cmd.execute("--patchId=12345678", "--path=pom.xml", "--version=12.2.1.3.0", "-a=amd64");
         CommandResponse result = cmd.getExecutionResult();
         assertNotNull(result, "Response missing from call to addPatch");
-        assertEquals(1, result.getStatus());
+        assertEquals(0, result.getStatus());
     }
 
     @Test

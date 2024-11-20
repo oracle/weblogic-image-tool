@@ -70,7 +70,8 @@ public class PatchFile {
                     filename,
                     aruPatch.sha256Hash(),
                     aruPatch.releasedDate(),
-                    aruPatch.version()));
+                    aruPatch.version(),
+                    aruPatch.description()));
                 allPatches.remove(aruPatch.patchId());
                 allPatches.put(aruPatch.patchId(),patches);
             } else {
@@ -79,7 +80,8 @@ public class PatchFile {
                     filename,
                     aruPatch.sha256Hash(),
                     aruPatch.releasedDate(),
-                    aruPatch.version()));
+                    aruPatch.version(),
+                    aruPatch.description()));
                 allPatches.put(aruPatch.patchId(),patches);
             }
             configManager.saveAllPatches(allPatches, configManager.getPatchDetailsFile());

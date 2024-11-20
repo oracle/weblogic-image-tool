@@ -3,9 +3,18 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+
 import com.oracle.weblogic.imagetool.installer.InstallerType;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,6 +23,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 class AddInstallerEntryTest {
+
+    @BeforeAll
+    static void setup(@TempDir Path tempDir)
+        throws IOException, NoSuchFieldException, IllegalAccessException {
+        Path settingsFileName = tempDir.resolve("settings.yaml");
+        Path installerFile = tempDir.resolve("installers.yaml");
+        Path patchFile = tempDir.resolve("patches.yaml");
+        Files.createFile(settingsFileName);
+        Files.createFile(installerFile);
+        Files.createFile(patchFile);
+
+
+        List<String> lines = Arrays.asList(
+            "installerSettingsFile: " + installerFile.toAbsolutePath().toString(),
+            "patchSettingsFile: " + patchFile.toAbsolutePath().toString(),
+            "installerDirectory: " + tempDir.toAbsolutePath().toString(),
+            "patchDirectory: " + tempDir.toAbsolutePath().toString()
+        );
+        Files.write(settingsFileName, lines);
+        ConfigManager.getInstance(settingsFileName);
+    }
+
     @Test
     void testMissingParameters() {
         final AddInstallerEntry addCommand = new AddInstallerEntry();
@@ -29,13 +60,13 @@ class AddInstallerEntryTest {
         // The value for --type must be one of the pre-defined types
         CommandLine.ParameterException pe = assertThrows(CommandLine.ParameterException.class, () ->
             new CommandLine(addCommand)
-                .parseArgs("--type", "a2z", "--version", "some_value", "--path", "/path/to/a/file")
+                .parseArgs("--type", "a2z", "--version", "some_value", "-a", "amd64", "--path", "/path/to/a/file")
         );
         assertTrue(pe.getMessage().contains("--type"));
 
         // repeat same command but use a valid type.  No exception should be thrown.
         new CommandLine(addCommand)
-            .parseArgs("--type", "WLS", "--version", "some_value", "--path", "/path/to/a/file");
+            .parseArgs("--type", "WLS", "--version", "some_value", "-a", "amd64", "--path", "/path/to/a/file");
     }
 
     @Test
@@ -54,7 +85,7 @@ class AddInstallerEntryTest {
         final AddInstallerEntry addCommand = new AddInstallerEntry();
         // The cache key should be a string made up of the type and version seperated by an underscore
         new CommandLine(addCommand)
-            .parseArgs("--type", "WLS", "--version", "12.2.1.4", "--path", "/path/to/a/file");
+            .parseArgs("--type", "WLS", "--version", "12.2.1.4", "-a", "amd64", "--path", "/path/to/a/file");
         assertEquals("wls", addCommand.getKey());
     }
 

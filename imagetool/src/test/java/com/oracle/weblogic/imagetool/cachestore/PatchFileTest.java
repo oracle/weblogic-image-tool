@@ -128,7 +128,7 @@ class PatchFileTest {
         Path path = tempDir.resolve(patchLocation);
         Files.write(path, fileContents);
         PatchMetaData latestPatch = new PatchMetaData(patchArchitecture, path.toAbsolutePath().toString(),
-            Utils.getSha256Hash(path.toAbsolutePath().toString()),"2024-10-17", patchVersion);
+            Utils.getSha256Hash(path.toAbsolutePath().toString()),"2024-10-17", patchVersion, "");
         latestPatches.add(latestPatch);
         patches.put(bugNumber, latestPatches);
         configManager.saveAllPatches(patches, patchListingFile.toAbsolutePath().toString());
