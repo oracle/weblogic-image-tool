@@ -410,12 +410,12 @@ public class UserSettingsFile {
                         return installerMetaData;
                     }
                 }
-                // If it can't find the specialized platform, try generic.
-                for (InstallerMetaData installerMetaData: installerMetaDataList) {
-                    if (Architecture.GENERIC.getAcceptableNames().contains(installerMetaData.getPlatform())) {
-                        return installerMetaData;
-                    }
-                }
+                //If it can't find the specialized platform, try generic.
+                //for (InstallerMetaData installerMetaData: installerMetaDataList) {
+                //    if (Architecture.GENERIC.getAcceptableNames().contains(installerMetaData.getPlatform())) {
+                //        return installerMetaData;
+                //    }
+                //}
             }
         }
         return null;

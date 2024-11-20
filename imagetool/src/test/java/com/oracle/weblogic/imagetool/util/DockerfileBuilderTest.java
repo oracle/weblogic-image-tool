@@ -53,7 +53,7 @@ class DockerfileBuilderTest {
         );
         Files.write(settingsFileName, lines);
         ConfigManager configManager = ConfigManager.getInstance(settingsFileName);
-        InstallerMetaData installer2 = new InstallerMetaData(Architecture.getLocalArchitecture().toString(),
+        InstallerMetaData installer2 = new InstallerMetaData("Generic",
             path12214.toString(),
             "12.2.1.4.0");
 

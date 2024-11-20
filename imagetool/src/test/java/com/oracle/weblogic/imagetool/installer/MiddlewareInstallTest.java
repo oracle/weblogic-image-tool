@@ -13,7 +13,6 @@ import java.util.List;
 import com.oracle.weblogic.imagetool.ResourceUtils;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
-import com.oracle.weblogic.imagetool.util.Architecture;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,7 @@ class MiddlewareInstallTest {
         );
         Files.write(settingsFileName, lines);
         ConfigManager configManager = ConfigManager.getInstance(settingsFileName);
-        InstallerMetaData installer2 = new InstallerMetaData(Architecture.getLocalArchitecture().toString(),
+        InstallerMetaData installer2 = new InstallerMetaData("Generic",
             path12214.toString(),
             "12.2.1.4.0");
 
@@ -59,7 +58,8 @@ class MiddlewareInstallTest {
     @Test
     void copyInstaller(@TempDir Path buildContextDir) throws IOException {
         // Test a simple WLS install type, and copy the files to the build context folder
-        MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0", null, null);
+        MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0",
+            null, null);
         install.copyFiles(buildContextDir.toString());
         // 2 files should be copied from cache to build context folder
         assertTrue(Files.isRegularFile(buildContextDir.resolve("test-installer.zip")));
