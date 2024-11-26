@@ -25,13 +25,24 @@ public class ListPatches extends CacheOperation {
 
         ConfigManager configManager = ConfigManager.getInstance();
         Map<String, List<PatchMetaData>> data = configManager.getAllPatches();
+        if (version != null && !version.isEmpty()) {
+            if (patchId == null) {
+                System.out.println("--patchId cannot be null when version is specified");
+                System.exit(2);
+            }
+        }
 
         for (String bug : data.keySet()) {
-            if (bugNumber != null && !bugNumber.equalsIgnoreCase(bug)) {
+            if (patchId != null && !patchId.equalsIgnoreCase(bug)) {
                 continue;
             }
             System.out.println(bug + ":");
             data.get(bug).forEach((metaData) -> {
+                if (version != null && !version.isEmpty()) {
+                    if (!version.equalsIgnoreCase(metaData.getPatchVersion())) {
+                        return;
+                    }
+                }
                 System.out.println("  - location: " + metaData.getLocation());
                 System.out.println("    platform: " + metaData.getPlatform());
                 System.out.println("    digest: " + metaData.getHash());
@@ -45,9 +56,14 @@ public class ListPatches extends CacheOperation {
     }
 
     @Option(
-        names = {"--bug"},
-        description = "Bug number"
+        names = {"--patchId"},
+        description = "Patch id"
     )
-    private String bugNumber;
+    private String patchId;
 
+    @Option(
+        names = {"--version"},
+        description = "Patch version"
+    )
+    private String version;
 }

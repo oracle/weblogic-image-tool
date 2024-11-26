@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.cli.menu.KubernetesTarget;
@@ -38,8 +40,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import static com.oracle.weblogic.imagetool.cachestore.FileCacheStore.CACHE_DIR_ENV;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+//import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -54,6 +57,11 @@ class ITImagetool {
     private static final String STAGING_DIR = System.getProperty("STAGING_DIR");
     private static final String BLDDIR_ENV = System.getProperty("WLSIMG_BLDDIR");
     private static final String CACHEDIR_ENV = System.getProperty("WLSIMG_CACHEDIR");
+    private static final String AMD64 = "amd64";
+    private static final String ARM64 = "arm64";
+    private static final String GENERIC = "Generic";
+    private static final String PLATFORM_AMD64 = "linux/amd64";
+    private static final String PLATFORM_ARN64 = "linux/arm64";
 
     // Docker images
     private static String DB_IMAGE = System.getProperty("DB_IMAGE");
@@ -64,7 +72,7 @@ class ITImagetool {
     private static final String JDK_INSTALLER_NEWER = "jdk-8u231-linux-x64.tar.gz";
     private static final String WLS_INSTALLER = "fmw_12.2.1.3.0_wls_Disk1_1of1.zip";
     private static final String P27342434_INSTALLER = "p27342434_122130_Generic.zip";
-    private static final String P28186730_INSTALLER = "p28186730_139422_Generic.zip";
+    private static final String P28186730_INSTALLER = "p28186730_1394217_Generic.zip";
     private static final String WDT_INSTALLER = "weblogic-deploy.zip";
     private static final String FMW_INSTALLER = "fmw_12.2.1.3.0_infrastructure_Disk1_1of1.zip";
 
@@ -72,7 +80,7 @@ class ITImagetool {
     private static final String P27342434_ID = "27342434";
     private static final String P28186730_ID = "28186730";
     private static final String WLS_VERSION = "12.2.1.3.0";
-    private static final String OPATCH_VERSION = "13.9.4.2.2";
+    private static final String OPATCH_VERSION = "13.9.4.2.17";
     private static final String JDK_VERSION = "8u202";
     private static final String JDK_VERSION_212 = "8u212";
     private static final String WDT_VERSION = "1.1.2";
@@ -202,8 +210,41 @@ class ITImagetool {
     static void staticPrepare() throws Exception {
         logger.info("prepare for image tool test ...");
         // verify that all the prerequisites are set and exist
+
+
         validateEnvironmentSettings();
         // clean up Docker instances leftover from a previous run
+        String baseDir = System.getProperty(CACHE_DIR_ENV);
+
+        Path tempDir = Paths.get(baseDir);
+        if (Files.exists(tempDir)) {
+            Files.walk(tempDir)
+                .sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException ignore) {
+                        ignore.printStackTrace();
+                    }
+                });
+        }
+        Files.createDirectories(tempDir);
+        Path settingsFileName = tempDir.resolve("settings.yaml");
+        Path installerFile = tempDir.resolve("installers.yaml");
+        Path patchFile = tempDir.resolve("patches.yaml");
+        Files.createFile(settingsFileName);
+        Files.createFile(installerFile);
+        Files.createFile(patchFile);
+
+        List<String> lines = Arrays.asList(
+            "installerSettingsFile: " + installerFile.toAbsolutePath().toString(),
+            "patchSettingsFile: " + patchFile.toAbsolutePath().toString(),
+            "installerDirectory: " + tempDir.toAbsolutePath().toString(),
+            "patchDirectory: " + tempDir.toAbsolutePath().toString()
+        );
+        Files.write(settingsFileName, lines);
+        logger.info("Test settings file initialized : " + settingsFileName);
+
         cleanup();
 
         logger.info("Setting up the test environment ...");
@@ -214,6 +255,8 @@ class ITImagetool {
                 throw new IllegalStateException("Unable to create build directory " + BLDDIR_ENV);
             }
         }
+
+        setupDockerMultiPlatform();
 
         // verify that required files/installers are available
         verifyStagedFiles(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER,
@@ -306,6 +349,16 @@ class ITImagetool {
         }
     }
 
+    private static void setupDockerMultiPlatform() throws Exception {
+        logger.info("setup docker multiplatform build");
+        String command = "docker run --privileged --rm tonistiigi/binfmt --install all";
+        logger.info("executing command: " + command);
+        CommandResult result = Runner.run(command);
+        if (!result.stdout().contains("emulators")) {
+            throw new Exception("Failed to run command: " + command);
+        }
+    }
+
     private void createDBContainer() throws Exception {
         logger.info("Creating an Oracle db docker container ...");
         String command = "docker rm -f " + dbContainerName;
@@ -337,6 +390,7 @@ class ITImagetool {
             .type("jdk")
             .version(JDK_VERSION)
             .path(jdkPath)
+            .architecture(AMD64)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -345,12 +399,14 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the result
-            String listCommand = new CacheCommand().listItems(true).build();
+            String listCommand = new CacheCommand().listInstallers(true).type("jdk")
+                .commonName(JDK_VERSION).build();
             CommandResult listResult = Runner.run(listCommand, out, logger);
             // the process return code for listItems should be 0
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
             // output should show newly added JDK installer
-            assertTrue(listResult.stdout().contains("jdk_" + JDK_VERSION + "=" + jdkPath));
+            assertTrue(listResult.stdout().contains(JDK_VERSION + ":"));
+            assertTrue(listResult.stdout().contains(jdkPath.toString()));
         }
     }
 
@@ -371,6 +427,7 @@ class ITImagetool {
             .type("wls")
             .version(WLS_VERSION)
             .path(wlsPath)
+            .architecture(AMD64)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -379,12 +436,14 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the result
-            String listCommand = new CacheCommand().listItems(true).build();
+            String listCommand = new CacheCommand().listInstallers(true).type("wls")
+                .commonName(WLS_VERSION).version(WLS_VERSION).build();
             CommandResult listResult = Runner.run(listCommand, out, logger);
             // the process return code for listItems should be 0
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
             // output should show newly added WLS installer
-            assertTrue(listResult.stdout().contains("wls_" + WLS_VERSION + "=" + wlsPath));
+            assertTrue(listResult.stdout().contains(wlsPath.toString()));
+            assertTrue(listResult.stdout().contains(WLS_VERSION + ":"));
         }
     }
 
@@ -403,7 +462,9 @@ class ITImagetool {
         String command = new CacheCommand()
             .addPatch(true)
             .path(patchPath)
-            .patchId(P27342434_ID, WLS_VERSION)
+            .patchId(P27342434_ID)
+            .version(WLS_VERSION)
+            .architecture(GENERIC)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -412,76 +473,78 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the result
-            String listCommand = new CacheCommand().listItems(true).build();
+            String listCommand = new CacheCommand().listPatches(true).patchId(P27342434_ID).build();
             CommandResult listResult = Runner.run(listCommand, out, logger);
             // the process return code for listItems should be 0
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
             // output should show newly added patch
-            assertTrue(listResult.stdout().contains(P27342434_ID + "_" + WLS_VERSION + "=" + patchPath));
+            assertTrue(listResult.stdout().contains(P27342434_ID));
+            assertTrue(listResult.stdout().contains(WLS_VERSION));
+            assertTrue(listResult.stdout().contains(patchPath.toString()));
         }
     }
 
-    /**
-     * add an entry to the cache.
-     *
-     * @throws Exception - if any error occurs
-     */
-    @Test
-    @Order(4)
-    @Tag("gate")
-    @DisplayName("Add manual entry to cache")
-    void cacheAddTestEntry(TestInfo testInfo) throws Exception {
-        Path testEntryValue = Paths.get(STAGING_DIR, P27342434_INSTALLER);
-        String command = new CacheCommand()
-            .addEntry(true)
-            .key(TEST_ENTRY_KEY)
-            .value(testEntryValue)
-            .build();
-
-        try (PrintWriter out = getTestMethodWriter(testInfo)) {
-            CommandResult addEntryResult = Runner.run(command, out, logger);
-            assertEquals(0, addEntryResult.exitValue(), "for command: " + command);
-
-            // verify the result
-            String listCommand = new CacheCommand().listItems(true).build();
-            CommandResult listResult = Runner.run(listCommand, out, logger);
-            // the process return code for listItems should be 0
-            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
-            // output should show newly added patch
-            assertTrue(listResult.stdout().contains(TEST_ENTRY_KEY.toLowerCase() + "=" + testEntryValue));
-            // cache should also contain the installer that was added in the previous test (persistent cache)
-            assertTrue(listResult.stdout().contains(P27342434_ID + "_" + WLS_VERSION + "="));
-        }
-    }
-
-    /**
-     * test delete an entry from the cache.
-     *
-     * @throws Exception - if any error occurs
-     */
-    @Test
-    @Order(5)
-    @Tag("gate")
-    @DisplayName("Delete cache entry")
-    void cacheDeleteTestEntry(TestInfo testInfo) throws Exception {
-        String command = new CacheCommand()
-            .deleteEntry(true)
-            .key(TEST_ENTRY_KEY)
-            .build();
-
-        try (PrintWriter out = getTestMethodWriter(testInfo)) {
-            CommandResult result = Runner.run(command, out, logger);
-            assertEquals(0, result.exitValue(), "for command: " + command);
-
-            // verify the result
-            String listCommand = new CacheCommand().listItems(true).build();
-            CommandResult listResult = Runner.run(listCommand, out, logger);
-            // the process return code for listItems should be 0
-            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
-            // output should NOT show deleted patch
-            assertFalse(listResult.stdout().contains(TEST_ENTRY_KEY.toLowerCase()));
-        }
-    }
+    ///**
+    // * add an entry to the cache.
+    // *
+    // * @throws Exception - if any error occurs
+    // */
+    //@Test
+    //@Order(4)
+    //@Tag("gate")
+    //@DisplayName("Add manual entry to cache")
+    //void cacheAddTestEntry(TestInfo testInfo) throws Exception {
+    //    Path testEntryValue = Paths.get(STAGING_DIR, P27342434_INSTALLER);
+    //    String command = new CacheCommand()
+    //        .addEntry(true)
+    //        .key(TEST_ENTRY_KEY)
+    //        .value(testEntryValue)
+    //        .build();
+    //
+    //    try (PrintWriter out = getTestMethodWriter(testInfo)) {
+    //        CommandResult addEntryResult = Runner.run(command, out, logger);
+    //        assertEquals(0, addEntryResult.exitValue(), "for command: " + command);
+    //
+    //        // verify the result
+    //        String listCommand = new CacheCommand().listItems(true).build();
+    //        CommandResult listResult = Runner.run(listCommand, out, logger);
+    //        // the process return code for listItems should be 0
+    //        assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+    //        // output should show newly added patch
+    //        assertTrue(listResult.stdout().contains(TEST_ENTRY_KEY.toLowerCase() + "=" + testEntryValue));
+    //        // cache should also contain the installer that was added in the previous test (persistent cache)
+    //        assertTrue(listResult.stdout().contains(P27342434_ID + "_" + WLS_VERSION + "="));
+    //    }
+    //}
+    //
+    ///**
+    // * test delete an entry from the cache.
+    // *
+    // * @throws Exception - if any error occurs
+    // */
+    //@Test
+    //@Order(5)
+    //@Tag("gate")
+    //@DisplayName("Delete cache entry")
+    //void cacheDeleteTestEntry(TestInfo testInfo) throws Exception {
+    //    String command = new CacheCommand()
+    //        .deleteEntry(true)
+    //        .key(TEST_ENTRY_KEY)
+    //        .build();
+    //
+    //    try (PrintWriter out = getTestMethodWriter(testInfo)) {
+    //        CommandResult result = Runner.run(command, out, logger);
+    //        assertEquals(0, result.exitValue(), "for command: " + command);
+    //
+    //        // verify the result
+    //        String listCommand = new CacheCommand().listItems(true).build();
+    //        CommandResult listResult = Runner.run(listCommand, out, logger);
+    //        // the process return code for listItems should be 0
+    //        assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+    //        // output should NOT show deleted patch
+    //        assertFalse(listResult.stdout().contains(TEST_ENTRY_KEY.toLowerCase()));
+    //    }
+    //}
 
     /**
      * Test manual caching of a patch JAR.
@@ -498,7 +561,9 @@ class ITImagetool {
         String command = new CacheCommand()
             .addPatch(true)
             .path(patchPath)
-            .patchId(P28186730_ID, OPATCH_VERSION)
+            .architecture(GENERIC)
+            .patchId(P28186730_ID)
+            .version(OPATCH_VERSION)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -507,12 +572,15 @@ class ITImagetool {
             assertEquals(0, result.exitValue(), "for command: " + command);
 
             // verify the result
-            String listCommand = new CacheCommand().listItems(true).build();
+            String listCommand = new CacheCommand().listPatches(true).patchId(P28186730_ID)
+                .version(OPATCH_VERSION).build();
             CommandResult listResult = Runner.run(listCommand, out, logger);
             // the process return code for listItems should be 0
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
             // output should show newly added patch
-            assertTrue(listResult.stdout().contains(P28186730_ID + "_" + OPATCH_VERSION + "=" + patchPath));
+            assertTrue(listResult.stdout().contains(P28186730_ID + ":"));
+            assertTrue(listResult.stdout().contains(OPATCH_VERSION));
+            assertTrue(listResult.stdout().contains(patchPath.toString()));
         }
     }
 
@@ -534,6 +602,7 @@ class ITImagetool {
             .type("wdt")
             .version(WDT_VERSION)
             .path(wdtPath)
+            .architecture(GENERIC)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -555,6 +624,7 @@ class ITImagetool {
             .type("fmw")
             .version(WLS_VERSION)
             .path(Paths.get(STAGING_DIR, FMW_INSTALLER))
+            .architecture(AMD64)
             .build();
 
 
@@ -564,7 +634,7 @@ class ITImagetool {
             assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
 
             // verify the result
-            String listCommand = new CacheCommand().listItems(true).build();
+            String listCommand = new CacheCommand().listInstallers(true).commonName(WLS_VERSION).build();
             CommandResult listResult = Runner.run(listCommand, out, logger);
             // the process return code for listItems should be 0
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
@@ -585,7 +655,7 @@ class ITImagetool {
     @DisplayName("Create default WebLogic Server image")
     void createWlsImg(TestInfo testInfo) throws Exception {
         String tagName = build_tag + ":" + getMethodName(testInfo);
-        String command = new CreateCommand().tag(tagName).build();
+        String command = new CreateCommand().platform(PLATFORM_AMD64).tag(tagName).build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(command, out, logger);
@@ -614,6 +684,7 @@ class ITImagetool {
         String command = new UpdateCommand()
             .fromImage(build_tag + ":createWlsImg")
             .tag(tagName)
+            .platform(PLATFORM_AMD64)
             .patches(P27342434_ID)
             .build();
 
@@ -651,6 +722,7 @@ class ITImagetool {
                 .wdtArchive(WDT_ARCHIVE)
                 .wdtDomainHome("/u01/domains/simple_domain")
                 .wdtVariables(WDT_VARIABLES)
+                .platform(PLATFORM_AMD64)
                 .build();
 
             CommandResult result = Runner.run(command, out, logger);
@@ -722,6 +794,7 @@ class ITImagetool {
                 .wdtArchive(WDT_ARCHIVE)
                 .wdtModel(tmpWdtModel)
                 .wdtModelOnly(true)
+                .platform(PLATFORM_AMD64)
                 .type("wls")
                 .build();
 
@@ -757,6 +830,7 @@ class ITImagetool {
             .wdtModel(WDT_MODEL)
             .wdtArchive(WDT_ARCHIVE)
             .wdtVersion(WDT_VERSION)
+            .platform(PLATFORM_AMD64)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -790,6 +864,7 @@ class ITImagetool {
         String addNewJdkCmd = new CacheCommand().addInstaller(true)
             .type("jdk")
             .version(JDK_VERSION_212)
+            .architecture(AMD64)
             .path(Paths.get(STAGING_DIR, JDK_INSTALLER_NEWER))
             .build();
 
@@ -805,6 +880,7 @@ class ITImagetool {
                 .jdkVersion(JDK_VERSION_212)
                 .type("fmw")
                 .user(oracleSupportUsername)
+                .platform(PLATFORM_AMD64)
                 .passwordEnv("ORACLE_SUPPORT_PASSWORD")
                 .latestPsu(true)
                 .build();
@@ -856,6 +932,7 @@ class ITImagetool {
                 .version(WLS_VERSION)
                 .wdtVersion(WDT_VERSION)
                 .wdtArchive(WDT_ARCHIVE)
+                .platform(PLATFORM_AMD64)
                 .wdtDomainHome("/u01/domains/simple_domain")
                 .wdtModel(tmpWdtModel)
                 .wdtDomainType("JRF")
@@ -898,6 +975,7 @@ class ITImagetool {
             .wdtVariables(WDT_VARIABLES)
             .wdtDomainHome("/u01/domains/simple_domain")
             .wdtDomainType("RestrictedJRF")
+            .platform(PLATFORM_AMD64)
             .type("fmw")
             .build();
 
@@ -935,6 +1013,7 @@ class ITImagetool {
             .wdtDomainHome("/u01/domains/simple_domain")
             .wdtModel(WDT_MODEL, WDT_MODEL2)
             .wdtVariables(WDT_VARIABLES)
+            .platform(PLATFORM_AMD64)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -964,6 +1043,7 @@ class ITImagetool {
             .user(oracleSupportUsername)
             .passwordEnv("ORACLE_SUPPORT_PASSWORD")
             .additionalBuildCommands(WDT_RESOURCES.resolve("multi-sections.txt"))
+            .platform(PLATFORM_AMD64)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -1003,6 +1083,7 @@ class ITImagetool {
         String command = new CreateCommand()
             .tag(tagName)
             .fromImage(JRE_IMAGE)
+            .platform(PLATFORM_AMD64)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -1146,6 +1227,7 @@ class ITImagetool {
             .wdtModel(WDT_MODEL, WDT_MODEL2)
             .wdtVariables(WDT_VARIABLES)
             .target(KubernetesTarget.OPENSHIFT)
+            .platform(PLATFORM_AMD64)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -1176,6 +1258,7 @@ class ITImagetool {
             .addInstaller(true)
             .type("wls")
             .version("12.2.1.4.0")
+            .architecture(AMD64)
             .path(Paths.get(STAGING_DIR, "fmw_12.2.1.4.0_wls_lite_generic.jar"))
             .build();
 
@@ -1184,6 +1267,7 @@ class ITImagetool {
         String buildCommand = new CreateCommand()
             .tag(tagName)
             .version("12.2.1.4.0")
+            .platform(PLATFORM_AMD64)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {

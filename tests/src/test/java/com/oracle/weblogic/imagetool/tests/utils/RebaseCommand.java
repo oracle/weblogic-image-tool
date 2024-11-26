@@ -7,6 +7,7 @@ public class RebaseCommand extends ImageToolCommand {
     private String targetImage;
     private String sourceImage;
     private String tag;
+    private String platform;
 
     public RebaseCommand() {
         super("rebase");
@@ -35,6 +36,11 @@ public class RebaseCommand extends ImageToolCommand {
         return this;
     }
 
+    public RebaseCommand platform(String value) {
+        platform = value;
+        return this;
+    }
+
     /**
      * Generate the command using the provided command line options.
      * @return the imagetool command as a string suitable for running in ProcessBuilder
@@ -44,6 +50,7 @@ public class RebaseCommand extends ImageToolCommand {
         return super.build()
             + field("--targetImage", targetImage)
             + field("--sourceImage", sourceImage)
+            + field("--platform", platform)
             + field("--tag", tag);
     }
 }

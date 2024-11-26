@@ -1,4 +1,4 @@
-echo "INSTALLING {{type}}" \
+&& echo "INSTALLING {{type}}" \
 {{#isZip}}&& unzip -q {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
 {{#preinstallCommands}}&& {{{tempDir}}}/{{{type}}}/{{{.}}} {{/preinstallCommands}} \
 {{^isBin}} && if [ ! -f {{{tempDir}}}/{{{type}}}/{{jarName}} ] ; then (cp {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} {{{tempDir}}}/{{{type}}})  fi \

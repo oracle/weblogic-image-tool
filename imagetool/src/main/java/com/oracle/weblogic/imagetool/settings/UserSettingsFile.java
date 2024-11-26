@@ -476,7 +476,7 @@ public class UserSettingsFile {
                 // search for generic for opatch only??
                 if (OPatchFile.DEFAULT_BUG_NUM.equals(bugNumber)) {
                     for (PatchMetaData patchMetaData: patchMetaDataList) {
-                        if ("generic".equals(patchMetaData.getPlatform())) {
+                        if ("generic".equalsIgnoreCase(patchMetaData.getPlatform())) {
                             return patchMetaData;
                         }
                     }

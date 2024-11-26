@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.settings;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumMap;
@@ -18,6 +19,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.util.Architecture;
 
+import static com.oracle.weblogic.imagetool.cachestore.FileCacheStore.CACHE_DIR_ENV;
 import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
 public class ConfigManager {
@@ -39,9 +41,14 @@ public class ConfigManager {
      */
     public static synchronized ConfigManager getInstance() {
         if (instance == null) {
-            instance = new ConfigManager(Paths.get(System.getProperty("user.home"), ".imagetool",
-                "settings.yaml"));
-
+            String result = System.getenv(CACHE_DIR_ENV);
+            if (result != null) {
+                if (Files.exists(Paths.get(result, "settings.yaml"))) {
+                    return new ConfigManager(Paths.get(result, "settings.yaml"));
+                }
+            }
+            return new ConfigManager(Paths.get(System.getProperty("user.home"), ".imagetool",
+                    "settings.yaml"));
         }
         return instance;
     }

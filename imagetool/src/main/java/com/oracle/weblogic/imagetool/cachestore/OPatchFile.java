@@ -191,7 +191,7 @@ public class OPatchFile extends PatchFile {
         try {
             return super.resolve();
         } catch (FileNotFoundException fnfe) {
-            throw new FileNotFoundException(Utils.getMessage("IMG-0062"));
+            throw new FileNotFoundException(Utils.getMessage("IMG-0062", this.getVersion()));
         }
     }
 

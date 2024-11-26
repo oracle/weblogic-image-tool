@@ -25,13 +25,31 @@ public class ListInstallers extends CacheOperation {
     public CommandResponse call() throws CacheStoreException {
         ConfigManager configManager = ConfigManager.getInstance();
         Map<InstallerType, Map<String, List<InstallerMetaData>>> data = configManager.getInstallers();
-
+        if (commonName != null && !commonName.isEmpty()) {
+            if (type == null) {
+                System.out.println("--type cannot be null when commonName is specified");
+                System.exit(2);
+            }
+        }
+        if (version != null && !version.isEmpty()) {
+            if (type == null) {
+                System.out.println("--type cannot be null when version is specified");
+                System.exit(2);
+            }
+        }
         for (InstallerType itemType : data.keySet()) {
             if (type != null && type != itemType) {
                 continue;
             }
             System.out.println(itemType + ":");
             data.get(itemType).forEach((installer, metaData) -> {
+                if (commonName != null && !commonName.equalsIgnoreCase(installer)) {
+                    return;
+                }
+                // commonName is null or version is specified
+                if (version != null && !version.equalsIgnoreCase(installer)) {
+                    return;
+                }
                 System.out.println("  " + installer + ":");
                 for (InstallerMetaData meta : metaData) {
                     System.out.println("  - location: " + meta.getLocation());
@@ -52,4 +70,15 @@ public class ListInstallers extends CacheOperation {
     )
     private InstallerType type;
 
+    @Option(
+        names = {"--commonName"},
+        description = "Filter installer by common name."
+    )
+    private String commonName;
+
+    @Option(
+        names = {"--version"},
+        description = "Filter installer by version."
+    )
+    private String version;
 }

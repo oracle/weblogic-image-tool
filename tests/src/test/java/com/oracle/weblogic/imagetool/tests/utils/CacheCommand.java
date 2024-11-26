@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.tests.utils;
 import java.nio.file.Path;
 
 public class CacheCommand extends ImageToolCommand {
+    private String commonName;
     private String version;
     private String type;
 
@@ -13,13 +14,15 @@ public class CacheCommand extends ImageToolCommand {
     private boolean listItems;
     private boolean addInstaller;
     private boolean addPatch;
+    private boolean listInstallers;
+    private boolean listPatches;
     private boolean addEntry;
     private boolean deleteEntry;
     private String path;
     private String patchId;
     private String key;
     private String value;
-
+    private String architecture;
 
     public CacheCommand() {
         super("cache");
@@ -40,6 +43,15 @@ public class CacheCommand extends ImageToolCommand {
         return this;
     }
 
+    public CacheCommand listInstallers(boolean value) {
+        listInstallers = value;
+        return this;
+    }
+
+    public CacheCommand listPatches(boolean value) {
+        listPatches = value;
+        return this;
+    }
 
     public CacheCommand addEntry(boolean value) {
         addEntry = value;
@@ -86,6 +98,16 @@ public class CacheCommand extends ImageToolCommand {
         return this;
     }
 
+    public CacheCommand architecture(String value) {
+        architecture = value;
+        return this;
+    }
+
+    public CacheCommand commonName(String value) {
+        commonName = value;
+        return this;
+    }
+
     /**
      * Generate the command using the provided command line options.
      * @return the imagetool command as a string suitable for running in ProcessBuilder
@@ -95,12 +117,14 @@ public class CacheCommand extends ImageToolCommand {
         return super.build()
             + field("addInstaller", addInstaller)
             + field("addPatch", addPatch)
-            + field("--key", key)
-            + field("--value", value)
+            + field("listPatches", listPatches)
+            + field("listInstallers", listInstallers)
+            + field("--commonName", commonName)
             + field("--version", version)
             + field("--type", type)
             + field("--path", path)
-            + field("--patchId", patchId);
+            + field("--patchId", patchId)
+            + field("--architecture", architecture);
     }
 
 }

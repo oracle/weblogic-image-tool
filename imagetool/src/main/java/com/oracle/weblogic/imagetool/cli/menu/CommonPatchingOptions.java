@@ -158,6 +158,8 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         ConfigManager configManager = ConfigManager.getInstance();
         for (AruPatch patch : aruPatches) {
             String platform = patch.platformName();
+            logger.info("Applying patch " + patch.patchId() + " version " + patch.version()
+                + " to " + platform);
             PatchMetaData metaData = configManager.getPatchForPlatform(platform, patch.patchId(), patch.version());
 
             if (metaData == null) {
@@ -175,16 +177,18 @@ public abstract class CommonPatchingOptions extends CommonOptions {
 
             String patchLocation = metaData.getLocation();
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
+                logger.finer("Patch location " + patchLocation + " platform " + platform);
                 File cacheFile = new File(patchLocation);
                 try {
                     if (patch.fileName() == null) {
                         patch.fileName(cacheFile.getName());
                     }
-                    if (platform.equals(AMD64_BLD)) {
-                        Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, AMD64_BLD,
-                            cacheFile.getName()));
-                    } else {
+                    if (platform.equals(ARM64_BLD) || platform.equalsIgnoreCase("generic")) {
                         Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, ARM64_BLD,
+                            cacheFile.getName()));
+                    }
+                    if (platform.equals(AMD64_BLD) || platform.equalsIgnoreCase("generic")) {
+                        Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, AMD64_BLD,
                             cacheFile.getName()));
                     }
                 } catch (FileAlreadyExistsException ee) {

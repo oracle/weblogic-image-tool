@@ -9,6 +9,8 @@
 FROM {{baseImage}} as final_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
+ARG TARGETPLATFORM
+
 USER root
 
 ENV OPATCH_NO_FUSER=true
