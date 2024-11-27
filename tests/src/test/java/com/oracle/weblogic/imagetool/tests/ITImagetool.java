@@ -42,7 +42,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import static com.oracle.weblogic.imagetool.cachestore.FileCacheStore.CACHE_DIR_ENV;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -634,13 +633,15 @@ class ITImagetool {
             assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
 
             // verify the result
-            String listCommand = new CacheCommand().listInstallers(true).commonName(WLS_VERSION).build();
+            String listCommand = new CacheCommand().listInstallers(true).type("fmw")
+                .commonName(WLS_VERSION).build();
             CommandResult listResult = Runner.run(listCommand, out, logger);
             // the process return code for listItems should be 0
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
             // output should show newly added WLS installer
-            assertTrue(listResult.stdout().contains("type: fmw"));
-            assertTrue(listResult.stdout().contains("version: " + WLS_VERSION));
+            assertTrue(listResult.stdout().contains(Paths.get(STAGING_DIR, FMW_INSTALLER).toString()));
+            assertTrue(listResult.stdout().contains(WLS_VERSION + ":"));
+
         }
     }
 
@@ -930,6 +931,7 @@ class ITImagetool {
             String command = new CreateCommand()
                 .tag(tagName)
                 .version(WLS_VERSION)
+                .jdkVersion(JDK_VERSION_212)
                 .wdtVersion(WDT_VERSION)
                 .wdtArchive(WDT_ARCHIVE)
                 .platform(PLATFORM_AMD64)
@@ -966,6 +968,7 @@ class ITImagetool {
         String command = new CreateCommand()
             .tag(tagName)
             .version(WLS_VERSION)
+            .jdkVersion(JDK_VERSION_212)
             .latestPsu(true)
             .user(oracleSupportUsername)
             .passwordEnv("ORACLE_SUPPORT_PASSWORD")
@@ -1008,6 +1011,7 @@ class ITImagetool {
         String command = new CreateCommand()
             .tag(tagName)
             .version(WLS_VERSION)
+            .jdkVersion(JDK_VERSION_212)
             .wdtVersion(WDT_VERSION)
             .wdtArchive(WDT_ARCHIVE)
             .wdtDomainHome("/u01/domains/simple_domain")
@@ -1219,7 +1223,7 @@ class ITImagetool {
     void createWlsImgWithOpenShiftSettings(TestInfo testInfo) throws Exception {
         String tagName = build_tag + ":" + getMethodName(testInfo);
         String command = new CreateCommand()
-            .jdkVersion(JDK_VERSION)
+            .jdkVersion(JDK_VERSION_212)
             .tag(tagName)
             .wdtVersion(WDT_VERSION)
             .wdtArchive(WDT_ARCHIVE)

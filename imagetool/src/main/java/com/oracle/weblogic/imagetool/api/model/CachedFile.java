@@ -118,7 +118,8 @@ public class CachedFile {
         }
 
         if (!isFileOnDisk(filePath)) {
-            throw new FileNotFoundException(Utils.getMessage("IMG-0011", filePath));
+            throw new FileNotFoundException(Utils.getMessage("IMG-0011",  installerType,
+                getVersion(), getArchitecture(), filePath));
         }
 
         logger.exiting(filePath);

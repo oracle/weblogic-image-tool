@@ -88,6 +88,10 @@ public class ConfigManager {
         return userSettingsFile.getPatchDetailsFile();
     }
 
+    public String getBuildEngine() {
+        return userSettingsFile.getBuildEngine();
+    }
+
     /**
      * Return the metadata for the platformed installer.
      * @param platformName platform name

@@ -13,7 +13,7 @@
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} patches/* {{{tempDir}}}/patches/
+    COPY --chown={{userid}}:{{groupid}} patches/ {{{tempDir}}}/patches/
 
     {{^strictPatchOrdering}}
         # Apply all patches provided at the same time

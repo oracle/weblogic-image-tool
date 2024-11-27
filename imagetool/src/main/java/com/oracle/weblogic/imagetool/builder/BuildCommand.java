@@ -72,7 +72,10 @@ public class BuildCommand {
         }
         command.add("--platform");
         command.add(String.join(",", value));
-        useBuildx = true;
+        // Only use buildx for multi platform build
+        if (value.size() > 1) {
+            useBuildx = true;
+        }
         return this;
     }
 
