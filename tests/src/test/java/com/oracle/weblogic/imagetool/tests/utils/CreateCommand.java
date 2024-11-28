@@ -148,6 +148,7 @@ public class CreateCommand extends ImageToolCommand {
         return this;
     }
 
+
     /**
      * Generate the command using the provided command line options.
      * @return the imagetool command as a string suitable for running in ProcessBuilder
@@ -175,7 +176,6 @@ public class CreateCommand extends ImageToolCommand {
             + field("--wdtDomainType", wdtDomainType)
             + field("--wdtRunRCU", wdtRunRcu)
             + field("--platform", platform)
-            + field("--wdtModelOnly", wdtModelOnly)
-            + " -- --load";
+            + field("--wdtModelOnly", wdtModelOnly);
     }
 }

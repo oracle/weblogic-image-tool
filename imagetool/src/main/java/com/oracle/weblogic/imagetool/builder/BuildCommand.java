@@ -165,6 +165,28 @@ public class BuildCommand {
     }
 
     /**
+     * Add a --push to the Docker build command.  If value is false, return without adding the --push.
+     * @param value true to add the pull
+     */
+    public BuildCommand push(boolean value) {
+        if (value) {
+            command.add("--push");
+        }
+        return this;
+    }
+
+    /**
+     * Add a --load to the Docker build command.  If value is false, return without adding the --load.
+     * @param value true to add the pull
+     */
+    public BuildCommand load(boolean value) {
+        if (value) {
+            command.add("--load");
+        }
+        return this;
+    }
+
+    /**
      * Executes the given docker command and writes the process stdout to log.
      *
      * @param dockerLog      log file to write to
@@ -187,6 +209,7 @@ public class BuildCommand {
         }
 
         ProcessBuilder processBuilder = new ProcessBuilder(getCommand(true));
+        processBuilder.redirectErrorStream(true);
         logger.finer("Starting docker process...");
         final Process process = processBuilder.start();
         logger.finer("Docker process started");
@@ -271,9 +294,8 @@ public class BuildCommand {
             result.addAll(arg.toList(showPasswords));
         }
         result.add(context);
-        if (useBuildx) {
-            result.add("--progress=plain");
-        }
+        result.add("--progress=plain");
+
         return result;
     }
 

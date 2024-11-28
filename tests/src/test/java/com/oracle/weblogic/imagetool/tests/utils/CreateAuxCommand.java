@@ -88,7 +88,6 @@ public class CreateAuxCommand extends ImageToolCommand {
             + field("--wdtVariables", wdtVariables)
             + field("--wdtDomainHome", wdtDomainHome)
             + field("--platform", platform)
-            + field("--wdtModelOnly", wdtModelOnly)
-            + " -- --load";
+            + field("--wdtModelOnly", wdtModelOnly);
     }
 }

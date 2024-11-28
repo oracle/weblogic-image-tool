@@ -125,9 +125,8 @@ public abstract class CommonOptions {
      */
     BuildCommand getInitialBuildCmd(String contextFolder) {
         logger.entering();
-        BuildCommand cmdBuilder = new BuildCommand(buildEngine, contextFolder);
-
-        cmdBuilder.forceRm(!skipcleanup)
+        BuildCommand cmdBuilder = new BuildCommand(buildEngine, contextFolder)
+            .forceRm(!skipcleanup)
             .tag(imageTag)
             .platform(buildPlatform)
             .network(buildNetwork)
@@ -138,6 +137,15 @@ public abstract class CommonOptions {
             .buildArg("https_proxy", httpsProxyUrl, httpsProxyUrl != null && httpsProxyUrl.contains("@"))
             .buildArg("no_proxy", nonProxyHosts);
 
+        // if it is multiplatform build
+        if (buildId != null && buildPlatform.size() > 1) {
+            // if push is specified, ignore load value
+            if (push) {
+                cmdBuilder.push(push);
+            } else {
+                cmdBuilder.load(load);
+            }
+        }
         logger.exiting();
         return cmdBuilder;
     }
@@ -478,6 +486,18 @@ public abstract class CommonOptions {
     )
     private List<String> buildPlatform;
 
+    @Option(
+        names = {"--push"},
+        description = "push the image to the remote repository, only used when building multiplatform images"
+    )
+    private boolean push = false;
+
+    @Option(
+        names = {"--load"},
+        description = "load the image to the local repository, only used when building multiplatform images"
+    )
+    private boolean load = true;
+
     @Parameters(
         description = "Container build options.",
         hidden = true
@@ -486,4 +506,5 @@ public abstract class CommonOptions {
 
     @Spec
     CommandLine.Model.CommandSpec spec;
+
 }

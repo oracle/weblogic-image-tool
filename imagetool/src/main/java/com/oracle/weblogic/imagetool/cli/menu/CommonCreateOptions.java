@@ -197,4 +197,5 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         description = "path to where the inventory pointer file (oraInst.loc) should be stored in the image"
     )
     private String inventoryPointerInstallLoc;
+
 }

@@ -934,12 +934,12 @@ class ITImagetool {
                 .jdkVersion(JDK_VERSION_212)
                 .wdtVersion(WDT_VERSION)
                 .wdtArchive(WDT_ARCHIVE)
-                .platform(PLATFORM_AMD64)
                 .wdtDomainHome("/u01/domains/simple_domain")
                 .wdtModel(tmpWdtModel)
                 .wdtDomainType("JRF")
                 .wdtRunRcu(true)
                 .type("fmw")
+                .platform(PLATFORM_AMD64)
                 .build();
 
             CommandResult result = Runner.run(command, out, logger);
