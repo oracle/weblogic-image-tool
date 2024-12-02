@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.oracle.weblogic.imagetool.aru.AruPatch;
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -19,13 +20,14 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.util.Architecture;
 
-import static com.oracle.weblogic.imagetool.cachestore.FileCacheStore.CACHE_DIR_ENV;
+import static com.oracle.weblogic.imagetool.cachestore.CacheStore.CACHE_DIR_ENV;
 import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
 public class ConfigManager {
     private UserSettingsFile userSettingsFile;
     private static ConfigManager instance;
     private static final LoggingFacade logger = LoggingFactory.getLogger(UserSettingsFile.class);
+    private static CacheStore cacheStore = new CacheStore();
 
     private ConfigManager(Path userSettingsFileName) {
         if (userSettingsFileName != null) {
@@ -33,6 +35,7 @@ public class ConfigManager {
         } else {
             userSettingsFile = new UserSettingsFile();
         }
+
     }
 
     /**
@@ -63,22 +66,6 @@ public class ConfigManager {
         return instance;
     }
 
-    public Map<String, List<PatchMetaData>> getAllPatches() {
-        return userSettingsFile.getAllPatches();
-    }
-
-    public void saveAllPatches(Map<String, List<PatchMetaData>> allPatches, String location) throws IOException {
-        userSettingsFile.saveAllPatches(allPatches, location);
-    }
-
-    public void addPatch(String bugNumber, String patchArchitecture, String patchLocation,
-                                          String patchVersion, String description) throws IOException {
-        userSettingsFile.addPatch(bugNumber, patchArchitecture, patchLocation, patchVersion, description);
-    }
-
-    public PatchMetaData getPatchForPlatform(String platformName,  String bugNumber, String version) {
-        return userSettingsFile.getPatchForPlatform(platformName, bugNumber, version);
-    }
 
     public String getPatchDirectory() {
         return userSettingsFile.getPatchDirectory();
@@ -92,6 +79,31 @@ public class ConfigManager {
         return userSettingsFile.getBuildEngine();
     }
 
+    public String getInstallerDetailsFile() {
+        return userSettingsFile.getInstallerDetailsFile();
+    }
+
+    public String getDefaultBuildPlatform() {
+        return userSettingsFile.getDefaultBuildPlatform();
+    }
+
+    public Map<String, List<PatchMetaData>> getAllPatches() {
+        return cacheStore.getAllPatches();
+    }
+
+    public void saveAllPatches(Map<String, List<PatchMetaData>> allPatches, String location) throws IOException {
+        cacheStore.saveAllPatches(allPatches, location);
+    }
+
+    public void addPatch(String bugNumber, String patchArchitecture, String patchLocation,
+                         String patchVersion, String description) throws IOException {
+        cacheStore.addPatch(bugNumber, patchArchitecture, patchLocation, patchVersion, description);
+    }
+
+    public PatchMetaData getPatchForPlatform(String platformName,  String bugNumber, String version) {
+        return cacheStore.getPatchForPlatform(platformName, bugNumber, version);
+    }
+
     /**
      * Return the metadata for the platformed installer.
      * @param platformName platform name
@@ -100,7 +112,7 @@ public class ConfigManager {
      */
     public InstallerMetaData getInstallerForPlatform(InstallerType installerType, Architecture platformName,
                                                      String installerVersion) {
-        return userSettingsFile.getInstallerForPlatform(installerType, platformName, installerVersion);
+        return cacheStore.getInstallerForPlatform(installerType, platformName, installerVersion);
     }
 
     /**
@@ -108,12 +120,7 @@ public class ConfigManager {
      * @return map of installers
      */
     public EnumMap<InstallerType, Map<String, List<InstallerMetaData>>> getInstallers() {
-
-        return userSettingsFile.getInstallers();
-    }
-
-    public String getInstallerDetailsFile() {
-        return userSettingsFile.getInstallerDetailsFile();
+        return cacheStore.getInstallers();
     }
 
     /**
@@ -125,7 +132,7 @@ public class ConfigManager {
      */
     public void addInstaller(InstallerType installerType, String commonName, InstallerMetaData metaData)
         throws IOException {
-        userSettingsFile.addInstaller(installerType,commonName, metaData);
+        cacheStore.addInstaller(installerType, commonName, metaData);
     }
 
     /**
@@ -136,7 +143,7 @@ public class ConfigManager {
      */
     public void saveAllInstallers(Map<InstallerType, Map<String, List<InstallerMetaData>>> allInstallers,
                                   String location) throws IOException {
-        userSettingsFile.saveAllInstallers(allInstallers, location);
+        cacheStore.saveAllInstallers(allInstallers, location);
     }
 
     /**
@@ -146,12 +153,9 @@ public class ConfigManager {
      */
 
     public List<AruPatch> getAruPatchForBugNumber(String bugNumber) {
-        return userSettingsFile.getAruPatchForBugNumber(bugNumber);
+        return cacheStore.getAruPatchForBugNumber(bugNumber);
     }
 
-    public String getDefaultBuildPlatform() {
-        return userSettingsFile.getDefaultBuildPlatform();
-    }
 
     private InstallerMetaData createInstallerMetaData(Map<String, Object> objectData) {
         String hash = (String) objectData.get("digest");
@@ -177,6 +181,5 @@ public class ConfigManager {
         String description = (String) objectData.get("description");
         return new PatchMetaData(platform, location, hash, dateAdded, productVersion, description);
     }
-
 
 }

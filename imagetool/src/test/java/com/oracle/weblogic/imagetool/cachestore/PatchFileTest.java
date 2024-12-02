@@ -32,6 +32,7 @@ import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import com.oracle.weblogic.imagetool.util.Architecture;
+import com.oracle.weblogic.imagetool.util.TestSetup;
 import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -57,32 +58,13 @@ class PatchFileTest {
     static Level originalLogLevel;
     static UserSettingsFile userSettingsFile;
 
-    private static void addToCache(Path tempDir, String key, String filename) throws IOException {
-        Path path = tempDir.resolve(filename);
-        Files.write(path, fileContents);
-        cacheStore.addToCache(key, path.toString());
-    }
 
     @BeforeAll
     static void setup(@TempDir Path tempDir)
         throws IOException, NoSuchFieldException, IllegalAccessException {
-        Path settingsFileName = tempDir.resolve("settings.yaml");
-        Path installerFile = tempDir.resolve("installers.yaml");
-        Path patchFile = tempDir.resolve("patches.yaml");
-        Files.createFile(settingsFileName);
-        Files.createFile(installerFile);
-        Files.createFile(patchFile);
-
-
-        List<String> lines = Arrays.asList(
-            "installerSettingsFile: " + installerFile.toAbsolutePath().toString(),
-            "patchSettingsFile: " + patchFile.toAbsolutePath().toString(),
-            "installerDirectory: " + tempDir.toAbsolutePath().toString(),
-            "patchDirectory: " + tempDir.toAbsolutePath().toString()
-        );
-        Files.write(settingsFileName, lines);
-        ConfigManager configManager = ConfigManager.getInstance(settingsFileName);
-
+        TestSetup.setup(tempDir);
+        ConfigManager configManager = ConfigManager.getInstance();
+        Path patchFile = Paths.get(configManager.getPatchDetailsFile());
 
         addPatchesToLocal(tempDir, configManager, patchFile, BUGNUMBER,
             "Generic", "patch1.zip",SOME_VERSION);
@@ -134,16 +116,6 @@ class PatchFileTest {
         configManager.saveAllPatches(patches, patchListingFile.toAbsolutePath().toString());
     }
 
-    public static class FileStoreTestImpl extends FileCacheStore {
-        public FileStoreTestImpl() throws CacheStoreException {
-            super();
-        }
-
-        @Override
-        String getCacheDirSetting() {
-            return PatchFileTest.cacheDir.toString();
-        }
-    }
 
     /**
      * Intercept calls to the ARU REST API during unit testing.
@@ -191,11 +163,6 @@ class PatchFileTest {
         Field aruRest = AruUtil.class.getDeclaredField("instance");
         aruRest.setAccessible(true);
         aruRest.set(aruRest, null);
-
-        // remove test class from CacheStoreFactory instance
-        Field cacheStore = CacheStoreFactory.class.getDeclaredField("store");
-        cacheStore.setAccessible(true);
-        cacheStore.set(cacheStore, null);
 
         // restore original logging level after this test suite completes
         LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);

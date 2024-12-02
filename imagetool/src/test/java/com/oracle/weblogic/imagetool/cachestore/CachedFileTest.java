@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import com.oracle.weblogic.imagetool.util.Architecture;
+import com.oracle.weblogic.imagetool.util.TestSetup;
 import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -52,22 +54,10 @@ class CachedFileTest {
         Path path1411 = tempDir.resolve("installer.file.141100.jar");
         Files.write(path1411, fileContents);
 
-        Path settingsFileName = tempDir.resolve("settings.yaml");
-        Path installerFile = tempDir.resolve("installers.yaml");
-        Path patchFile = tempDir.resolve("patches.yaml");
-        Files.createFile(settingsFileName);
-        Files.createFile(installerFile);
-        Files.createFile(patchFile);
 
-
-        List<String> lines = Arrays.asList(
-            "installerSettingsFile: " + installerFile.toAbsolutePath().toString(),
-            "patchSettingsFile: " + patchFile.toAbsolutePath().toString(),
-            "installerDirectory: " + tempDir.toAbsolutePath().toString(),
-            "patchDirectory: " + tempDir.toAbsolutePath().toString()
-        );
-        Files.write(settingsFileName, lines);
-        ConfigManager configManager = ConfigManager.getInstance(settingsFileName);
+        TestSetup.setup(tempDir);
+        ConfigManager configManager = ConfigManager.getInstance();
+        Path patchFile = Paths.get(configManager.getPatchDetailsFile());
 
 
         InstallerMetaData installer1 = new InstallerMetaData("Generic", path12213.toString(),

@@ -12,15 +12,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
@@ -503,32 +499,6 @@ public class AruUtil {
         }
     }
 
-    private List<AruPatch> getPatchesOffline(String bugNumber) throws CacheStoreException {
-        List<AruPatch> patchesInCache = new ArrayList<>();
-        // Cache keys are in the form {bug number}_{version} or {bug number}_{version}_{architecture}
-        Pattern pattern = Pattern.compile("^([^_]+)_([^_]+)(?:_(.+))?$");
-        // Get a list of patches in the cache for the given bug number
-
-        for (String patchId: CacheStoreFactory.cache().getKeysForType(bugNumber)) {
-            AruPatch patch = new AruPatch();
-            Matcher matcher = pattern.matcher(patchId);
-            if (matcher.find() && matcher.groupCount() < 2) {
-                logger.fine("While getting patches for {0}, discarded bad cache key {1}", bugNumber, patchId);
-            }
-            patch.patchId(matcher.group(1));
-            patch.version(matcher.group(2));
-            if (matcher.groupCount() == 3 && matcher.group(3) != null) {
-                int aruPlatform = Architecture.fromString(matcher.group(3)).getAruPlatform();
-                patch.platform(Integer.toString(aruPlatform));
-            } else {
-                // architecture was not specified in the cache key, assume generic platform
-                patch.platform("2000");
-            }
-            patch.description("description unavailable while working offline");
-            patchesInCache.add(patch);
-        }
-        return patchesInCache;
-    }
 
     /**
      * Download a patch file from ARU.

@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import static com.oracle.weblogic.imagetool.cachestore.FileCacheStore.CACHE_DIR_ENV;
+import static com.oracle.weblogic.imagetool.cachestore.CacheStore.CACHE_DIR_ENV;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
