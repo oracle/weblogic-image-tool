@@ -72,7 +72,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.11.0</version>
+                <version>5.11.3</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -89,7 +89,7 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>24.1.0</version>
+                <version>26.0.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -163,7 +163,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.4.1</version>
+                    <version>3.5.0</version>
                     <executions>
                         <execution>
                             <id>generate-autocompletion-script</id>
@@ -242,7 +242,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.17.0</version>
+                            <version>10.20.2</version>
                         </dependency>
                     </dependencies>
                 </plugin>
