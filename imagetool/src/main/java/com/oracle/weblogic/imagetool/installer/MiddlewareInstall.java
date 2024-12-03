@@ -34,10 +34,10 @@ public class MiddlewareInstall {
      */
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
                              Architecture target) throws FileNotFoundException {
-        logger.info("IMG-0039", type.installerListString(), version);
+        logger.info("IMG-0039", type.installerListString(version), version);
         fmwInstallerType = type;
 
-        for (InstallerType installer : type.installerList()) {
+        for (InstallerType installer : type.installerList(version)) {
             MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
             pkg.type = installer;
             pkg.installer = new CachedFile(installer, version, target);
@@ -47,7 +47,7 @@ public class MiddlewareInstall {
             }
             addInstaller(pkg);
         }
-        setResponseFiles(responseFiles);
+        setResponseFiles(responseFiles, version);
     }
 
     private static String getJarNameFromInstaller(Path installerFile) throws IOException {
@@ -96,11 +96,11 @@ public class MiddlewareInstall {
         return installerFiles;
     }
 
-    private boolean addInstaller(MiddlewareInstallPackage installPackage) {
-        return installerFiles.add(installPackage);
+    private void addInstaller(MiddlewareInstallPackage installPackage) {
+        installerFiles.add(installPackage);
     }
 
-    private void setResponseFiles(List<Path> responseFiles) throws FileNotFoundException {
+    private void setResponseFiles(List<Path> responseFiles, String version) throws FileNotFoundException {
         if (responseFiles == null || responseFiles.isEmpty()) {
             return;
         }
@@ -110,7 +110,7 @@ public class MiddlewareInstall {
         if (responseFiles.size() != installerFiles.size()) {
             throw new IllegalArgumentException(
                 Utils.getMessage("IMG-0040",
-                    fmwInstallerType.installerListString(),
+                    fmwInstallerType.installerListString(version),
                     responseFiles.size(),
                     installerFiles.size()));
         }

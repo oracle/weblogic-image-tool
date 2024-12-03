@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.installer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -82,7 +83,16 @@ public enum FmwInstallerType {
         InstallerType.FMW, InstallerType.WCS),
     OHS(Utils.toSet(AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC, AruProduct.FMWPLAT,
         AruProduct.OSS, AruProduct.FIT, AruProduct.JRF, AruProduct.FMW_GLCM),
-        InstallerType.OHS, InstallerType.DB19),
+        InstallerType.OHS) {
+        @Override
+        public List<InstallerType> installerList(String version) {
+            List<InstallerType> ohsInstallers = new ArrayList<>(Arrays.asList(OHS.installers));
+            if (version.equals("12.2.1.4.0")) {
+                ohsInstallers.add(InstallerType.DB19);
+            }
+            return ohsInstallers;
+        }
+    },
     ODI(Collections.singleton(AruProduct.ODI),
         InstallerType.ODI)
     ;
@@ -95,12 +105,13 @@ public enum FmwInstallerType {
         this.products = products;
     }
 
-    public List<InstallerType> installerList() {
+    @SuppressWarnings("unused") // version parameter is needed in the OHS override function
+    public List<InstallerType> installerList(String version) {
         return Arrays.asList(installers);
     }
 
-    public String installerListString() {
-        return Arrays.stream(installers).map(Object::toString).collect(Collectors.joining(", "));
+    public String installerListString(String version) {
+        return installerList(version).stream().map(Object::toString).collect(Collectors.joining(", "));
     }
 
     public Set<AruProduct> products() {
