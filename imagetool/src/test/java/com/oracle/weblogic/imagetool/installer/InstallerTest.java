@@ -11,23 +11,29 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 class InstallerTest {
     @Test
     void fmwInstallerTypeStringTest() {
-        assertEquals("fmw, soa, osb", FmwInstallerType.SOA_OSB.installerListString(),
+        assertEquals("fmw, soa, osb", FmwInstallerType.SOA_OSB.installerListString("12.2.1.4.0"),
             "string list of installer types for SOA_OSB is wrong");
     }
 
     @Test
     void fmwInstallerTypeListTest() {
         assertEquals(Arrays.asList(InstallerType.FMW, InstallerType.OSB),
-            FmwInstallerType.OSB.installerList(), "installer list for OSB is wrong");
+            FmwInstallerType.OSB.installerList("12.2.1.4.0"), "installer list for OSB is wrong");
 
         assertEquals(Arrays.asList(InstallerType.FMW, InstallerType.SOA, InstallerType.OSB),
-            FmwInstallerType.SOA_OSB.installerList(), "installer list for OSB is wrong");
+            FmwInstallerType.SOA_OSB.installerList("12.2.1.4.0"), "installer list for OSB is wrong");
+
+        assertTrue(FmwInstallerType.OHS.installerList("12.2.1.4.0").contains(InstallerType.DB19));
+        assertFalse(FmwInstallerType.OHS.installerList("14.1.2.0.0").contains(InstallerType.DB19),
+            "Only OHS 12.2.1.4 requires the DB19 installer (patch)");
     }
 
     @Test
