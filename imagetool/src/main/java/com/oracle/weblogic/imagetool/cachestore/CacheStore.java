@@ -135,13 +135,19 @@ public class CacheStore {
             installerDetails.put(installerType, new HashMap<>());
             installerMetaDataMap = installerDetails.get(installerType);
         }
+
         if (installerMetaDataMap.containsKey(commonName)) {
             installerMetaDataList = installerMetaDataMap.get(commonName);
         } else {
             installerMetaDataMap.put(commonName, new ArrayList<>());
             installerMetaDataList = installerMetaDataMap.get(commonName);
         }
-        installerMetaDataList.add(metaData);
+        // Before adding see if one same already existed.
+        if (installerMetaDataList.contains(metaData)) {
+            logger.info("IMG_0135", metaData.toString());
+        } else {
+            installerMetaDataList.add(metaData);
+        }
         // Update the list
         installerDetails.put(installerType, installerMetaDataMap);
         saveAllInstallers(installerDetails, ConfigManager.getInstance().getInstallerDetailsFile());
@@ -200,7 +206,38 @@ public class CacheStore {
             latestPatches = new ArrayList<>();
         }
         PatchMetaData newPatch = new PatchMetaData(patchArchitecture, patchLocation, patchVersion, description);
-        latestPatches.add(newPatch);
+        if (latestPatches.contains(newPatch)) {
+            logger.info("IMG_0136", newPatch);
+        } else {
+            latestPatches.add(newPatch);
+        }
+        patches.put(bugNumber, latestPatches);
+        configManager.saveAllPatches(patches, configManager.getPatchDetailsFile());
+    }
+
+    /**
+     * Add a patch to the local system.
+     * @param bugNumber bug number
+     * @param patchArchitecture architecture of the patch
+     * @param patchLocation file location of the patch
+     * @param patchVersion version of the patch
+     * @throws IOException error
+     */
+    public void addPatch(String bugNumber, String patchArchitecture, String patchLocation,
+                         String patchVersion, String description, String dateAdded) throws IOException {
+        ConfigManager configManager = ConfigManager.getInstance();
+        Map<String, List<PatchMetaData>> patches = configManager.getAllPatches();
+        List<PatchMetaData> latestPatches = patches.get(bugNumber);
+        if (latestPatches == null) {
+            latestPatches = new ArrayList<>();
+        }
+        PatchMetaData newPatch = new PatchMetaData(patchArchitecture, patchLocation, patchVersion, description,
+            dateAdded);
+        if (latestPatches.contains(newPatch)) {
+            logger.info("IMG_0136", newPatch.toString());
+        } else {
+            latestPatches.add(newPatch);
+        }
         patches.put(bugNumber, latestPatches);
         configManager.saveAllPatches(patches, configManager.getPatchDetailsFile());
     }

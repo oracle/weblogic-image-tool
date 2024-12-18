@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.cli.cache;
 
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
+import com.oracle.weblogic.imagetool.util.CacheConversion;
 import picocli.CommandLine.Command;
 
 @Command(
@@ -17,7 +18,8 @@ import picocli.CommandLine.Command;
         AddInstallerEntry.class,
         AddPatchEntry.class,
         DeleteInstaller.class,
-        DeletePatch.class
+        DeletePatch.class,
+        CacheConversion.class
     },
     sortOptions = false
 )

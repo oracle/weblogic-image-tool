@@ -3,6 +3,8 @@
 
 package com.oracle.weblogic.imagetool.patch;
 
+import java.util.Objects;
+
 import com.oracle.weblogic.imagetool.util.Utils;
 
 public class PatchMetaData {
@@ -36,12 +38,30 @@ public class PatchMetaData {
      * @param platform platform
      * @param location file path of the patch
      * @param patchVersion version
+     * @param description description of the patch
      */
     public PatchMetaData(String platform, String location, String patchVersion, String description) {
         this.platform = platform;
         this.location = location;
         this.hash = Utils.getSha256Hash(location);
         this.dateAdded = Utils.getTodayDate();
+        this.patchVersion = patchVersion;
+        this.description = description;
+    }
+
+    /**
+     * Constructor.
+     * @param platform platform
+     * @param location file path of the patch
+     * @param patchVersion version
+     * @param description description of the patch
+     * @param dateAdded date added
+     */
+    public PatchMetaData(String platform, String location, String patchVersion, String description, String dateAdded) {
+        this.platform = platform;
+        this.location = location;
+        this.hash = Utils.getSha256Hash(location);
+        this.dateAdded = dateAdded;
         this.patchVersion = patchVersion;
         this.description = description;
     }
@@ -80,5 +100,26 @@ public class PatchMetaData {
             + ", patchVersion='" + patchVersion + '\''
             + ", description='" + description + '\''
             + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PatchMetaData metaData = (PatchMetaData) o;
+        return Objects.equals(platform, metaData.platform)
+            && Objects.equals(location, metaData.location) && Objects.equals(hash, metaData.hash)
+            && Objects.equals(dateAdded, metaData.dateAdded)
+            && Objects.equals(patchVersion, metaData.patchVersion)
+            && Objects.equals(description, metaData.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(platform, location, hash, dateAdded, patchVersion, description);
     }
 }

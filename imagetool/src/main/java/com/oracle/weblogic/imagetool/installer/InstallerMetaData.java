@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.installer;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -87,5 +88,25 @@ public class InstallerMetaData {
     public String toString() {
         return "InstallerMetaData [platform=" + platform + ", location=" + location + ", hash=" + digest + ", "
             + "dateAdded=" + dateAdded + ", version=" + productVersion + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InstallerMetaData metaData = (InstallerMetaData) o;
+        return Objects.equals(platform, metaData.platform)
+            && Objects.equals(location, metaData.location) && Objects.equals(digest, metaData.digest)
+            && Objects.equals(dateAdded, metaData.dateAdded)
+            && Objects.equals(productVersion, metaData.productVersion);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(platform, location, digest, dateAdded, productVersion);
     }
 }

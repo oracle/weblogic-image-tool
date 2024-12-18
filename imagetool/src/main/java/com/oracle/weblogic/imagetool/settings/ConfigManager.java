@@ -100,6 +100,11 @@ public class ConfigManager {
         cacheStore.addPatch(bugNumber, patchArchitecture, patchLocation, patchVersion, description);
     }
 
+    public void addPatch(String bugNumber, String patchArchitecture, String patchLocation,
+                         String patchVersion, String description, String dateAdded) throws IOException {
+        cacheStore.addPatch(bugNumber, patchArchitecture, patchLocation, patchVersion, description, dateAdded);
+    }
+
     public PatchMetaData getPatchForPlatform(String platformName,  String bugNumber, String version) {
         return cacheStore.getPatchForPlatform(platformName, bugNumber, version);
     }
