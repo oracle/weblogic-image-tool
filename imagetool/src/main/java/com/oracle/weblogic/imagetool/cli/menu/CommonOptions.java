@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
+import com.oracle.weblogic.imagetool.builder.AbstractCommand;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
 import com.oracle.weblogic.imagetool.inspect.OperatingSystemProperties;
@@ -105,7 +106,7 @@ public abstract class CommonOptions {
         }
     }
 
-    void runDockerCommand(String dockerfile, BuildCommand command) throws IOException, InterruptedException {
+    void runDockerCommand(String dockerfile, AbstractCommand command) throws IOException, InterruptedException {
         logger.info("IMG-0078", command.toString());
 
         if (dryRun) {
@@ -140,10 +141,12 @@ public abstract class CommonOptions {
         // if it is multiplatform build
         if (buildId != null && buildPlatform.size() > 1) {
             // if push is specified, ignore load value
-            if (push) {
-                cmdBuilder.push(push);
-            } else {
-                cmdBuilder.load(load);
+            if (!buildEngine.equalsIgnoreCase("podman")) {
+                if (push) {
+                    cmdBuilder.push(push);
+                } else {
+                    cmdBuilder.load(load);
+                }
             }
         }
         logger.exiting();
@@ -496,7 +499,7 @@ public abstract class CommonOptions {
         names = {"--load"},
         description = "load the image to the local repository, only used when building multiplatform images"
     )
-    private boolean load = true;
+    private boolean load = false;
 
     @Parameters(
         description = "Container build options.",

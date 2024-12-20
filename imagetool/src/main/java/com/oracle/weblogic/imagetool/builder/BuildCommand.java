@@ -3,16 +3,6 @@
 
 package com.oracle.weblogic.imagetool.builder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +10,9 @@ import java.util.Objects;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.CloseableList;
 import com.oracle.weblogic.imagetool.util.Utils;
 
-public class BuildCommand {
+public class BuildCommand extends AbstractCommand {
     private static final LoggingFacade logger = LoggingFactory.getLogger(BuildCommand.class);
 
     private final String executable;
@@ -32,6 +21,7 @@ public class BuildCommand {
     private List<String> additionalOptions;
     private final String context;
     private boolean useBuildx = false;
+    private List<String> buildPlatforms = new ArrayList<>();
 
     /**
      * Create a build command for creating an image.  At some point, it might
@@ -67,6 +57,7 @@ public class BuildCommand {
      * @return this
      */
     public BuildCommand platform(List<String> value) {
+        buildPlatforms = value;
         if (value == null || value.isEmpty()) {
             return this;
         }
@@ -186,100 +177,9 @@ public class BuildCommand {
         return this;
     }
 
-    /**
-     * Executes the given docker command and writes the process stdout to log.
-     *
-     * @param dockerLog      log file to write to
-     * @throws IOException          if an error occurs reading from the process inputstream.
-     * @throws InterruptedException when the process wait is interrupted.
-     */
-    public void run(Path dockerLog)
-        throws IOException, InterruptedException {
-        // process builder
-        logger.entering(getCommand(false), dockerLog);
-        Path dockerLogPath = createFile(dockerLog);
-        logger.finer("Docker log: {0}", dockerLogPath);
-        List<OutputStream> outputStreams = new ArrayList<>();
 
-        outputStreams.add(System.out);
-
-        if (dockerLogPath != null) {
-            logger.info("dockerLog: " + dockerLog);
-            outputStreams.add(Files.newOutputStream(dockerLogPath));
-        }
-
-        ProcessBuilder processBuilder = new ProcessBuilder(getCommand(true));
-        processBuilder.redirectErrorStream(true);
-        logger.finer("Starting docker process...");
-        final Process process = processBuilder.start();
-        logger.finer("Docker process started");
-        writeFromInputToOutputStreams(process.getInputStream(), outputStreams);
-        logger.finer("Waiting for Docker to finish");
-        if (process.waitFor() != 0) {
-            Utils.processError(process);
-        }
-    }
-
-    /**
-     * Create a file with the given path.
-     *
-     * @param filePath        the path of the file to create
-     * @return file path or null in case of error
-     */
-    private Path createFile(Path filePath) {
-        Path logFilePath = filePath;
-        if (logFilePath != null) {
-            try {
-                if (!Files.exists(logFilePath)) {
-                    Files.createDirectories(logFilePath.getParent());
-                    Files.createFile(logFilePath);
-                } else {
-                    if (Files.isDirectory(logFilePath)) {
-                        logFilePath = Paths.get(logFilePath.toAbsolutePath().toString(), "dockerbuild.log");
-                        if (Files.exists(logFilePath)) {
-                            Files.delete(logFilePath);
-                        }
-                        Files.createFile(logFilePath);
-                    }
-                }
-            } catch (IOException e) {
-                logger.fine("Failed to create log file for the build command", e);
-                logFilePath = null;
-            }
-        }
-        return logFilePath;
-    }
-
-    private void writeFromInputToOutputStreams(InputStream inputStream, List<OutputStream> outputStreams) {
-        Thread readerThread = new Thread(() -> {
-            try (
-                BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
-                CloseableList<PrintWriter> printWriters = createPrintWriters(outputStreams)
-            ) {
-                if (!printWriters.isEmpty()) {
-                    String line;
-                    while ((line = processReader.readLine()) != null) {
-                        String finalLine = line;
-                        printWriters.forEach(x -> x.println(finalLine));
-                    }
-                }
-            } catch (IOException e) {
-                logger.severe(e.getMessage());
-            }
-        });
-        readerThread.setDaemon(true);
-        readerThread.start();
-    }
-
-    private CloseableList<PrintWriter> createPrintWriters(List<OutputStream> outputStreams) {
-        CloseableList<PrintWriter> retVal = new CloseableList<>();
-        for (OutputStream outputStream : outputStreams) {
-            retVal.add(new PrintWriter(new OutputStreamWriter(outputStream), true));
-        }
-        return retVal;
-    }
-
-    private List<String> getCommand(boolean showPasswords) {
+    @Override
+    public List<String> getCommand(boolean showPasswords) {
         List<String> result = new ArrayList<>();
         result.add(executable);
         if (useBuildx) {
@@ -297,6 +197,70 @@ public class BuildCommand {
         result.add("--progress=plain");
 
         return result;
+    }
+
+    /**
+     * Return the build engine used.
+     * @return build engine passed or used
+     */
+    public String getExecutable() {
+        return executable;
+    }
+
+    /**
+     * Return the build platforms passed in.
+     * @return build platforms
+     */
+
+    public List<String> getBuildPlatforms() {
+        return buildPlatforms;
+    }
+
+    /**
+     * Substitute the platform value.
+     * @param platform platform value used for substitution
+     */
+    public void substitutePlatform(String platform) {
+        for (int i = 0; i < command.size() - 1; i++) {
+            if (command.get(i).equals("--platform")) {
+                command.set(i + 1, platform);
+            }
+        }
+    }
+
+    /**
+     * Substitute the tagname value.
+     * @param tagName platform value used for substitution
+     */
+    public String substituteTagName(String tagName) {
+        for (int i = 0; i < command.size() - 1; i++) {
+            if (command.get(i).equals("--tag")) {
+                command.set(i + 1, tagName);
+                return command.get(i + 1);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return the tag name value.
+     * @return tag name
+     */
+    public String getTagName() {
+        for (int i = 0; i < command.size() - 1; i++) {
+            if (command.get(i).equals("--tag")) {
+                return command.get(i + 1);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return context folder.
+     * @return context folder
+     */
+    public String getContext() {
+        return context;
     }
 
     @Override
