@@ -12,6 +12,7 @@ import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -37,11 +38,16 @@ public class DeletePatch extends CacheOperation {
             List<PatchMetaData> items = data.get(id);
             exists = Optional.ofNullable(items)
                 .map(list -> list.stream().anyMatch(i -> i.getPatchVersion().equals(version)
-                    && i.getPlatform().equalsIgnoreCase(architecture))).orElse(false);
+                    && Architecture.fromString(i.getPlatform()).equals(architecture))).orElse(false);
             if (exists) {
                 Optional.ofNullable(items)
                         .map(list -> list.removeIf(i -> i.getPatchVersion().equals(version)
-                            && i.getPlatform().equalsIgnoreCase(architecture)));
+                            && Architecture.fromString(i.getPlatform()).equals(architecture)));
+                
+                if (items.isEmpty()) {
+                    data.remove(id);
+                }
+
                 break;
             }
         }
@@ -72,6 +78,6 @@ public class DeletePatch extends CacheOperation {
         names = {"--architecture"},
         description = "Specific architecture to delete"
     )
-    private String architecture;
+    private Architecture architecture;
 
 }

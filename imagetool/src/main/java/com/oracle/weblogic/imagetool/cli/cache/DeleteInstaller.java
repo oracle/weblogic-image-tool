@@ -13,6 +13,7 @@ import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -43,13 +44,17 @@ public class DeleteInstaller extends CacheOperation {
                 search = commonName;
             }
             exists = Optional.ofNullable(items.get(search))
-                .map(list -> list.stream().anyMatch(i -> i.getPlatform().equalsIgnoreCase(architecture)
-                    && i.getProductVersion().equalsIgnoreCase(version)))
+                .map(list -> list.stream().anyMatch(i -> Architecture.fromString(i.getPlatform())
+                    .equals(architecture) && i.getProductVersion().equalsIgnoreCase(version)))
                 .orElse(false);
             if (exists) {
                 Optional.ofNullable(items.get(search))
-                        .map(list -> list.removeIf(i -> i.getPlatform().equalsIgnoreCase(architecture)
-                            && i.getProductVersion().equalsIgnoreCase(version)));
+                        .map(list -> list.removeIf(i -> Architecture.fromString(i.getPlatform())
+                            .equals(architecture) && i.getProductVersion().equalsIgnoreCase(version)));
+
+                if (items.get(search).isEmpty()) {
+                    items.remove(search);
+                }
                 break;
             }
         }
@@ -86,6 +91,6 @@ public class DeleteInstaller extends CacheOperation {
         names = {"--architecture"},
         description = "Specific architecture to delete"
     )
-    private String architecture;
+    private Architecture architecture;
 
 }
