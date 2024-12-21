@@ -105,25 +105,6 @@ public class CreateImage extends CommonCreateOptions implements Callable<Command
         return successfulBuildResponse(startTime);
     }
 
-    private ManifestCommand createManifestCommand(String buildEngine, String context, String manifestName) {
-        return new ManifestCommand(buildEngine, context)
-            .create()
-            .name(manifestName);
-    }
-
-    private ManifestCommand addManifestCommand(String buildEngine, String context, String manifestName, String tag) {
-        return new ManifestCommand(buildEngine, context)
-            .add()
-            .name(manifestName)
-            .tag(tag);
-    }
-
-    private ManifestCommand pushManifestCommand(String buildEngine, String context, String manifestName, String tag) {
-        return new ManifestCommand(buildEngine, context)
-            .push()
-            .name(manifestName)
-            .tag(tag);
-    }
 
     @ArgGroup(exclusive = false, heading = "WDT Options%n")
     private final WdtFullOptions wdtOptions = new WdtFullOptions();
