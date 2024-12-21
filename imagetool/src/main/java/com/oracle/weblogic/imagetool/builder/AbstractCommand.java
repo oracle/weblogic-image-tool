@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.builder;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,7 +14,6 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -39,13 +39,9 @@ public abstract class AbstractCommand {
         logger.entering(getCommand(false), dockerLog);
         Path dockerLogPath = createFile(dockerLog);
         logger.finer("Docker log: {0}", dockerLogPath);
-        List<OutputStream> outputStreams = new ArrayList<>();
-
-        outputStreams.add(System.out);
 
         if (dockerLogPath != null) {
             logger.info("dockerLog: " + dockerLog);
-            outputStreams.add(Files.newOutputStream(dockerLogPath));
         }
 
         ProcessBuilder processBuilder = new ProcessBuilder(getCommand(true));
@@ -53,11 +49,12 @@ public abstract class AbstractCommand {
         logger.finer("Starting docker process...");
         final Process process = processBuilder.start();
         logger.finer("Docker process started");
-        writeFromInputToOutputStreams(process.getInputStream(), outputStreams);
+        Thread readerThread = writeFromInputToOutputStreams(process.getInputStream(), dockerLogPath);
         logger.finer("Waiting for Docker to finish");
         if (process.waitFor() != 0) {
             Utils.processError(process);
         }
+        readerThread.join();
     }
 
     /**
@@ -90,25 +87,45 @@ public abstract class AbstractCommand {
         return logFilePath;
     }
 
-    private void writeFromInputToOutputStreams(InputStream inputStream, List<OutputStream> outputStreams) {
+    private Thread writeFromInputToOutputStreams(InputStream inputStream, Path dockerLogPath) {
         Thread readerThread = new Thread(() -> {
-            try (
-                BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
-                CloseableList<PrintWriter> printWriters = createPrintWriters(outputStreams)
-            ) {
-                if (!printWriters.isEmpty()) {
-                    String line;
-                    while ((line = processReader.readLine()) != null) {
-                        String finalLine = line;
-                        printWriters.forEach(x -> x.println(finalLine));
+            BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
+            PrintWriter stdoutWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+            PrintWriter logWriter = null;
+            OutputStream fileOutputStream = null;
+
+            try  {
+                if (dockerLogPath != null) {
+                    fileOutputStream = Files.newOutputStream(dockerLogPath);
+                    logWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(fileOutputStream)));
+                }
+                String line;
+                while ((line = processReader.readLine()) != null) {
+                    // String finalLine = line;
+                    if (logWriter != null) {
+                        logWriter.println(line);
                     }
+                    stdoutWriter.println(line);
                 }
             } catch (IOException e) {
                 logger.severe(e.getMessage());
+            } finally {
+                try {
+                    processReader.close();
+                    if (logWriter != null) {
+                        logWriter.close();
+                    }
+                    if (fileOutputStream != null) {
+                        fileOutputStream.close();
+                    }
+                } catch (IOException ioe) {
+                    logger.finest(ioe.getMessage());
+                }
             }
         });
-        readerThread.setDaemon(true);
+        //readerThread.setDaemon(true);
         readerThread.start();
+        return readerThread;
     }
 
     private CloseableList<PrintWriter> createPrintWriters(List<OutputStream> outputStreams) {
