@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.cli.config;
 
+
 import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 
 public enum ConfigAttributeName {
@@ -92,18 +93,51 @@ public enum ConfigAttributeName {
 
         @Override
         public String get(UserSettingsFile settings) {
-            return settings.getInstallerDetailsFile();
+            return settings.getInstallerSettingsFile();
         }
     },
     patchSettingsFile("PatchSettingsFile") {
         @Override
         public void set(UserSettingsFile settings, String value) {
-            settings.setPatchDetailsFile(value);
+            settings.setPatchSettingsFile(value);
         }
 
         @Override
         public String get(UserSettingsFile settings) {
-            return settings.getPatchDetailsFile();
+            return settings.getPatchSettingsFile();
+        }
+    },
+    defaultWLSVersion("DefaultWLSVersion") {
+        @Override
+        public void set(UserSettingsFile settings, String value) {
+            settings.setDefaultWLSVersion(value);
+        }
+
+        @Override
+        public String get(UserSettingsFile settings) {
+            return settings.getDefaultWLSVersion();
+        }
+    },
+    defaultWDTVersion("DefaultWDTVersion") {
+        @Override
+        public void set(UserSettingsFile settings, String value) {
+            settings.setDefaultWDTVersion(value);
+        }
+
+        @Override
+        public String get(UserSettingsFile settings) {
+            return settings.getDefaultWDTVersion();
+        }
+    },
+    defaultJDKVersion("DefaultJDKVersion") {
+        @Override
+        public void set(UserSettingsFile settings, String value) {
+            settings.setDefaultJDKVersion(value);
+        }
+
+        @Override
+        public String get(UserSettingsFile settings) {
+            return settings.getDefaultJDKVersion();
         }
     },
     aruRetryInterval("AruRetryInterval") {

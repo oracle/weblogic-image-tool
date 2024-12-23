@@ -29,6 +29,8 @@ import picocli.CommandLine.Option;
 import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
 import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
 import static com.oracle.weblogic.imagetool.util.Constants.CTX_JDK;
+import static com.oracle.weblogic.imagetool.util.Constants.DEFAULT_JDK_VERSION;
+import static com.oracle.weblogic.imagetool.util.Constants.DEFAULT_WLS_VERSION;
 
 public class CommonCreateOptions extends CommonPatchingOptions {
 
@@ -109,20 +111,23 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         // Verify version and installers exists first
         for (String buildPlatform : buildPlatforms) {
             Architecture arch = Architecture.fromString(buildPlatform);
+            jdkVersion = resetInstallerVersion(InstallerType.JDK, jdkVersion);
             InstallerMetaData jdkInstallerMetaData = configManager.getInstallerForPlatform(InstallerType.JDK,
                 arch, jdkVersion);
             if (jdkInstallerMetaData == null) {
-                throw new IOException("Could not find installer for jdk " + jdkVersion + "  " + buildPlatform);
+                throw new IOException(String.format("Could not find installer type: %s, platform: %s version: %s",
+                    InstallerType.JDK, buildPlatform, jdkVersion));
             } else {
                 // If needed
                 verifyInstallerHash(jdkInstallerMetaData);
             }
 
             for (InstallerType installerType : getInstallerType().installerList()) {
+                installerVersion = resetInstallerVersion(installerType, installerVersion);
                 InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(installerType,
                     arch, installerVersion);
                 if (installerMetaData == null) {
-                    throw new IOException(String.format("Could not find installer type %s, platform %s and version %s",
+                    throw new IOException(String.format("Could not find installer type: %s, platform: %s version: %s",
                         installerType, buildPlatform, installerVersion));
                 } else {
                     // If needed
@@ -131,6 +136,49 @@ public class CommonCreateOptions extends CommonPatchingOptions {
             }
         }
 
+    }
+
+    private String resetJDKVersion(String jdkVersion) {
+        String defaultJDKVersion = ConfigManager.getInstance().getDefaultJDKVersion();
+        if (defaultJDKVersion != null) {
+            if (DEFAULT_JDK_VERSION.equals(jdkVersion)) {
+                jdkVersion = defaultJDKVersion;
+            }
+        }
+        return jdkVersion;
+    }
+
+    private String resetInstallerVersion(InstallerType installerType, String installerVersion) {
+        String fixedVersion = installerVersion;
+        String defaultVersion = null;
+
+        switch (installerType) {
+            case JDK:
+                String defaultJDKVersion = ConfigManager.getInstance().getDefaultJDKVersion();
+                if (defaultJDKVersion != null) {
+                    if (DEFAULT_JDK_VERSION.equals(installerVersion)) {
+                        fixedVersion = defaultJDKVersion;
+                    }
+                }
+                break;
+            case WLS:
+                String defaultWLSVersion = ConfigManager.getInstance().getDefaultWLSVersion();
+                if (defaultWLSVersion != null) {
+                    if (DEFAULT_WLS_VERSION.equals(installerVersion)) {
+                        fixedVersion = defaultWLSVersion;
+                    }
+                }
+                break;
+            case WDT:
+                defaultVersion = ConfigManager.getInstance().getDefaultWDTVersion();
+                if (defaultVersion != null && installerVersion == null) {
+                    fixedVersion = defaultVersion;
+                }
+                break;
+            default:
+                break;
+        }
+        return fixedVersion;
     }
 
     private static void verifyInstallerHash(InstallerMetaData installerMetaData) throws IOException {
@@ -167,7 +215,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         names = {"--version"},
         description = "Installer version. Default: ${DEFAULT-VALUE}",
         required = true,
-        defaultValue = Constants.DEFAULT_WLS_VERSION
+        defaultValue = DEFAULT_WLS_VERSION
     )
     private String installerVersion;
 

@@ -72,7 +72,7 @@ public class ConfigManager {
     }
 
     public String getPatchDetailsFile() {
-        return userSettingsFile.getPatchDetailsFile();
+        return userSettingsFile.getPatchSettingsFile();
     }
 
     public String getBuildEngine() {
@@ -80,7 +80,7 @@ public class ConfigManager {
     }
 
     public String getInstallerDetailsFile() {
-        return userSettingsFile.getInstallerDetailsFile();
+        return userSettingsFile.getInstallerSettingsFile();
     }
 
     public String getDefaultBuildPlatform() {
@@ -126,6 +126,30 @@ public class ConfigManager {
      */
     public EnumMap<InstallerType, Map<String, List<InstallerMetaData>>> getInstallers() {
         return cacheStore.getInstallers();
+    }
+
+    /**
+     * Return default wls installer version.
+     * @return default wls version if set
+     */
+    public String getDefaultWLSVersion() {
+        return userSettingsFile.getDefaultWLSVersion();
+    }
+
+    /**
+     * Return default jdk installer version.
+     * @return default wls version if set
+     */
+    public String getDefaultJDKVersion() {
+        return userSettingsFile.getDefaultJDKVersion();
+    }
+
+    /**
+     * Return default wdt installer version.
+     * @return default wls version if set
+     */
+    public String getDefaultWDTVersion() {
+        return userSettingsFile.getDefaultWDTVersion();
     }
 
     /**

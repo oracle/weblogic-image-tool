@@ -66,7 +66,6 @@ public class CacheStore {
         //    - platform: linux/arm64
         //        ....
         //    - platform: linux/arm64
-
         Map<String, Object> allInstallers = new SettingsFile(Paths.get(ConfigManager.getInstance()
             .getInstallerDetailsFile())).load();
         if (allInstallers == null) {
@@ -165,6 +164,28 @@ public class CacheStore {
 
         if (platformName == null) {
             platformName = Architecture.GENERIC;
+        }
+        if (installerType == null) {
+            installerType = InstallerType.WLS;
+        }
+        if (installerVersion == null) {
+            switch (installerType) {
+                case WLS:
+                    installerVersion = ConfigManager.getInstance().getDefaultWLSVersion();
+                    break;
+                case JDK:
+                    installerVersion = ConfigManager.getInstance().getDefaultJDKVersion();
+                    break;
+                case WDT:
+                    installerVersion = ConfigManager.getInstance().getDefaultWDTVersion();
+                    break;
+                default:
+                    installerVersion = null;
+            }
+            if (installerVersion == null) {
+                logger.throwing(new IllegalArgumentException("Cannot determine installer version for installer type "
+                    + installerType.toString()));
+            }
         }
         Map<String, List<InstallerMetaData>> installers = getInstallers().get(installerType);
         if (installers != null && !installers.isEmpty()) {

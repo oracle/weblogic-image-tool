@@ -61,11 +61,15 @@ public class UserSettingsFile {
 
     private final SettingsFile settingsFile;
 
-    private String installerDetailsFile = null;
+    private String installerSettingsFile = null;
 
-    private String patchDetailsFile = null;
+    private String patchSettingsFile = null;
 
     private String defaultBuildPlatform = null;
+
+    private String defaultWLSVersion = null;
+    private String defaultWDTVersion = null;
+    private String defaultJDKVersion = null;
 
     /**
      * DLoads the settings.yaml file from ~/.imagetool/settings.yaml and applies the values found.
@@ -220,13 +224,38 @@ public class UserSettingsFile {
         aruRetryInterval = value;
     }
 
-    public String getPatchDetailsFile() {
-        return patchDetailsFile;
+    public String getPatchSettingsFile() {
+        return patchSettingsFile;
     }
 
-    public void setPatchDetailsFile(String value) {
-        patchDetailsFile = value;
+    public void setPatchSettingsFile(String value) {
+        patchSettingsFile = value;
     }
+
+    public void setDefaultWLSVersion(String value) {
+        defaultWLSVersion = value;
+    }
+
+    public String getDefaultWLSVersion() {
+        return defaultWLSVersion;
+    }
+
+    public void setDefaultWDTVersion(String value) {
+        defaultWDTVersion = value;
+    }
+
+    public String getDefaultWDTVersion() {
+        return defaultWDTVersion;
+    }
+
+    public void setDefaultJDKVersion(String value) {
+        defaultJDKVersion = value;
+    }
+
+    public String getDefaultJDKVersion() {
+        return defaultJDKVersion;
+    }
+
 
     /**
      * The user settings for installer type.
@@ -256,8 +285,11 @@ public class UserSettingsFile {
 
         aruRetryMax = SettingsFile.getValue("aruRetryMax", Integer.class, settings);
         aruRetryInterval = SettingsFile.getValue("aruRetryInterval", Integer.class, settings);
-        installerDetailsFile = SettingsFile.getValue("installerSettingsFile", String.class, settings);
-        patchDetailsFile = SettingsFile.getValue("patchSettingsFile", String.class, settings);
+        installerSettingsFile = SettingsFile.getValue("installerSettingsFile", String.class, settings);
+        patchSettingsFile = SettingsFile.getValue("patchSettingsFile", String.class, settings);
+        defaultWLSVersion = SettingsFile.getValue("defaultWLSVersion", String.class, settings);
+        defaultJDKVersion = SettingsFile.getValue("defaultJDKVersion", String.class, settings);
+        defaultWDTVersion = SettingsFile.getValue("defaultWDTVersion", String.class, settings);
         // Just the settings about the installer not the individual installers
         installerSettings.clear();
         Map<String, Object> installerFolder = SettingsFile.getFolder("installers", settings);
@@ -279,12 +311,12 @@ public class UserSettingsFile {
         logger.exiting();
     }
 
-    public String getInstallerDetailsFile() {
-        return installerDetailsFile;
+    public String getInstallerSettingsFile() {
+        return installerSettingsFile;
     }
 
     public String setInstallerDetailsFile(String value) {
-        return installerDetailsFile = value;
+        return installerSettingsFile = value;
     }
 
     public String getDefaultBuildPlatform() {
@@ -307,8 +339,11 @@ public class UserSettingsFile {
             + ", aruRetryMax=" + aruRetryMax
             + ", aruRetryInterval=" + aruRetryInterval
             + ", settingsFile=" + settingsFile
-            + ", installerDetailsFile='" + installerDetailsFile + '\''
-            + ", patchDetailsFile='" + patchDetailsFile + '\''
+            + ", installerDetailsFile='" + installerSettingsFile + '\''
+            + ", patchDetailsFile='" + patchSettingsFile + '\''
+            + ", defaultWLSVersion='" + defaultWLSVersion + '\''
+            + ", defaultWDTVersion='" + defaultWDTVersion + '\''
+            + ", defaultJDKVersion='" + defaultJDKVersion + '\''
             + '}';
     }
 }
