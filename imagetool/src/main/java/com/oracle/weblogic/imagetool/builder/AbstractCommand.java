@@ -90,22 +90,24 @@ public abstract class AbstractCommand {
     private Thread writeFromInputToOutputStreams(InputStream inputStream, Path dockerLogPath) {
         Thread readerThread = new Thread(() -> {
             BufferedReader processReader = new BufferedReader(new InputStreamReader(inputStream));
-            PrintWriter stdoutWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+            PrintWriter stdoutWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)),
+                true);
             PrintWriter logWriter = null;
             OutputStream fileOutputStream = null;
 
             try  {
                 if (dockerLogPath != null) {
                     fileOutputStream = Files.newOutputStream(dockerLogPath);
-                    logWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(fileOutputStream)));
+                    logWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(fileOutputStream)),
+                        true);
                 }
                 String line;
                 while ((line = processReader.readLine()) != null) {
-                    // String finalLine = line;
+                    String finalLine = line;
                     if (logWriter != null) {
-                        logWriter.println(line);
+                        logWriter.println(finalLine);
                     }
-                    stdoutWriter.println(line);
+                    stdoutWriter.println(finalLine);
                 }
             } catch (IOException e) {
                 logger.severe(e.getMessage());

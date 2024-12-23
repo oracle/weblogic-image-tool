@@ -35,11 +35,31 @@ rootless_storage_path = \"/path/to/storage/$USER\"" > ~/.config/containers/stora
 
 sudo loginctl enable-linger username
 
+podman run --platform <emulated platform> results in
+ERROR: /etc/mtab symlink operation not permitted.
+
+podman info shows it is using native overlays,  changing it to individual fuse overlays works
+
+sudo dnf install fuse-overlayfs
+
+create $USER/.config/containers/storage.conf
+
+[storage]
+driver = "overlay"
+
+[storage.options.overlay]
+mount_program = "/usr/bin/fuse-overlayfs"
+
+
 ========
 
 TODO:
 
 podman does not take --load or --push
 docker must have --load or --push for multiplatform build  
+
+OL9 (not sure about OL8) defaults overlays doesn't work with emulator run 
+
+
 
  
