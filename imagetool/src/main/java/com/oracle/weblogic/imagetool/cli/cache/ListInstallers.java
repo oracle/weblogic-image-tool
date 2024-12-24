@@ -24,7 +24,7 @@ public class ListInstallers extends CacheOperation {
     @Override
     public CommandResponse call() throws CacheStoreException {
         ConfigManager configManager = ConfigManager.getInstance();
-        Map<InstallerType, Map<String, List<InstallerMetaData>>> data = configManager.getInstallers();
+        Map<String, Map<String, List<InstallerMetaData>>> data = configManager.getInstallers();
         if (commonName != null && !commonName.isEmpty()) {
             if (type == null) {
                 System.out.println("--type cannot be null when commonName is specified");
@@ -37,8 +37,8 @@ public class ListInstallers extends CacheOperation {
                 System.exit(2);
             }
         }
-        for (InstallerType itemType : data.keySet()) {
-            if (type != null && type != itemType) {
+        for (String itemType : data.keySet()) {
+            if (type != null && type != InstallerType.fromString(itemType)) {
                 continue;
             }
             System.out.println(itemType + ":");

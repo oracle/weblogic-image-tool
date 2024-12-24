@@ -68,7 +68,7 @@ class OPatchFileTest {
             Utils.getSha256Hash(path.toAbsolutePath().toString()),"2024-10-17", patchVersion, "");
         latestPatches.add(latestPatch);
         patches.put(bugNumber, latestPatches);
-        configManager.saveAllPatches(patches, patchListingFile.toAbsolutePath().toString());
+        configManager.saveAllPatches(patches);
     }
 
     @AfterAll

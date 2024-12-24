@@ -55,7 +55,7 @@ public class DeletePatch extends CacheOperation {
             return CommandResponse.success("IMG-0127");
         }
         try {
-            configManager.saveAllPatches(data, ConfigManager.getInstance().getPatchDetailsFile());
+            configManager.saveAllPatches(data);
         } catch (IOException e) {
             throw new CacheStoreException(e.getMessage(), e);
         }

@@ -7,9 +7,7 @@ package com.oracle.weblogic.imagetool.cachestore;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +24,13 @@ import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatformId;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DATE_ADDED;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DESCRIPTION;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DIGEST;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.LOCATION;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PATCH_VERSION;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PLATFORM;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PRODUCT_VERSION;
 import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
 /**
@@ -43,7 +48,7 @@ public class CacheStore {
      * Return all the installers based on the configured directory for the yaml file.
      * @return map of installers
      */
-    public EnumMap<InstallerType, Map<String, List<InstallerMetaData>>> getInstallers() {
+    public Map<String, Map<String, List<InstallerMetaData>>> getInstallers() {
 
 
         // installers is a list of different installer types jdk, fmw, wdt etc ..
@@ -76,8 +81,8 @@ public class CacheStore {
         if (allInstallers == null) {
             allInstallers = new HashMap<>();
         }
-        EnumMap<InstallerType, Map<String, List<InstallerMetaData>>> installerDetails
-            = new EnumMap<>(InstallerType.class);
+        Map<String, Map<String, List<InstallerMetaData>>> installerDetails
+            = new HashMap<>();
         for (Map.Entry<String, Object> entry: allInstallers.entrySet()) {
             String key = entry.getKey();
             if (key != null && !key.isEmpty()) {
@@ -108,7 +113,7 @@ public class CacheStore {
                         installerMetaData.put(individualInstallerKey, installerMetaDataList);
                     }
 
-                    installerDetails.put(InstallerType.valueOf(key), installerMetaData);
+                    installerDetails.put(key, installerMetaData);
 
                 } catch (IllegalArgumentException illegal) {
                     logger.warning("{0} could not be loaded: {1}",
@@ -129,14 +134,14 @@ public class CacheStore {
     public void addInstaller(InstallerType installerType, String commonName, InstallerMetaData metaData)
         throws IOException {
 
-        EnumMap<InstallerType, Map<String, List<InstallerMetaData>>> installerDetails = getInstallers();
+        Map<String, Map<String, List<InstallerMetaData>>> installerDetails = getInstallers();
         Map<String, List<InstallerMetaData>> installerMetaDataMap;
         List<InstallerMetaData> installerMetaDataList;
 
         if (installerDetails.containsKey(installerType)) {
             installerMetaDataMap = installerDetails.get(installerType);
         } else {
-            installerDetails.put(installerType, new HashMap<>());
+            installerDetails.put(installerType.toString(), new HashMap<>());
             installerMetaDataMap = installerDetails.get(installerType);
         }
 
@@ -153,8 +158,8 @@ public class CacheStore {
             installerMetaDataList.add(metaData);
         }
         // Update the list
-        installerDetails.put(installerType, installerMetaDataMap);
-        saveAllInstallers(installerDetails, ConfigManager.getInstance().getInstallerDetailsFile());
+        installerDetails.put(installerType.toString(), installerMetaDataMap);
+        saveAllInstallers(installerDetails);
     }
 
     /**
@@ -238,7 +243,7 @@ public class CacheStore {
             latestPatches.add(newPatch);
         }
         patches.put(bugNumber, latestPatches);
-        configManager.saveAllPatches(patches, configManager.getPatchDetailsFile());
+        configManager.saveAllPatches(patches);
     }
 
     /**
@@ -265,7 +270,7 @@ public class CacheStore {
             latestPatches.add(newPatch);
         }
         patches.put(bugNumber, latestPatches);
-        configManager.saveAllPatches(patches, configManager.getPatchDetailsFile());
+        configManager.saveAllPatches(patches);
     }
 
     /**
@@ -367,106 +372,48 @@ public class CacheStore {
     /**
      * Save all patches in the local metadata file.
      * @param allPatches Map of all patch metadata
-     * @param location file location for store
      * @throws IOException when error
      */
-    public void saveAllPatches(Map<String, List<PatchMetaData>> allPatches, String location) throws IOException {
-        Map<String, Object> patchList = new HashMap<>();
-        for (Map.Entry<String, List<PatchMetaData>> entry: allPatches.entrySet()) {
-            String key = entry.getKey(); // bug number
-            if (key != null && !key.isEmpty()) {
-                ArrayList<Object> list = new ArrayList<>();
-                if (entry.getValue() instanceof ArrayList) {
-                    for (PatchMetaData patchMetaData: entry.getValue()) {
-                        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                        map.put("version", patchMetaData.getPatchVersion());
-                        map.put("location", patchMetaData.getLocation());
-                        map.put("digest", patchMetaData.getHash());
-                        map.put("added", patchMetaData.getDateAdded());
-                        map.put("platform", patchMetaData.getPlatform());
-                        if (patchMetaData.getDescription() != null) {
-                            map.put("description", patchMetaData.getDescription());
-                        }
-                        list.add(map);
-                    }
-                } else {
-                    PatchMetaData patchMetaData = (PatchMetaData) entry.getValue();
-                    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                    map.put("version", patchMetaData.getPatchVersion());
-                    map.put("location", patchMetaData.getLocation());
-                    map.put("digest", patchMetaData.getHash());
-                    map.put("added", patchMetaData.getDateAdded());
-                    map.put("platform", patchMetaData.getPlatform());
-                    if (patchMetaData.getDescription() != null) {
-                        map.put("description", patchMetaData.getDescription());
-                    }
-                    list.add(map);
-                }
-                patchList.put(key, list);
-            }
-        }
-        new SettingsFile(Paths.get(location)).save(patchList);
+    public void saveAllPatches(Map<String, List<PatchMetaData>> allPatches) throws IOException {
+
+        ConfigManager configManager = ConfigManager.getInstance();
+        configManager.getPatchSettingsFile().save(allPatches);
+        
     }
 
     /**
      * Save all installers in the local metadata file.
      * @param allInstallers Map of all installers metadata
-     * @param location file location for store
      * @throws IOException when error
      */
-    public void saveAllInstallers(Map<InstallerType, Map<String, List<InstallerMetaData>>> allInstallers,
-                                  String location) throws IOException {
-        LinkedHashMap<String, Object> installerList = new LinkedHashMap<>();
+    public void saveAllInstallers(Map<String, Map<String, List<InstallerMetaData>>> allInstallers) throws IOException {
 
-        if (allInstallers != null && !allInstallers.isEmpty()) {
-            for (Map.Entry<InstallerType, Map<String, List<InstallerMetaData>>> entry: allInstallers.entrySet()) {
-                InstallerType installerType = entry.getKey();
-                Map<String, List<InstallerMetaData>> installerMetaDataList = entry.getValue();
-                LinkedHashMap<String, Object> typedInstallers = new LinkedHashMap<>();
-
-                for (String installerMetaData : installerMetaDataList.keySet()) {
-                    List<InstallerMetaData> mdList = installerMetaDataList.get(installerMetaData);
-                    ArrayList<Object> installerMetaDataArray = new ArrayList<>();
-                    for (InstallerMetaData md : mdList) {
-                        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-                        map.put("version", md.getProductVersion());
-                        map.put("location", md.getLocation());
-                        map.put("digest", md.getDigest());
-                        map.put("added", md.getDateAdded());
-                        map.put("platform", md.getPlatform());
-                        installerMetaDataArray.add(map);
-                    }
-                    typedInstallers.put(installerMetaData, installerMetaDataArray);
-                }
-                installerList.put(installerType.toString(), typedInstallers);
-            }
-        }
-        new SettingsFile(Paths.get(location)).save(installerList);
+        ConfigManager.getInstance().getInstallerSettingsFile().save(allInstallers);
     }
 
 
     private InstallerMetaData createInstallerMetaData(Map<String, Object> objectData) {
-        String hash = (String) objectData.get("digest");
-        String dateAdded = (String) objectData.get("added");
+        String hash = (String) objectData.get(DIGEST);
+        String dateAdded = (String) objectData.get(DATE_ADDED);
         if (dateAdded == null) {
             dateAdded = getTodayDate();
         }
-        String location = (String) objectData.get("location");
-        String productVersion = (String) objectData.get("version");
-        String platform = (String) objectData.get("platform");
+        String location = (String) objectData.get(LOCATION);
+        String productVersion = (String) objectData.get(PRODUCT_VERSION);
+        String platform = (String) objectData.get(PLATFORM);
         return new InstallerMetaData(platform, location, hash, dateAdded, productVersion);
     }
 
     private PatchMetaData createPatchMetaData(Map<String, Object> objectData) {
-        String hash = (String) objectData.get("digest");
-        String dateAdded = (String) objectData.get("added");
+        String hash = (String) objectData.get(DIGEST);
+        String dateAdded = (String) objectData.get(DATE_ADDED);
         if (dateAdded == null) {
             dateAdded = getTodayDate();
         }
-        String location = (String) objectData.get("location");
-        String productVersion = (String) objectData.get("version");
-        String platform = (String) objectData.get("platform");
-        String description = (String) objectData.get("description");
+        String location = (String) objectData.get(LOCATION);
+        String productVersion = (String) objectData.get(PATCH_VERSION);
+        String platform = (String) objectData.get(PLATFORM);
+        String description = (String) objectData.get(DESCRIPTION);
         return new PatchMetaData(platform, location, hash, dateAdded, productVersion, description);
     }
 

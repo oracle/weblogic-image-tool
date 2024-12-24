@@ -12,9 +12,11 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
+import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.Property;
@@ -106,8 +108,8 @@ public class SettingsFile {
         representer.addClassTag(UserSettingsFile.class, Tag.MAP);
         representer.addClassTag(InstallerType.class, Tag.MAP);
         representer.addClassTag(InstallerSettings.class, Tag.MAP);
-        //representer.addClassTag(Map.class, Tag.MAP);
-        //representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        representer.addClassTag(InstallerMetaData.class, Tag.MAP);
+        representer.addClassTag(PatchMetaData.class, Tag.MAP);
 
         PropertyUtils propertyUtils = new PropertyUtils();
         propertyUtils.setAllowReadOnlyProperties(true);

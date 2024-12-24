@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2025, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.settings;
@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +20,13 @@ import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.util.Architecture;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStore.CACHE_DIR_ENV;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DATE_ADDED;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DESCRIPTION;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DIGEST;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.LOCATION;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PATCH_VERSION;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PLATFORM;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PRODUCT_VERSION;
 import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
 public class ConfigManager {
@@ -96,6 +102,17 @@ public class ConfigManager {
         return installerSettingsFile;
     }
 
+    /**
+     * Return the patch setting file.
+     * @return SettingsFile
+     */
+    public SettingsFile getPatchSettingsFile() {
+        if (patchSettingsFile == null) {
+            patchSettingsFile = new SettingsFile(Paths.get(userSettingsFile.returnPatchSettingsFile()));
+        }
+        return patchSettingsFile;
+    }
+
     public String getDefaultBuildPlatform() {
         return userSettingsFile.getDefaultBuildPlatform();
     }
@@ -104,8 +121,8 @@ public class ConfigManager {
         return cacheStore.getAllPatches();
     }
 
-    public void saveAllPatches(Map<String, List<PatchMetaData>> allPatches, String location) throws IOException {
-        cacheStore.saveAllPatches(allPatches, location);
+    public void saveAllPatches(Map<String, List<PatchMetaData>> allPatches) throws IOException {
+        cacheStore.saveAllPatches(allPatches);
     }
 
     public void addPatch(String bugNumber, String patchArchitecture, String patchLocation,
@@ -137,7 +154,7 @@ public class ConfigManager {
      * Return all the installers based on the configured directory for the yaml file.
      * @return map of installers
      */
-    public EnumMap<InstallerType, Map<String, List<InstallerMetaData>>> getInstallers() {
+    public Map<String, Map<String, List<InstallerMetaData>>> getInstallers() {
         return cacheStore.getInstallers();
     }
 
@@ -180,12 +197,10 @@ public class ConfigManager {
     /**
      * Save all installers.
      * @param allInstallers map of installers
-     * @param location file location
      * @throws IOException any error
      */
-    public void saveAllInstallers(Map<InstallerType, Map<String, List<InstallerMetaData>>> allInstallers,
-                                  String location) throws IOException {
-        cacheStore.saveAllInstallers(allInstallers, location);
+    public void saveAllInstallers(Map<String, Map<String, List<InstallerMetaData>>> allInstallers) throws IOException {
+        cacheStore.saveAllInstallers(allInstallers);
     }
 
     /**
@@ -200,27 +215,27 @@ public class ConfigManager {
 
 
     private InstallerMetaData createInstallerMetaData(Map<String, Object> objectData) {
-        String hash = (String) objectData.get("digest");
-        String dateAdded = (String) objectData.get("added");
+        String hash = (String) objectData.get(DIGEST);
+        String dateAdded = (String) objectData.get(DATE_ADDED);
         if (dateAdded == null) {
             dateAdded = getTodayDate();
         }
-        String location = (String) objectData.get("location");
-        String productVersion = (String) objectData.get("version");
-        String platform = (String) objectData.get("platform");
+        String location = (String) objectData.get(LOCATION);
+        String productVersion = (String) objectData.get(PRODUCT_VERSION);
+        String platform = (String) objectData.get(PLATFORM);
         return new InstallerMetaData(platform, location, hash, dateAdded, productVersion);
     }
 
     private PatchMetaData createPatchMetaData(Map<String, Object> objectData) {
-        String hash = (String) objectData.get("digest");
-        String dateAdded = (String) objectData.get("added");
+        String hash = (String) objectData.get(DIGEST);
+        String dateAdded = (String) objectData.get(DATE_ADDED);
         if (dateAdded == null) {
             dateAdded = getTodayDate();
         }
-        String location = (String) objectData.get("location");
-        String productVersion = (String) objectData.get("version");
-        String platform = (String) objectData.get("platform");
-        String description = (String) objectData.get("description");
+        String location = (String) objectData.get(LOCATION);
+        String productVersion = (String) objectData.get(PATCH_VERSION);
+        String platform = (String) objectData.get(PLATFORM);
+        String description = (String) objectData.get(DESCRIPTION);
         return new PatchMetaData(platform, location, hash, dateAdded, productVersion, description);
     }
 

@@ -84,7 +84,7 @@ public class PatchFile {
                     aruPatch.description()));
                 allPatches.put(aruPatch.patchId(),patches);
             }
-            configManager.saveAllPatches(allPatches, configManager.getPatchDetailsFile());
+            configManager.saveAllPatches(allPatches);
 
         } catch (Exception k) {
             throw new IOException(k.getMessage(), k);

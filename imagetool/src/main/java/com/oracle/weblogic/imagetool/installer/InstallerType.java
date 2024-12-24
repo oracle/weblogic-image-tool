@@ -48,7 +48,7 @@ public enum InstallerType {
      */
     public static InstallerType fromString(String value) {
         for (InstallerType installerType : InstallerType.values()) {
-            if (installerType.toString().equals(value)) {
+            if (installerType.toString().equalsIgnoreCase(value)) {
                 return installerType;
             }
         }

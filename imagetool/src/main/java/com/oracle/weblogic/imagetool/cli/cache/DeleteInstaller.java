@@ -27,13 +27,13 @@ public class DeleteInstaller extends CacheOperation {
     @Override
     public CommandResponse call() throws CacheStoreException {
         ConfigManager configManager = ConfigManager.getInstance();
-        Map<InstallerType, Map<String, List<InstallerMetaData>>> data = configManager.getInstallers();
+        Map<String, Map<String, List<InstallerMetaData>>> data = configManager.getInstallers();
         if (type == null || version == null || architecture == null) {
             return CommandResponse.success("IMG-0124");
         }
         boolean exists = false;
-        for (InstallerType itemType : data.keySet()) {
-            if (type != null && type != itemType) {
+        for (String itemType : data.keySet()) {
+            if (type != null && type != InstallerType.fromString(itemType)) {
                 continue;
             }
             Map<String, List<InstallerMetaData>> items = data.get(itemType);
@@ -62,7 +62,7 @@ public class DeleteInstaller extends CacheOperation {
             return CommandResponse.success("IMG-0125");
         }
         try {
-            configManager.saveAllInstallers(data, ConfigManager.getInstance().getInstallerDetailsFile());
+            configManager.saveAllInstallers(data);
         } catch (IOException e) {
             throw new CacheStoreException(e.getMessage(), e);
         }
