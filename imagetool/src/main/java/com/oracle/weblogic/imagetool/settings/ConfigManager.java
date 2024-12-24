@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -51,17 +52,28 @@ public class ConfigManager {
      * @return ConfigManager instance
      */
     public static synchronized ConfigManager getInstance() {
-        if (instance == null) {
-            String result = System.getenv(CACHE_DIR_ENV);
-            if (result != null) {
-                if (Files.exists(Paths.get(result, "settings.yaml"))) {
-                    return new ConfigManager(Paths.get(result, "settings.yaml"));
+        try {
+            Path file;
+            if (instance == null) {
+                String result = System.getenv(CACHE_DIR_ENV);
+                if (result != null) {
+                    file = Paths.get(result, "settings.yaml");
+                } else {
+                    file = Paths.get(System.getProperty("user.home"), ".imagetool",
+                        "settings.yaml");
                 }
+                if (!Files.exists(file)) {
+                    Files.createDirectories(file.getParent());
+                    Files.createFile(file);
+                    initImageTool(file);
+                }
+                return new ConfigManager(file);
             }
-            return new ConfigManager(Paths.get(System.getProperty("user.home"), ".imagetool",
-                    "settings.yaml"));
+            return instance;
+
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
-        return instance;
     }
 
     /**
@@ -74,6 +86,16 @@ public class ConfigManager {
         return instance;
     }
 
+    private static void initImageTool(Path file) throws IOException {
+        Path parentPath = file.getParent();
+        Files.createFile(Paths.get(parentPath.toString(), "patches.yaml"));
+        Files.createFile(Paths.get(parentPath.toString(), "installer.yaml"));
+        String dirName = "downloaded_patches";
+        Path path = Paths.get(parentPath.toString(), dirName);
+        List<String> fileContents = Arrays.asList("patchDirectory: " + path.toString());
+        Files.createDirectory(path);
+        Files.write(file, fileContents);
+    }
 
     public String getPatchDirectory() {
         return userSettingsFile.getPatchDirectory();

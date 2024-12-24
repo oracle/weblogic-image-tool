@@ -378,7 +378,7 @@ public class CacheStore {
 
         ConfigManager configManager = ConfigManager.getInstance();
         configManager.getPatchSettingsFile().save(allPatches);
-        
+
     }
 
     /**
