@@ -6,8 +6,9 @@ package com.oracle.weblogic.imagetool.settings;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
@@ -18,9 +19,7 @@ public class UserSettingsFile {
     /**
      * Configured defaults associated with each installer.
      */
-    private final EnumMap<InstallerType, InstallerSettings> installerSettings;
-
-    //private InstallerSettings patches = null;
+    private final Map<String, InstallerSettings> installerSettings;
 
     /**
      * Parent directory for the build context directory.
@@ -61,15 +60,10 @@ public class UserSettingsFile {
 
     private final SettingsFile settingsFile;
 
-    private String installerSettingsFile = null;
-
-    private String patchSettingsFile = null;
-
     private String defaultBuildPlatform = null;
 
-    private String defaultWLSVersion = null;
-    private String defaultWDTVersion = null;
-    private String defaultJDKVersion = null;
+    private String installerSettingsFile = null;
+    private String patchSettingsFile = null;
 
     /**
      * DLoads the settings.yaml file from ~/.imagetool/settings.yaml and applies the values found.
@@ -84,8 +78,10 @@ public class UserSettingsFile {
      * @param pathToSettingsFile A map of key-value pairs read in from the YAML user settings file.
      */
     public UserSettingsFile(Path pathToSettingsFile) {
-        installerSettings = new EnumMap<>(InstallerType.class);
+        installerSettings = new HashMap<>();
         settingsFile = new SettingsFile(pathToSettingsFile);
+        installerSettingsFile = pathToSettingsFile.getParent().resolve("installers.yaml").toString();
+        patchSettingsFile = pathToSettingsFile.getParent().resolve("patches.yaml").toString();
         applySettings(settingsFile.load());
     }
 
@@ -224,38 +220,44 @@ public class UserSettingsFile {
         aruRetryInterval = value;
     }
 
-    public String getPatchSettingsFile() {
-        return patchSettingsFile;
-    }
-
-    public void setPatchSettingsFile(String value) {
-        patchSettingsFile = value;
-    }
-
+    /**
+     * Set the default WLS version.
+     * @param value version of WLS installer
+     */
     public void setDefaultWLSVersion(String value) {
-        defaultWLSVersion = value;
+        setDefaultVersion(value, InstallerType.WLS);
     }
 
-    public String getDefaultWLSVersion() {
-        return defaultWLSVersion;
+    private void setDefaultVersion(String value, InstallerType type) {
+        Map<String, Object> installerSettingsMap = new HashMap<>();
+        installerSettingsMap.put("defaultVersion", value);
+        InstallerSettings versionSettings = new InstallerSettings(installerSettingsMap);
+        installerSettings.put(type.toString(), versionSettings);
+    }
+
+    // Do not use getXXX Snake Yaml will add separate entry in the serialized yaml file
+    public String returnDefaultWLSVersion() {
+        return Optional.ofNullable(installerSettings.get(InstallerType.WLS.toString()))
+            .map(InstallerSettings::getDefaultVersion).orElse(null);
     }
 
     public void setDefaultWDTVersion(String value) {
-        defaultWDTVersion = value;
+        setDefaultVersion(value, InstallerType.WDT);
     }
 
-    public String getDefaultWDTVersion() {
-        return defaultWDTVersion;
+    public String returnDefaultWDTVersion() {
+        return Optional.ofNullable(installerSettings.get(InstallerType.WDT.toString()))
+            .map(InstallerSettings::getDefaultVersion).orElse(null);
     }
 
     public void setDefaultJDKVersion(String value) {
-        defaultJDKVersion = value;
+        setDefaultVersion(value, InstallerType.JDK);
     }
 
-    public String getDefaultJDKVersion() {
-        return defaultJDKVersion;
+    public String returnDefaultJDKVersion() {
+        return Optional.ofNullable(installerSettings.get(InstallerType.JDK.toString()))
+            .map(InstallerSettings::getDefaultVersion).orElse(null);
     }
-
 
     /**
      * The user settings for installer type.
@@ -266,7 +268,15 @@ public class UserSettingsFile {
         if (installerSettings == null) {
             return null;
         }
-        return installerSettings.get(installerType);
+        return installerSettings.get(installerType.toString());
+    }
+
+    public Map<String, InstallerSettings> getInstallerSettings() {
+        return installerSettings;
+    }
+
+    public String defaultWLSVersion() {
+        return "hello";
     }
 
     private void applySettings(Map<String, Object> settings) {
@@ -285,11 +295,6 @@ public class UserSettingsFile {
 
         aruRetryMax = SettingsFile.getValue("aruRetryMax", Integer.class, settings);
         aruRetryInterval = SettingsFile.getValue("aruRetryInterval", Integer.class, settings);
-        installerSettingsFile = SettingsFile.getValue("installerSettingsFile", String.class, settings);
-        patchSettingsFile = SettingsFile.getValue("patchSettingsFile", String.class, settings);
-        defaultWLSVersion = SettingsFile.getValue("defaultWLSVersion", String.class, settings);
-        defaultJDKVersion = SettingsFile.getValue("defaultJDKVersion", String.class, settings);
-        defaultWDTVersion = SettingsFile.getValue("defaultWDTVersion", String.class, settings);
         // Just the settings about the installer not the individual installers
         installerSettings.clear();
         Map<String, Object> installerFolder = SettingsFile.getFolder("installers", settings);
@@ -299,7 +304,7 @@ public class UserSettingsFile {
                 key = key.toUpperCase();
                 try {
                     installerSettings.put(
-                        InstallerType.valueOf(key),
+                        key,
                         new InstallerSettings((Map<String, Object>) entry.getValue()));
                 } catch (IllegalArgumentException illegal) {
                     logger.warning("settings for {0} could not be loaded.  {0} is not a valid installer type: {1}",
@@ -311,20 +316,20 @@ public class UserSettingsFile {
         logger.exiting();
     }
 
-    public String getInstallerSettingsFile() {
-        return installerSettingsFile;
-    }
-
-    public String setInstallerDetailsFile(String value) {
-        return installerSettingsFile = value;
-    }
-
     public String getDefaultBuildPlatform() {
         return defaultBuildPlatform;
     }
 
     public String setDefaultBuildPlatform(String value) {
         return defaultBuildPlatform = value;
+    }
+
+    public String returnInstallerSettingsFile() {
+        return installerSettingsFile;
+    }
+
+    public String returnPatchSettingsFile() {
+        return patchSettingsFile;
     }
 
     @Override
@@ -339,11 +344,8 @@ public class UserSettingsFile {
             + ", aruRetryMax=" + aruRetryMax
             + ", aruRetryInterval=" + aruRetryInterval
             + ", settingsFile=" + settingsFile
-            + ", installerDetailsFile='" + installerSettingsFile + '\''
-            + ", patchDetailsFile='" + patchSettingsFile + '\''
-            + ", defaultWLSVersion='" + defaultWLSVersion + '\''
-            + ", defaultWDTVersion='" + defaultWDTVersion + '\''
-            + ", defaultJDKVersion='" + defaultJDKVersion + '\''
+            + ", installerSettings='" + installerSettings + '\''
             + '}';
     }
+
 }

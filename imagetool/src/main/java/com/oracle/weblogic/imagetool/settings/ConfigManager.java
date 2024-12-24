@@ -25,6 +25,8 @@ import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
 public class ConfigManager {
     private UserSettingsFile userSettingsFile;
+    private SettingsFile installerSettingsFile;
+    private SettingsFile patchSettingsFile;
     private static ConfigManager instance;
     private static final LoggingFacade logger = LoggingFactory.getLogger(UserSettingsFile.class);
     private static CacheStore cacheStore = new CacheStore();
@@ -72,7 +74,7 @@ public class ConfigManager {
     }
 
     public String getPatchDetailsFile() {
-        return userSettingsFile.getPatchSettingsFile();
+        return userSettingsFile.returnPatchSettingsFile();
     }
 
     public String getBuildEngine() {
@@ -80,7 +82,18 @@ public class ConfigManager {
     }
 
     public String getInstallerDetailsFile() {
-        return userSettingsFile.getInstallerSettingsFile();
+        return userSettingsFile.returnInstallerSettingsFile();
+    }
+
+    /**
+     * Return the installer setting file.
+     * @return SettingsFile
+     */
+    public SettingsFile getInstallerSettingsFile() {
+        if (installerSettingsFile == null) {
+            installerSettingsFile = new SettingsFile(Paths.get(userSettingsFile.returnInstallerSettingsFile()));
+        }
+        return installerSettingsFile;
     }
 
     public String getDefaultBuildPlatform() {
@@ -133,7 +146,7 @@ public class ConfigManager {
      * @return default wls version if set
      */
     public String getDefaultWLSVersion() {
-        return userSettingsFile.getDefaultWLSVersion();
+        return userSettingsFile.returnDefaultWLSVersion();
     }
 
     /**
@@ -141,7 +154,7 @@ public class ConfigManager {
      * @return default wls version if set
      */
     public String getDefaultJDKVersion() {
-        return userSettingsFile.getDefaultJDKVersion();
+        return userSettingsFile.returnDefaultJDKVersion();
     }
 
     /**
@@ -149,7 +162,7 @@ public class ConfigManager {
      * @return default wls version if set
      */
     public String getDefaultWDTVersion() {
-        return userSettingsFile.getDefaultWDTVersion();
+        return userSettingsFile.returnDefaultWDTVersion();
     }
 
     /**

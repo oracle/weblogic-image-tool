@@ -66,8 +66,13 @@ public class CacheStore {
         //    - platform: linux/arm64
         //        ....
         //    - platform: linux/arm64
+
+        //ConfigManager cm = ConfigManager.getInstance();
+        //Map<String, Object> allInstallers = cm.getInstallerSettingsFile().load();
+
         Map<String, Object> allInstallers = new SettingsFile(Paths.get(ConfigManager.getInstance()
             .getInstallerDetailsFile())).load();
+
         if (allInstallers == null) {
             allInstallers = new HashMap<>();
         }

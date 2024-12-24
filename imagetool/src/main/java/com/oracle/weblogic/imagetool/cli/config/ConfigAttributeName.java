@@ -85,28 +85,6 @@ public enum ConfigAttributeName {
             return settings.getDefaultBuildPlatform();
         }
     },
-    installerSettingsFile("InstallerSettingsFile") {
-        @Override
-        public void set(UserSettingsFile settings, String value) {
-            settings.setInstallerDetailsFile(value);
-        }
-
-        @Override
-        public String get(UserSettingsFile settings) {
-            return settings.getInstallerSettingsFile();
-        }
-    },
-    patchSettingsFile("PatchSettingsFile") {
-        @Override
-        public void set(UserSettingsFile settings, String value) {
-            settings.setPatchSettingsFile(value);
-        }
-
-        @Override
-        public String get(UserSettingsFile settings) {
-            return settings.getPatchSettingsFile();
-        }
-    },
     defaultWLSVersion("DefaultWLSVersion") {
         @Override
         public void set(UserSettingsFile settings, String value) {
@@ -115,7 +93,7 @@ public enum ConfigAttributeName {
 
         @Override
         public String get(UserSettingsFile settings) {
-            return settings.getDefaultWLSVersion();
+            return settings.returnDefaultWLSVersion();
         }
     },
     defaultWDTVersion("DefaultWDTVersion") {
@@ -126,7 +104,7 @@ public enum ConfigAttributeName {
 
         @Override
         public String get(UserSettingsFile settings) {
-            return settings.getDefaultWDTVersion();
+            return settings.returnDefaultWDTVersion();
         }
     },
     defaultJDKVersion("DefaultJDKVersion") {
@@ -137,7 +115,7 @@ public enum ConfigAttributeName {
 
         @Override
         public String get(UserSettingsFile settings) {
-            return settings.getDefaultJDKVersion();
+            return settings.returnDefaultJDKVersion();
         }
     },
     aruRetryInterval("AruRetryInterval") {

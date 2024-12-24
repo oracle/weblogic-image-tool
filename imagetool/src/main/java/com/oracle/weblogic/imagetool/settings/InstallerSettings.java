@@ -3,13 +3,11 @@
 
 package com.oracle.weblogic.imagetool.settings;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
 public class InstallerSettings {
-    private String defaultVersion;
-    private Map<String, Object> installerList = new HashMap<String, Object>();
+    public String defaultVersion;
 
     public InstallerSettings(Map<String,Object> settings) {
         applySettings(settings);
@@ -24,7 +22,6 @@ public class InstallerSettings {
         //    return;
         //}
         defaultVersion = SettingsFile.getValue("defaultVersion", String.class, settings);
-        installerList = settings;
     }
 
     public String getDefaultVersion() {

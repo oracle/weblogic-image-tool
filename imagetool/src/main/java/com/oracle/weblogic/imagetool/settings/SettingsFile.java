@@ -9,8 +9,10 @@ import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
 
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.yaml.snakeyaml.DumperOptions;
@@ -60,13 +62,40 @@ public class SettingsFile {
         return map;
     }
 
+    static class CustomRepresenter extends Representer {
+        private DumperOptions options;
+
+        public CustomRepresenter(DumperOptions options) {
+            super(options);
+            this.options = options;
+            this.representers.put(EnumMap.class, data -> representMapping(Tag.MAP, (Map<?,?>)data,
+                null));
+        }
+
+        @Override
+        protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,
+                                                      Tag customTag) {
+            // if value of property is null, ignore it.
+            if (propertyValue == null) {
+                return null;
+            } else {
+                return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+            }
+        }
+
+    }
+
     private static Representer getYamlRepresenter() {
         // Created this inline override to suppress the output of null for all unset user settings
+        //DumperOptions options = new DumperOptions();
+        //options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        //CustomRepresenter representer = new CustomRepresenter(options);
         Representer representer = new Representer() {
             @Override
             protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,
                                                           Tag customTag) {
                 // if value of property is null, ignore it.
+                this.representers.put(EnumMap.class, data -> representMapping(Tag.MAP, (Map<?,?>)data, null));
                 if (propertyValue == null) {
                     return null;
                 } else {
@@ -75,7 +104,10 @@ public class SettingsFile {
             }
         };
         representer.addClassTag(UserSettingsFile.class, Tag.MAP);
-        representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        representer.addClassTag(InstallerType.class, Tag.MAP);
+        representer.addClassTag(InstallerSettings.class, Tag.MAP);
+        //representer.addClassTag(Map.class, Tag.MAP);
+        //representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
         PropertyUtils propertyUtils = new PropertyUtils();
         propertyUtils.setAllowReadOnlyProperties(true);
@@ -94,6 +126,8 @@ public class SettingsFile {
         }
 
         try (OutputStreamWriter output = new OutputStreamWriter(Files.newOutputStream(filePath))) {
+            //DumperOptions options = new DumperOptions();
+            //options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
             Yaml yaml = new Yaml(getYamlRepresenter());
             yaml.dump(data, output);
         } catch (IOException ioe) {
