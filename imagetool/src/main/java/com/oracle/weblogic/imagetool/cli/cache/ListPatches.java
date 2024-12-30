@@ -44,7 +44,7 @@ public class ListPatches extends CacheOperation {
                     }
                 }
                 System.out.println("  - location: " + metaData.getLocation());
-                System.out.println("    platform: " + metaData.getPlatform());
+                System.out.println("    architecture: " + metaData.getArchitecture());
                 System.out.println("    digest: " + metaData.getHash());
                 System.out.println("    dateAdded: " + metaData.getDateAdded());
                 System.out.println("    version: " + metaData.getPatchVersion());

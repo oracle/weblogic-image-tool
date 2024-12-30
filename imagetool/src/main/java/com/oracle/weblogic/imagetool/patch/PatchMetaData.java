@@ -8,7 +8,7 @@ import java.util.Objects;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 public class PatchMetaData {
-    private String platform;
+    private String architecture;
     private String location;
     private String hash;
     private String dateAdded;
@@ -17,15 +17,15 @@ public class PatchMetaData {
 
     /**
      * Constructor.
-     * @param platform platform
+     * @param architecture platform
      * @param location file path of the patch
      * @param hash sha256 hash
      * @param dateAdded date added
      * @param patchVersion version
      */
-    public PatchMetaData(String platform, String location, String hash, String dateAdded, String patchVersion,
+    public PatchMetaData(String architecture, String location, String hash, String dateAdded, String patchVersion,
                          String description) {
-        this.platform = platform;
+        this.architecture = architecture;
         this.location = location;
         this.hash = hash;
         this.dateAdded = dateAdded;
@@ -35,13 +35,13 @@ public class PatchMetaData {
 
     /**
      * Constructor.
-     * @param platform platform
+     * @param architecture platform
      * @param location file path of the patch
      * @param patchVersion version
      * @param description description of the patch
      */
-    public PatchMetaData(String platform, String location, String patchVersion, String description) {
-        this.platform = platform;
+    public PatchMetaData(String architecture, String location, String patchVersion, String description) {
+        this.architecture = architecture;
         this.location = location;
         this.hash = Utils.getSha256Hash(location);
         this.dateAdded = Utils.getTodayDate();
@@ -51,14 +51,15 @@ public class PatchMetaData {
 
     /**
      * Constructor.
-     * @param platform platform
+     * @param architecture platform
      * @param location file path of the patch
      * @param patchVersion version
      * @param description description of the patch
      * @param dateAdded date added
      */
-    public PatchMetaData(String platform, String location, String patchVersion, String description, String dateAdded) {
-        this.platform = platform;
+    public PatchMetaData(String architecture, String location, String patchVersion, String description,
+                         String dateAdded) {
+        this.architecture = architecture;
         this.location = location;
         this.hash = Utils.getSha256Hash(location);
         this.dateAdded = dateAdded;
@@ -66,8 +67,8 @@ public class PatchMetaData {
         this.description = description;
     }
 
-    public String getPlatform() {
-        return platform;
+    public String getArchitecture() {
+        return architecture;
     }
 
     public String getLocation() {
@@ -93,7 +94,7 @@ public class PatchMetaData {
     @Override
     public String toString() {
         return "PatchMetaData{"
-            + "platform='" + platform + '\''
+            + "platform='" + architecture + '\''
             + ", location='" + location + '\''
             + ", hash='" + hash + '\''
             + ", dateAdded='" + dateAdded + '\''
@@ -111,7 +112,7 @@ public class PatchMetaData {
             return false;
         }
         PatchMetaData metaData = (PatchMetaData) o;
-        return Objects.equals(platform, metaData.platform)
+        return Objects.equals(architecture, metaData.architecture)
             && Objects.equals(location, metaData.location) && Objects.equals(hash, metaData.hash)
             && Objects.equals(dateAdded, metaData.dateAdded)
             && Objects.equals(patchVersion, metaData.patchVersion)
@@ -120,6 +121,6 @@ public class PatchMetaData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(platform, location, hash, dateAdded, patchVersion, description);
+        return Objects.hash(architecture, location, hash, dateAdded, patchVersion, description);
     }
 }

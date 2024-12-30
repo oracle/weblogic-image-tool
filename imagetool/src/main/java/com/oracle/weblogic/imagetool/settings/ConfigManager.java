@@ -21,12 +21,12 @@ import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.util.Architecture;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStore.CACHE_DIR_ENV;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.ARCHITECTURE;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DATE_ADDED;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DESCRIPTION;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DIGEST;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.LOCATION;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PATCH_VERSION;
-import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PLATFORM;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PRODUCT_VERSION;
 import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
@@ -244,7 +244,7 @@ public class ConfigManager {
         }
         String location = (String) objectData.get(LOCATION);
         String productVersion = (String) objectData.get(PRODUCT_VERSION);
-        String platform = (String) objectData.get(PLATFORM);
+        String platform = (String) objectData.get(ARCHITECTURE);
         return new InstallerMetaData(platform, location, hash, dateAdded, productVersion);
     }
 
@@ -256,7 +256,7 @@ public class ConfigManager {
         }
         String location = (String) objectData.get(LOCATION);
         String productVersion = (String) objectData.get(PATCH_VERSION);
-        String platform = (String) objectData.get(PLATFORM);
+        String platform = (String) objectData.get(ARCHITECTURE);
         String description = (String) objectData.get(DESCRIPTION);
         return new PatchMetaData(platform, location, hash, dateAdded, productVersion, description);
     }

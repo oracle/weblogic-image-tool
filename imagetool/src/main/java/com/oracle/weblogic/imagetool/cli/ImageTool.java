@@ -11,7 +11,6 @@ import com.oracle.weblogic.imagetool.cli.config.ConfigCommand;
 import com.oracle.weblogic.imagetool.cli.menu.CreateAuxImage;
 import com.oracle.weblogic.imagetool.cli.menu.CreateImage;
 import com.oracle.weblogic.imagetool.cli.menu.InspectImage;
-import com.oracle.weblogic.imagetool.cli.menu.RebaseImage;
 import com.oracle.weblogic.imagetool.cli.menu.UpdateImage;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;

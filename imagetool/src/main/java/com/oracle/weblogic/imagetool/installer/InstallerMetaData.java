@@ -11,7 +11,7 @@ import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 public class InstallerMetaData {
-    private String platform;
+    private String architecture;
     private String location;
     private String digest;
     private String dateAdded;
@@ -19,13 +19,14 @@ public class InstallerMetaData {
 
     /**
      * Constructor InstallerMetaData stores details about this installer.
-     * @param platform   platform linux/arm64, linux/amd64
+     * @param architecture   platform linux/arm64, linux/amd64
      * @param location   file path of the installer
      * @param digest     sha256 hash value
      * @param dateAdded  date added
      */
-    public InstallerMetaData(String platform, String location, String digest, String dateAdded, String productVersion) {
-        this.platform = Utils.standardPlatform(platform);
+    public InstallerMetaData(String architecture, String location, String digest, String dateAdded,
+                             String productVersion) {
+        this.architecture = Utils.standardPlatform(architecture);
         this.location = location;
         this.digest = digest;
         this.dateAdded = dateAdded;
@@ -34,12 +35,12 @@ public class InstallerMetaData {
 
     /**
      * Constructor InstallerMetaData stores details about this installer.
-     * @param platform   platform linux/arm64, linux/amd64
+     * @param architecture   platform linux/arm64, linux/amd64
      * @param location   file path of the installer
      * @param productVersion real version of this installer
      */
-    public InstallerMetaData(String platform, String location, String productVersion) {
-        this.platform = Utils.standardPlatform(platform);
+    public InstallerMetaData(String architecture, String location, String productVersion) {
+        this.architecture = Utils.standardPlatform(architecture);
         this.location = location;
         this.productVersion = productVersion;
         if (location != null) {
@@ -50,8 +51,8 @@ public class InstallerMetaData {
         }
     }
 
-    public String getPlatform() {
-        return platform;
+    public String getArchitecture() {
+        return architecture;
     }
 
     public String getLocation() {
@@ -86,7 +87,7 @@ public class InstallerMetaData {
     }
 
     public String toString() {
-        return "InstallerMetaData [platform=" + platform + ", location=" + location + ", hash=" + digest + ", "
+        return "InstallerMetaData [platform=" + architecture + ", location=" + location + ", hash=" + digest + ", "
             + "dateAdded=" + dateAdded + ", version=" + productVersion + "]";
     }
 
@@ -99,7 +100,7 @@ public class InstallerMetaData {
             return false;
         }
         InstallerMetaData metaData = (InstallerMetaData) o;
-        return Objects.equals(platform, metaData.platform)
+        return Objects.equals(architecture, metaData.architecture)
             && Objects.equals(location, metaData.location) && Objects.equals(digest, metaData.digest)
             && Objects.equals(dateAdded, metaData.dateAdded)
             && Objects.equals(productVersion, metaData.productVersion);
@@ -107,6 +108,6 @@ public class InstallerMetaData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(platform, location, digest, dateAdded, productVersion);
+        return Objects.hash(architecture, location, digest, dateAdded, productVersion);
     }
 }

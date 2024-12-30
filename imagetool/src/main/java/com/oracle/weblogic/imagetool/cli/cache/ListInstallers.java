@@ -53,7 +53,7 @@ public class ListInstallers extends CacheOperation {
                 System.out.println("  " + installer + ":");
                 for (InstallerMetaData meta : metaData) {
                     System.out.println("  - location: " + meta.getLocation());
-                    System.out.println("    platform: " + meta.getPlatform());
+                    System.out.println("    architecture: " + meta.getArchitecture());
                     System.out.println("    digest: " + meta.getDigest());
                     System.out.println("    dateAdded: " + meta.getDateAdded());
                     System.out.println("    version: " + meta.getProductVersion());

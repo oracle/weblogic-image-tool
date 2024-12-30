@@ -65,6 +65,7 @@ Usage: imagetool create [OPTIONS]
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
 | `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
 | `--wdtVersion` | WDT version to use.  | `latest`  |
+| `--platform` | Comma separated list (no space between) of target platforms  for the image: linux/amd64 or linux/arm64|
 
 ### Additional information
 

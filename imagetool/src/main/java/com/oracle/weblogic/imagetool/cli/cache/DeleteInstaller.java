@@ -44,12 +44,12 @@ public class DeleteInstaller extends CacheOperation {
                 search = commonName;
             }
             exists = Optional.ofNullable(items.get(search))
-                .map(list -> list.stream().anyMatch(i -> Architecture.fromString(i.getPlatform())
+                .map(list -> list.stream().anyMatch(i -> Architecture.fromString(i.getArchitecture())
                     .equals(architecture) && i.getProductVersion().equalsIgnoreCase(version)))
                 .orElse(false);
             if (exists) {
                 Optional.ofNullable(items.get(search))
-                        .map(list -> list.removeIf(i -> Architecture.fromString(i.getPlatform())
+                        .map(list -> list.removeIf(i -> Architecture.fromString(i.getArchitecture())
                             .equals(architecture) && i.getProductVersion().equalsIgnoreCase(version)));
 
                 if (items.get(search).isEmpty()) {

@@ -24,12 +24,12 @@ import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatformId;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.ARCHITECTURE;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DATE_ADDED;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DESCRIPTION;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DIGEST;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.LOCATION;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PATCH_VERSION;
-import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PLATFORM;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.PRODUCT_VERSION;
 import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
 
@@ -206,14 +206,14 @@ public class CacheStore {
             List<InstallerMetaData> installerMetaDataList = installers.get(installerVersion);
             if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {
                 for (InstallerMetaData installerMetaData: installerMetaDataList) {
-                    if (platformName.getAcceptableNames().contains(installerMetaData.getPlatform())) {
+                    if (platformName.getAcceptableNames().contains(installerMetaData.getArchitecture())) {
                         return installerMetaData;
                     }
                 }
                 if (Utils.isGenericInstallerAcceptable(installerType)) {
                     //If it can't find the specialized platform, try generic.
                     for (InstallerMetaData installerMetaData: installerMetaDataList) {
-                        if (Architecture.GENERIC.getAcceptableNames().contains(installerMetaData.getPlatform())) {
+                        if (Architecture.GENERIC.getAcceptableNames().contains(installerMetaData.getArchitecture())) {
                             return installerMetaData;
                         }
                     }
@@ -291,12 +291,12 @@ public class CacheStore {
             if (patchMetaDataList != null && !patchMetaDataList.isEmpty()) {
                 for (PatchMetaData patchMetaData: patchMetaDataList) {
                     if (platformName == null || platformName.isEmpty()) {
-                        if (patchMetaData.getPlatform().equalsIgnoreCase("Generic")
+                        if (patchMetaData.getArchitecture().equalsIgnoreCase("Generic")
                             && patchMetaData.getPatchVersion().equals(version)) {
                             return patchMetaData;
                         }
                     } else {
-                        if (patchMetaData.getPlatform().equalsIgnoreCase(platformName)
+                        if (patchMetaData.getArchitecture().equalsIgnoreCase(platformName)
                             && patchMetaData.getPatchVersion().equals(version)) {
                             return patchMetaData;
                         }
@@ -305,7 +305,7 @@ public class CacheStore {
                 // search for generic for opatch only??
                 if (OPatchFile.DEFAULT_BUG_NUM.equals(bugNumber)) {
                     for (PatchMetaData patchMetaData: patchMetaDataList) {
-                        if ("generic".equalsIgnoreCase(patchMetaData.getPlatform())) {
+                        if ("generic".equalsIgnoreCase(patchMetaData.getArchitecture())) {
                             return patchMetaData;
                         }
                     }
@@ -331,8 +331,8 @@ public class CacheStore {
                 for (PatchMetaData patchMetaData: resultPatchMetaDataList) {
                     AruPatch aruPatch = new AruPatch();
 
-                    aruPatch.platformName(patchMetaData.getPlatform())
-                        .platform(getAruPlatformId(patchMetaData.getPlatform()))
+                    aruPatch.platformName(patchMetaData.getArchitecture())
+                        .platform(getAruPlatformId(patchMetaData.getArchitecture()))
                         .patchId(bugNumber)
                         .fileName(patchMetaData.getLocation())
                         .version(patchMetaData.getPatchVersion());
@@ -404,7 +404,7 @@ public class CacheStore {
         }
         String location = (String) objectData.get(LOCATION);
         String productVersion = (String) objectData.get(PRODUCT_VERSION);
-        String platform = (String) objectData.get(PLATFORM);
+        String platform = (String) objectData.get(ARCHITECTURE);
         return new InstallerMetaData(platform, location, hash, dateAdded, productVersion);
     }
 
@@ -416,7 +416,7 @@ public class CacheStore {
         }
         String location = (String) objectData.get(LOCATION);
         String productVersion = (String) objectData.get(PATCH_VERSION);
-        String platform = (String) objectData.get(PLATFORM);
+        String platform = (String) objectData.get(ARCHITECTURE);
         String description = (String) objectData.get(DESCRIPTION);
         return new PatchMetaData(platform, location, hash, dateAdded, productVersion, description);
     }

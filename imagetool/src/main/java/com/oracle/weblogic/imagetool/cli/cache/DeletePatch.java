@@ -38,11 +38,11 @@ public class DeletePatch extends CacheOperation {
             List<PatchMetaData> items = data.get(id);
             exists = Optional.ofNullable(items)
                 .map(list -> list.stream().anyMatch(i -> i.getPatchVersion().equals(version)
-                    && Architecture.fromString(i.getPlatform()).equals(architecture))).orElse(false);
+                    && Architecture.fromString(i.getArchitecture()).equals(architecture))).orElse(false);
             if (exists) {
                 Optional.ofNullable(items)
                         .map(list -> list.removeIf(i -> i.getPatchVersion().equals(version)
-                            && Architecture.fromString(i.getPlatform()).equals(architecture)));
+                            && Architecture.fromString(i.getArchitecture()).equals(architecture)));
                 
                 if (items.isEmpty()) {
                     data.remove(id);
