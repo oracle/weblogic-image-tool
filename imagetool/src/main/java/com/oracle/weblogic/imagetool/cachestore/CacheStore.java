@@ -137,12 +137,13 @@ public class CacheStore {
         Map<String, Map<String, List<InstallerMetaData>>> installerDetails = getInstallers();
         Map<String, List<InstallerMetaData>> installerMetaDataMap;
         List<InstallerMetaData> installerMetaDataList;
+        String installerKey = installerType.toString().toUpperCase();
 
-        if (installerDetails.containsKey(installerType)) {
-            installerMetaDataMap = installerDetails.get(installerType);
+        if (installerDetails.containsKey(installerKey)) {
+            installerMetaDataMap = installerDetails.get(installerKey);
         } else {
-            installerDetails.put(installerType.toString(), new HashMap<>());
-            installerMetaDataMap = installerDetails.get(installerType);
+            installerDetails.put(installerKey, new HashMap<>());
+            installerMetaDataMap = installerDetails.get(installerKey);
         }
 
         if (installerMetaDataMap.containsKey(commonName)) {
@@ -158,7 +159,7 @@ public class CacheStore {
             installerMetaDataList.add(metaData);
         }
         // Update the list
-        installerDetails.put(installerType.toString(), installerMetaDataMap);
+        installerDetails.put(installerKey, installerMetaDataMap);
         saveAllInstallers(installerDetails);
     }
 
@@ -172,12 +173,15 @@ public class CacheStore {
     public InstallerMetaData getInstallerForPlatform(InstallerType installerType, Architecture platformName,
                                                      String installerVersion) {
 
+
         if (platformName == null) {
             platformName = Architecture.GENERIC;
         }
         if (installerType == null) {
             installerType = InstallerType.WLS;
         }
+        String installerKey = installerType.toString().toUpperCase();
+
         if (installerVersion == null) {
             switch (installerType) {
                 case WLS:
@@ -197,7 +201,7 @@ public class CacheStore {
                     + installerType.toString()));
             }
         }
-        Map<String, List<InstallerMetaData>> installers = getInstallers().get(installerType);
+        Map<String, List<InstallerMetaData>> installers = getInstallers().get(installerKey);
         if (installers != null && !installers.isEmpty()) {
             List<InstallerMetaData> installerMetaDataList = installers.get(installerVersion);
             if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {

@@ -42,6 +42,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStore.CACHE_DIR_ENV;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -483,67 +484,113 @@ class ITImagetool {
         }
     }
 
-    ///**
-    // * add an entry to the cache.
-    // *
-    // * @throws Exception - if any error occurs
-    // */
-    //@Test
-    //@Order(4)
-    //@Tag("gate")
-    //@DisplayName("Add manual entry to cache")
-    //void cacheAddTestEntry(TestInfo testInfo) throws Exception {
-    //    Path testEntryValue = Paths.get(STAGING_DIR, P27342434_INSTALLER);
-    //    String command = new CacheCommand()
-    //        .addEntry(true)
-    //        .key(TEST_ENTRY_KEY)
-    //        .value(testEntryValue)
-    //        .build();
-    //
-    //    try (PrintWriter out = getTestMethodWriter(testInfo)) {
-    //        CommandResult addEntryResult = Runner.run(command, out, logger);
-    //        assertEquals(0, addEntryResult.exitValue(), "for command: " + command);
-    //
-    //        // verify the result
-    //        String listCommand = new CacheCommand().listItems(true).build();
-    //        CommandResult listResult = Runner.run(listCommand, out, logger);
-    //        // the process return code for listItems should be 0
-    //        assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
-    //        // output should show newly added patch
-    //        assertTrue(listResult.stdout().contains(TEST_ENTRY_KEY.toLowerCase() + "=" + testEntryValue));
-    //        // cache should also contain the installer that was added in the previous test (persistent cache)
-    //        assertTrue(listResult.stdout().contains(P27342434_ID + "_" + WLS_VERSION + "="));
-    //    }
-    //}
-    //
-    ///**
-    // * test delete an entry from the cache.
-    // *
-    // * @throws Exception - if any error occurs
-    // */
-    //@Test
-    //@Order(5)
-    //@Tag("gate")
-    //@DisplayName("Delete cache entry")
-    //void cacheDeleteTestEntry(TestInfo testInfo) throws Exception {
-    //    String command = new CacheCommand()
-    //        .deleteEntry(true)
-    //        .key(TEST_ENTRY_KEY)
-    //        .build();
-    //
-    //    try (PrintWriter out = getTestMethodWriter(testInfo)) {
-    //        CommandResult result = Runner.run(command, out, logger);
-    //        assertEquals(0, result.exitValue(), "for command: " + command);
-    //
-    //        // verify the result
-    //        String listCommand = new CacheCommand().listItems(true).build();
-    //        CommandResult listResult = Runner.run(listCommand, out, logger);
-    //        // the process return code for listItems should be 0
-    //        assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
-    //        // output should NOT show deleted patch
-    //        assertFalse(listResult.stdout().contains(TEST_ENTRY_KEY.toLowerCase()));
-    //    }
-    //}
+    /**
+     * delete a patch from the cache.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(4)
+    @Tag("gate")
+    @DisplayName("Delete a patch from cache")
+    void deletePatchTest(TestInfo testInfo) throws Exception {
+        Path patchPath = Paths.get(STAGING_DIR, P27342434_INSTALLER);
+
+        String testPatchID = "27342430";
+        String command = new CacheCommand()
+            .addPatch(true)
+            .path(patchPath)
+            .patchId(testPatchID)
+            .version(WLS_VERSION)
+            .architecture(GENERIC)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            // the process return code for addPatch should be 0
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the result
+            String listCommand = new CacheCommand().listPatches(true).patchId(testPatchID).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added patch
+            assertTrue(listResult.stdout().contains(testPatchID));
+            assertTrue(listResult.stdout().contains(WLS_VERSION));
+            assertTrue(listResult.stdout().contains(patchPath.toString()));
+        }
+
+        command = new CacheCommand()
+            .deletePatch(true)
+            .patchId(testPatchID)
+            .version(WLS_VERSION)
+            .architecture(GENERIC)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the result
+            String listCommand = new CacheCommand().listPatches(true).patchId(testPatchID).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added patch
+            assertFalse(listResult.stdout().contains(testPatchID));
+            assertFalse(listResult.stdout().contains(WLS_VERSION));
+            assertFalse(listResult.stdout().contains(patchPath.toString()));
+        }
+    }
+
+    /**
+     * test delete an installer.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(5)
+    @Tag("gate")
+    @DisplayName("Delete installer")
+    void deleteInstaller(TestInfo testInfo) throws Exception {
+
+        String wdtVersion = "testonly";
+        Path wdtPath = Paths.get(STAGING_DIR, WDT_INSTALLER);
+        String addCommand = new CacheCommand()
+            .addInstaller(true)
+            .type("WDT")
+            .version(wdtVersion)
+            .path(wdtPath)
+            .architecture(GENERIC)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult addResult = Runner.run(addCommand, out, logger);
+            // the process return code for addInstaller should be 0
+            assertEquals(0, addResult.exitValue(), "for command: " + addCommand);
+        }
+
+        String deleteCommand = new CacheCommand()
+            .deleteInstaller(true)
+            .architecture(GENERIC)
+            .type("WDT")
+            .version(wdtVersion)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(deleteCommand, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + deleteCommand);
+
+            // verify the result
+            String listCommand = new CacheCommand().listInstallers(true).type("WDT").build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should NOT show deleted installer
+            assertFalse(listResult.stdout().contains(wdtVersion.toLowerCase()));
+        }
+    }
 
     /**
      * Test manual caching of a patch JAR.
@@ -741,10 +788,10 @@ class ITImagetool {
      *
      * @throws Exception - if any error occurs
      */
-    @Test
-    @Order(13)
-    @Tag("gate")
-    @DisplayName("Rebase the WLS domain")
+    //@Test
+    //@Order(13)
+    //@Tag("gate")
+    //@DisplayName("Rebase the WLS domain")
     void rebaseWlsImg(TestInfo testInfo) throws Exception {
         assumeTrue(wlsImgBuilt);
         assumeTrue(domainImgBuilt);

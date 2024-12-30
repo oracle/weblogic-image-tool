@@ -34,7 +34,6 @@ import static picocli.CommandLine.ExitCode;
             CreateImage.class,
             CreateAuxImage.class,
             UpdateImage.class,
-            RebaseImage.class,
             InspectImage.class
         },
         requiredOptionMarker = '*',

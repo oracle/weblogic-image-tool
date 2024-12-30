@@ -16,8 +16,8 @@ public class CacheCommand extends ImageToolCommand {
     private boolean addPatch;
     private boolean listInstallers;
     private boolean listPatches;
-    private boolean addEntry;
-    private boolean deleteEntry;
+    private boolean deletePatch;
+    private boolean deleteInstaller;
     private String path;
     private String patchId;
     private String key;
@@ -53,14 +53,14 @@ public class CacheCommand extends ImageToolCommand {
         return this;
     }
 
-    public CacheCommand addEntry(boolean value) {
-        addEntry = value;
+    public CacheCommand deletePatch(boolean value) {
+        deletePatch = value;
         return this;
     }
 
 
-    public CacheCommand deleteEntry(boolean value) {
-        deleteEntry = value;
+    public CacheCommand deleteInstaller(boolean value) {
+        deleteInstaller = value;
         return this;
     }
 
@@ -117,6 +117,8 @@ public class CacheCommand extends ImageToolCommand {
         return super.build()
             + field("addInstaller", addInstaller)
             + field("addPatch", addPatch)
+            + field("deleteInstaller", deleteInstaller)
+            + field("deletePatch", deletePatch)
             + field("listPatches", listPatches)
             + field("listInstallers", listInstallers)
             + field("--commonName", commonName)

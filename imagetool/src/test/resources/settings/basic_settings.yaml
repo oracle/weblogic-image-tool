@@ -2,9 +2,9 @@ aruRetryInterval: 200
 buildContextDirectory: ./builds
 patchDirectory: /home/user/patches
 installers:
-  jdk:
+  JDK:
     defaultVersion: 8u241
-  wls:
+  WLS:
     defaultVersion: 12.2.1.4.0
-  wdt:
+  WDT:
     defaultVersion: latest

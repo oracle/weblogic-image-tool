@@ -232,12 +232,12 @@ public class UserSettingsFile {
         Map<String, Object> installerSettingsMap = new HashMap<>();
         installerSettingsMap.put("defaultVersion", value);
         InstallerSettings versionSettings = new InstallerSettings(installerSettingsMap);
-        installerSettings.put(type.toString(), versionSettings);
+        installerSettings.put(type.toString().toUpperCase(), versionSettings);
     }
 
     // Do not use getXXX Snake Yaml will add separate entry in the serialized yaml file
     public String returnDefaultWLSVersion() {
-        return Optional.ofNullable(installerSettings.get(InstallerType.WLS.toString()))
+        return Optional.ofNullable(installerSettings.get(InstallerType.WLS.toString().toUpperCase()))
             .map(InstallerSettings::getDefaultVersion).orElse(null);
     }
 
@@ -246,7 +246,7 @@ public class UserSettingsFile {
     }
 
     public String returnDefaultWDTVersion() {
-        return Optional.ofNullable(installerSettings.get(InstallerType.WDT.toString()))
+        return Optional.ofNullable(installerSettings.get(InstallerType.WDT.toString().toUpperCase()))
             .map(InstallerSettings::getDefaultVersion).orElse(null);
     }
 
@@ -255,7 +255,7 @@ public class UserSettingsFile {
     }
 
     public String returnDefaultJDKVersion() {
-        return Optional.ofNullable(installerSettings.get(InstallerType.JDK.toString()))
+        return Optional.ofNullable(installerSettings.get(InstallerType.JDK.toString().toUpperCase()))
             .map(InstallerSettings::getDefaultVersion).orElse(null);
     }
 
@@ -268,7 +268,7 @@ public class UserSettingsFile {
         if (installerSettings == null) {
             return null;
         }
-        return installerSettings.get(installerType.toString());
+        return installerSettings.get(installerType.toString().toUpperCase());
     }
 
     public Map<String, InstallerSettings> getInstallerSettings() {
