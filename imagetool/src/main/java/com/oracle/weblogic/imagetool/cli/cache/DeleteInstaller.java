@@ -71,25 +71,25 @@ public class DeleteInstaller extends CacheOperation {
 
     @Option(
         names = {"--type"},
-        description = "Filter installer type.  e.g. wls, jdk, wdt"
+        description = "Filter installer type.  e.g. wls, jdk, wdt."
     )
     private InstallerType type;
 
     @Option(
         names = {"--cn"},
-        description = "Filter installer type.  e.g. wls, jdk, wdt"
+        description = "Filter by common name."
     )
     private String commonName;
 
     @Option(
         names = {"--version"},
-        description = "Specific version to delete"
+        description = "Specific version to delete."
     )
     private String version;
 
     @Option(
         names = {"--architecture"},
-        description = "Specific architecture to delete"
+        description = "Specific architecture to delete."
     )
     private Architecture architecture;
 

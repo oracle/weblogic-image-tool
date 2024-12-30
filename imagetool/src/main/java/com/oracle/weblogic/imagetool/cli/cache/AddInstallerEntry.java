@@ -66,7 +66,8 @@ public class AddInstallerEntry extends CacheAddOperation {
 
     @Option(
             names = {"-v", "--version"},
-            description = "Installer version. Ex: For WLS|FMW use 12.2.1.3.0 For jdk, use 8u201",
+            description = "Installer version. Ex: For WLS|FMW use 12.2.1.3.0 For jdk, use 8u201. The version for WLS, "
+                + "FMW etc. will be used to obtain patches.",
             required = true
     )
     private String version;
@@ -81,7 +82,8 @@ public class AddInstallerEntry extends CacheAddOperation {
     @Option(
         names = {"-c", "--commonName"},
         description = "(Optional) common name. Valid values:  Alphanumeric values with no special characters. "
-            + "If not specified, default to the version value."
+            + "If not specified, default to the version value.  Use this if you want to use a special name for the "
+            + "particular version of the installer."
     )
     private String commonName;
 

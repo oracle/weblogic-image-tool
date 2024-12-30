@@ -51,8 +51,19 @@ List and set cache options
 ### Usage scenarios
 
 - `listInstallers`: Display the contents of the cache. Displays key value pairs of the installers and patches.
-```
+```bash
+Usage: imagetool cache listInstallers [--commonName=<commonName>]
+                                      [--type=<type>] [--version=<version>]
+List installers
+      --commonName=<commonName>
+                            Filter installer by common name.
+      --type=<type>         Filter installer type.  e.g. wls, jdk, wdt
+      --version=<version>   Filter installer by version.
+
+e.g.
+
 imagetool.sh cache listInstallers
+
 JDK:
   8u401:
   - location: /home/acmeuser/Downloads/jdk-8u401-fcs-bin-b10-linux-aarch64-19_dec_2023.tar.gz
@@ -105,7 +116,14 @@ WLS:
 
 ```bash
 
-imagetool.sh cache listPatches
+Usage: imagetool cache listPatches [--patchId=<patchId>] [--version=<version>]
+List patches
+      --patchId=<patchId>   Patch id
+      --version=<version>   Patch version
+
+
+
+$ imagetool.sh cache listPatches
 
 36805124:
   - location: /home/acmeuser/Downloads/oraclePatches/p36805124_122140_Generic.zip
@@ -136,11 +154,54 @@ imagetool.sh cache listPatches
 
 - `addInstaller`: Add an installer to the cache, for example, JDK.
     ```bash
+  
+  Usage: imagetool cache addInstaller [--force] -a=<architecture>
+                                      [-c=<commonName>] -p=<filePath> [-t=<type>]
+                                      -v=<version>
+  Add cache entry for wls, fmw, jdk or wdt installer
+        --force               Overwrite existing entry, if it exists
+    -p, --path=<filePath>     Location of the file on disk. For ex:
+                                /path/to/patch-or-installer.zip
+    -t, --type=<type>         Type of installer. Valid values: wlsdev, wlsslim,
+                                wls, fmw, soa, osb, b2b, mft, idm, oam, ohs,
+                                db19, oud, oid, wcc, wcp, wcs, jdk, wdt, odi
+    -v, --version=<version>   Installer version. Ex: For WLS|FMW use 12.2.1.3.0
+                                For jdk, use 8u201. The version for WLS, FMW etc.
+                                will be used to obtain patches.
+    -a, --architecture=<architecture>
+                              Installer architecture. Valid values: arm64, amd64,
+                                Generic
+    -c, --commonName=<commonName>
+                              (Optional) common name. Valid values:  Alphanumeric
+                                values with no special characters. If not
+                                specified, default to the version value.  Use
+                                this if you want to use a special name for the
+                                particular version of the installer.
+
+  
+  
     $ imagetool cache addInstaller --type jdk --version 8u202 --path /path/to/local/jdk.tar.gz --architecture AMD64
     ```
 
 - `addPatch`: Add a patch to the cache.
     ```bash
+  
+  Usage: imagetool cache addPatch [--force] -a=<architecture> [-d=<description>]
+                                  -p=<filePath> --patchId=<patchId> -v=<version>
+  Add cache entry for wls|fmw patch or psu
+        --force               Overwrite existing entry, if it exists
+    -p, --path=<filePath>     Location of the file on disk. For ex:
+                                /path/to/patch-or-installer.zip
+        --patchId=<patchId>   Patch number. Ex: 28186730
+    -v, --version=<version>   Patch version.
+    -a, --architecture=<architecture>
+                              Patch architecture. Valid values: arm64, amd64,
+                                Generic
+    -d, --description=<description>
+                              Patch description.
+
+  
+  
     $ imagetool cache addPatch --patchId 12345678_12.2.1.3.0 --path /path/to/patch.zip --architecture AMD64
     ```
     **Note**:  When adding a patch to the cache store, the `patchId` should be in the following format:  `99999999_9.9.9.9.99999`  The first 8 digits is the patch ID, followed by an underscore, and then the release number to identify the patch between different patch versions.  
@@ -158,10 +219,38 @@ If you downloaded the release version ```12.2.1.3.190416``` of the patch, then y
 
 - `deleteInstaller`: Delete an installer from the cache for a given key. **Note**: This command does not delete files from the disk.
     ```bash
+  
+  Usage: imagetool cache deleteInstaller [--architecture=<architecture>]
+                                         [--cn=<commonName>] [--type=<type>]
+                                         [--version=<version>]
+  Delete a installer
+        --architecture=<architecture>
+                              Specific architecture to delete
+        --cn=<commonName>     Filter by common name. 
+        --type=<type>         Filter installer type.  e.g. wls, jdk, wdt
+        --version=<version>   Specific version to delete
+
+  
     $ imagetool cache deleteInstaller --version 14.1.1.0.0 --architecture ARM64 
     ```
 
 - `deletePatch`: Delete a patch from the cache for a given key. **Note**: This command does not delete files from the disk.
     ```bash
+  Usage: imagetool cache deletePatch [--architecture=<architecture>]
+                                     [--patchId=<patchId>] [--version=<version>]
+  Delete a patch
+        --architecture=<architecture>
+                              Specific architecture to delete
+        --patchId=<patchId>   Bug num
+        --version=<version>   Specific version to delete
+
+  
     $ imagetool cache deletePatch --patchId 12345678 --version 14.1.1.0.0 --architecture ARM64 
     ```
+
+- `convert`:  Convert Imagetool version 1.x to 2.0 format.
+
+```bash
+Usage: imagetool cache convert
+Convert cache settings from v1 to v2
+```

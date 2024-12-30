@@ -66,6 +66,8 @@ Usage: imagetool create [OPTIONS]
 | `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
 | `--wdtVersion` | WDT version to use.  | `latest`  |
 | `--platform` | Comma separated list (no space between) of target platforms  for the image: linux/amd64 or linux/arm64|
+| `--push` | Push to remote repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored. |
+| `--load` | Load into local repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored.|
 
 ### Additional information
 
