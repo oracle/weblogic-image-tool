@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.aru;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -303,7 +304,11 @@ public class AruPatch {
         }
         logger.exiting(selected);
         if (selected == null) {
-            throw logger.throwing(new PatchVersionException(patches.get(0).patchId(), patches));
+            List<String> versionStrings = new ArrayList<>();
+            for (AruPatch aruPatch : patches) {
+                versionStrings.add(patches.get(0).patchId() + "_" + aruPatch.version());
+            }
+            throw logger.throwing(new PatchVersionException(patches.get(0).patchId(), versionStrings));
         } else {
             logger.info("IMG-0099", selected.patchId(), selected.version(), selected.description());
             return selected;

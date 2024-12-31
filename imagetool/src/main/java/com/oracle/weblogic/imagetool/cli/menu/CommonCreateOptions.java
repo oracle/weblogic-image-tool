@@ -115,8 +115,8 @@ public class CommonCreateOptions extends CommonPatchingOptions {
             InstallerMetaData jdkInstallerMetaData = configManager.getInstallerForPlatform(InstallerType.JDK,
                 arch, jdkVersion);
             if (jdkInstallerMetaData == null) {
-                throw new IOException(String.format("Could not find installer type: %s, platform: %s version: %s",
-                    InstallerType.JDK, buildPlatform, jdkVersion));
+                throw new IllegalArgumentException(Utils.getMessage("IMG_0145", InstallerType.JDK,
+                    buildPlatform, jdkVersion));
             } else {
                 // If needed
                 verifyInstallerHash(jdkInstallerMetaData);
@@ -127,8 +127,8 @@ public class CommonCreateOptions extends CommonPatchingOptions {
                 InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(installerType,
                     arch, installerVersion);
                 if (installerMetaData == null) {
-                    throw new IOException(String.format("Could not find installer type: %s, platform: %s version: %s",
-                        installerType, buildPlatform, installerVersion));
+                    throw new IllegalArgumentException(Utils.getMessage("IMG_0145", installerType,
+                        buildPlatform, installerVersion));
                 } else {
                     // If needed
                     verifyInstallerHash(installerMetaData);

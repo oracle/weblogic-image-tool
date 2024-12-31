@@ -16,7 +16,7 @@ public class PatchVersionException extends IOException {
      * @param bugNumber         the bug number that was searched
      * @param versionsAvailable the list of versions for patches of that bug
      */
-    public PatchVersionException(String bugNumber, List<AruPatch> versionsAvailable) {
+    public PatchVersionException(String bugNumber, List<String> versionsAvailable) {
         super(Utils.getMessage("IMG-0034", bugNumber, versionsAvailable));
     }
 }

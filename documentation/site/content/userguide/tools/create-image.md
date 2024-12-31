@@ -34,14 +34,16 @@ Usage: imagetool create [OPTIONS]
 | `--inventoryPointerInstallLoc` | Target location for the inventory pointer file.  |   |
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
+| `--load` | Load into local repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored.|
 | `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  | `28186730`  |
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `OS_DEFAULT`, `YUM`, `ZYPPER`  | `OS_DEFAULT`  |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |   |
 | `--patches` | Comma separated list of patch IDs. Example: `12345678,87654321`  |   |
-| `--platform` | Set the target platform to build.  Supported values: `linux/amd64` or `linux/arm64`. |   |
+| `--platform` | Comma separated list (no space between) of target platforms  for the image: linux/amd64 or linux/arm64|
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
+| `--push` | Push to remote repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored. |
 | `--recommendedPatches` | Find and apply the latest PatchSet Update and recommended patches. This takes precedence over `--latestPSU`.  |   |
 | `--resourceTemplates` | One or more files containing placeholders that need to be resolved by the Image Tool. See [Resource Template Files](#resource-template-files). |   |
 | `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
@@ -65,9 +67,6 @@ Usage: imagetool create [OPTIONS]
 | `--wdtStrictValidation` | Use strict validation for the WDT validation method. Only applies when using model only.  | `false`  |
 | `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
 | `--wdtVersion` | WDT version to use.  | `latest`  |
-| `--platform` | Comma separated list (no space between) of target platforms  for the image: linux/amd64 or linux/arm64|
-| `--push` | Push to remote repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored. |
-| `--load` | Load into local repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored.|
 
 ### Additional information
 

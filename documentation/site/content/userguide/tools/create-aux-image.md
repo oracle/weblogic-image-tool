@@ -31,9 +31,11 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--fromImage` | Container image to use as a base image when creating a new image. | `busybox`  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
+| `--load` | Load into local repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored.|
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `YUM`, `ZYPPER`  |   |
-| `--platform` | Set the target platform to build.  Supported values: `linux/amd64` or `linux/arm64`. |   |
+| `--platform` | Comma separated list (no space between) of target platforms  for the image: linux/amd64 or linux/arm64|
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
+| `--push` | Push to remote repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored. |
 | `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
 | `--target` | Select the target environment in which the created image will be used. Supported values: `Default` (Docker/Kubernetes), `OpenShift`. See [Additional information](#--target). | `Default`  |
 | `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
@@ -42,9 +44,6 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--wdtModelHome` | The target location in the image to copy WDT model, variable, and archive files. | `{wdtHome}/models` |
 | `--wdtVariables` | A WDT variables file or comma-separated list of files.  |   |
 | `--wdtVersion` | WDT version to be installed in the container image in `{wdtHome}/weblogic-deploy`. For more details, see [Additional information](#--wdtversion). | `latest`  |
-| `--platform` | Comma separated list (no space between) of target platforms  for the image: linux/amd64 or linux/arm64|
-| `--push` | Push to remote repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored. |
-| `--load` | Load into local repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored.|
 
 ### Additional information
 
