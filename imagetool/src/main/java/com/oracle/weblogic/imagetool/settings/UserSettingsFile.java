@@ -275,10 +275,6 @@ public class UserSettingsFile {
         return installerSettings;
     }
 
-    public String defaultWLSVersion() {
-        return "hello";
-    }
-
     private void applySettings(Map<String, Object> settings) {
         logger.entering();
         if (settings == null || settings.isEmpty()) {
@@ -320,8 +316,8 @@ public class UserSettingsFile {
         return defaultBuildPlatform;
     }
 
-    public String setDefaultBuildPlatform(String value) {
-        return defaultBuildPlatform = value;
+    public void setDefaultBuildPlatform(String value) {
+        defaultBuildPlatform = value;
     }
 
     public String returnInstallerSettingsFile() {

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import picocli.CommandLine.Command;
@@ -21,7 +20,7 @@ import picocli.CommandLine.Option;
 public class ListPatches extends CacheOperation {
 
     @Override
-    public CommandResponse call() throws CacheStoreException {
+    public CommandResponse call() {
 
         ConfigManager configManager = ConfigManager.getInstance();
         Map<String, List<PatchMetaData>> data = configManager.getAllPatches();

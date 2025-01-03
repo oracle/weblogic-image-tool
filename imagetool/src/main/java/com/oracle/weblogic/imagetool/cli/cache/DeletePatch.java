@@ -4,6 +4,7 @@
 package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,36 +24,41 @@ import picocli.CommandLine.Option;
 )
 public class DeletePatch extends CacheOperation {
 
+    private boolean isPatchVersionMatched(List<PatchMetaData> items) {
+        return Optional.ofNullable(items)
+            .map(list -> list.stream().anyMatch(i -> i.getPatchVersion().equals(version)
+                && Architecture.fromString(i.getArchitecture()).equals(architecture))).orElse(false);
+    }
+
     @Override
     public CommandResponse call() throws CacheStoreException {
         ConfigManager configManager = ConfigManager.getInstance();
         Map<String, List<PatchMetaData>> data = configManager.getAllPatches();
+
         if (patchId == null || version == null || architecture == null) {
             return CommandResponse.success("IMG-0126");
         }
-        boolean exists = false;
-        for (String id : data.keySet()) {
-            if (patchId != null && !patchId.equalsIgnoreCase(id)) {
-                continue;
-            }
-            List<PatchMetaData> items = data.get(id);
-            exists = Optional.ofNullable(items)
-                .map(list -> list.stream().anyMatch(i -> i.getPatchVersion().equals(version)
-                    && Architecture.fromString(i.getArchitecture()).equals(architecture))).orElse(false);
-            if (exists) {
-                Optional.ofNullable(items)
+
+        for (Iterator<String> iterator = data.keySet().iterator(); iterator.hasNext(); ) {
+            String id = iterator.next();
+            if (patchId.equalsIgnoreCase(id)) {
+                List<PatchMetaData> items = data.get(id);
+                if (isPatchVersionMatched(items)) {
+
+                    Optional.of(items)
                         .map(list -> list.removeIf(i -> i.getPatchVersion().equals(version)
                             && Architecture.fromString(i.getArchitecture()).equals(architecture)));
-                
-                if (items.isEmpty()) {
-                    data.remove(id);
+                    // if all patches are removed for this bug number, remove this bug number from the store.
+                    if (items.isEmpty()) {
+                        data.remove(id);
+                    }
+                    break;
+
+                } else {
+                    return CommandResponse.success("IMG-0127");
                 }
 
-                break;
             }
-        }
-        if (!exists) {
-            return CommandResponse.success("IMG-0127");
         }
         try {
             configManager.saveAllPatches(data);

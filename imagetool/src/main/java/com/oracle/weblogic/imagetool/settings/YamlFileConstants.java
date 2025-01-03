@@ -6,11 +6,11 @@ package com.oracle.weblogic.imagetool.settings;
 public class YamlFileConstants {
 
     // Do not change the values, it affect the persisted YAML file and will break compatibility
-    public static String ARCHITECTURE = "architecture";
-    public static String DATE_ADDED = "dateAdded";
-    public static String DESCRIPTION = "description";
-    public static String DIGEST = "digest";
-    public static String LOCATION  = "location";
-    public static String PATCH_VERSION = "patchVersion";
-    public static String PRODUCT_VERSION = "productVersion";
+    public static final String ARCHITECTURE = "architecture";
+    public static final String DATE_ADDED = "dateAdded";
+    public static final String DESCRIPTION = "description";
+    public static final String DIGEST = "digest";
+    public static final String LOCATION  = "location";
+    public static final String PATCH_VERSION = "patchVersion";
+    public static final String PRODUCT_VERSION = "productVersion";
 }

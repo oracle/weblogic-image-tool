@@ -865,9 +865,6 @@ public class Utils {
      */
     public static boolean isGenericInstallerAcceptable(InstallerType type) {
         List<InstallerType> types = Arrays.asList(InstallerType.WDT);
-        if (types.contains(type)) {
-            return true;
-        }
-        return false;
+        return types.contains(type);
     }
 }

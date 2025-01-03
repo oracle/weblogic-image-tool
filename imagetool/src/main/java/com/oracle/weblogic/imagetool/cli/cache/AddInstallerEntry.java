@@ -6,7 +6,6 @@ package com.oracle.weblogic.imagetool.cli.cache;
 import java.io.IOException;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.util.Architecture;
 import picocli.CommandLine.Command;
@@ -20,7 +19,7 @@ import picocli.CommandLine.Option;
 public class AddInstallerEntry extends CacheAddOperation {
 
     @Override
-    public CommandResponse call() throws IOException, CacheStoreException {
+    public CommandResponse call() throws IOException {
         if ("NONE".equalsIgnoreCase(version)) {
             throw new IllegalArgumentException("IMG-0105");
         }

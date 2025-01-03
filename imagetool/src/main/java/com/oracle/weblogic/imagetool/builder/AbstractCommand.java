@@ -103,11 +103,10 @@ public abstract class AbstractCommand {
                 }
                 String line;
                 while ((line = processReader.readLine()) != null) {
-                    String finalLine = line;
                     if (logWriter != null) {
-                        logWriter.println(finalLine);
+                        logWriter.println(line);
                     }
-                    stdoutWriter.println(finalLine);
+                    stdoutWriter.println(line);
                 }
             } catch (IOException e) {
                 logger.severe(e.getMessage());

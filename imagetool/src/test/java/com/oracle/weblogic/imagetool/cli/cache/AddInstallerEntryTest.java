@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AddInstallerEntryTest {
 
     @BeforeAll
-    static void setup(@TempDir Path tempDir) throws IOException, NoSuchFieldException, IllegalAccessException {
+    static void setup(@TempDir Path tempDir) throws IOException {
         TestSetup.setup(tempDir);
     }
 

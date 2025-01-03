@@ -39,8 +39,8 @@ import static com.oracle.weblogic.imagetool.util.Utils.getTodayDate;
  */
 public class CacheStore {
 
-    public static String CACHE_KEY_SEPARATOR = "_";
-    public static String CACHE_DIR_ENV = "WLSIMG_CACHEDIR";
+    public static final String CACHE_KEY_SEPARATOR = "_";
+    public static final String CACHE_DIR_ENV = "WLSIMG_CACHEDIR";
     private static final LoggingFacade logger = LoggingFactory.getLogger(UserSettingsFile.class);
 
 
@@ -194,7 +194,7 @@ public class CacheStore {
                     installerVersion = ConfigManager.getInstance().getDefaultWDTVersion();
                     break;
                 default:
-                    installerVersion = null;
+                    break;
             }
             if (installerVersion == null) {
                 logger.throwing(new IllegalArgumentException("Cannot determine installer version for installer type "

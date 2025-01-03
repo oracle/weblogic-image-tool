@@ -9,7 +9,6 @@ import java.nio.file.Path;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
@@ -30,7 +29,7 @@ public abstract class CacheAddOperation extends CacheOperation {
 
     public abstract String getDescription();
 
-    CommandResponse addInstallerToCache() throws IOException, CacheStoreException {
+    CommandResponse addInstallerToCache() throws IOException {
         if (filePath == null || !Files.isRegularFile(filePath)) {
             return CommandResponse.error("IMG-0049", filePath);
         }
@@ -56,7 +55,7 @@ public abstract class CacheAddOperation extends CacheOperation {
         return CommandResponse.success("IMG-0050", type, metaData.getProductVersion(), metaData.getLocation());
     }
 
-    CommandResponse addPatchToCache() throws IOException, CacheStoreException {
+    CommandResponse addPatchToCache() throws IOException {
         // if file is invalid or does not exist, return an error
         if (filePath == null || !Files.isRegularFile(filePath)) {
             return CommandResponse.error("IMG-0049", filePath);

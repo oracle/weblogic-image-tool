@@ -25,12 +25,16 @@ echo 'username:100000:65536' | sudo tee -a /etc/subgid
 echo 'user.max_user_namespaces=28633' | sudo tee -a /etc/sysctl.d/userns.conf
 sudo sysctl -p /etc/sysctl.d/userns.conf
 
-mkdir -p /path/to/storage/$USER
+mkdir -p $HOME/containers/storage
 
 mkdir -p ~/.config/containers
 echo "[storage]
 driver = \"overlay\"
-rootless_storage_path = \"/path/to/storage/$USER\"" > ~/.config/containers/storage.conf
+rootless_storage_path = \"$HOME/containers/storage\" 
+[storage.options.overlay]
+mount_program = \"/usr/bin/fuse-overlayfs\"" > ~/.config/containers/storage.conf
+
+podman system reset
 
 
 sudo loginctl enable-linger username

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
@@ -22,21 +21,19 @@ import picocli.CommandLine.Option;
 public class ListInstallers extends CacheOperation {
 
     @Override
-    public CommandResponse call() throws CacheStoreException {
+    public CommandResponse call() {
         ConfigManager configManager = ConfigManager.getInstance();
         Map<String, Map<String, List<InstallerMetaData>>> data = configManager.getInstallers();
-        if (commonName != null && !commonName.isEmpty()) {
-            if (type == null) {
-                System.out.println("--type cannot be null when commonName is specified");
-                System.exit(2);
-            }
+        if (commonName != null && !commonName.isEmpty() && type == null) {
+            System.out.println("--type cannot be null when commonName is specified");
+            System.exit(2);
         }
-        if (version != null && !version.isEmpty()) {
-            if (type == null) {
-                System.out.println("--type cannot be null when version is specified");
-                System.exit(2);
-            }
+
+        if (version != null && !version.isEmpty() && type == null) {
+            System.out.println("--type cannot be null when version is specified");
+            System.exit(2);
         }
+
         for (String itemType : data.keySet()) {
             if (type != null && type != InstallerType.fromString(itemType)) {
                 continue;

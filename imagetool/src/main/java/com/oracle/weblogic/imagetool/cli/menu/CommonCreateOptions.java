@@ -150,7 +150,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
 
     private String resetInstallerVersion(InstallerType installerType, String installerVersion) {
         String fixedVersion = installerVersion;
-        String defaultVersion = null;
+        String defaultVersion;
 
         switch (installerType) {
             case JDK:

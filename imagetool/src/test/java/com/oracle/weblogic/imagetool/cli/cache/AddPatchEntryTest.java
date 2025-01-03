@@ -30,8 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class AddPatchEntryTest {
 
     @BeforeAll
-    static void setup(@TempDir Path tempDir)
-        throws IOException, NoSuchFieldException, IllegalAccessException {
+    static void setup(@TempDir Path tempDir) throws IOException {
         Path settingsFileName = tempDir.resolve("settings.yaml");
         Path installerFile = tempDir.resolve("installers.yaml");
         Path patchFile = tempDir.resolve("patches.yaml");
