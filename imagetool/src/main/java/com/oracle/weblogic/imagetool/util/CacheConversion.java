@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.util;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,20 +15,17 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
-import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cli.cache.CacheOperation;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
-import org.yaml.snakeyaml.Yaml;
 import picocli.CommandLine;
 
 /**
@@ -69,7 +65,6 @@ public class CacheConversion extends CacheOperation {
                 } else {
                     // installer
                     handleInstallerPattern(installerPattern, line);
-
                 }
             }
         }
