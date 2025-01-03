@@ -42,7 +42,7 @@ import picocli.CommandLine;
 )
 public class CacheConversion extends CacheOperation {
 
-    private static final LoggingFacade logger = LoggingFactory.getLogger(OPatchFile.class);
+    private static final LoggingFacade logger = LoggingFactory.getLogger(CacheConversion.class);
 
     private static final String PATCH_PATTERN = "^(wls|fmw|ohs|wlsdev|wlsslim|soa|osb|b2b|mft|idm|db19|"
         + "oud|oid|wcc|wcp|wcs|jdk|wdt|odi|\\d{8,9})(?:_(\\d\\d(?:\\.\\d){3,8}\\.\\d+)(?:_(.*))?)?=(.*)$";
@@ -65,46 +65,54 @@ public class CacheConversion extends CacheOperation {
                 }
                 // patches
                 if (Character.isDigit(line.charAt(0))) {
-                    Matcher matcher = patchPattern.matcher(line);
-                    if (matcher.matches()) {
-                        String key = matcher.group(1);
-                        String version = matcher.group(2);
-                        String arch = matcher.group(3);
-                        String filepath = matcher.group(4);
-                        String fileDate = getFileDate(filepath);
-                        if (arch == null) {
-                            arch = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
-                        }
-                        if (fileDate != null) {
-                            ConfigManager.getInstance().addPatch(key, arch, filepath, version,
-                                "Converted from v1 in " + fileDate, fileDate);
-                        }
-                    } else {
-                        logger.warning("IMG-0128", line);
-                    }
+                    handlePatchPattern(patchPattern, line);
                 } else {
                     // installer
-                    Matcher matcher = installerPattern.matcher(line);
-                    if (matcher.matches()) {
-                        String key = matcher.group(1);
-                        String version = matcher.group(2);
-                        String arch = matcher.group(3);
-                        String filepath = matcher.group(4);
-                        String fileDate = getFileDate(filepath);
-                        if (arch == null) {
-                            arch = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
-                        }
-                        if (fileDate != null) {
-                            InstallerMetaData metaData = new InstallerMetaData(arch, filepath,
-                                Utils.getSha256Hash(filepath), fileDate, version);
-                            ConfigManager.getInstance().addInstaller(InstallerType.fromString(key), version, metaData);
-                        }
-                    } else {
-                        logger.warning("IMG-0128", line);
-                    }
+                    handleInstallerPattern(installerPattern, line);
 
                 }
             }
+        }
+    }
+
+    private void handleInstallerPattern(Pattern installerPattern, String line) throws IOException {
+        Matcher matcher = installerPattern.matcher(line);
+        if (matcher.matches()) {
+            String key = matcher.group(1);
+            String version = matcher.group(2);
+            String arch = matcher.group(3);
+            String filepath = matcher.group(4);
+            String fileDate = getFileDate(filepath);
+            if (arch == null) {
+                arch = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
+            }
+            if (fileDate != null) {
+                InstallerMetaData metaData = new InstallerMetaData(arch, filepath,
+                    Utils.getSha256Hash(filepath), fileDate, version);
+                ConfigManager.getInstance().addInstaller(InstallerType.fromString(key), version, metaData);
+            }
+        } else {
+            logger.warning("IMG-0128", line);
+        }
+    }
+
+    private void handlePatchPattern(Pattern patchPattern, String line) throws IOException {
+        Matcher matcher = patchPattern.matcher(line);
+        if (matcher.matches()) {
+            String key = matcher.group(1);
+            String version = matcher.group(2);
+            String arch = matcher.group(3);
+            String filepath = matcher.group(4);
+            String fileDate = getFileDate(filepath);
+            if (arch == null) {
+                arch = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
+            }
+            if (fileDate != null) {
+                ConfigManager.getInstance().addPatch(key, arch, filepath, version,
+                    "Converted from v1 in " + fileDate, fileDate);
+            }
+        } else {
+            logger.warning("IMG-0128", line);
         }
     }
 
@@ -140,35 +148,7 @@ public class CacheConversion extends CacheOperation {
 
                 Path settingsPath = directoryPath.resolve("settings.yaml");
                 if (!Files.exists(settingsPath)) {
-                    logger.fine("No existing settings file creating it");
-                    createIfNotExists(settingsPath, false);
-                    Path parentPath = settingsPath.getParent();
-                    List<String> lines = new ArrayList<>();
-                    lines.add("installerDirectory: " + parentPath.resolve("installers").toString());
-                    lines.add("patchDirectory: " + parentPath.resolve("patches").toString());
-                    lines.add("installerSettingsFile: " + parentPath.resolve("installers.yaml").toString());
-                    lines.add("patchSettingsFile: " + parentPath.resolve("patches.yaml").toString());
-                    createIfNotExists(parentPath.resolve("installers"), true);
-                    createIfNotExists(parentPath.resolve("patches"), true);
-                    createIfNotExists(parentPath.resolve("installers.yaml"), false);
-                    createIfNotExists(parentPath.resolve("patches.yaml"), false);
-
-                    Files.write(settingsPath, lines);
-                } else {
-                    logger.fine("Existing settings file already exists");
-                    Yaml yaml = new Yaml();
-                    File yamlFile = new File(settingsPath.toAbsolutePath().toString());
-                    Map<String, Object> settings = yaml.loadAs(Files.newInputStream(yamlFile.toPath()), Map.class);
-                    if (settings != null) {
-                        if (!settings.containsKey("installerSettingsFile")) {
-                            logger.warning("IMG_0137", "installerSettingsFile");
-                            return false;
-                        }
-                        if (!settings.containsKey("patchSettingsFile")) {
-                            logger.warning("IMG_0137", "patchSettingsFile");
-                            return false;
-                        }
-                    }
+                    createNewSettingsYaml(settingsPath);
                 }
             }
         } catch (Exception ex) {
@@ -179,16 +159,28 @@ public class CacheConversion extends CacheOperation {
         return success;
     }
 
+    private void createNewSettingsYaml(Path settingsPath) throws IOException {
+        logger.fine("No existing settings file creating it");
+        createIfNotExists(settingsPath, false);
+        Path parentPath = settingsPath.getParent();
+        List<String> lines = new ArrayList<>();
+        lines.add("installerDirectory: " + parentPath.resolve("installers").toString());
+        lines.add("patchDirectory: " + parentPath.resolve("patches").toString());
+        createIfNotExists(parentPath.resolve("installers"), true);
+        createIfNotExists(parentPath.resolve("patches"), true);
+        createIfNotExists(parentPath.resolve("installers.yaml"), false);
+        createIfNotExists(parentPath.resolve("patches.yaml"), false);
+
+        Files.write(settingsPath, lines);
+    }
+
     private void createIfNotExists(Path entry, boolean isDir) throws IOException {
-        System.out.println(" create if not exists " + entry.toString() + " " + isDir);
         if (Files.exists(entry)) {
             return;
         }
         if (isDir) {
-            System.out.println(" create if not exists create dir");
             Files.createDirectory(entry);
         } else {
-            System.out.println(" create if not exists create file");
             Files.createFile(entry);
         }
     }

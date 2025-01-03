@@ -86,15 +86,6 @@ public abstract class CacheAddOperation extends CacheOperation {
             filePath.toAbsolutePath().toString());
     }
 
-    private Path absolutePath() {
-        if (absolutePath == null) {
-            absolutePath = filePath.toAbsolutePath();
-        }
-        return absolutePath;
-    }
-
-    private Path absolutePath = null;
-
     @Option(
         names = {"--force"},
         description = "Overwrite existing entry, if it exists"
