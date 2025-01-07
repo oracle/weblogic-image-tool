@@ -152,7 +152,7 @@ public class AruUtil {
             return AruPatch.getPatches(aruRecommendations)
                 .filter(p -> p.isApplicableToTarget(architecture.getAruPlatform()))
                 .filter(AruPatch::isPsu)
-                .filter(not(AruPatch::isStackPatchBundle))
+                .filter(not(AruPatch::isIrregularPatch))
                 .collect(Collectors.toList());
         } catch (NoPatchesFoundException ex) {
             logger.exiting();
@@ -270,7 +270,7 @@ public class AruUtil {
 
         return AruPatch.getPatches(patchesDocument)
             .filter(p -> p.isApplicableToTarget(architecture.getAruPlatform()))
-            .filter(not(AruPatch::isStackPatchBundle)) // remove the Stack Patch Bundle patch, if returned
+            .filter(not(AruPatch::isIrregularPatch)) // remove the Stack Patch Bundle patch, if returned
             // TODO: Need an option for the user to request the Coherence additional feature pack.
             .filter(not(AruPatch::isCoherenceFeaturePack)) // remove the Coherence feature pack, if returned
             .filter(p -> p.release().equals(releaseNumber))

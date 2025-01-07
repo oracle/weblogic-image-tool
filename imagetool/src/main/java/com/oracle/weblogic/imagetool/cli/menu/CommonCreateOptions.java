@@ -15,6 +15,7 @@ import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.aru.AruException;
+import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.installer.MiddlewareInstall;
@@ -70,7 +71,6 @@ public class CommonCreateOptions extends CommonPatchingOptions {
                 Files.copy(installerPath, Paths.get(buildContextDestination).resolve(installerPath.getFileName()));
                 jdkFilePathList.add(installerPath.getFileName().toString());
             }
-            // TODO:  Why we need this?
             dockerfileOptions.setJavaInstaller(jdkFilePathList);
         }
 
@@ -80,6 +80,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
                     buildEngine);
             install.copyFiles(buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
+            dockerfileOptions.includeBinaryOsPackages(getInstallerType().equals(FmwInstallerType.OHS));
         } else {
             dockerfileOptions.setWdtBase("os_update");
         }
