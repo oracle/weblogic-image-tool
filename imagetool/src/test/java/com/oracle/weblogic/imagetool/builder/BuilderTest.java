@@ -79,4 +79,25 @@ class BuilderTest {
         cmd.tag("img:3").buildArg("http_proxy", "http://user:pass@blah/blah", true);
         assertEquals(expected("--tag img:3 --build-arg http_proxy=********"), cmd.toString());
     }
+
+    @Test
+    void testBuildArgsWithPlatform() {
+        Map<String,String> argMap = null;
+
+        BuildCommand cmd = new BuildCommand(BUILD_ENGINE, BUILD_CONTEXT)
+            .tag("img:4")
+            .pull(true)
+            .platform("linux/amd64")
+            .forceRm(true)
+            .network("private-net")
+            .buildArg(argMap);
+
+        // expect that "--force-rm" will not be used, expect "buildx build" will be used
+        assertEquals(
+            String.format("%s buildx build %s %s",
+                BUILD_ENGINE,
+                "--tag img:4 --pull --platform linux/amd64 --network private-net",
+                BUILD_CONTEXT),
+            cmd.toString());
+    }
 }

@@ -121,9 +121,10 @@ public abstract class CommonOptions {
         logger.entering();
         BuildCommand cmdBuilder = new BuildCommand(buildEngine, contextFolder);
 
-        cmdBuilder.forceRm(!skipcleanup)
-            .tag(imageTag)
+        cmdBuilder.tag(imageTag)
+            .useBuildx(useBuildx)
             .platform(buildPlatform)
+            .forceRm(!skipcleanup)
             .network(buildNetwork)
             .pull(buildPull)
             .additionalOptions(buildOptions)
@@ -449,6 +450,12 @@ public abstract class CommonOptions {
         description = "Set the target platform to build. Example: linux/amd64 or linux/arm64"
     )
     private String buildPlatform;
+
+    @Option(
+        names = {"--useBuildx"},
+        description = "Use the BuildKit for building the container image (default when building multi-architecture)"
+    )
+    private boolean useBuildx;
 
     @Parameters(
         description = "Container build options.",
