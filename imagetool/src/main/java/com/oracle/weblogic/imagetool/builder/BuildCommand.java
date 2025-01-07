@@ -61,6 +61,18 @@ public class BuildCommand {
     }
 
     /**
+     * Toggle the use of the BuildKit.
+     * If true, the build command will start "buildx build".
+     * If false, the build command will start "build".
+     * @param value true to enable buildx
+     * @return this
+     */
+    public BuildCommand useBuildx(boolean value) {
+        useBuildx = value;
+        return this;
+    }
+
+    /**
      * Add container build platform.  Pass the desired
      * build architecture to the build process.
      * @param value a single platform name.
@@ -72,7 +84,7 @@ public class BuildCommand {
         }
         command.add("--platform");
         command.add(value);
-        useBuildx = true;
+        useBuildx(true);
         return this;
     }
 
@@ -83,7 +95,8 @@ public class BuildCommand {
      * @return this
      */
     public BuildCommand forceRm(boolean value) {
-        if (value) {
+        // Docker removed --force-rm from the buildx build API, and Podman defaults --force-rm=true
+        if (value && !useBuildx) {
             command.add("--force-rm");
         }
         return this;

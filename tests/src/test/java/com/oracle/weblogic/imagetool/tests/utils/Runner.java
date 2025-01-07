@@ -68,12 +68,13 @@ public class Runner {
 
             p = pb.start();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), UTF_8));
             StringBuilder processOut = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                processOut.append(line);
-                output.println(line);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    processOut.append(line);
+                    output.println(line);
+                }
             }
 
             p.waitFor();
