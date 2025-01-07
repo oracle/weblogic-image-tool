@@ -39,11 +39,11 @@ import picocli.CommandLine;
 public class CacheConversion extends CacheOperation {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(CacheConversion.class);
+    public static final String IMG_0128 = "IMG-0128";
+    public static final String IMG_0129 = "IMG-0129";
 
-    private static final String PATCH_PATTERN = "^(wls|fmw|ohs|wlsdev|wlsslim|soa|osb|b2b|mft|idm|db19|"
-        + "oud|oid|wcc|wcp|wcs|jdk|wdt|odi|\\d{8,9})(?:_(\\d\\d(?:\\.\\d){3,8}\\.\\d+)(?:_(.*))?)?=(.*)$";
     private static final String INSTALLER_PATTERN = "^(wls|fmw|ohs|wlsdev|wlsslim|soa|osb|b2b|mft|idm|db19|"
-        + "oud|oid|wcc|wcp|wcs|jdk|wdt|odi)_(.*?)(?:_(.*))?=(.*)$";
+        + "oud|oid|wcc|wcp|wcs|jdk|wdt|odi)$";
 
     /**
      * convert cache file to nee format.
@@ -51,7 +51,6 @@ public class CacheConversion extends CacheOperation {
      * @throws IOException when error
      */
     public void convert(String inputFile) throws IOException {
-        Pattern patchPattern = Pattern.compile(PATCH_PATTERN);
         Pattern installerPattern = Pattern.compile(INSTALLER_PATTERN);
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
@@ -59,9 +58,10 @@ public class CacheConversion extends CacheOperation {
                 if (line.charAt(0) == '#') {
                     continue;
                 }
+                logger.info("IMG-0137", line);
                 // patches
                 if (Character.isDigit(line.charAt(0))) {
-                    handlePatchPattern(patchPattern, line);
+                    handlePatchPattern(line);
                 } else {
                     // installer
                     handleInstallerPattern(installerPattern, line);
@@ -71,44 +71,81 @@ public class CacheConversion extends CacheOperation {
     }
 
     private void handleInstallerPattern(Pattern installerPattern, String line) throws IOException {
-        Matcher matcher = installerPattern.matcher(line);
-        if (matcher.matches()) {
-            String key = matcher.group(1);
-            String version = matcher.group(2);
-            String arch = matcher.group(3);
-            String filepath = matcher.group(4);
+        String[] tokens = line.split("=");
+        if (tokens.length == 2) {
+            String filepath = tokens[1];
+            String key = null;
+            String version = null;
+            String arch = null;
+            tokens = tokens[0].split("_");
+
+            if (tokens.length == 2) {
+                key = tokens[0];
+                version = tokens[1];
+                Matcher matcher = installerPattern.matcher(key);
+                if (!matcher.matches()) {
+                    logger.warning(IMG_0129, key, line);
+                    return;
+                }
+            } else if (tokens.length == 3) {
+                key = tokens[0];
+                version = tokens[1];
+                arch = tokens[2];
+                arch = Architecture.fromString(arch).toString();
+            } else {
+                logger.warning(IMG_0128, line);
+                return;
+            }
             String fileDate = getFileDate(filepath);
             if (arch == null) {
                 arch = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
             }
             if (fileDate != null) {
+                logger.info("IMG-0147", key, version, filepath, arch);
                 InstallerMetaData metaData = new InstallerMetaData(arch, filepath,
                     Utils.getSha256Hash(filepath), fileDate, version);
                 ConfigManager.getInstance().addInstaller(InstallerType.fromString(key), version, metaData);
             }
         } else {
-            logger.warning("IMG-0128", line);
+            logger.warning(IMG_0128, line);
         }
+
     }
 
-    private void handlePatchPattern(Pattern patchPattern, String line) throws IOException {
-        Matcher matcher = patchPattern.matcher(line);
-        if (matcher.matches()) {
-            String key = matcher.group(1);
-            String version = matcher.group(2);
-            String arch = matcher.group(3);
-            String filepath = matcher.group(4);
+    private void handlePatchPattern(String line) throws IOException {
+        String[] tokens = line.split("=");
+        if (tokens.length == 2) {
+            String filepath = tokens[1];
+            String key = null;
+            String version = null;
+            String arch = null;
+            tokens = tokens[0].split("_");
+            if (tokens.length == 2) {
+                key = tokens[0];
+                version = tokens[1];
+            } else if (tokens.length == 3) {
+                key = tokens[0];
+                version = tokens[1];
+                arch = tokens[2];
+                arch = Architecture.fromString(arch).toString();
+            } else {
+                logger.warning(IMG_0128, line);
+                return;
+            }
             String fileDate = getFileDate(filepath);
             if (arch == null) {
                 arch = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
             }
             if (fileDate != null) {
+                logger.info("IMG-0148", key, version, filepath);
+
                 ConfigManager.getInstance().addPatch(key, arch, filepath, version,
                     "Converted from v1 in " + fileDate, fileDate);
             }
         } else {
-            logger.warning("IMG-0128", line);
+            logger.warning(IMG_0128, line);
         }
+
     }
 
     private String getFileDate(String filepath) {

@@ -10,7 +10,7 @@ import com.oracle.weblogic.imagetool.util.Utils;
 public class PatchMetaData {
     private String architecture;
     private String location;
-    private String hash;
+    private String digest;
     private String dateAdded;
     private String patchVersion;
     private String description;
@@ -19,15 +19,15 @@ public class PatchMetaData {
      * Constructor.
      * @param architecture platform
      * @param location file path of the patch
-     * @param hash sha256 hash
+     * @param digest sha256 hash
      * @param dateAdded date added
      * @param patchVersion version
      */
-    public PatchMetaData(String architecture, String location, String hash, String dateAdded, String patchVersion,
+    public PatchMetaData(String architecture, String location, String digest, String dateAdded, String patchVersion,
                          String description) {
         this.architecture = architecture;
         this.location = location;
-        this.hash = hash;
+        this.digest = digest;
         this.dateAdded = dateAdded;
         this.patchVersion = patchVersion;
         this.description = description;
@@ -43,7 +43,7 @@ public class PatchMetaData {
     public PatchMetaData(String architecture, String location, String patchVersion, String description) {
         this.architecture = architecture;
         this.location = location;
-        this.hash = Utils.getSha256Hash(location);
+        this.digest = Utils.getSha256Hash(location);
         this.dateAdded = Utils.getTodayDate();
         this.patchVersion = patchVersion;
         this.description = description;
@@ -61,7 +61,7 @@ public class PatchMetaData {
                          String dateAdded) {
         this.architecture = architecture;
         this.location = location;
-        this.hash = Utils.getSha256Hash(location);
+        this.digest = Utils.getSha256Hash(location);
         this.dateAdded = dateAdded;
         this.patchVersion = patchVersion;
         this.description = description;
@@ -75,8 +75,8 @@ public class PatchMetaData {
         return location;
     }
 
-    public String getHash() {
-        return hash;
+    public String getDigest() {
+        return digest;
     }
 
     public String getDateAdded() {
@@ -96,7 +96,7 @@ public class PatchMetaData {
         return "PatchMetaData{"
             + "platform='" + architecture + '\''
             + ", location='" + location + '\''
-            + ", hash='" + hash + '\''
+            + ", digest='" + digest + '\''
             + ", dateAdded='" + dateAdded + '\''
             + ", patchVersion='" + patchVersion + '\''
             + ", description='" + description + '\''
@@ -113,7 +113,7 @@ public class PatchMetaData {
         }
         PatchMetaData metaData = (PatchMetaData) o;
         return Objects.equals(architecture, metaData.architecture)
-            && Objects.equals(location, metaData.location) && Objects.equals(hash, metaData.hash)
+            && Objects.equals(location, metaData.location) && Objects.equals(digest, metaData.digest)
             && Objects.equals(dateAdded, metaData.dateAdded)
             && Objects.equals(patchVersion, metaData.patchVersion)
             && Objects.equals(description, metaData.description);
@@ -121,6 +121,6 @@ public class PatchMetaData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(architecture, location, hash, dateAdded, patchVersion, description);
+        return Objects.hash(architecture, location, digest, dateAdded, patchVersion, description);
     }
 }
