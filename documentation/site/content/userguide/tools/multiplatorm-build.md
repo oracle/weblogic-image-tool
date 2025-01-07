@@ -5,7 +5,7 @@ docker:
  
 podman:
  sudo podman run --privileged --rm tonistiigi/binfmt --install all
- 
+ sudo podman run --rm --privileged multiarch/qemu-user-static --reset -p yes
 notes:
 
   In podman environment, sometimes the image build process stuck during installation of fmw, this can be :

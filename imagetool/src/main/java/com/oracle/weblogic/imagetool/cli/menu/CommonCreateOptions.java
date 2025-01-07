@@ -76,7 +76,8 @@ public class CommonCreateOptions extends CommonPatchingOptions {
 
         if (dockerfileOptions.installMiddleware()) {
             MiddlewareInstall install =
-                new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, buildPlatforms);
+                new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, buildPlatforms,
+                    buildEngine);
             install.copyFiles(buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
         } else {
@@ -115,7 +116,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
             InstallerMetaData jdkInstallerMetaData = configManager.getInstallerForPlatform(InstallerType.JDK,
                 arch, jdkVersion);
             if (jdkInstallerMetaData == null) {
-                throw new IllegalArgumentException(Utils.getMessage("IMG_0145", InstallerType.JDK,
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0145", InstallerType.JDK,
                     buildPlatform, jdkVersion));
             } else {
                 // If needed
@@ -127,7 +128,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
                 InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(installerType,
                     arch, installerVersion);
                 if (installerMetaData == null) {
-                    throw new IllegalArgumentException(Utils.getMessage("IMG_0145", installerType,
+                    throw new IllegalArgumentException(Utils.getMessage("IMG-0145", installerType,
                         buildPlatform, installerVersion));
                 } else {
                     // If needed

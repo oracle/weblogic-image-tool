@@ -147,7 +147,7 @@ public class CacheConversion extends CacheOperation {
                 }
             }
         } catch (Exception ex) {
-            logger.warning("IMG_0138", ex.getLocalizedMessage());
+            logger.warning("IMG-0138", ex.getLocalizedMessage());
             return false;
         }
         logger.exiting("initializeSettingFiles");

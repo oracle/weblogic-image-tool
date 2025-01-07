@@ -154,7 +154,7 @@ public class CacheStore {
         }
         // Before adding see if one same already existed.
         if (installerMetaDataList.contains(metaData)) {
-            logger.info("IMG_0135", metaData.toString());
+            logger.info("IMG-0135", metaData.toString());
         } else {
             installerMetaDataList.add(metaData);
         }
@@ -242,7 +242,7 @@ public class CacheStore {
         }
         PatchMetaData newPatch = new PatchMetaData(patchArchitecture, patchLocation, patchVersion, description);
         if (latestPatches.contains(newPatch)) {
-            logger.info("IMG_0136", newPatch);
+            logger.info("IMG-0136", newPatch);
         } else {
             latestPatches.add(newPatch);
         }
@@ -269,7 +269,7 @@ public class CacheStore {
         PatchMetaData newPatch = new PatchMetaData(patchArchitecture, patchLocation, patchVersion, description,
             dateAdded);
         if (latestPatches.contains(newPatch)) {
-            logger.info("IMG_0136", newPatch.toString());
+            logger.info("IMG-0136", newPatch.toString());
         } else {
             latestPatches.add(newPatch);
         }

@@ -59,7 +59,7 @@ class MiddlewareInstallTest {
     void copyInstaller(@TempDir Path buildContextDir) throws IOException {
         // Test a simple WLS install type, and copy the files to the build context folder
         MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0",
-            null, null);
+            null, null, "docker");
         install.copyFiles(buildContextDir.toString());
         // 2 files should be copied from cache to build context folder
         assertTrue(Files.isRegularFile(buildContextDir.resolve("test-installer.zip")));
@@ -80,7 +80,8 @@ class MiddlewareInstallTest {
         List<Path> customResponse =
             Collections.singletonList(ResourceUtils.resourcePath("/dummyInstallers/dummyResponse.txt"));
         // Test a simple WLS install type, and copy the files to the build context folder
-        MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0", customResponse, null);
+        MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0", customResponse,
+            null, "docker");
         install.copyFiles(buildContextDir.toString());
         // 2 files should be copied from cache to build context folder
         assertTrue(Files.isRegularFile(buildContextDir.resolve("test-installer.zip")));

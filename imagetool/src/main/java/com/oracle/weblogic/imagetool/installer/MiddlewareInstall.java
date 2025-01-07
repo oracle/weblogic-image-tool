@@ -38,7 +38,7 @@ public class MiddlewareInstall {
      * @param type the requested middleware install type
      */
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
-                             List<String> buildPlatform)
+                             List<String> buildPlatform, String buildEngine)
         throws FileNotFoundException {
         logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
@@ -53,11 +53,18 @@ public class MiddlewareInstall {
                 buildPlatform.add(Architecture.getLocalArchitecture().name());
             }
         }
+        Architecture localArchitecture = Architecture.getLocalArchitecture();
+
         for (InstallerType installerType : type.installerList()) {
             for (String platform : buildPlatform) {
+
                 platform = Utils.standardPlatform(platform);
                 MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
                 Architecture arch = Architecture.fromString(platform);
+                if ("podman".equalsIgnoreCase(buildEngine) && localArchitecture != arch) {
+                    logger.warning("IMG-0146");
+                }
+
                 pkg.type = installerType;
                 if (AMD64_BLD.equals(platform)) {
                     pkg.installer = new CachedFile(installerType, version, Architecture.AMD64);
@@ -76,7 +83,6 @@ public class MiddlewareInstall {
                 addInstaller(pkg);
             }
         }
-        // TODO: same response files for all platform?
         setResponseFiles(responseFiles);
     }
 
@@ -119,8 +125,6 @@ public class MiddlewareInstall {
             } else if (installPackage.platform.equals(ARM64_BLD)) {
                 buildContextDestination = buildContextDestination + "/" + CTX_FMW + ARM64_BLD;
             }
-            //Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDestination);
-            //installPackage.installerFilename = filePath.getFileName().toString();
             Files.copy(installPackage.installerPath,
                 Paths.get(buildContextDestination).resolve(installPackage.installerPath.getFileName()));
             installPackage.jarName = getJarNameFromInstaller(installPackage.installerPath);

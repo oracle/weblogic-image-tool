@@ -57,7 +57,7 @@ public class CreateImage extends CommonCreateOptions implements Callable<Command
                     String manifestName = buildCommand.getTagName();
                     createManifestCommand.create().name(manifestName);
                     abstractCommands.add(createManifestCommand);
-                    logger.info("IMG_0140", manifestName);
+                    logger.info("IMG-0140", manifestName);
 
                     for (String buildPlatform : buildPlatforms) {
                         buildCommand.substitutePlatform(buildPlatform);
@@ -67,22 +67,22 @@ public class CreateImage extends CommonCreateOptions implements Callable<Command
                         PushCommand pushCommand = new PushCommand(buildCommand.getExecutable(),
                             buildCommand.getContext()).tag(platformTag);
                         abstractCommands.add(pushCommand);
-                        logger.info("IMG_0143", platformTag);
+                        logger.info("IMG-0143", platformTag);
 
                         ManifestCommand addManifestCommand = new ManifestCommand(buildCommand.getExecutable(),
                             buildCommand.getContext());
                         addManifestCommand.add().name(manifestName).tag(platformTag);
                         abstractCommands.add(addManifestCommand);
-                        logger.info("IMG_0141", manifestName, platformTag);
+                        logger.info("IMG-0141", manifestName, platformTag);
                     }
 
                     ManifestCommand pushManifestCommand = new ManifestCommand(buildCommand.getExecutable(),
                         buildCommand.getContext());
                     pushManifestCommand.push().name(manifestName).tag(manifestName);
                     abstractCommands.add(pushManifestCommand);
-                    logger.info("IMG_0142", manifestName);
+                    logger.info("IMG-0142", manifestName);
                     for (AbstractCommand abstractCommand : abstractCommands) {
-                        logger.info("IMG_0144", abstractCommand.toString());
+                        logger.info("IMG-0144", abstractCommand.toString());
                         runDockerCommand(dockerfile, abstractCommand);
                     }
 
