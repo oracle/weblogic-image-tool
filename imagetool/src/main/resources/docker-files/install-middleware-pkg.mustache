@@ -1,5 +1,5 @@
 && echo "INSTALLING {{type}}" \
-{{#isZip}}&& unzip -q {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
+{{#isZip}}&& unzip -q "{{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}}" -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
 {{#preinstallCommands}}&& {{{tempDir}}}/{{{type}}}/{{{.}}} {{/preinstallCommands}} \
 {{^isBin}} && if [ ! -f {{{tempDir}}}/{{{type}}}/{{jarName}} ] ; then (cp {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} {{{tempDir}}}/{{{type}}})  fi \
 && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{{type}}}/{{jarName}} \
@@ -11,5 +11,5 @@
 && chmod +x {{{tempDir}}}/{{{type}}}/{{jarName}} \
 && {{{tempDir}}}/{{{type}}}/{{jarName}} \
 -force -ignoreSysPrereqs -silent \
--responseFile {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{responseFile.name}} \
+-responseFile "{{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{responseFile.name}}" \
 -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} -jreLoc {{{java_home}}} {{/isBin}}  \

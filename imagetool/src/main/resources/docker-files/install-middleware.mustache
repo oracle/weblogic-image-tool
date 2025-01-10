@@ -23,7 +23,7 @@ RUN mkdir -p {{{oracle_home}}} \
 && chown {{userid}}:{{groupid}} {{orainv_dir}} \
 && chown {{userid}}:{{groupid}} {{{oracle_home}}}
 
-{{#installJava}}COPY --from=jdk_build --chown={{userid}}:{{groupid}} {{{java_home}}} {{{java_home}}}/
+{{#installJava}}COPY --from=jdk_build --chown={{userid}}:{{groupid}} ["{{{java_home}}}", "{{{java_home}}}/"]
 {{/installJava}}
 # copy all installers and response files to the stage directory
 {{#installPackages}}COPY --chown={{userid}}:{{groupid}} fmw {{{tempDir}}}/{{{type}}}
