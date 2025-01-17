@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.oracle.weblogic.imagetool.aru.AruPatch;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
@@ -22,6 +23,7 @@ import com.oracle.weblogic.imagetool.settings.SettingsFile;
 import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
+import org.jetbrains.annotations.Nullable;
 
 import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatformId;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.ARCHITECTURE;
@@ -51,77 +53,49 @@ public class CacheStore {
     public Map<String, Map<String, List<InstallerMetaData>>> getInstallers() {
 
 
-        // installers is a list of different installer types jdk, fmw, wdt etc ..
-        // For each installer type,  there is a list of individual installer
-        //jdk:
-        //   11u22:
-        //     - platform: linux/arm64
-        //       file: /path/to/installerarm.gz
-        //       digest: e6a8e178e73aea2fc512799423822bf065758f5e
-        //       version: 11.0.22
-        //       added: 20241201
-        //    - platform: linux/amd64
-        //      file: /path/to/installeramd.gz
-        //      digest: 1d6dc346ba26bcf1d0c6b5efb030e0dd2f842add
-        //      version: 11.0.22
-        //      added: 20241201
-        //   8u401:
-        //wls:
-        //  12.2.1.4.0:
-        //    - platform: linux/arm64
-        //        ....
-        //    - platform: linux/arm64
-
-        //ConfigManager cm = ConfigManager.getInstance();
-        //Map<String, Object> allInstallers = cm.getInstallerSettingsFile().load();
-
-        Map<String, Object> allInstallers = new SettingsFile(Paths.get(ConfigManager.getInstance()
-            .getInstallerDetailsFile())).load();
+        Map<String, Object> allInstallers = new SettingsFile(
+            Paths.get(ConfigManager.getInstance().getInstallerDetailsFile())).load();
 
         if (allInstallers == null) {
-            allInstallers = new HashMap<>();
+            return new HashMap<>();
         }
-        Map<String, Map<String, List<InstallerMetaData>>> installerDetails
-            = new HashMap<>();
-        for (Map.Entry<String, Object> entry: allInstallers.entrySet()) {
-            String key = entry.getKey();
+
+        Map<String, Map<String, List<InstallerMetaData>>> installerDetails = new HashMap<>();
+
+        allInstallers.forEach((key, value) -> {
             if (key != null && !key.isEmpty()) {
-                Map<String, List<InstallerMetaData>> installerMetaData = new HashMap<>();
-                key = key.toUpperCase();  // jdk, wls, fmw etc ...
+                String upperKey = key.toUpperCase(); // Convert key to uppercase (e.g., jdk, wls, fmw)
                 try {
-                    // process list of individual installers
-                    // 12.2.1.4.0:
-                    //   - platform: linux/arm64
-                    //   - platform: linux/amd64
-                    // 14.1.2.0.0:
-                    //   - platform:
-                    //   - platform
-                    Map<String, Object> installerValues = (Map<String, Object>) entry.getValue();
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> installerValues = (Map<String, Object>) value;
 
-                    for (Map.Entry<String, Object> individualInstaller: installerValues.entrySet()) {
-                        String individualInstallerKey = individualInstaller.getKey();  // e.g. 12.2.1.4, 14.1.2
-                        List<InstallerMetaData> installerMetaDataList = new ArrayList<>(installerValues.size());
+                    Map<String, List<InstallerMetaData>> installerMetaData = new HashMap<>();
 
-                        if (individualInstaller.getValue() instanceof ArrayList) {
-                            for (Object installerValue: (ArrayList<Object>) individualInstaller.getValue()) {
-                                installerMetaDataList.add(createInstallerMetaData((Map<String, Object>)installerValue));
-                            }
+                    installerValues.forEach((individualKey, individualValue) -> {
+                        List<InstallerMetaData> metaDataList = new ArrayList<>();
+
+                        if (individualValue instanceof List) {
+                            @SuppressWarnings("unchecked")
+                            List<Object> installerList = (List<Object>) individualValue;
+                            installerList.forEach(installerValue ->
+                                metaDataList.add(createInstallerMetaData((Map<String, Object>) installerValue)));
                         } else {
-                            installerMetaDataList.add(
-                                createInstallerMetaData((Map<String, Object>)individualInstaller.getValue()));
+                            metaDataList.add(createInstallerMetaData((Map<String, Object>) individualValue));
                         }
-                        installerMetaData.put(individualInstallerKey, installerMetaDataList);
-                    }
 
-                    installerDetails.put(key, installerMetaData);
+                        installerMetaData.put(individualKey, metaDataList);
+                    });
 
-                } catch (IllegalArgumentException illegal) {
-                    logger.warning("{0} could not be loaded: {1}",
-                        key, InstallerType.class.getEnumConstants());
+                    installerDetails.put(upperKey, installerMetaData);
+
+                } catch (IllegalArgumentException e) {
+                    logger.warning("{0} could not be loaded: {1}", upperKey, InstallerType.class.getEnumConstants());
                 }
             }
-        }
+        });
+
         return installerDetails;
+
     }
 
 
@@ -174,51 +148,15 @@ public class CacheStore {
                                                      String installerVersion) {
 
 
-        if (platformName == null) {
-            platformName = Architecture.GENERIC;
-        }
-        if (installerType == null) {
-            installerType = InstallerType.WLS;
-        }
+        platformName = (platformName == null) ? Architecture.GENERIC : platformName;
+        installerType = (installerType == null) ? InstallerType.WLS : installerType;
+        
         String installerKey = installerType.toString().toUpperCase();
+        installerVersion = verifyInstallerVersion(installerVersion, installerType);
 
-        if (installerVersion == null) {
-            switch (installerType) {
-                case WLS:
-                    installerVersion = ConfigManager.getInstance().getDefaultWLSVersion();
-                    break;
-                case JDK:
-                    installerVersion = ConfigManager.getInstance().getDefaultJDKVersion();
-                    break;
-                case WDT:
-                    installerVersion = ConfigManager.getInstance().getDefaultWDTVersion();
-                    break;
-                default:
-                    break;
-            }
-            if (installerVersion == null) {
-                logger.throwing(new IllegalArgumentException("Cannot determine installer version for installer type "
-                    + installerType.toString()));
-            }
-        }
         Map<String, List<InstallerMetaData>> installers = getInstallers().get(installerKey);
         if (installers != null && !installers.isEmpty()) {
-            List<InstallerMetaData> installerMetaDataList = installers.get(installerVersion);
-            if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {
-                for (InstallerMetaData installerMetaData: installerMetaDataList) {
-                    if (platformName.getAcceptableNames().contains(installerMetaData.getArchitecture())) {
-                        return installerMetaData;
-                    }
-                }
-                if (Utils.isGenericInstallerAcceptable(installerType)) {
-                    //If it can't find the specialized platform, try generic.
-                    for (InstallerMetaData installerMetaData: installerMetaDataList) {
-                        if (Architecture.GENERIC.getAcceptableNames().contains(installerMetaData.getArchitecture())) {
-                            return installerMetaData;
-                        }
-                    }
-                }
-            }
+            return getInstallerMetaData(installerVersion, installerType, platformName, installers);
         }
         return null;
 
@@ -287,32 +225,37 @@ public class CacheStore {
     public PatchMetaData getPatchForPlatform(String platformName,  String bugNumber, String version) {
         Map<String, List<PatchMetaData>> patches = getAllPatches();
         if (patches != null && !patches.isEmpty()) {
-            List<PatchMetaData> patchMetaDataList = patches.get(bugNumber);
-            if (patchMetaDataList != null && !patchMetaDataList.isEmpty()) {
-                for (PatchMetaData patchMetaData: patchMetaDataList) {
-                    if (platformName == null || platformName.isEmpty()) {
-                        if (patchMetaData.getArchitecture().equalsIgnoreCase("Generic")
-                            && patchMetaData.getPatchVersion().equals(version)) {
-                            return patchMetaData;
-                        }
-                    } else {
-                        if (patchMetaData.getArchitecture().equalsIgnoreCase(platformName)
-                            && patchMetaData.getPatchVersion().equals(version)) {
-                            return patchMetaData;
-                        }
-                    }
-                }
-                // search for generic for opatch only??
-                if (OPatchFile.DEFAULT_BUG_NUM.equals(bugNumber)) {
-                    for (PatchMetaData patchMetaData: patchMetaDataList) {
-                        if ("generic".equalsIgnoreCase(patchMetaData.getArchitecture())) {
-                            return patchMetaData;
-                        }
-                    }
-                }
-            }
-
+            return getPatchMetaData(platformName, bugNumber, version, patches);
         }
+        return null;
+    }
+
+    private static @Nullable PatchMetaData getPatchMetaData(String platformName, String bugNumber, String version,
+                                                            Map<String, List<PatchMetaData>> patches) {
+
+        List<PatchMetaData> patchMetaDataList = patches.get(bugNumber);
+        if (patchMetaDataList == null || patchMetaDataList.isEmpty()) {
+            return null;
+        }
+
+        for (PatchMetaData patchMetaData : patchMetaDataList) {
+            boolean isPlatformMatch = (platformName == null || platformName.isEmpty())
+                ? "Generic".equalsIgnoreCase(patchMetaData.getArchitecture())
+                : platformName.equalsIgnoreCase(patchMetaData.getArchitecture());
+
+            if (isPlatformMatch && patchMetaData.getPatchVersion().equals(version)) {
+                return patchMetaData;
+            }
+        }
+
+        // Fallback to search for "Generic" for OPatchFile's default bug number
+        if (OPatchFile.DEFAULT_BUG_NUM.equals(bugNumber)) {
+            return patchMetaDataList.stream()
+                .filter(patchMetaData -> "Generic".equalsIgnoreCase(patchMetaData.getArchitecture()))
+                .findFirst()
+                .orElse(null);
+        }
+
         return null;
     }
 
@@ -349,28 +292,34 @@ public class CacheStore {
      * @return patch settings
      */
     public Map<String, List<PatchMetaData>> getAllPatches() {
+        Map<String, Object> allPatches = new SettingsFile(
+            Paths.get(ConfigManager.getInstance().getPatchDetailsFile())).load();
 
+        if (allPatches == null || allPatches.isEmpty()) {
+            return new HashMap<>();
+        }
 
-        Map<String, Object> allPatches = new SettingsFile(Paths.get(ConfigManager.getInstance()
-            .getPatchDetailsFile())).load();
         Map<String, List<PatchMetaData>> patchList = new HashMap<>();
-        if (allPatches != null && !allPatches.isEmpty()) {
-            for (Map.Entry<String, Object> entry: allPatches.entrySet()) {
-                String key = entry.getKey(); // bug number
+
+        allPatches.forEach((key, value) -> {
+            if (key != null) {
                 List<PatchMetaData> patchMetaDataList = new ArrayList<>();
-                if (key != null) {
-                    if (entry.getValue() instanceof ArrayList) {
-                        for (Object installerValue: (ArrayList<Object>) entry.getValue()) {
-                            patchMetaDataList.add(createPatchMetaData((Map<String, Object>)installerValue));
-                        }
-                    } else {
-                        patchMetaDataList.add(createPatchMetaData((Map<String, Object>)entry.getValue()));
-                    }
+
+                if (value instanceof List) {
+                    @SuppressWarnings("unchecked")
+                    List<Object> valueList = (List<Object>) value;
+                    valueList.forEach(item ->
+                        patchMetaDataList.add(createPatchMetaData((Map<String, Object>) item)));
+                } else {
+                    patchMetaDataList.add(createPatchMetaData((Map<String, Object>) value));
                 }
+
                 patchList.put(key, patchMetaDataList);
             }
-        }
+        });
+
         return patchList;
+
     }
 
     /**
@@ -421,4 +370,62 @@ public class CacheStore {
         return new PatchMetaData(platform, location, hash, dateAdded, productVersion, description);
     }
 
+    private String verifyInstallerVersion(String installerVersion, InstallerType installerType) {
+
+        if (installerVersion == null) {
+            switch (installerType) {
+                case WLS:
+                    installerVersion = ConfigManager.getInstance().getDefaultWLSVersion();
+                    break;
+                case JDK:
+                    installerVersion = ConfigManager.getInstance().getDefaultJDKVersion();
+                    break;
+                case WDT:
+                    installerVersion = ConfigManager.getInstance().getDefaultWDTVersion();
+                    break;
+                default:
+                    break;
+            }
+            if (installerVersion == null) {
+                logger.throwing(new IllegalArgumentException("Cannot determine installer version for installer type "
+                    + installerType.toString()));
+            }
+        }
+        return installerVersion;
+    }
+
+
+    private InstallerMetaData getInstallerMetaData(String installerVersion, InstallerType installerType,
+                                         Architecture platformName, Map<String, List<InstallerMetaData>> installers) {
+
+        List<InstallerMetaData> installerMetaDataList = installers.get(installerVersion);
+
+        if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {
+
+            Optional<InstallerMetaData> foundInstaller = installerMetaDataList.stream()
+                .filter(installerMetaData -> platformName.getAcceptableNames()
+                    .contains(installerMetaData.getArchitecture()))
+                .findFirst();
+
+            if (foundInstaller.isPresent()) {
+                return foundInstaller.get();
+            }
+
+            if (Utils.isGenericInstallerAcceptable(installerType)) {
+                //If it can't find the specialized platform, try generic.
+
+                foundInstaller = installerMetaDataList.stream()
+                    .filter(installerMetaData -> Architecture.GENERIC.getAcceptableNames()
+                            .contains(installerMetaData.getArchitecture()))
+                        .findFirst();
+
+                if (foundInstaller.isPresent()) {
+                    return foundInstaller.get();
+                }
+
+            }
+        }
+
+        return null;
+    }
 }

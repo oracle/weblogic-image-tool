@@ -41,6 +41,9 @@ import static com.oracle.weblogic.imagetool.util.Utils.not;
 public class AruUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
+    private static final String GENERIC_NAME = "Generic";
+    private static final String AMD_NAME = "linux/amd64";
+    private static final String ARM_NAME = "linux/arm64";
 
     private static AruUtil instance;
 
@@ -603,16 +606,16 @@ public class AruUtil {
      */
     public static String getAruPlatformName(String id) {
         if ("2000".equals(id)) {
-            return "Generic";
+            return GENERIC_NAME;
         }
         if ("541".equals(id)) {
-            return "linux/arm64";
+            return ARM_NAME;
         }
         if ("226".equals(id)) {
-            return "linux/amd64";
+            return AMD_NAME;
         }
 
-        return "Generic";
+        return GENERIC_NAME;
     }
 
     /**
@@ -621,13 +624,13 @@ public class AruUtil {
      * @return platform number
      */
     public static String getAruPlatformId(String id) {
-        if ("Generic".equalsIgnoreCase(id)) {
+        if (GENERIC_NAME.equalsIgnoreCase(id)) {
             return "2000";
         }
-        if ("linux/arm64".equals(id)) {
+        if (ARM_NAME.equals(id)) {
             return "541";
         }
-        if ("linux/amd64".equals(id)) {
+        if (AMD_NAME.equals(id)) {
             return "226";
         }
 

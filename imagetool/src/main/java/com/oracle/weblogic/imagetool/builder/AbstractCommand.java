@@ -124,7 +124,6 @@ public abstract class AbstractCommand {
                 }
             }
         });
-        //readerThread.setDaemon(true);
         readerThread.start();
         return readerThread;
     }

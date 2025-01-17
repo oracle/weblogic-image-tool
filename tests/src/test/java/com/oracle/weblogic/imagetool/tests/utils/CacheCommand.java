@@ -11,7 +11,6 @@ public class CacheCommand extends ImageToolCommand {
     private String type;
 
     // cache flags
-    private boolean listItems;
     private boolean addInstaller;
     private boolean addPatch;
     private boolean listInstallers;
@@ -20,17 +19,10 @@ public class CacheCommand extends ImageToolCommand {
     private boolean deleteInstaller;
     private String path;
     private String patchId;
-    private String key;
-    private String value;
     private String architecture;
 
     public CacheCommand() {
         super("cache");
-    }
-
-    public CacheCommand listItems(boolean value) {
-        listItems = value;
-        return this;
     }
 
     public CacheCommand addInstaller(boolean value) {
@@ -68,17 +60,7 @@ public class CacheCommand extends ImageToolCommand {
         path = value.toString();
         return this;
     }
-
-    public CacheCommand key(String value) {
-        key = value;
-        return this;
-    }
-
-    public CacheCommand value(Path value) {
-        this.value = value.toString();
-        return this;
-    }
-
+    
     public CacheCommand patchId(String value) {
         patchId = value;
         return this;
