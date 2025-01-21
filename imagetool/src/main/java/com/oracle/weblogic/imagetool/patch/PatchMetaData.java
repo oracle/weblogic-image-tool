@@ -25,7 +25,7 @@ public class PatchMetaData {
      */
     public PatchMetaData(String architecture, String location, String digest, String dateAdded, String patchVersion,
                          String description) {
-        this.architecture = architecture;
+        this.architecture = Utils.standardPlatform(architecture);;
         this.location = location;
         this.digest = digest;
         this.dateAdded = dateAdded;
@@ -41,7 +41,7 @@ public class PatchMetaData {
      * @param description description of the patch
      */
     public PatchMetaData(String architecture, String location, String patchVersion, String description) {
-        this.architecture = architecture;
+        this.architecture = Utils.standardPlatform(architecture);;
         this.location = location;
         this.digest = Utils.getSha256Hash(location);
         this.dateAdded = Utils.getTodayDate();

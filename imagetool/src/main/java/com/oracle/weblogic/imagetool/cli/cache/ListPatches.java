@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
@@ -36,17 +37,28 @@ public class ListPatches extends CacheOperation {
                 continue;
             }
             System.out.println(bug + ":");
-            data.get(bug).forEach((metaData) -> {
-                if (version != null && !version.isEmpty()) {
-                    if (!version.equalsIgnoreCase(metaData.getPatchVersion())) {
-                        return;
+
+            Map<String, List<PatchMetaData>> groupByArchitecture = data.get(bug).stream()
+                .collect(Collectors.groupingBy(PatchMetaData::getArchitecture));
+
+            groupByArchitecture.forEach((architecture, metaDatas) -> {
+                System.out.println("  " + architecture + ":");
+
+                metaDatas.forEach(metaData -> {
+                    if (version != null && !version.isEmpty()) {
+                        if (!version.equalsIgnoreCase(metaData.getPatchVersion())) {
+                            return;
+                        }
                     }
-                }
-                System.out.println("  - location: " + metaData.getLocation());
-                System.out.println("    architecture: " + metaData.getArchitecture());
-                System.out.println("    digest: " + metaData.getDigest());
-                System.out.println("    dateAdded: " + metaData.getDateAdded());
-                System.out.println("    version: " + metaData.getPatchVersion());
+                    System.out.println("     - version: " + metaData.getPatchVersion());
+                    System.out.println("       location: " + metaData.getLocation());
+                    if (details) {
+                        System.out.println("        digest: " + metaData.getDigest());
+                        System.out.println("        dateAdded: " + metaData.getDateAdded());
+                    }
+
+                });
+
             });
         }
 
@@ -62,7 +74,13 @@ public class ListPatches extends CacheOperation {
 
     @Option(
         names = {"--version"},
-        description = "Patch version"
+        description = "List only the patch version"
     )
     private String version;
+
+    @Option(
+        names = {"--details"},
+        description = "List all details about the patch"
+    )
+    private boolean details = false;
 }

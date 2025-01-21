@@ -3,8 +3,10 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
@@ -48,12 +50,23 @@ public class ListInstallers extends CacheOperation {
                     return;
                 }
                 System.out.println("  " + installer + ":");
-                for (InstallerMetaData meta : metaData) {
-                    System.out.println("  - location: " + meta.getLocation());
-                    System.out.println("    architecture: " + meta.getArchitecture());
-                    System.out.println("    digest: " + meta.getDigest());
-                    System.out.println("    dateAdded: " + meta.getDateAdded());
-                    System.out.println("    version: " + meta.getProductVersion());
+
+                List<InstallerMetaData> sortedList = metaData.stream()
+                    .sorted(Comparator.comparing(InstallerMetaData::getArchitecture))
+                    .collect(Collectors.toList());
+
+                String currentArch = "";
+                for (InstallerMetaData meta : sortedList) {
+                    if (!currentArch.equals(meta.getArchitecture())) {
+                        currentArch = meta.getArchitecture();
+                        System.out.println("    " + meta.getArchitecture() + ":");
+                    }
+                    System.out.println("      version: " + meta.getProductVersion());
+                    System.out.println("      location: " + meta.getLocation());
+                    if (details) {
+                        System.out.println("      digest: " + meta.getDigest());
+                        System.out.println("      dateAdded: " + meta.getDateAdded());
+                    }
                 }
             });
         }
@@ -78,4 +91,11 @@ public class ListInstallers extends CacheOperation {
         description = "Filter installer by version."
     )
     private String version;
+
+    @Option(
+        names = {"--details"},
+        description = "Full details of the installers."
+    )
+    private boolean details = false;
+
 }
