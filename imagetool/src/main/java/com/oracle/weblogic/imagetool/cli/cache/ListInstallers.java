@@ -47,23 +47,27 @@ public class ListInstallers extends CacheOperation {
                     .sorted(Comparator.comparing(InstallerMetaData::getArchitecture))
                     .collect(Collectors.toList());
 
-                String currentArch = "";
-                for (InstallerMetaData meta : sortedList) {
-                    if (!currentArch.equals(meta.getArchitecture())) {
-                        currentArch = meta.getArchitecture();
-                        System.out.println("    " + meta.getArchitecture() + ":");
-                    }
-                    System.out.println("      version: " + meta.getProductVersion());
-                    System.out.println("      location: " + meta.getLocation());
-                    if (details) {
-                        System.out.println("      digest: " + meta.getDigest());
-                        System.out.println("      dateAdded: " + meta.getDateAdded());
-                    }
-                }
+                printDetails(sortedList);
             });
         }
 
         return CommandResponse.success(null);
+    }
+
+    private void printDetails(List<InstallerMetaData> sortedList) {
+        String currentArch = "";
+        for (InstallerMetaData meta : sortedList) {
+            if (!currentArch.equals(meta.getArchitecture())) {
+                currentArch = meta.getArchitecture();
+                System.out.println("    " + meta.getArchitecture() + ":");
+            }
+            System.out.println("      version: " + meta.getProductVersion());
+            System.out.println("      location: " + meta.getLocation());
+            if (details) {
+                System.out.println("      digest: " + meta.getDigest());
+                System.out.println("      dateAdded: " + meta.getDateAdded());
+            }
+        }
     }
 
     private void verifyInput() {
