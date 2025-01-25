@@ -26,15 +26,7 @@ public class ListInstallers extends CacheOperation {
     public CommandResponse call() {
         ConfigManager configManager = ConfigManager.getInstance();
         Map<String, Map<String, List<InstallerMetaData>>> data = configManager.getInstallers();
-        if (commonName != null && !commonName.isEmpty() && type == null) {
-            System.out.println("--type cannot be null when commonName is specified");
-            System.exit(2);
-        }
-
-        if (version != null && !version.isEmpty() && type == null) {
-            System.out.println("--type cannot be null when version is specified");
-            System.exit(2);
-        }
+        verifyInput();
 
         for (String itemType : data.keySet()) {
             if (type != null && type != InstallerType.fromString(itemType)) {
@@ -72,6 +64,18 @@ public class ListInstallers extends CacheOperation {
         }
 
         return CommandResponse.success(null);
+    }
+
+    private void verifyInput() {
+        if (commonName != null && !commonName.isEmpty() && type == null) {
+            System.out.println("--type cannot be null when commonName is specified");
+            System.exit(2);
+        }
+
+        if (version != null && !version.isEmpty() && type == null) {
+            System.out.println("--type cannot be null when version is specified");
+            System.exit(2);
+        }
     }
 
     @Option(
