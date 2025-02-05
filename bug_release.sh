@@ -1,5 +1,6 @@
 #!/bin/bash
 # Only use this script when releasing bug fixes (removes SNAPSHOT for version)
+set -e
 git checkout main
 
 project_version=$(mvn help:evaluate -q -DforceStdout -D"expression=project.version")
@@ -15,7 +16,7 @@ echo New Version: ${new_version}
 mvn versions:set -DremoveSnapshot -DgenerateBackupPoms=false
 mvn clean install
 git add .
-git commit -m \"release ${project_version_number_only}\"
+git commit -m "release ${project_version_number_only}"
 git push
 
 git tag release-${project_version_number_only}
@@ -24,6 +25,6 @@ git push origin release-${project_version_number_only}
 mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${new_version}
 mvn clean install
 git add .
-git commit -m \"preparing for next development iteration\"
+git commit -m "preparing for next development iteration"
 git push
 
