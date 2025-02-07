@@ -15,15 +15,11 @@ Prerequisite:
 When building multi-platform images, the `docker` command depends on QEMU emulation setup in the build environment. In 
 a Linux environment, you can add QEMU support depending on your distribution and releases.  You will also need to setup
 the `bin-fmt` support in the container environment.  Note: If you reboot, reset or purge the build system, you will need
-to setup again before building cross platform images.
+to setup again before building cross platform images.  For `podman` the equivalent command is `sudo podman` instead of 
+`docker`. 
 
 ```bash
 $ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-```
-OR
-
-```bash
-$ docker run --privileged --rm tonistiigi/binfmt --install all
 ```
 
 This will install all the emulated platform binaries.  You need to verify the binaries are actually installed in
