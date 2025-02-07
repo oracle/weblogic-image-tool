@@ -77,7 +77,7 @@ public class BuildCommand extends AbstractCommand {
      * @return this
      */
     public BuildCommand forceRm(boolean value) {
-        if (value) {
+        if (value && !useBuildx) {
             command.add("--force-rm");
         }
         return this;
