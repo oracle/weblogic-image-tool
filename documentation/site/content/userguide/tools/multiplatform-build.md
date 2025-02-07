@@ -10,7 +10,7 @@ This version supports experimental building multi-platform images using Docker i
 problematic and we do not recommend using it.  You can however, always create separate images and manually create manifest
 to build a multi-platform images. 
 
-Prerequisite:
+## Prerequisite:
 
 When building multi-platform images, the `docker` command depends on QEMU emulation setup in the build environment. In 
 a Linux environment, you can add QEMU support depending on your distribution and releases.  You will also need to setup
@@ -50,7 +50,7 @@ microdnf update
 ```
 
 If it successfully launch the pod and get a terminal session, then the emulation is working.  If it fails, then you can 
-check `/var/log/messages` or `/var/log/audit/audit.log`  for errors.  Most of the issues are related to SELinux settings,
+check `/var/log/messages` or `/var/log/audit/audit.log`  for errors.  Most of the issues are related to `SELinux` settings,
 a quick work around is set to `permissive` using:
 
 ```bash
@@ -59,7 +59,21 @@ $ sudo setenforce 0
 
 You may need administrator and security expert to help to solve any SELinux related issue in your environment.
 
-Creating image using a single command:
+If you want to unregister an particular emulator, for example
+
+```bash
+$ sudo echo '-1' > /proc/sys/fs/binfmt_misc/qemu-aarch64
+```
+
+For unregistering all emulators
+
+```bash
+$ for f in /proc/sys/fs/binfmt_misc/qemu*; do
+    sudo echo '-1' > "$f"
+  done
+```
+
+## Creating image using a single command:
 
 1. Make sure the installers are added to the cache, for example:
 
@@ -78,7 +92,7 @@ $ imagetool.sh create --tag myrepo/wls14110:20250111 --platform linux/arm64,linu
 
 This command will build the multi-platform image containing both `linux/arm64` and `linux/amd64` in the manifest and push to the repository `myrepo`.
 
-Creating image using multiple commands:
+## Creating image using multiple commands:
 
 In case the emulation failed when building cross platform image,  you can always do it manually with multiple commands.
 
@@ -145,6 +159,6 @@ This appears to be a `QEMU` process not handling sub process correctly, you can 
 , and the build will continue.   The best way to solve this is use manual build in each respective platform as mentioned in last section.
 
 
-2. You may encounter `SELINUX` security issue, usually it appears some build commands failed.  You can check for errors in `/var/log/messages` and search for
+2. You may encounter `SELinux` security issue, usually it appears some build commands failed.  You can check for errors in `/var/log/messages` and search for
 for `QEMU`.  In this case, you need to work with your administrator either relax the security policy or setup customized policy. This is 
 environment specific.
