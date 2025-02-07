@@ -61,7 +61,7 @@ public class MiddlewareInstall {
                 platform = Utils.standardPlatform(platform);
                 MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
                 Architecture arch = Architecture.fromString(platform);
-                if ("podman".equalsIgnoreCase(buildEngine) && localArchitecture != arch) {
+                if (localArchitecture != arch) {
                     logger.warning("IMG-0146");
                 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2025, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -138,14 +138,17 @@ public abstract class CommonOptions {
             .buildArg("https_proxy", httpsProxyUrl, httpsProxyUrl != null && httpsProxyUrl.contains("@"))
             .buildArg("no_proxy", nonProxyHosts);
 
-        // if it is multiplatform build
+        // if it is multiplatform build and using docker
+
         if (buildId != null && buildPlatform.size() > 1) {
             // if push is specified, ignore load value
             if (!buildEngine.equalsIgnoreCase("podman")) {
                 if (push) {
                     cmdBuilder.push(push);
-                } else {
+                } else if (load) {
                     cmdBuilder.load(load);
+                } else {
+                    cmdBuilder.push(true);
                 }
             }
         }
