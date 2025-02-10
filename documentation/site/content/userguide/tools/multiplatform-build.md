@@ -1,18 +1,17 @@
 ---
-title: "Multi-Platform Build"
+title: "Cross-Platform and Multi-Platforms Build"
 date: 2025-01-11
 draft: false
 weight: 1
-description: "Experimental Support for building multi-platform images.."
+description: "Experimental Support for building cross-platform and multi-platforms images."
 ---
 
-This version supports experimental building multi-platform images using Docker in a single `create` command.  Using `podman` is 
-problematic and we do not recommend using it.  You can however, always create separate images and manually create manifest
-to build a multi-platform images. 
+This version supports experimental building multi-platform images using `Docker` or `Podman` in a single `create` command.  
+We have encountered any cross-platform or multi-platforms build may hang during build.  You can always create separate images and manually create manifest to build a multi-platform images. 
 
 ## Prerequisite:
 
-When building multi-platform images, the `docker` command depends on QEMU emulation setup in the build environment. In 
+When building cross or multi-platform images, the `docker` or `podman` command depends on QEMU emulation setup in the build environment. In 
 a Linux environment, you can add QEMU support depending on your distribution and releases.  You will also need to setup
 the `bin-fmt` support in the container environment.  Note: If you reboot, reset or purge the build system, you will need
 to setup again before building cross platform images.  For `podman` the equivalent command is `sudo podman` instead of 
@@ -20,6 +19,12 @@ to setup again before building cross platform images.  For `podman` the equivale
 
 ```bash
 $ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+```
+
+In ARM64, you can use
+
+```bash
+$ docker run --privileged --rm tonistiigi/binfmt --install all
 ```
 
 This will install all the emulated platform binaries.  You need to verify the binaries are actually installed in
@@ -42,14 +47,11 @@ You can verify if you can run a pod using the emulator for a different platform.
 environment and want to run `arm64` images, then you can:
 
 ```bash
-$ docker run -it --platform linux/arm64 --rm ghcr.io/oracle/oraclelinux-8-slim sh 
-
-In the terminal session, issue
-
-microdnf update
+$ docker run -it --platform linux/arm64 --rm ghcr.io/oracle/oraclelinux:8-slim sh 
 ```
+In the terminal session, run `microdnf update`
 
-If it successfully launch the pod and get a terminal session, then the emulation is working.  If it fails, then you can 
+If the commands are successful, then the emulation is working.  If it fails, then you can 
 check `/var/log/messages` or `/var/log/audit/audit.log`  for errors.  Most of the issues are related to `SELinux` settings,
 a quick work around is set to `permissive` using:
 
@@ -59,7 +61,7 @@ $ sudo setenforce 0
 
 You may need administrator and security expert to help to solve any SELinux related issue in your environment.
 
-If you want to unregister an particular emulator, for example
+If you want to unregister an particular emulator, you can
 
 ```bash
 $ sudo echo '-1' > /proc/sys/fs/binfmt_misc/qemu-aarch64
@@ -151,12 +153,12 @@ see it stuck in `Copying Files`
 If you run the command `ps axww | grep qemu` on the build machine, you will find duplicate java processes similar to this
 
 ```
-1807143 ?        Sl     2:01 .buildkit_qemu_emulator -0 /u01/jdk/bin/java /u01/jdk/bin/java -cp /tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/engine-nextgen.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/message.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/oneclick.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.dms/dms.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl2.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl-log4j.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.jewt/jewt4.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.jewt/olaf2.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/jlib/wizardCommonResources.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.share/share.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/oracle_ice.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/ohj.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/help-share.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/modules/installer-launch.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/modules/xml.jar -mx512m -Doracle.installer.appendjre=true -Djava.io.tmpdir=/tmp -Doracle.installer.jre_loc=/u01/jdk -Doracle.installer.custom_inventory=/u01/oracle/oraInventory -Doracle.cie.logging.useodl=true -Doracle.installer.startup_location=/tmp/orcl4209283845595543233.tmp/Disk1/install/linux64 -Doracle.installer.nlsEnabled=true -Doracle.installer.bootstrap=true -Doracle.installer.paramFile=/tmp/orcl4209283845595543233.tmp/Disk1/install/linux64/oraparam.ini -Doracle.installer.oui_loc=/tmp/OraInstall2025-02-07_01-38-49PM/oui -Doracle.installer.launch_loc=/ -Doracle.installer.unixVersion=6.8.0-39-generic -Doracle.installer.scratchPath=/tmp/OraInstall2025-02-07_01-38-49PM -Doracle.installer.extjre=true -Doracle.installer.timestamp=2025-02-07_01-38-49PM -Doracle.installer.operation=install -DisNextGen=true -Doracle.installer.prereqConfigLoc=/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/wls/prereq -Doracle.installer.library_loc=/tmp/OraInstall2025-02-07_01-38-49PM/oui/lib/linux64 -Doracle.installer.logPath=/tmp/OraInstall2025-02-07_01-38-49PM oracle.sysman.oio.oioc.OiocOneClickInstaller -scratchPath /tmp/OraInstall2025-02-07_01-38-49PM -sourceType network -timestamp 2025-02-07_01-38-49PM -paramFile /tmp/orcl4209283845595543233.tmp/Disk1/install/linux64/oraparam.ini -silent ORACLE_HOME=/u01/oracle -responseFile /tmp/imagetool/wls/linux/amd64/wls.rsp -invPtrLoc /u01/oracle/oraInst.loc -ignoreSysPrereqs -force -novalidation -nocleanUpOnExit
-1809542 ?        Sl     0:00 .buildkit_qemu_emulator -0 /u01/jdk/bin/java /u01/jdk/bin/java -cp /tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/engine-nextgen.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/message.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/oneclick.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.dms/dms.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl2.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl-log4j.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.jewt/jewt4.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.jewt/olaf2.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/jlib/wizardCommonResources.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.share/share.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/oracle_ice.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/ohj.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/help-share.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/modules/installer-launch.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/modules/xml.jar -mx512m -Doracle.installer.appendjre=true -Djava.io.tmpdir=/tmp -Doracle.installer.jre_loc=/u01/jdk -Doracle.installer.custom_inventory=/u01/oracle/oraInventory -Doracle.cie.logging.useodl=true -Doracle.installer.startup_location=/tmp/orcl4209283845595543233.tmp/Disk1/install/linux64 -Doracle.installer.nlsEnabled=true -Doracle.installer.bootstrap=true -Doracle.installer.paramFile=/tmp/orcl4209283845595543233.tmp/Disk1/install/linux64/oraparam.ini -Doracle.installer.oui_loc=/tmp/OraInstall2025-02-07_01-38-49PM/oui -Doracle.installer.launch_loc=/ -Doracle.installer.unixVersion=6.8.0-39-generic -Doracle.installer.scratchPath=/tmp/OraInstall2025-02-07_01-38-49PM -Doracle.installer.extjre=true -Doracle.installer.timestamp=2025-02-07_01-38-49PM -Doracle.installer.operation=install -DisNextGen=true -Doracle.installer.prereqConfigLoc=/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/wls/prereq -Doracle.installer.library_loc=/tmp/OraInstall2025-02-07_01-38-49PM/oui/lib/linux64 -Doracle.installer.logPath=/tmp/OraInstall2025-02-07_01-38-49PM oracle.sysman.oio.oioc.OiocOneClickInstaller -scratchPath /tmp/OraInstall2025-02-07_01-38-49PM -sourceType network -timestamp 2025-02-07_01-38-49PM -paramFile /tmp/orcl4209283845595543233.tmp/Disk1/install/linux64/oraparam.ini -silent ORACLE_HOME=/u01/oracle -responseFile /tmp/imagetool/wls/linux/amd64/wls.rsp -invPtrLoc /u01/oracle/oraInst.loc -ignoreSysPrereqs -force -novalidation -nocleanUpOnExit
+1807143 ?        Sl     2:01 /usr/bin/qemu-aarch64-static  /u01/jdk/bin/java -cp /tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/engine-nextgen.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/message.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/oneclick.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.dms/dms.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl2.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl-log4j.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.jewt/jewt4.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.jewt/olaf2.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/jlib/wizardCommonResources.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.share/share.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/oracle_ice.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/ohj.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/help-share.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/modules/installer-launch.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/modules/xml.jar -mx512m -Doracle.installer.appendjre=true -Djava.io.tmpdir=/tmp -Doracle.installer.jre_loc=/u01/jdk -Doracle.installer.custom_inventory=/u01/oracle/oraInventory -Doracle.cie.logging.useodl=true -Doracle.installer.startup_location=/tmp/orcl4209283845595543233.tmp/Disk1/install/linux64 -Doracle.installer.nlsEnabled=true -Doracle.installer.bootstrap=true -Doracle.installer.paramFile=/tmp/orcl4209283845595543233.tmp/Disk1/install/linux64/oraparam.ini -Doracle.installer.oui_loc=/tmp/OraInstall2025-02-07_01-38-49PM/oui -Doracle.installer.launch_loc=/ -Doracle.installer.unixVersion=6.8.0-39-generic -Doracle.installer.scratchPath=/tmp/OraInstall2025-02-07_01-38-49PM -Doracle.installer.extjre=true -Doracle.installer.timestamp=2025-02-07_01-38-49PM -Doracle.installer.operation=install -DisNextGen=true -Doracle.installer.prereqConfigLoc=/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/wls/prereq -Doracle.installer.library_loc=/tmp/OraInstall2025-02-07_01-38-49PM/oui/lib/linux64 -Doracle.installer.logPath=/tmp/OraInstall2025-02-07_01-38-49PM oracle.sysman.oio.oioc.OiocOneClickInstaller -scratchPath /tmp/OraInstall2025-02-07_01-38-49PM -sourceType network -timestamp 2025-02-07_01-38-49PM -paramFile /tmp/orcl4209283845595543233.tmp/Disk1/install/linux64/oraparam.ini -silent ORACLE_HOME=/u01/oracle -responseFile /tmp/imagetool/wls/linux/amd64/wls.rsp -invPtrLoc /u01/oracle/oraInst.loc -ignoreSysPrereqs -force -novalidation -nocleanUpOnExit
+1809542 ?        Sl     0:00 /usr/bin/qemu-aarch64-static  /u01/jdk/bin/java -cp /tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/engine-nextgen.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/message.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/common/framework/jlib/oneclick.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.dms/dms.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl2.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.odl/ojdl-log4j.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.jewt/jewt4.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.jewt/olaf2.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/jlib/wizardCommonResources.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.bali.share/share.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/oracle_ice.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/ohj.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oracle_common/modules/oracle.help/help-share.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/modules/installer-launch.jar:/tmp/OraInstall2025-02-07_01-38-49PM/oui/modules/xml.jar -mx512m -Doracle.installer.appendjre=true -Djava.io.tmpdir=/tmp -Doracle.installer.jre_loc=/u01/jdk -Doracle.installer.custom_inventory=/u01/oracle/oraInventory -Doracle.cie.logging.useodl=true -Doracle.installer.startup_location=/tmp/orcl4209283845595543233.tmp/Disk1/install/linux64 -Doracle.installer.nlsEnabled=true -Doracle.installer.bootstrap=true -Doracle.installer.paramFile=/tmp/orcl4209283845595543233.tmp/Disk1/install/linux64/oraparam.ini -Doracle.installer.oui_loc=/tmp/OraInstall2025-02-07_01-38-49PM/oui -Doracle.installer.launch_loc=/ -Doracle.installer.unixVersion=6.8.0-39-generic -Doracle.installer.scratchPath=/tmp/OraInstall2025-02-07_01-38-49PM -Doracle.installer.extjre=true -Doracle.installer.timestamp=2025-02-07_01-38-49PM -Doracle.installer.operation=install -DisNextGen=true -Doracle.installer.prereqConfigLoc=/tmp/OraInstall2025-02-07_01-38-49PM/oui/mw/wls/prereq -Doracle.installer.library_loc=/tmp/OraInstall2025-02-07_01-38-49PM/oui/lib/linux64 -Doracle.installer.logPath=/tmp/OraInstall2025-02-07_01-38-49PM oracle.sysman.oio.oioc.OiocOneClickInstaller -scratchPath /tmp/OraInstall2025-02-07_01-38-49PM -sourceType network -timestamp 2025-02-07_01-38-49PM -paramFile /tmp/orcl4209283845595543233.tmp/Disk1/install/linux64/oraparam.ini -silent ORACLE_HOME=/u01/oracle -responseFile /tmp/imagetool/wls/linux/amd64/wls.rsp -invPtrLoc /u01/oracle/oraInst.loc -ignoreSysPrereqs -force -novalidation -nocleanUpOnExit
 ```
 
-This appears to be a `QEMU` process not handling sub process correctly, you can terminate the last process by `sudo kill -9 <pid>` 
-, and the build will continue.   The best way to solve this is use manual build in each respective platform as mentioned in last section.
+It appears to be a `QEMU` process not handling sub process correctly, you can terminate the last process by `sudo kill -9 <pid>`. For example
+`sudo kill -9 1809542` then the build will continue and complete.  The best way to solve this is use manual build in each respective platform as mentioned in last section.
 
 
 2. You may encounter `SELinux` security issue, usually it appears some build commands failed.  You can check for errors in `/var/log/messages` and search for
