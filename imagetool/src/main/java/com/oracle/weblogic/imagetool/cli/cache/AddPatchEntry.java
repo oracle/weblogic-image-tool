@@ -43,6 +43,11 @@ public class AddPatchEntry extends CacheAddOperation {
     }
 
     @Override
+    public String getBaseFMWVersion() {
+        return "";
+    }
+
+    @Override
     public CommandResponse call() throws Exception {
         try {
             if (patchId != null && !patchId.isEmpty()) {

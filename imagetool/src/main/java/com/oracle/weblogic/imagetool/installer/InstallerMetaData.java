@@ -16,6 +16,7 @@ public class InstallerMetaData {
     private String digest;
     private String dateAdded;
     private String productVersion;
+    private String baseFMWVersion;
 
     /**
      * Constructor InstallerMetaData stores details about this installer.
@@ -23,14 +24,17 @@ public class InstallerMetaData {
      * @param location   file path of the installer
      * @param digest     sha256 hash value
      * @param dateAdded  date added
+     * @param productVersion version of this installer
+     * @param baseFMWVersion base WLS version used by this installer
      */
     public InstallerMetaData(String architecture, String location, String digest, String dateAdded,
-                             String productVersion) {
+                             String productVersion, String baseFMWVersion) {
         this.architecture = Utils.standardPlatform(architecture);
         this.location = location;
         this.digest = digest;
         this.dateAdded = dateAdded;
         this.productVersion = productVersion;
+        this.baseFMWVersion = baseFMWVersion;
     }
 
     /**
@@ -39,16 +43,15 @@ public class InstallerMetaData {
      * @param location   file path of the installer
      * @param productVersion real version of this installer
      */
-    public InstallerMetaData(String architecture, String location, String productVersion) {
+    public InstallerMetaData(String architecture, String location, String productVersion, String baseFMWVersion) {
         this.architecture = Utils.standardPlatform(architecture);
         this.location = location;
         this.productVersion = productVersion;
-        if (location != null) {
-            if (Files.exists(Paths.get(location))) {
-                this.digest = Utils.getSha256Hash(location);
-                this.dateAdded = Utils.getTodayDate();
-            }
+        if (location != null && Files.exists(Paths.get(location))) {
+            this.digest = Utils.getSha256Hash(location);
+            this.dateAdded = Utils.getTodayDate();
         }
+        this.baseFMWVersion = baseFMWVersion;
     }
 
     public String getArchitecture() {
@@ -71,6 +74,14 @@ public class InstallerMetaData {
         return productVersion;
     }
 
+    public String getBaseFMWVersion() {
+        return baseFMWVersion;
+    }
+
+    public void setBaseFMWVersion(String baseFMWVersion) {
+        this.baseFMWVersion = baseFMWVersion;
+    }
+
     /**
      * Return standard platform name from the possible names.
      * @param platform input value to convert
@@ -86,9 +97,11 @@ public class InstallerMetaData {
         return "Generic";
     }
 
+    @Override
     public String toString() {
         return "InstallerMetaData [platform=" + architecture + ", location=" + location + ", hash=" + digest + ", "
-            + "dateAdded=" + dateAdded + ", version=" + productVersion + "]";
+            + "dateAdded=" + dateAdded + ", version=" + productVersion + ", baseFMWVersion=" + baseFMWVersion
+            + "]";
     }
 
     @Override
@@ -103,11 +116,12 @@ public class InstallerMetaData {
         return Objects.equals(architecture, metaData.architecture)
             && Objects.equals(location, metaData.location) && Objects.equals(digest, metaData.digest)
             && Objects.equals(dateAdded, metaData.dateAdded)
+            && Objects.equals(baseFMWVersion, metaData.baseFMWVersion)
             && Objects.equals(productVersion, metaData.productVersion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(architecture, location, digest, dateAdded, productVersion);
+        return Objects.hash(architecture, location, digest, dateAdded, productVersion, baseFMWVersion);
     }
 }

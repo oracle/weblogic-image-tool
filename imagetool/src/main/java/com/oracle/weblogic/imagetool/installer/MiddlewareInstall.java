@@ -54,6 +54,8 @@ public class MiddlewareInstall {
             }
         }
         Architecture localArchitecture = Architecture.getLocalArchitecture();
+        String originalType = type.toString();
+
 
         for (InstallerType installerType : type.installerList()) {
             for (String platform : buildPlatform) {
@@ -72,7 +74,17 @@ public class MiddlewareInstall {
                 if (ARM64_BLD.equals(platform)) {
                     pkg.installer = new CachedFile(installerType, version, Architecture.ARM64);
                 }
-                InstallerMetaData metaData = configManager.getInstallerForPlatform(installerType, arch, version);
+
+                // get the details from cache of whether there is a base version of WLS required.
+                String useVersion = version;
+                if (type.installerList().size() > 1 && installerType == InstallerType.FMW) {
+                    InstallerMetaData productData = configManager.getInstallerForPlatform(
+                        InstallerType.fromString(originalType),
+                        Architecture.fromString(platform), version);
+                    useVersion = productData.getBaseFMWVersion();
+                }
+
+                InstallerMetaData metaData = configManager.getInstallerForPlatform(installerType, arch, useVersion);
                 pkg.installerPath = Paths.get(metaData.getLocation());
                 pkg.installerFilename = pkg.installerPath.getFileName().toString();
                 pkg.responseFile = new DefaultResponseFile(installerType, type);

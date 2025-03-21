@@ -103,7 +103,7 @@ public class CacheConversion extends CacheOperation {
             if (fileDate != null) {
                 logger.info("IMG-0147", key, version, filepath, arch);
                 InstallerMetaData metaData = new InstallerMetaData(arch, filepath,
-                    Utils.getSha256Hash(filepath), fileDate, version);
+                    Utils.getSha256Hash(filepath), fileDate, version, version);
                 ConfigManager.getInstance().addInstaller(InstallerType.fromString(key), version, metaData);
             }
         } else {

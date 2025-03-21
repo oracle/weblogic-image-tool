@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatformId;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.ARCHITECTURE;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.BASE_FMW_VERSION;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DATE_ADDED;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DESCRIPTION;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DIGEST;
@@ -132,9 +133,35 @@ public class CacheStore {
         } else {
             installerMetaDataList.add(metaData);
         }
+
+        if (!baseFMWVersionExists(installerType, installerDetails, metaData.getBaseFMWVersion())) {
+            logger.severe("IMG-0149", metaData.getBaseFMWVersion());
+            System.exit(2);
+        }
+
+        if (!Utils.isBaseInstallerType(installerType) && metaData.getBaseFMWVersion() == null) {
+            metaData.setBaseFMWVersion(metaData.getProductVersion());
+        }
+
         // Update the list
         installerDetails.put(installerKey, installerMetaDataMap);
         saveAllInstallers(installerDetails);
+    }
+
+    private boolean baseFMWVersionExists(InstallerType type, Map<String,
+        Map<String, List<InstallerMetaData>>> installerDetails, String baseFMWVersion) {
+
+        if (!Utils.isBaseInstallerType(type)) {
+            if (baseFMWVersion == null) {
+                return true;
+            } else {
+                Map<String, List<InstallerMetaData>> installers = installerDetails.get(
+                    InstallerType.WLS.toString().toUpperCase());
+                return installers.containsKey(baseFMWVersion);
+            }
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -354,7 +381,8 @@ public class CacheStore {
         String location = (String) objectData.get(LOCATION);
         String productVersion = (String) objectData.get(PRODUCT_VERSION);
         String platform = (String) objectData.get(ARCHITECTURE);
-        return new InstallerMetaData(platform, location, hash, dateAdded, productVersion);
+        String baseFMWVersion = (String) objectData.get(BASE_FMW_VERSION);
+        return new InstallerMetaData(platform, location, hash, dateAdded, productVersion, baseFMWVersion);
     }
 
     private PatchMetaData createPatchMetaData(Map<String, Object> objectData) {

@@ -61,14 +61,14 @@ class CachedFileTest {
 
 
         InstallerMetaData installer1 = new InstallerMetaData("Generic", path12213.toString(),
-            VER_12213);
+            VER_12213, VER_12213);
         InstallerMetaData installer2 = new InstallerMetaData(Architecture.getLocalArchitecture().toString(),
             path12214.toString(),
-            "12.2.1.4.0");
+            "12.2.1.4.0", "12.2.1.4.0");
         InstallerMetaData installer3 = new InstallerMetaData("linux/amd64", path1411.toString(),
-            "14.1.1.0.0");
+            "14.1.1.0.0", "14.1.1.0.0");
         InstallerMetaData installer4 = new InstallerMetaData("linux/arm64", path1411.toString(),
-            "14.1.1.0.0");
+            "14.1.1.0.0", "14.1.1.0.0");
 
         configManager.addInstaller(InstallerType.WLS, VER_12213, installer1);
         configManager.addInstaller(InstallerType.WLS, "12.2.1.4.0", installer2);

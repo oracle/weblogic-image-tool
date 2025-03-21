@@ -13,4 +13,5 @@ public class YamlFileConstants {
     public static final String LOCATION  = "location";
     public static final String PATCH_VERSION = "patchVersion";
     public static final String PRODUCT_VERSION = "productVersion";
+    public static final String BASE_FMW_VERSION = "baseFMWVersion";
 }

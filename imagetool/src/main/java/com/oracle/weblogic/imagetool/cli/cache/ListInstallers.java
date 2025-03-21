@@ -12,6 +12,7 @@ import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -47,14 +48,14 @@ public class ListInstallers extends CacheOperation {
                     .sorted(Comparator.comparing(InstallerMetaData::getArchitecture))
                     .collect(Collectors.toList());
 
-                printDetails(sortedList);
+                printDetails(sortedList, InstallerType.fromString(itemType));
             });
         }
 
         return CommandResponse.success(null);
     }
 
-    private void printDetails(List<InstallerMetaData> sortedList) {
+    private void printDetails(List<InstallerMetaData> sortedList, InstallerType type) {
         String currentArch = "";
         for (InstallerMetaData meta : sortedList) {
             if (!currentArch.equals(meta.getArchitecture())) {
@@ -66,6 +67,9 @@ public class ListInstallers extends CacheOperation {
             if (details) {
                 System.out.println("      digest: " + meta.getDigest());
                 System.out.println("      dateAdded: " + meta.getDateAdded());
+                if (!Utils.isBaseInstallerType(type)) {
+                    System.out.println("      baseFMWVersion: " + meta.getBaseFMWVersion());
+                }
             }
         }
     }

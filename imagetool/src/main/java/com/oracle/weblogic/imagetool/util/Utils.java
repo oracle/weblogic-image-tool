@@ -867,4 +867,16 @@ public class Utils {
         List<InstallerType> types = Arrays.asList(InstallerType.WDT);
         return types.contains(type);
     }
+
+    /**
+     * Return true if the type is a base installer JDK, WDT, WLS, or FMW.
+     * @param type installer type
+     * @return true if the type is a base installer JDK, WDT, WLS, or FMW
+     */
+    public static boolean isBaseInstallerType(InstallerType type) {
+        return type.equals(InstallerType.WDT)
+            || type.equals(InstallerType.WLS)
+            || type.equals(InstallerType.JDK)
+            || type.equals(InstallerType.FMW);
+    }
 }

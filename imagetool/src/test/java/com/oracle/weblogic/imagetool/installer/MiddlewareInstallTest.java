@@ -50,7 +50,7 @@ class MiddlewareInstallTest {
         ConfigManager configManager = ConfigManager.getInstance(settingsFileName);
         InstallerMetaData installer2 = new InstallerMetaData("Generic",
             path12214.toString(),
-            "12.2.1.4.0");
+            "12.2.1.4.0", "12.2.1.4.0");
 
         configManager.addInstaller(InstallerType.WLS, "12.2.1.4.0", installer2);
     }

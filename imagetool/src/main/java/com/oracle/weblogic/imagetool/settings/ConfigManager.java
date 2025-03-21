@@ -22,6 +22,7 @@ import com.oracle.weblogic.imagetool.util.Architecture;
 
 import static com.oracle.weblogic.imagetool.cachestore.CacheStore.CACHE_DIR_ENV;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.ARCHITECTURE;
+import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.BASE_FMW_VERSION;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DATE_ADDED;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DESCRIPTION;
 import static com.oracle.weblogic.imagetool.settings.YamlFileConstants.DIGEST;
@@ -245,7 +246,8 @@ public class ConfigManager {
         String location = (String) objectData.get(LOCATION);
         String productVersion = (String) objectData.get(PRODUCT_VERSION);
         String platform = (String) objectData.get(ARCHITECTURE);
-        return new InstallerMetaData(platform, location, hash, dateAdded, productVersion);
+        String baseFMWVersion = (String) objectData.get(BASE_FMW_VERSION);
+        return new InstallerMetaData(platform, location, hash, dateAdded, productVersion, baseFMWVersion);
     }
 
     private PatchMetaData createPatchMetaData(Map<String, Object> objectData) {

@@ -8,6 +8,7 @@ import java.io.IOException;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.util.Architecture;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -55,6 +56,15 @@ public class AddInstallerEntry extends CacheAddOperation {
         return "";
     }
 
+    @Override
+    public String getBaseFMWVersion() {
+        if (!Utils.isBaseInstallerType(type)) {
+            return baseFMWVersion;
+        } else {
+            return null;
+        }
+    }
+
     @Option(
             names = {"-t", "--type"},
             description = "Type of installer. Valid values: ${COMPLETION-CANDIDATES}",
@@ -86,4 +96,11 @@ public class AddInstallerEntry extends CacheAddOperation {
     )
     private String commonName;
 
+    @Option(
+        names = {"-bv", "--baseFMWVersion"},
+        description = "Base FMW version. Used by upper level product dependent on base WLS version different from the "
+            + " stack installer.",
+        required = false
+    )
+    private String baseFMWVersion;
 }

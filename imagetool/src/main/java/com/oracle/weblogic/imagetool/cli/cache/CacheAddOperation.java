@@ -29,6 +29,8 @@ public abstract class CacheAddOperation extends CacheOperation {
 
     public abstract String getDescription();
 
+    public abstract String getBaseFMWVersion();
+
     CommandResponse addInstallerToCache() throws IOException {
         if (filePath == null || !Files.isRegularFile(filePath)) {
             return CommandResponse.error("IMG-0049", filePath);
@@ -48,7 +50,7 @@ public abstract class CacheAddOperation extends CacheOperation {
             return CommandResponse.success("IMG-0075");
         }
         metaData = new InstallerMetaData(arch.toString(), filePath.toAbsolutePath().toString(),
-            getVersion());
+            getVersion(), getBaseFMWVersion());
         ConfigManager.getInstance().addInstaller(InstallerType.fromString(type), getCommonName(), metaData);
         // if the new value is the same as the existing cache value, do nothing
 
