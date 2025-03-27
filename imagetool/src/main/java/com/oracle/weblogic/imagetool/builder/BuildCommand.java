@@ -197,6 +197,7 @@ public class BuildCommand {
         }
 
         ProcessBuilder processBuilder = new ProcessBuilder(getCommand(true));
+        processBuilder.redirectErrorStream(true);
         logger.finer("Starting docker process...");
         final Process process = processBuilder.start();
         logger.finer("Docker process started");
