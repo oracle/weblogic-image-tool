@@ -4,7 +4,9 @@
 package com.oracle.weblogic.imagetool.cli.menu;
 
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -198,6 +200,22 @@ public abstract class CommonOptions {
         logger.exiting();
     }
 
+    private Properties getBaseImageProperties() throws IOException, InterruptedException {
+        Properties props;
+        if (isOptionSet("--fromImageProperties")) {
+            props = new Properties();
+            try (Reader reader = new FileReader(fromImageProperties.toFile())) {
+                props.load(reader);
+                logger.info("IMG-0123", fromImageProperties);
+                logger.finer(props);
+            }
+        } else {
+            props = Utils.getBaseImageProperties(buildEngine, fromImage,
+                "/probe-env/inspect-image.sh", buildDir());
+        }
+        return props;
+    }
+
     /**
      * Set the docker options (dockerfile template bean) by extracting information from the fromImage.
      *
@@ -208,8 +226,7 @@ public abstract class CommonOptions {
         if (isOptionSet("--fromImage")) {
             logger.info("IMG-0002", fromImage);
 
-            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
-                "/probe-env/inspect-image.sh", buildDir());
+            Properties baseImageProperties = getBaseImageProperties();
 
             String existingJavaHome = baseImageProperties.getProperty("javaHome", null);
             if (existingJavaHome != null) {
@@ -343,6 +360,14 @@ public abstract class CommonOptions {
         defaultValue = Constants.ORACLE_LINUX
     )
     private String fromImage;
+
+    @Option(
+        names = {"--fromImageProperties"},
+        paramLabel = "<Properties Filename>",
+        description = "Properties that describe the --fromImage.  "
+        + "If not provided, docker run will be used to inspect the --fromImage image."
+    )
+    private Path fromImageProperties;
 
     @Option(
         names = {"--httpProxyUrl"},

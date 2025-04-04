@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.logging;
 
+import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -192,6 +193,20 @@ public class LoggingFacade {
         if (isFinerEnabled()) {
             CallerDetails details = inferCaller();
             logger.logp(Level.FINER, details.clazz, details.method, msg, thrown);
+        }
+    }
+
+    /**
+     * Logs a message at the FINER level.
+     *
+     * @param map the message to log
+     */
+    public void finer(Map<Object,Object> map) {
+        if (isFinerEnabled()) {
+            CallerDetails details = inferCaller();
+            StringBuilder builder = new StringBuilder();
+            map.forEach((k, v) -> builder.append(k).append("=").append(v).append(";"));
+            logger.logp(Level.FINER, details.clazz, details.method, builder.toString());
         }
     }
 
