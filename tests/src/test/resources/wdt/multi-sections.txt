@@ -14,7 +14,7 @@ RUN echo "before-fmw-install" > /u01/beforeFMWInstall.txt
 RUN echo "after-fmw-install" > /u01/afterFMWInstall.txt
 
 [before-wdt-command]
-LABEL before-wdt-command="beforeWDTComamnd"
+LABEL before-wdt-command="beforeWDTCommand"
 
 [after-wdt-command]
 LABEL after-wdt-command="afterWDTCommand"
