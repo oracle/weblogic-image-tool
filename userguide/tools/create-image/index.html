@@ -12,20 +12,20 @@
     <title>Create Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1743996380" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1743996380" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1744136936" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1744136936" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1743996380"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1744136936"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1743996380"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1743996380"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1744136936"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1744136936"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1743996380"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1744136936"></script>
 
     
   </div>
@@ -732,7 +732,7 @@
 
 
 <p>The <code>create</code> command helps build a WebLogic container image from a given base OS image.
-There are a number of optional parameters for this feature. The required option for the command is marked.</p>
+There are a number of optional parameters for this feature. The required option for the command is marked in the following table.</p>
 <p><strong>NOTE</strong>: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID <a href="https://support.oracle.com/rs?type=doc&amp;id=2764636.1">2764636.1</a>), because an SPB is <em>not</em> a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool <code>create</code> command with the <code>--recommendedPatches</code> option.</p>
 <pre tabindex="0"><code>Usage: imagetool create [OPTIONS]
 </code></pre><table>
@@ -746,7 +746,7 @@ There are a number of optional parameters for this feature. The required option 
 <tbody>
 <tr>
 <td><code>--tag</code></td>
-<td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:12.2.1.3.0</code></td>
+<td><strong>(Required)</strong> Tag for the final build image. Example: <code>store/oracle/weblogic:12.2.1.3.0</code></td>
 <td></td>
 </tr>
 <tr>
@@ -788,6 +788,11 @@ There are a number of optional parameters for this feature. The required option 
 <td><code>--fromImage</code></td>
 <td>Container image to use as a base image when creating a new image.</td>
 <td><code>ghcr.io/oracle/oraclelinux:8-slim</code></td>
+</tr>
+<tr>
+<td><code>--fromImageProperties</code></td>
+<td>Properties that describe the <code>--fromImage</code>. If not provided, docker run will be used to inspect the <code>--fromImage</code> image. See <a href="#custom-base-images">Custom Base Images</a></td>
+<td></td>
 </tr>
 <tr>
 <td><code>--httpProxyUrl</code></td>
@@ -1082,8 +1087,9 @@ on when the build needs access to the file.  For example, if the file is needed 
 installation or domain creation steps, use the <code>final-build-commands</code> section so that the <code>COPY</code> command occurs in the
 final stage of the image build.  Or, if the file needs to change the Oracle Home prior to domain creation, use
 the <code>after-fmw-install</code> or <code>before-wdt-command</code> sections.</p>
-<h4 id="--target"><code>--target</code></h4>
-<p>By default, the generated WLS domain in your image will use the best practices defined by Oracle WebLogic Server.<br>
+<h4 id="using-openshift">Using OpenShift</h4>
+<h5 id="--target"><code>--target</code></h5>
+<p>By default, the installed middleware will default file permissions to <code>rwxr-x---</code>.<br>
 The <code>target</code> option allows you to toggle the defaults so that the generated domain is easier to use in the target
 environment.  For example, the <code>--target OpenShift</code> option will change the file permissions in the domain directory
 so that the group permissions match the user permissions.</p>
@@ -1105,6 +1111,62 @@ so that the group permissions match the user permissions.</p>
 <td><code>OpenShift</code></td>
 <td><code>rwxrwx---</code></td>
 <td><code>oracle:root</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="custom-base-images">Custom Base Images</h4>
+<h5 id="--fromimageproperties"><code>--fromImageProperties</code></h5>
+<p>When specifying <code>--fromImage</code> to override the default base image, Image Tool needs additional information about the
+image that is being provided, such as the installed operating system and version.  By default, the additional information
+is gathered automatically by the Image Tool using <code>docker run</code>.  If it is desirable to provide that additional information
+manually and avoid the <code>docker run</code> step, <code>--fromImageProperties</code> must be provided with the additional information using
+a Java Properties file. The file must be a line-oriented format with key-value pairs separated by <code>=</code>.  For example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-properties" data-lang="properties"><span style="display:flex;"><span><span style="color:#a6e22e">packageManager</span><span style="color:#f92672">=</span><span style="color:#e6db74">MICRODNF</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">__OS__ID</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ol&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">__OS__VERSION</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;8.10&#34;</span>
+</span></span></code></pre></div><p>Required properties:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>packageManager</code></td>
+<td>The name of the installed package manager in the <code>fromImage</code> in all CAPS.  Like <code>DNF</code>, <code>MICRODNF</code>, and <code>YUM</code></td>
+<td><code>YUM</code></td>
+</tr>
+<tr>
+<td><code>__OS__ID</code></td>
+<td>The ID value found in <code>/etc/os-release</code>.  Like &ldquo;ol&rdquo; for Oracle Linux, or &ldquo;bb&rdquo; for BusyBox.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>__OS__VERSION</code></td>
+<td>The VERSION value found in <code>/etc/os-release</code>.  Like &ldquo;8.10&rdquo;.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Additional properties:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>javaHome</code></td>
+<td>The location where the JDK is pre-installed.  Like &ldquo;/u01/jdk&rdquo;.</td>
+</tr>
+<tr>
+<td><code>__OS__arch</code></td>
+<td>The output of <code>uname -m</code>.  Like <code>amd64</code> or <code>arm64</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -1152,7 +1214,6 @@ the placeholders will be replaced with values according to the following table.<
 </span></span></code></pre></div><p>Use it on the command line, as follows:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool @/path/to/build_args
 </span></span></code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
-<p><strong>Note</strong>: Use <code>--passwordEnv</code> or <code>--passwordFile</code> instead of <code>--password</code>.</p>
 <p>The following commands assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
 to the cache directory. Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command to set it up.</p>
 <ul>
@@ -1607,19 +1668,19 @@ to the cache directory. Use the <a href="/weblogic-image-tool/userguide/tools/ca
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1743996380"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1743996380"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1743996380"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1743996380"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1743996380"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1743996380"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1744136936"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1744136936"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1744136936"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1744136936"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1744136936"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1744136936"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1743996380"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1743996380"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1743996380"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1744136936"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1744136936"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1744136936"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1743996380"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1744136936"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
