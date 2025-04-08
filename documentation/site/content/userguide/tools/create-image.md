@@ -8,7 +8,7 @@ description: "The create command creates a new container image and installs the 
 
 
 The `create` command helps build a WebLogic container image from a given base OS image.
-There are a number of optional parameters for this feature. The required option for the command is marked.
+There are a number of optional parameters for this feature. The required option for the command is marked in the following table.
 
 **NOTE**: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID [2764636.1](https://support.oracle.com/rs?type=doc&id=2764636.1)), because an SPB is _not_ a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool `create` command with the `--recommendedPatches` option.
 
@@ -18,7 +18,7 @@ Usage: imagetool create [OPTIONS]
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
-| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
+| `--tag` | **(Required)** Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
@@ -27,6 +27,7 @@ Usage: imagetool create [OPTIONS]
 | `--docker` | (DEPRECATED) Path to the Docker executable. Use `--builder` instead.  |  `docker` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
 | `--fromImage` | Container image to use as a base image when creating a new image. | `ghcr.io/oracle/oraclelinux:8-slim`  |
+| `--fromImageProperties` | Properties that describe the `--fromImage`. If not provided, docker run will be used to inspect the `--fromImage` image. See [Custom Base Images](#custom-base-images) |  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--installerResponseFile` | One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.  |   |
@@ -119,9 +120,11 @@ installation or domain creation steps, use the `final-build-commands` section so
 final stage of the image build.  Or, if the file needs to change the Oracle Home prior to domain creation, use
 the `after-fmw-install` or `before-wdt-command` sections.
 
-#### `--target`
+#### Using OpenShift
 
-By default, the generated WLS domain in your image will use the best practices defined by Oracle WebLogic Server.  
+##### `--target`
+
+By default, the installed middleware will default file permissions to `rwxr-x---`.  
 The `target` option allows you to toggle the defaults so that the generated domain is easier to use in the target
 environment.  For example, the `--target OpenShift` option will change the file permissions in the domain directory
 so that the group permissions match the user permissions.
@@ -130,6 +133,36 @@ so that the group permissions match the user permissions.
 | --- | --- | --- |
 | `Default` | `rwxr-x---` | `oracle:oracle` |
 | `OpenShift` | `rwxrwx---` | `oracle:root` |
+
+#### Custom Base Images
+
+##### `--fromImageProperties`
+
+When specifying `--fromImage` to override the default base image, Image Tool needs additional information about the 
+image that is being provided, such as the installed operating system and version.  By default, the additional information
+is gathered automatically by the Image Tool using `docker run`.  If it is desirable to provide that additional information
+manually and avoid the `docker run` step, `--fromImageProperties` must be provided with the additional information using 
+a Java Properties file. The file must be a line-oriented format with key-value pairs separated by `=`.  For example:
+```properties
+packageManager=MICRODNF
+__OS__ID="ol"
+__OS__VERSION="8.10"
+```
+Required properties:
+
+| Key | Description | Default |
+| --- | --- | --- |
+| `packageManager` | The name of the installed package manager in the `fromImage` in all CAPS.  Like `DNF`, `MICRODNF`, and `YUM` | `YUM` |
+| `__OS__ID` | The ID value found in `/etc/os-release`.  Like "ol" for Oracle Linux, or "bb" for BusyBox. | |
+| `__OS__VERSION` | The VERSION value found in `/etc/os-release`.  Like "8.10". | |
+
+Additional properties:
+
+| Key | Description |
+| --- | --- |
+| `javaHome` | The location where the JDK is pre-installed.  Like "/u01/jdk". |
+| `__OS__arch` | The output of `uname -m`.  Like `amd64` or `arm64`. |
+
 
 #### Resource Template Files
 
@@ -171,8 +204,6 @@ $ imagetool @/path/to/build_args
 
 
 ### Usage scenarios
-
-**Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
 The following commands assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
  to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.

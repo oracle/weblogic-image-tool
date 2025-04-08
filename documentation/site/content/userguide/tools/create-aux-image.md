@@ -13,7 +13,7 @@ for [WebLogic Kubernetes Operator - Auxiliary Images](https://oracle.github.io/w
 These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files,
 in your WebLogic Server Kubernetes Operator environment.
 
-There are a number of optional parameters for this feature. The required option for the command is marked.
+There are a number of optional parameters for this feature. The required option for the command is marked in the following table.
 
 ```
 Usage: imagetool createAuxImage [OPTIONS]
@@ -21,7 +21,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
-| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
+| `--tag` | **(Required)** Tag for the final build image. Example: `store/oracle/mydomain:1`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
@@ -29,6 +29,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--chown` | `userid:groupid` to be used for creating files within the image, such as the WDT installer, WDT model, and WDT archive. If the user or group does not exist in the image, they will be added with useradd/groupadd. | `oracle:oracle` |
 | `--dryRun` | Skip Docker build execution and print the Dockerfile to stdout.  |  |
 | `--fromImage` | Container image to use as a base image when creating a new image. | `busybox`  |
+| `--fromImageProperties` | Properties that describe the `--fromImage`. If not provided, docker run will be used to inspect the `--fromImage` image. See [Custom Base Images](#custom-base-images) |  |
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080`  |   |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `YUM`, `ZYPPER`  |   |
@@ -81,7 +82,9 @@ on when the build needs access to the file.  For example, if the file is needed 
 installation or domain creation steps, use the `final-build-commands` section so that the `COPY` command occurs in the
 final stage of the image build.
 
-#### `--target`
+#### Using OpenShift
+
+##### `--target`
 
 The file permissions in the Auxiliary image should match the container image where WebLogic Server is installed.
 The target option is supplied for Auxiliary images as a convenience to simplify creating images with the same owner:group file permissions.
@@ -91,6 +94,36 @@ Use the same value for `--target` when creating images with `create` and `create
 | --- | --- | --- |
 | `Default` | `rwxr-x---` | `oracle:oracle` |
 | `OpenShift` | `rwxrwx---` | `oracle:root` |
+
+#### Custom Base Images
+
+##### `--fromImageProperties`
+
+When specifying `--fromImage` to override the default base image, Image Tool needs additional information about the 
+image that is being provided, such as the installed operating system and version.  By default, the additional information
+is gathered automatically by the Image Tool using `docker run`.  If it is desirable to provide that additional information
+manually and avoid the `docker run` step, `--fromImageProperties` must be provided with the additional information using 
+a Java Properties file. The file must be a line-oriented format with key-value pairs separated by `=`.  For example:
+```properties
+packageManager=MICRODNF
+__OS__ID="ol"
+__OS__VERSION="8.10"
+```
+Required properties:
+
+| Key | Description | Default |
+| --- | --- | --- |
+| `packageManager` | The name of the installed package manager in the `fromImage` in all CAPS.  Like `DNF`, `MICRODNF`, and `YUM` | `YUM` |
+| `__OS__ID` | The ID value found in `/etc/os-release`.  Like "ol" for Oracle Linux, or "bb" for BusyBox. | |
+| `__OS__VERSION` | The VERSION value found in `/etc/os-release`.  Like "8.10". | |
+
+Additional properties:
+
+| Key | Description |
+| --- | --- |
+| `javaHome` | The location where the JDK is pre-installed.  Like "/u01/jdk". |
+| `__OS__arch` | The output of `uname -m`.  Like `amd64` or `arm64`. |
+
 
 #### `--wdtVersion`
 
