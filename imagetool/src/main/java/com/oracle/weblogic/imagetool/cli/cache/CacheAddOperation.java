@@ -44,6 +44,10 @@ public abstract class CacheAddOperation extends CacheOperation {
         }
 
         Architecture arch = getArchitecture();
+        // Force WDT to be generic
+        if (InstallerType.fromString(type) == InstallerType.WDT) {
+            arch = Architecture.GENERIC;
+        }
         InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.fromString(type),
             arch, name);
         if (metaData != null) {
