@@ -47,6 +47,7 @@ public class ListPatches extends CacheOperation {
                     System.out.println("       location: " + metaData.getLocation());
                     if (details) {
                         System.out.println("        digest: " + metaData.getDigest());
+                        System.out.println("        description: " + metaData.getDescription());
                         System.out.println("        dateAdded: " + metaData.getDateAdded());
                     }
 

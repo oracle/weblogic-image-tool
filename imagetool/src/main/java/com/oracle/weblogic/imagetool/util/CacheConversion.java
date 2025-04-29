@@ -140,7 +140,7 @@ public class CacheConversion extends CacheOperation {
                 logger.info("IMG-0148", key, version, filepath);
 
                 ConfigManager.getInstance().addPatch(key, arch, filepath, version,
-                    "Converted from v1 in " + fileDate, fileDate);
+                    "Converted from v1", fileDate);
             }
         } else {
             logger.warning(IMG_0128, line);
