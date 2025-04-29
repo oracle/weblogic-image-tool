@@ -89,7 +89,7 @@ public class CacheConversion extends CacheOperation {
                 }
             } else if (tokens.length == 3) {
                 key = tokens[0];
-                version = tokens[1];
+                version = convertVersionString(tokens[1]);
                 arch = tokens[2];
                 arch = Architecture.fromString(arch).toString();
             } else {
@@ -125,7 +125,7 @@ public class CacheConversion extends CacheOperation {
                 version = tokens[1];
             } else if (tokens.length == 3) {
                 key = tokens[0];
-                version = tokens[1];
+                version = convertVersionString(tokens[1]);
                 arch = tokens[2];
                 arch = Architecture.fromString(arch).toString();
             } else {
@@ -146,6 +146,19 @@ public class CacheConversion extends CacheOperation {
             logger.warning(IMG_0128, line);
         }
 
+    }
+
+    private String convertVersionString(String version) {
+        if (version != null && version.length() == 6) {
+            return String.format("%s.%s.%s.%s.%s",
+                version.substring(0,1),
+                version.substring(2,2),
+                version.substring(3,3),
+                version.substring(4,4),
+                version.substring(5,5));
+        } else {
+            return version;
+        }
     }
 
     private String getFileDate(String filepath) {

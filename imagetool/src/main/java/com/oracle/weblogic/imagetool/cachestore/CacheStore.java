@@ -158,7 +158,7 @@ public class CacheStore {
             } else {
                 Map<String, List<InstallerMetaData>> installers = installerDetails.get(
                     InstallerType.FMW.toString().toUpperCase());
-                return installers.containsKey(baseFMWVersion);
+                return installers != null && installers.containsKey(baseFMWVersion);
             }
         } else {
             return true;

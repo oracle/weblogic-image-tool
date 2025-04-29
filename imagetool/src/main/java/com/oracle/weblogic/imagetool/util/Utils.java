@@ -877,6 +877,8 @@ public class Utils {
         return type.equals(InstallerType.WDT)
             || type.equals(InstallerType.WLS)
             || type.equals(InstallerType.JDK)
+            || type.equals(InstallerType.DB19)
+            || type.equals(InstallerType.OHS)
             || type.equals(InstallerType.FMW);
     }
 }
