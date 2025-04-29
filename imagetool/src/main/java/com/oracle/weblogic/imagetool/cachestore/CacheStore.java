@@ -135,7 +135,8 @@ public class CacheStore {
         }
 
         if (!baseFMWVersionExists(installerType, installerDetails, metaData.getBaseFMWVersion())) {
-            logger.severe("IMG-0149", metaData.getBaseFMWVersion());
+            logger.severe("IMG-0149", metaData.getBaseFMWVersion(), metaData.getProductVersion(),
+                installerType.toString().toUpperCase());
             System.exit(2);
         }
 
@@ -156,7 +157,7 @@ public class CacheStore {
                 return true;
             } else {
                 Map<String, List<InstallerMetaData>> installers = installerDetails.get(
-                    InstallerType.WLS.toString().toUpperCase());
+                    InstallerType.FMW.toString().toUpperCase());
                 return installers.containsKey(baseFMWVersion);
             }
         } else {

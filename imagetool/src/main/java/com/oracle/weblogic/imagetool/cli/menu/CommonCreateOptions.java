@@ -114,30 +114,47 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         for (String buildPlatform : buildPlatforms) {
             Architecture arch = Architecture.fromString(buildPlatform);
             jdkVersion = resetInstallerVersion(InstallerType.JDK, jdkVersion);
-            InstallerMetaData jdkInstallerMetaData = configManager.getInstallerForPlatform(InstallerType.JDK,
-                arch, jdkVersion);
-            if (jdkInstallerMetaData == null) {
-                throw new IllegalArgumentException(Utils.getMessage("IMG-0145", InstallerType.JDK,
-                    buildPlatform, jdkVersion));
+            verifyInstallerExists(configManager, InstallerType.JDK, arch, jdkVersion, buildPlatform);
+            if (getInstallerType().equals(FmwInstallerType.OID)) {
+                verifyOIDInstallers(configManager, arch, buildPlatform, installerVersion);
             } else {
-                // If needed
-                verifyInstallerHash(jdkInstallerMetaData);
-            }
-
-            for (InstallerType installerType : getInstallerType().installerList()) {
-                installerVersion = resetInstallerVersion(installerType, installerVersion);
-                InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(installerType,
-                    arch, installerVersion);
-                if (installerMetaData == null) {
-                    throw new IllegalArgumentException(Utils.getMessage("IMG-0145", installerType,
-                        buildPlatform, installerVersion));
-                } else {
-                    // If needed
-                    verifyInstallerHash(installerMetaData);
-                }
+                verifyNormalInstallers(getInstallerType().installerList(), configManager, arch, buildPlatform);
             }
         }
 
+    }
+
+    void verifyOIDInstallers(ConfigManager configManager, Architecture arch,
+                             String buildPlatform, String installerVersion) throws IOException {
+        verifyInstallerExists(configManager, InstallerType.OID, arch, installerVersion, buildPlatform);
+        InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(InstallerType.OID,
+            arch, installerVersion);
+        String baseFMWVersion = installerMetaData.getBaseFMWVersion();
+        verifyInstallerExists(configManager, InstallerType.FMW, arch, baseFMWVersion, buildPlatform);
+    }
+
+    void verifyNormalInstallers(List<InstallerType> installers, ConfigManager configManager, Architecture arch,
+                                String buildPlatform) throws IOException {
+        for (InstallerType installerType : installers) {
+            installerVersion = resetInstallerVersion(installerType, installerVersion);
+            verifyInstallerExists(configManager, installerType, arch, installerVersion, buildPlatform);
+        }
+    }
+
+    void verifyInstallerExists(ConfigManager configManager, InstallerType installerType, Architecture arch,
+                               String installerVersion, String buildPlatform) throws IOException {
+
+        logger.info("IMG-0150", installerType, installerVersion, arch);
+
+        InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(installerType,
+            arch, installerVersion);
+        if (installerMetaData == null) {
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0145", installerType,
+                buildPlatform, installerVersion));
+        } else {
+            // If needed
+            verifyInstallerHash(installerMetaData);
+        }
     }
 
     private String resetJDKVersion(String jdkVersion) {
