@@ -130,6 +130,9 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(InstallerType.OID,
             arch, installerVersion);
         String baseFMWVersion = installerMetaData.getBaseFMWVersion();
+        if (baseFMWVersion == null) {
+            baseFMWVersion = installerMetaData.getBaseFMWVersion();
+        }
         verifyInstallerExists(configManager, InstallerType.FMW, arch, baseFMWVersion, buildPlatform);
     }
 
