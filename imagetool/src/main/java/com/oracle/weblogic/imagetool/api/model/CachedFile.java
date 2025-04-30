@@ -107,17 +107,18 @@ public class CachedFile {
         if (metaData == null) {
             metaData = ConfigManager.getInstance()
                 .getInstallerForPlatform(installerType, Architecture.getLocalArchitecture(), getVersion());
-        }
-        if (metaData == null) {
-            metaData = ConfigManager.getInstance()
-                .getInstallerForPlatform(installerType, Architecture.GENERIC, getVersion());
+
+            if (metaData == null) {
+                metaData = ConfigManager.getInstance()
+                    .getInstallerForPlatform(installerType, Architecture.GENERIC, getVersion());
+            }
         }
 
         if (metaData != null) {
             filePath = metaData.getLocation();
         }
 
-        if (!isFileOnDisk(filePath)) {
+        if (metaData == null || !isFileOnDisk(filePath)) {
             throw new FileNotFoundException(Utils.getMessage("IMG-0011",  installerType,
                 getVersion(), getArchitecture(), filePath));
         }

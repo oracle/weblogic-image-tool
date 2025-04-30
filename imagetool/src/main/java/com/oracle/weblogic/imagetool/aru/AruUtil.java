@@ -18,6 +18,8 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
@@ -110,7 +112,18 @@ public class AruUtil {
         throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
-            List<AruPatch> psuList = getLatestPsu(product, version, architecture, userId, password);
+
+            String baseVersion = version;
+
+            if (type == FmwInstallerType.IDM && product == AruProduct.JRF) {
+                InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.IDM,
+                    architecture, version);
+                if (metaData != null && metaData.getBaseFMWVersion() != null) {
+                    baseVersion = metaData.getBaseFMWVersion();
+                }
+            }
+
+            List<AruPatch> psuList = getLatestPsu(product, baseVersion, architecture, userId, password);
             if (!psuList.isEmpty()) {
                 for (AruPatch psu: psuList) {
                     String patchAndVersion = psu.patchId() + "_" + psu.version();
@@ -177,8 +190,20 @@ public class AruUtil {
     public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version, Architecture architecture,
                                                 String userId, String password) throws AruException {
         List<AruPatch> result = new ArrayList<>();
+
         for (AruProduct product : type.products()) {
-            List<AruPatch> patches = getRecommendedPatches(type, product, version, architecture, userId, password);
+
+            String baseVersion = version;
+
+            if (type == FmwInstallerType.IDM && product == AruProduct.JRF) {
+                InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.IDM,
+                    architecture, version);
+                if (metaData != null && metaData.getBaseFMWVersion() != null) {
+                    baseVersion = metaData.getBaseFMWVersion();
+                }
+            }
+
+            List<AruPatch> patches = getRecommendedPatches(type, product, baseVersion, architecture, userId, password);
 
             if (!patches.isEmpty()) {
                 patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
