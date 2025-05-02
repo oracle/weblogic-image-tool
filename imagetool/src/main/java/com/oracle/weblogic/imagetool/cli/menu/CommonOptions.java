@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
@@ -368,14 +369,13 @@ public abstract class CommonOptions {
         }
         for (String platform : buildPlatform) {
             boolean valid = Architecture.AMD64.getAcceptableNames().contains(platform)
-                || Architecture.ARM64.getAcceptableNames().contains(platform)
-                || Architecture.GENERIC.getAcceptableNames().contains(platform);
+                || Architecture.ARM64.getAcceptableNames().contains(platform);
             if (!valid) {
-                throw new IllegalArgumentException("Unknown platform: " + platform);
+                throw new IllegalArgumentException("Unknown build platform: " + platform);
             }
         }
         buildPlatform.replaceAll(value -> Utils.standardPlatform(Architecture.fromString(value).toString()));
-        return buildPlatform;
+        return buildPlatform.stream().distinct().collect(Collectors.toList());
     }
 
     @Option(
