@@ -366,6 +366,15 @@ public abstract class CommonOptions {
             }
             buildPlatform.add(platform);
         }
+        for (String platform : buildPlatform) {
+            boolean valid = Architecture.AMD64.getAcceptableNames().contains(platform)
+                || Architecture.ARM64.getAcceptableNames().contains(platform)
+                || Architecture.GENERIC.getAcceptableNames().contains(platform);
+            if (!valid) {
+                throw new IllegalArgumentException("Unknown platform: " + platform);
+            }
+        }
+        buildPlatform.replaceAll(value -> Utils.standardPlatform(Architecture.fromString(value).toString()));
         return buildPlatform;
     }
 

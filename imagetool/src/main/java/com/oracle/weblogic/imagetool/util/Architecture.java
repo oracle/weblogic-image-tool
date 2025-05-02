@@ -65,8 +65,9 @@ public enum Architecture {
                 }
             }
         }
-        logger.warning("IMG-0121", value);
-        return AMD64;
+
+        logger.warning("IMG-0121", value, Architecture.getLocalArchitecture());
+        return Architecture.getLocalArchitecture();
     }
 
     /**

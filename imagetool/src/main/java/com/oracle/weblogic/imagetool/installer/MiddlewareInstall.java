@@ -60,13 +60,13 @@ public class MiddlewareInstall {
         for (InstallerType installerType : type.installerList()) {
             for (String platform : buildPlatform) {
 
+                logger.info("IMG-0153", installerType, version, platform);
                 platform = Utils.standardPlatform(platform);
                 MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
                 Architecture arch = Architecture.fromString(platform);
                 if (localArchitecture != arch) {
                     logger.warning("IMG-0146");
                 }
-
                 pkg.type = installerType;
                 if (AMD64_BLD.equals(platform)) {
                     pkg.installer = new CachedFile(installerType, version, Architecture.AMD64);

@@ -430,7 +430,7 @@ public class CacheStore {
         List<InstallerMetaData> installerMetaDataList = installers.get(installerVersion);
 
         if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {
-
+            logger.info("IMG-0151", installerType, installerVersion, platformName);
             Optional<InstallerMetaData> foundInstaller = installerMetaDataList.stream()
                 .filter(installerMetaData -> platformName.getAcceptableNames()
                     .contains(installerMetaData.getArchitecture()))
@@ -442,6 +442,7 @@ public class CacheStore {
 
             if (Utils.isGenericInstallerAcceptable(installerType)) {
                 //If it can't find the specialized platform, try generic.
+                logger.info("IMG-0152", installerType, installerVersion, platformName);
 
                 foundInstaller = installerMetaDataList.stream()
                     .filter(installerMetaData -> Architecture.GENERIC.getAcceptableNames()
@@ -454,7 +455,7 @@ public class CacheStore {
 
             }
         }
-
+        System.out.println("get InstallerMetaData return null");
         return null;
     }
 }
