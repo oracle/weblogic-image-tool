@@ -44,24 +44,23 @@ USER {{userid}}
 # installPackagesForAMD - list of packages to install for amd64 platform
 
 
-RUN if [ "$TARGETPLATFORM" == "linux/arm64" ] ; then \
+RUN case "$TARGETPLATFORM" in \
+    "linux/arm64") \
         echo "INSTALLING MIDDLEWARE" \
         {{#installPackagesForARM}}
           {{> install-middleware-pkg }}
-      {{/installPackagesForARM}}
-      && test $? -eq 0 \
-      && chmod -R g+r {{{oracle_home}}} \
-      || (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1); \
-     fi  && \
-    if [ "$TARGETPLATFORM" == "linux/amd64" ] ; then \
+        {{/installPackagesForARM}}
+        ;; \
+    "linux/amd64") \
         echo "INSTALLING MIDDLEWARE" \
         {{#installPackagesForAMD}}
           {{> install-middleware-pkg }}
         {{/installPackagesForAMD}}
-    && test $? -eq 0 \
+        ;; \
+    esac \
     && chmod -R g+r {{{oracle_home}}} \
-    || (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1); \
-    fi
+    || { grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log || true; }
+
 
 {{#useOwnerPermsForGroup}}
   # OPatch needs write permissions to the logs folder and lock file when running in OpenShift

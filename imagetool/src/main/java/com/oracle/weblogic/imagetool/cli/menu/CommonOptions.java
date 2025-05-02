@@ -127,6 +127,7 @@ public abstract class CommonOptions {
     BuildCommand getInitialBuildCmd(String contextFolder) {
         logger.entering();
         BuildCommand cmdBuilder = new BuildCommand(buildEngine, contextFolder)
+            .useBuildx(useBuildx)
             .forceRm(!skipcleanup)
             .tag(imageTag)
             .platform(buildPlatform)
@@ -504,11 +505,18 @@ public abstract class CommonOptions {
     )
     private boolean load = false;
 
+    @Option(
+        names = {"--useBuildx"},
+        description = "Use the BuildKit for building the container image (default when building multi-architecture)"
+    )
+    private boolean useBuildx;
+
     @Parameters(
         description = "Container build options.",
         hidden = true
     )
     List<String> buildOptions;
+
 
     @Spec
     CommandLine.Model.CommandSpec spec;
