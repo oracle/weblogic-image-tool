@@ -3,8 +3,8 @@
 #
 
 {{#isRebaseToTarget}}
-FROM {{sourceImage}} as source_image
-FROM {{targetImage}} as final_build
+FROM {{sourceImage}} AS source_image
+FROM {{targetImage}} AS final_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 
@@ -13,8 +13,8 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 {{/isRebaseToTarget}}
 {{#isRebaseToNew}}
-    FROM {{sourceImage}} as source_image
-    FROM {{baseImage}} as os_update
+    FROM {{sourceImage}} AS source_image
+    FROM {{baseImage}} AS os_update
 
     ENV DOMAIN_HOME={{{domain_home}}}
 
@@ -39,7 +39,7 @@ LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
         {{> install-middleware }}
     {{/installMiddleware}}
 
-    FROM os_update as final_build
+    FROM os_update AS final_build
     {{#buildArgs}}ARG {{{.}}}
     {{/buildArgs}}
     ENV ORACLE_HOME={{{oracle_home}}} \
