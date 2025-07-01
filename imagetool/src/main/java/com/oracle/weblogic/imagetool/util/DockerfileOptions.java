@@ -38,8 +38,8 @@ public class DockerfileOptions {
     private static final String DEFAULT_INV_LOC = "/u01/oracle";
 
     private static final List<String> DEFAULT_OS_PACKAGES = Arrays.asList(
-        "gzip", "tar", "unzip", "libaio", "libnsl", "jq", "findutils", "diffutils");
-    private static final List<String> BINARY_OS_PACKAGES = Arrays.asList("binutils", "make", "glibc-devel");
+        "gzip", "tar", "unzip", "libaio", "libnsl", "jq", "findutils", "diffutils", "make");
+    private static final List<String> BINARY_OS_PACKAGES = Arrays.asList("binutils", "glibc-devel");
     private static final String WLSIMG_OS_PACKAGES = System.getenv("WLSIMG_OS_PACKAGES");
 
     private static final String DEFAULT_ORAINV_DIR = "/u01/oracle/oraInventory";
