@@ -3,7 +3,7 @@
 #
 # Installing Middleware
 
-FROM os_update as wls_build
+FROM os_update AS wls_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"

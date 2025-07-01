@@ -3,7 +3,7 @@
 #
 # Create WLS domain (or model)
 
-FROM {{{wdtBase}}} as wdt_build
+FROM {{{wdtBase}}} AS wdt_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"

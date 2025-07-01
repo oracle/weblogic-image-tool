@@ -6,7 +6,7 @@
     {{> run-wdt }}
 {{/isWdtEnabled}}
 
-FROM {{baseImage}} as final_build
+FROM {{baseImage}} AS final_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 USER root

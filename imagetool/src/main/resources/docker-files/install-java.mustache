@@ -3,7 +3,7 @@
 #
 # Installing Java
 
-FROM os_update as jdk_build
+FROM os_update AS jdk_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"

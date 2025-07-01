@@ -5,7 +5,7 @@
 #
 # Create Auxiliary Image for WebLogic Kubernetes Operator
 
-FROM {{baseImage}} as os_update
+FROM {{baseImage}} AS os_update
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
@@ -20,7 +20,7 @@ USER root
 # Create the Oracle user that will be the owner of the installed software
 {{> create-user-group}}
 
-FROM os_update as wdt_build
+FROM os_update AS wdt_build
 
 RUN mkdir -p {{{wdt_home}}} \
  && mkdir -p {{{wdt_model_home}}} \
@@ -38,7 +38,7 @@ RUN mkdir -p {{{wdt_home}}} \
     {{/usingWdtTarGzInstaller}}
 {{/installWdt}}
 
-FROM os_update as final
+FROM os_update AS final
 
 ENV AUXILIARY_IMAGE_PATH={{{wdt_home}}} \
     WDT_HOME={{{wdt_home}}} \
