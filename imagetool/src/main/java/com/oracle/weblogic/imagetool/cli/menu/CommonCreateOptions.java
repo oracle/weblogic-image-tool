@@ -67,6 +67,10 @@ public class CommonCreateOptions extends CommonPatchingOptions {
                 //Path installerPath = jdk.copyFile(cache(), buildContextDestination);
                 InstallerMetaData installerMetaData = ConfigManager.getInstance()
                     .getInstallerForPlatform(InstallerType.JDK, arch, jdkVersion);
+                if (installerMetaData == null) {
+                    throw new IllegalArgumentException(Utils.getMessage("IMG-0145", InstallerType.JDK,
+                        arch, jdkVersion));
+                }
                 Path installerPath = Paths.get(installerMetaData.getLocation());
                 Files.copy(installerPath, Paths.get(buildContextDestination).resolve(installerPath.getFileName()));
                 jdkFilePathList.add(installerPath.getFileName().toString());
@@ -129,6 +133,10 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         verifyInstallerExists(configManager, InstallerType.OID, arch, installerVersion, buildPlatform);
         InstallerMetaData installerMetaData = configManager.getInstallerForPlatform(InstallerType.OID,
             arch, installerVersion);
+        if (installerMetaData == null) {
+            throw new IllegalArgumentException(Utils.getMessage("IMG-0145", InstallerType.OID,
+                arch, installerVersion));
+        }
         String baseFMWVersion = installerMetaData.getBaseFMWVersion();
         if (baseFMWVersion == null) {
             baseFMWVersion = installerVersion;

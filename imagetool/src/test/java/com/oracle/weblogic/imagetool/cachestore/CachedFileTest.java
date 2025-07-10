@@ -138,6 +138,7 @@ class CachedFileTest {
         CachedFile wlsInstallerFile = new CachedFile(InstallerType.WLS, VER_12213);
         InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.WLS,
             Architecture.GENERIC, VER_12213);
+        assertNotNull(metaData);
         String expected = metaData.getLocation();
         assertEquals(expected, wlsInstallerFile.resolve(), "CachedFile did not resolve file");
     }
@@ -154,6 +155,7 @@ class CachedFileTest {
         assertNull(metaData);
         metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.WLS,
             Architecture.GENERIC, VER_12213);
+        assertNotNull(metaData);
         String expected = metaData.getLocation();
         assertEquals(expected, wlsNoArch.resolve(), "CachedFile returned wrong file");
     }
@@ -164,7 +166,7 @@ class CachedFileTest {
         CachedFile wlsArch = new CachedFile(InstallerType.WLS, "14.1.1.0.0", Architecture.fromString("amd64"));
         InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.WLS,
             Architecture.AMD64, "14.1.1.0.0");
-
+        assertNotNull(metaData);
         // verify the cache is setup as expected.  wls_14.1.1.0.0_amd64 is in the cache
         String expected = metaData.getLocation();
         assertNotNull(expected);
@@ -183,6 +185,7 @@ class CachedFileTest {
         assertNull(metaData);
         metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.WLS,
             Architecture.getLocalArchitecture(), "12.2.1.4.0");
+        assertNotNull(metaData);
         String expected = metaData.getLocation();
         //cacheStore.getValueFromCache("wls_12.2.1.4.0_" + Architecture.getLocalArchitecture());
         assertNotNull(expected);

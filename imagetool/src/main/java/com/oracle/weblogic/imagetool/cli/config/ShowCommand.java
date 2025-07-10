@@ -23,23 +23,51 @@ public class ShowCommand implements Callable<CommandResponse> {
         names = {"--name"},
         description = "Name of the setting",
         order = 0,
-        required = true
+        required = false
     )
     private ConfigAttributeName name;
+
+    @CommandLine.Option(
+        names = {"--all"},
+        description = "Show all the settings",
+        order = 1,
+        required = false
+    )
+    private boolean all;
 
     @Override
     public CommandResponse call() throws Exception {
         logger.entering();
         UserSettingsFile settings = new UserSettingsFile();
 
-        String result = name.get(settings);
-
         logger.exiting();
-        if (result != null) {
-            System.out.println(result);
+        if (all) {
+            printAllSettings(settings);
             return new CommandResponse(0, "");
-        } else {
-            return new CommandResponse(CommandLine.ExitCode.SOFTWARE, "Not Found");
         }
+        if (name != null) {
+            String result = name.get(settings);
+            printSettingValue(name.toString(), result);
+            return new CommandResponse(0, "");
+        }
+        return new CommandResponse(0, "");
+    }
+
+    private static void printSettingValue(String setting, Object value) {
+        if (value != null) {
+            System.out.println(setting + ": " + value);
+        } else {
+            System.out.println(setting + ": not set");
+        }
+    }
+
+    private static void printAllSettings(UserSettingsFile settings) {
+        printSettingValue("aruRetryInterval", settings.getAruRetryInterval());
+        printSettingValue("aruRetryMax", settings.getAruRetryMax());
+        printSettingValue("defaultBuildPlatform", settings.getDefaultBuildPlatform());
+        printSettingValue("buildContextDirectory", settings.getBuildContextDirectory());
+        printSettingValue("containerEngine", settings.getContainerEngine());
+        printSettingValue("installerDirectory", settings.getInstallerDirectory());
+        printSettingValue("patchDirectory", settings.getPatchDirectory());
     }
 }

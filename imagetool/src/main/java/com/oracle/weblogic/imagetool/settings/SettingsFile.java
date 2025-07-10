@@ -166,6 +166,24 @@ public class SettingsFile {
     }
 
     /**
+     * Get the value for the setting by name from the provided settings map or default value.
+     * This method is intended to be used for leaf attributes (not folders).
+     * @param settingName The attribute name of the setting
+     * @param type The type of the attribute value (for cast)
+     * @param settings The map of settings from which the attribute is to be retrieved
+     * @param <T> Default value
+     * @return The value of the requested attribute.
+     */
+    public static <T> T getValueOrDefault(String settingName, Class<T> type, Map<String, Object> settings,
+                                  Object defaultValue) {
+        Object result = SettingsFile.getValue(settingName, type, settings);
+        if (result == null && defaultValue != null) {
+            result = defaultValue;
+        }
+        return type.cast(result);
+    }
+
+    /**
      * Get the folder for the settings by name from the provided settings map.
      * For nested maps withing the settings map.
      *

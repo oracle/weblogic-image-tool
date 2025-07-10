@@ -455,7 +455,6 @@ public class CacheStore {
 
             }
         }
-        System.out.println("get InstallerMetaData return null");
         return null;
     }
 }

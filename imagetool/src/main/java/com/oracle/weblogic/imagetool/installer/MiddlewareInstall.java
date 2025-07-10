@@ -81,10 +81,20 @@ public class MiddlewareInstall {
                     InstallerMetaData productData = configManager.getInstallerForPlatform(
                         InstallerType.fromString(originalType),
                         Architecture.fromString(platform), version);
+                    if (productData == null) {
+                        throw new IllegalArgumentException(Utils.getMessage("IMG-0145",
+                            InstallerType.fromString(originalType),
+                            Architecture.fromString(platform), version));
+                    }
+
                     useVersion = productData.getBaseFMWVersion();
                 }
 
                 InstallerMetaData metaData = configManager.getInstallerForPlatform(installerType, arch, useVersion);
+                if (metaData == null) {
+                    throw new IllegalArgumentException(Utils.getMessage("IMG-0145", installerType,
+                        arch, useVersion));
+                }
                 pkg.installerPath = Paths.get(metaData.getLocation());
                 pkg.installerFilename = pkg.installerPath.getFileName().toString();
                 pkg.responseFile = new DefaultResponseFile(installerType, type);

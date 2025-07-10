@@ -170,12 +170,7 @@ public class ConfigManager {
      */
     public InstallerMetaData getInstallerForPlatform(InstallerType installerType, Architecture platformName,
                                                      String installerVersion) {
-        InstallerMetaData metaData = cacheStore.getInstallerForPlatform(installerType, platformName, installerVersion);
-        if (metaData == null) {
-            throw new IllegalArgumentException("Cannot find Installer " + installerType + " architecture "
-                + platformName + " version " + installerVersion);
-        }
-        return metaData;
+        return cacheStore.getInstallerForPlatform(installerType, platformName, installerVersion);
     }
 
     /**

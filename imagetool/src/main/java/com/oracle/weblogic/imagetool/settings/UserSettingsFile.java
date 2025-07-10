@@ -289,8 +289,10 @@ public class UserSettingsFile {
         containerEngine = SettingsFile.getValue("containerEngine", String.class, settings);
         defaultBuildPlatform = SettingsFile.getValue("defaultBuildPlatform", String.class, settings);
 
-        aruRetryMax = SettingsFile.getValue("aruRetryMax", Integer.class, settings);
-        aruRetryInterval = SettingsFile.getValue("aruRetryInterval", Integer.class, settings);
+        aruRetryMax = SettingsFile.getValueOrDefault("aruRetryMax", Integer.class, settings,
+            new Integer(10));
+        aruRetryInterval = SettingsFile.getValueOrDefault("aruRetryInterval", Integer.class, settings,
+            new Integer(10));
         // Just the settings about the installer not the individual installers
         installerSettings.clear();
         Map<String, Object> installerFolder = SettingsFile.getFolder("installers", settings);

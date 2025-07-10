@@ -36,7 +36,7 @@ class UserSettingsTest {
         assertEquals("./builds", settings.getBuildContextDirectory());
         assertNull(settings.getBuildEngine());
         assertNull(settings.getContainerEngine());
-        assertNull(settings.getAruRetryMax());
+        assertEquals(10,settings.getAruRetryMax());
         assertEquals(200, settings.getAruRetryInterval());
         // value not set, should return default value
         assertNull(settings.getInstallerDirectory());
