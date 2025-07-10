@@ -33,7 +33,8 @@ public class ListInstallers extends CacheOperation {
             if (type != null && type != InstallerType.fromString(itemType)) {
                 continue;
             }
-            System.out.println(itemType + ":");
+            printLine(itemType + ":");
+
             data.get(itemType).forEach((installer, metaData) -> {
                 if (commonName != null && !commonName.equalsIgnoreCase(installer)) {
                     return;
@@ -42,7 +43,7 @@ public class ListInstallers extends CacheOperation {
                 if (version != null && !version.equalsIgnoreCase(installer)) {
                     return;
                 }
-                System.out.println("  " + installer + ":");
+                printLine("  " + installer + ":");
 
                 List<InstallerMetaData> sortedList = metaData.stream()
                     .sorted(Comparator.comparing(InstallerMetaData::getArchitecture))
@@ -50,6 +51,7 @@ public class ListInstallers extends CacheOperation {
 
                 printDetails(sortedList, InstallerType.fromString(itemType));
             });
+
         }
 
         return CommandResponse.success(null);
@@ -60,28 +62,32 @@ public class ListInstallers extends CacheOperation {
         for (InstallerMetaData meta : sortedList) {
             if (!currentArch.equals(meta.getArchitecture())) {
                 currentArch = meta.getArchitecture();
-                System.out.println("    " + meta.getArchitecture() + ":");
+                printLine("    " + meta.getArchitecture() + ":");
             }
-            System.out.println("      version: " + meta.getProductVersion());
-            System.out.println("      location: " + meta.getLocation());
+            printLine("      version: " + meta.getProductVersion());
+            printLine("      location: " + meta.getLocation());
             if (details) {
-                System.out.println("      digest: " + meta.getDigest());
-                System.out.println("      dateAdded: " + meta.getDateAdded());
+                printLine("      digest: " + meta.getDigest());
+                printLine("      dateAdded: " + meta.getDateAdded());
                 if (!Utils.isBaseInstallerType(type)) {
-                    System.out.println("      baseFMWVersion: " + meta.getBaseFMWVersion());
+                    printLine("      baseFMWVersion: " + meta.getBaseFMWVersion());
                 }
             }
         }
     }
 
+    private void printLine(String line) {
+        System.out.println(line);
+    }
+
     private void verifyInput() {
         if (commonName != null && !commonName.isEmpty() && type == null) {
-            System.out.println("--type cannot be null when commonName is specified");
+            printLine(Utils.getMessage("IMG-0156"));
             System.exit(2);
         }
 
         if (version != null && !version.isEmpty() && type == null) {
-            System.out.println("--type cannot be null when version is specified");
+            printLine(Utils.getMessage("IMG-0157"));
             System.exit(2);
         }
     }

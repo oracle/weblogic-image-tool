@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.patch.PatchMetaData;
 import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -27,42 +28,50 @@ public class ListPatches extends CacheOperation {
         Map<String, List<PatchMetaData>> data = configManager.getAllPatches();
         verifyInput();
 
-        for (String bug : data.keySet()) {
-            if (patchId != null && !patchId.equalsIgnoreCase(bug)) {
-                continue;
-            }
-            System.out.println(bug + ":");
+        if (!data.isEmpty() && !data.containsKey(patchId)) {
+            printLine(Utils.getMessage("IMG-0160", patchId));
+        } else {
+            for (String bug : data.keySet()) {
+                if (patchId != null && !patchId.equalsIgnoreCase(bug)) {
+                    continue;
+                }
+                System.out.println(bug + ":");
 
-            Map<String, List<PatchMetaData>> groupByArchitecture = data.get(bug).stream()
-                .collect(Collectors.groupingBy(PatchMetaData::getArchitecture));
+                Map<String, List<PatchMetaData>> groupByArchitecture = data.get(bug).stream()
+                    .collect(Collectors.groupingBy(PatchMetaData::getArchitecture));
 
-            groupByArchitecture.forEach((architecture, metaDatas) -> {
-                System.out.println("  " + architecture + ":");
+                groupByArchitecture.forEach((architecture, metaDatas) -> {
+                    printLine("  " + architecture + ":");
 
-                metaDatas.forEach(metaData -> {
-                    if (version != null && !metaData.getPatchVersion().equalsIgnoreCase(version)) {
-                        return;
-                    }
-                    System.out.println("     - version: " + metaData.getPatchVersion());
-                    System.out.println("       location: " + metaData.getLocation());
-                    if (details) {
-                        System.out.println("        digest: " + metaData.getDigest());
-                        System.out.println("        description: " + metaData.getDescription());
-                        System.out.println("        dateAdded: " + metaData.getDateAdded());
-                    }
+                    metaDatas.forEach(metaData -> {
+                        if (version != null && !metaData.getPatchVersion().equalsIgnoreCase(version)) {
+                            return;
+                        }
+                        printLine("     - version: " + metaData.getPatchVersion());
+                        printLine("       location: " + metaData.getLocation());
+                        if (details) {
+                            printLine("        digest: " + metaData.getDigest());
+                            printLine("        description: " + metaData.getDescription());
+                            printLine("        dateAdded: " + metaData.getDateAdded());
+                        }
+
+                    });
 
                 });
-
-            });
+            }
         }
 
         return CommandResponse.success(null);
 
     }
 
+    private void printLine(String line) {
+        System.out.println(line);
+    }
+
     private void verifyInput() {
         if (version != null && !version.isEmpty() && patchId == null) {
-            System.out.println("--patchId cannot be null when version is specified");
+            printLine(Utils.getMessage("IMG-0158"));
             System.exit(2);
         }
     }
