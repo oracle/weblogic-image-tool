@@ -115,6 +115,22 @@ public class ConfigManager {
     }
 
     /**
+     * Return the ARU retry interval.
+     * @return retry interval
+     */
+    public int getAruRetryInterval() {
+        return userSettingsFile.getAruRetryInterval();
+    }
+
+    /**
+     * Return the ARU retry max.
+     * @return retry max
+     */
+    public int getAruRetryMax() {
+        return userSettingsFile.getAruRetryMax();
+    }
+
+    /**
      * Return the installer setting file.
      * @return SettingsFile
      */

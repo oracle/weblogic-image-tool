@@ -1,0 +1,10 @@
+'37297691':
+  - {architecture: linux/arm64, dateAdded: '2024-12-23', description: OSS 19C BUNDLE
+    PATCH 12.2.1.4.241119, digest: 2F81E3FAF5832234B57BA845F2E869585E35B742996BA90F377AFB1D888C9D0E,
+    location: /home/acme/.imagetool/downloaded_patches/p37297691_122140_Linux-ARM-64.zip,
+    patchVersion: 12.2.1.4.0}
+'37258699':
+  - {architecture: Generic, dateAdded: '2024-11-18', description: JDBC19.25 BUNDLE PATCH
+    12.2.1.4.241107, digest: 5B40AEB1D642CB560AE9FB335802A4D9382B78D1875AD2A5FB19D4C1E0FA148E,
+    location: /home/acme/.imagetool/downloaded_patches/p37258699_122140_Generic.zip,
+    patchVersion: 12.2.1.4.0}

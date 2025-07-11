@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2025, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.settings;
@@ -78,10 +78,10 @@ public class UserSettingsFile {
      * @param pathToSettingsFile A map of key-value pairs read in from the YAML user settings file.
      */
     public UserSettingsFile(Path pathToSettingsFile) {
-        installerSettings = new HashMap<>();
         settingsFile = new SettingsFile(pathToSettingsFile);
         installerSettingsFile = pathToSettingsFile.getParent().resolve("installers.yaml").toString();
         patchSettingsFile = pathToSettingsFile.getParent().resolve("patches.yaml").toString();
+        installerSettings = new HashMap<>();
         applySettings(settingsFile.load());
     }
 
@@ -294,8 +294,7 @@ public class UserSettingsFile {
         aruRetryInterval = SettingsFile.getValueOrDefault("aruRetryInterval", Integer.class, settings,
             new Integer(10));
         // Just the settings about the installer not the individual installers
-        installerSettings.clear();
-        Map<String, Object> installerFolder = SettingsFile.getFolder("installers", settings);
+        Map<String, Object> installerFolder = SettingsFile.getFolder("installerSettings", settings);
         for (Map.Entry<String, Object> entry: installerFolder.entrySet()) {
             String key = entry.getKey();
             if (key != null && !key.isEmpty()) {

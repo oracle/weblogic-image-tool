@@ -1,4 +1,4 @@
-// Copyright (c) 2023, Oracle and/or its affiliates.
+// Copyright (c) 2025, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.config;
@@ -37,11 +37,33 @@ public class SetCommand implements Callable<CommandResponse> {
     public CommandResponse call() throws Exception {
         UserSettingsFile settings = new UserSettingsFile();
         logger.entering();
-
-        name.set(settings, value);
-        settings.save();
+        int status = 0;
+        String message = "done";
+        if (verifyInput(name.toString(), value)) {
+            name.set(settings, value);
+            settings.save();
+        } else {
+            status = -1;
+            message = "Failed to set configuration entry";
+        }
 
         logger.exiting();
-        return new CommandResponse(0, "done");
+        return new CommandResponse(status, message);
+    }
+
+    private boolean verifyInput(String name, String value) {
+        if ("aruRetryInterval".equalsIgnoreCase(name) || "aruRetryMax".equalsIgnoreCase(name)) {
+            try {
+                int n = Integer.parseInt(value);
+                if (n < 0) {
+                    logger.severe("IMG-0161", name, value);
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                logger.severe("IMG-0161", name, value);
+                return false;
+            }
+        }
+        return true;
     }
 }

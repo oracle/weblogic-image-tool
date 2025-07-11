@@ -16,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
@@ -179,7 +180,7 @@ public class HttpUtil {
     private static HttpRequestRetryHandler retryHandler() {
         return (exception, executionCount, context) -> {
 
-            if (executionCount > 10) {
+            if (executionCount > ConfigManager.getInstance().getAruRetryMax()) {
                 // Do not retry if over max retries
                 return false;
             }
@@ -195,7 +196,7 @@ public class HttpUtil {
             boolean retriable = !(request instanceof HttpEntityEnclosingRequest);
             if (retriable) {
                 try {
-                    long waitTime = executionCount < 5 ? 2 : 10;
+                    long waitTime = executionCount < 5 ? 2 : ConfigManager.getInstance().getAruRetryInterval();
                     logger.warning("Connect failed, retrying in {0} seconds, attempts={1} ", waitTime, executionCount);
                     Thread.sleep(waitTime * 1000);
                 } catch (InterruptedException e) {

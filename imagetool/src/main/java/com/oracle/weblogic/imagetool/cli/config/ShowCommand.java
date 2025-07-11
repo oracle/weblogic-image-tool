@@ -1,13 +1,15 @@
-// Copyright (c) 2023, Oracle and/or its affiliates.
+// Copyright (c) 2025, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.config;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.settings.InstallerSettings;
 import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import picocli.CommandLine;
 
@@ -61,6 +63,10 @@ public class ShowCommand implements Callable<CommandResponse> {
         }
     }
 
+    private static void printLine(String line) {
+        System.out.println(line);
+    }
+
     private static void printAllSettings(UserSettingsFile settings) {
         printSettingValue("aruRetryInterval", settings.getAruRetryInterval());
         printSettingValue("aruRetryMax", settings.getAruRetryMax());
@@ -69,5 +75,14 @@ public class ShowCommand implements Callable<CommandResponse> {
         printSettingValue("containerEngine", settings.getContainerEngine());
         printSettingValue("installerDirectory", settings.getInstallerDirectory());
         printSettingValue("patchDirectory", settings.getPatchDirectory());
+        Map<String, InstallerSettings> installerSettings = settings.getInstallerSettings();
+        if (installerSettings != null && !installerSettings.isEmpty()) {
+            printLine("Defaults: ");
+            for (Map.Entry<String, InstallerSettings> entry: installerSettings.entrySet()) {
+                String key = entry.getKey();
+                InstallerSettings value = entry.getValue();
+                printSettingValue("  " + key, value.getDefaultVersion());
+            }
+        }
     }
 }

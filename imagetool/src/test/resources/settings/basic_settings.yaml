@@ -1,7 +1,8 @@
 aruRetryInterval: 200
+aruRetryMax: 10
 buildContextDirectory: ./builds
 patchDirectory: /home/user/patches
-installers:
+installerSettings:
   JDK:
     defaultVersion: 8u241
   WLS:
