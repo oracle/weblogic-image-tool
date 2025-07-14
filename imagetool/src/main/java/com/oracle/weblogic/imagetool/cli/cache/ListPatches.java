@@ -28,7 +28,7 @@ public class ListPatches extends CacheOperation {
         Map<String, List<PatchMetaData>> data = configManager.getAllPatches();
         verifyInput();
 
-        if (!data.isEmpty() && !data.containsKey(patchId)) {
+        if (!data.isEmpty() && patchId != null && !data.containsKey(patchId)) {
             printLine(Utils.getMessage("IMG-0160", patchId));
         } else {
             for (String bug : data.keySet()) {

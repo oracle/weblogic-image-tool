@@ -538,9 +538,9 @@ class ITImagetool {
             // the process return code for listItems should be 0
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
             // output should show newly added patch
-            assertFalse(listResult.stdout().contains(testPatchID));
-            assertFalse(listResult.stdout().contains(WLS_VERSION));
-            assertFalse(listResult.stdout().contains(patchPath.toString()));
+            String errorMessage = Utils.getMessage("IMG-0160", testPatchID);
+            System.out.println(errorMessage);
+            assertTrue(listResult.stdout().contains(errorMessage));
         }
     }
 
