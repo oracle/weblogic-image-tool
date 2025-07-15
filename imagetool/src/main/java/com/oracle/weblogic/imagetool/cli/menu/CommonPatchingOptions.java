@@ -320,7 +320,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 // Get the latest PSU and its recommended patches
                 aruPatches = AruUtil.rest()
                     .getRecommendedPatches(getInstallerType(), getInstallerVersion(),
-                        Architecture.fromString(buildPlatform),
+                        Architecture.fromString(buildPlatform), getCommonName(),
                         userId, password);
 
                 if (aruPatches.isEmpty()) {
@@ -338,7 +338,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             } else if (latestPsu) {
                 // PSUs for WLS and JRF installers are considered WLS patches
                 aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(),
-                    Architecture.fromString(buildPlatform),
+                    Architecture.fromString(buildPlatform), getCommonName(),
                     userId, password);
 
                 if (aruPatches.isEmpty()) {
@@ -377,6 +377,15 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         return password;
     }
 
+    private String commonName;
+
+    void setCommonName(String commonName) {
+        this.commonName = commonName;
+    }
+
+    String getCommonName() {
+        return commonName;
+    }
 
     @Option(
         names = {"--user"},

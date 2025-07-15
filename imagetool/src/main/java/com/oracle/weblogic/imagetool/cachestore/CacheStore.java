@@ -173,7 +173,7 @@ public class CacheStore {
      */
 
     public InstallerMetaData getInstallerForPlatform(InstallerType installerType, Architecture platformName,
-                                                     String installerVersion) {
+                                                     String installerVersion, String commonName) {
 
 
         platformName = (platformName == null) ? Architecture.GENERIC : platformName;
@@ -184,7 +184,7 @@ public class CacheStore {
 
         Map<String, List<InstallerMetaData>> installers = getInstallers().get(installerKey);
         if (installers != null && !installers.isEmpty()) {
-            return getInstallerMetaData(installerVersion, installerType, platformName, installers);
+            return getInstallerMetaData(installerVersion, installerType, platformName, installers, commonName);
         }
         return null;
 
@@ -425,15 +425,21 @@ public class CacheStore {
 
 
     private InstallerMetaData getInstallerMetaData(String installerVersion, InstallerType installerType,
-                                         Architecture platformName, Map<String, List<InstallerMetaData>> installers) {
+                       Architecture platformName, Map<String, List<InstallerMetaData>> installers, String commonName) {
+        String search = installerVersion;
 
-        List<InstallerMetaData> installerMetaDataList = installers.get(installerVersion);
+        if (commonName != null) {
+            search = commonName;
+        }
+        List<InstallerMetaData> installerMetaDataList = installers.get(search);
 
         if (installerMetaDataList != null && !installerMetaDataList.isEmpty()) {
             logger.info("IMG-0151", installerType, installerVersion, platformName);
             Optional<InstallerMetaData> foundInstaller = installerMetaDataList.stream()
                 .filter(installerMetaData -> platformName.getAcceptableNames()
                     .contains(installerMetaData.getArchitecture()))
+                .filter(installerMetaData ->
+                    installerMetaData.getProductVersion().equals(installerVersion))
                 .findFirst();
 
             if (foundInstaller.isPresent()) {
@@ -447,6 +453,8 @@ public class CacheStore {
                 foundInstaller = installerMetaDataList.stream()
                     .filter(installerMetaData -> Architecture.GENERIC.getAcceptableNames()
                             .contains(installerMetaData.getArchitecture()))
+                    .filter(installerMetaData ->
+                        installerMetaData.getProductVersion().equals(installerVersion))
                         .findFirst();
 
                 if (foundInstaller.isPresent()) {

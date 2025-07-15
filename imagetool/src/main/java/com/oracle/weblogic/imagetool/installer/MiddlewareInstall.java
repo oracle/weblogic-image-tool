@@ -38,7 +38,7 @@ public class MiddlewareInstall {
      * @param type the requested middleware install type
      */
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
-                             List<String> buildPlatform, String buildEngine)
+                             List<String> buildPlatform, String buildEngine, String commonName)
         throws FileNotFoundException {
         logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
@@ -69,10 +69,10 @@ public class MiddlewareInstall {
                 }
                 pkg.type = installerType;
                 if (AMD64_BLD.equals(platform)) {
-                    pkg.installer = new CachedFile(installerType, version, Architecture.AMD64);
+                    pkg.installer = new CachedFile(installerType, version, Architecture.AMD64, commonName);
                 }
                 if (ARM64_BLD.equals(platform)) {
-                    pkg.installer = new CachedFile(installerType, version, Architecture.ARM64);
+                    pkg.installer = new CachedFile(installerType, version, Architecture.ARM64, commonName);
                 }
 
                 // get the details from cache of whether there is a base version of WLS required.

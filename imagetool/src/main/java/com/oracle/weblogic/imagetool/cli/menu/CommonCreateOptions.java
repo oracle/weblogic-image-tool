@@ -81,13 +81,14 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         if (dockerfileOptions.installMiddleware()) {
             MiddlewareInstall install =
                 new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, buildPlatforms,
-                    buildEngine);
+                    buildEngine, commonName);
             install.copyFiles(buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
             dockerfileOptions.includeBinaryOsPackages(getInstallerType().equals(FmwInstallerType.OHS));
         } else {
             dockerfileOptions.setWdtBase("os_update");
         }
+        setCommonName(commonName);
 
         // resolve required patches
         handlePatchFiles();
@@ -241,6 +242,10 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         return installerVersion;
     }
 
+    String getCommonName() {
+        return commonName;
+    }
+
     @Option(
         names = {"--version"},
         description = "Installer version. Default: ${DEFAULT-VALUE}",
@@ -248,6 +253,12 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         defaultValue = DEFAULT_WLS_VERSION
     )
     private String installerVersion;
+
+    @Option(
+        names = {"--commonName"},
+        description = "Installer version common name, used with --version"
+    )
+    private String commonName;
 
     @Option(
         names = {"--jdkVersion"},

@@ -27,6 +27,7 @@ public class CachedFile {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CachedFile.class);
 
     private final String version;
+    private String commonName = null;
     private final Architecture architecture;
     private final InstallerType installerType;
 
@@ -38,9 +39,25 @@ public class CachedFile {
      * @param architecture the system architecture that this file/installer is applicable
      */
     public CachedFile(InstallerType id, String version, Architecture architecture) {
+        this(id, version, architecture, version);
+    }
+
+    /**
+     * Represents a locally cached file.
+     *
+     * @param id           cache ID (like installer type)
+     * @param version      version number for the patch or installer.
+     * @param architecture the system architecture that this file/installer is applicable
+     * @param commonName   common name of the installer
+     */
+    public CachedFile(InstallerType id, String version, Architecture architecture, String commonName) {
+        if (commonName == null) {
+            commonName = version;
+        }
         this.installerType = id;
         this.version = version;
         this.architecture = architecture;
+        this.commonName = commonName;
     }
 
     /**
@@ -87,6 +104,14 @@ public class CachedFile {
     }
 
     /**
+     * Get the common name of the installer.
+     * @return common name
+     */
+    public String getCommonName() {
+        return commonName;
+    }
+
+    /**
      * Get the path of the file stored locally in the cache.
      * Searching the cache starts with the specified key.  If the key is not found in the cache,
      * one additional attempt is made to find an acceptable alternative.  The second search is based on
@@ -103,14 +128,15 @@ public class CachedFile {
         String filePath = null;
 
         InstallerMetaData metaData = ConfigManager.getInstance()
-            .getInstallerForPlatform(installerType, getArchitecture(), getVersion());
+            .getInstallerForPlatform(installerType, getArchitecture(), getVersion(), getCommonName());
         if (metaData == null) {
             metaData = ConfigManager.getInstance()
-                .getInstallerForPlatform(installerType, Architecture.getLocalArchitecture(), getVersion());
+                .getInstallerForPlatform(installerType, Architecture.getLocalArchitecture(), getVersion(),
+                    getCommonName());
 
             if (metaData == null) {
                 metaData = ConfigManager.getInstance()
-                    .getInstallerForPlatform(installerType, Architecture.GENERIC, getVersion());
+                    .getInstallerForPlatform(installerType, Architecture.GENERIC, getVersion(), getCommonName());
             }
         }
 

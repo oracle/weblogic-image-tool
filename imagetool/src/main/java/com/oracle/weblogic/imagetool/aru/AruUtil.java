@@ -108,7 +108,7 @@ public class AruUtil {
      * @throws AruException when an error occurs trying to access ARU metadata
      */
     public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, Architecture architecture,
-                                       String userId, String password)
+                          String commonName, String userId, String password)
         throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
@@ -117,7 +117,7 @@ public class AruUtil {
 
             if (type == FmwInstallerType.IDM && product == AruProduct.JRF) {
                 InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.IDM,
-                    architecture, version);
+                    architecture, version, commonName);
                 if (metaData != null && metaData.getBaseFMWVersion() != null) {
                     baseVersion = metaData.getBaseFMWVersion();
                 }
@@ -188,7 +188,7 @@ public class AruUtil {
      * @return Document listing of all patches (full details)
      */
     public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version, Architecture architecture,
-                                                String userId, String password) throws AruException {
+                                    String commonName, String userId, String password) throws AruException {
         List<AruPatch> result = new ArrayList<>();
 
         for (AruProduct product : type.products()) {
@@ -196,8 +196,9 @@ public class AruUtil {
             String baseVersion = version;
 
             if (type == FmwInstallerType.IDM && product == AruProduct.JRF) {
+
                 InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.IDM,
-                    architecture, version);
+                    architecture, version, commonName);
                 if (metaData != null && metaData.getBaseFMWVersion() != null) {
                     baseVersion = metaData.getBaseFMWVersion();
                 }
@@ -227,7 +228,7 @@ public class AruUtil {
      * @throws AruException when response from ARU has an error or fails
      */
     List<AruPatch> getRecommendedPatches(FmwInstallerType type, AruProduct product, String version,
-                                        Architecture architecture, String userId, String password) throws AruException {
+                             Architecture architecture, String userId, String password) throws AruException {
         logger.entering(product, version);
         List<AruPatch> patches = Collections.emptyList();
         try {
@@ -290,7 +291,7 @@ public class AruUtil {
     }
 
     List<AruPatch> getReleaseRecommendations(AruProduct product, String releaseNumber, Architecture architecture,
-                                             String userId, String password)
+                                     String userId, String password)
         throws AruException, XPathExpressionException, RetryFailedException {
 
         Document patchesDocument = retry(

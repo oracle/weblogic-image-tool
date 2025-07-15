@@ -67,7 +67,7 @@ class DockerfileBuilderTest {
     @Test
     void validateMustacheAliases() throws IOException {
         MiddlewareInstall install = new MiddlewareInstall(FmwInstallerType.WLS, "12.2.1.4.0",
-            null, null, "docker");
+            null, null, "docker", null);
 
         DockerfileOptions dockerfileOptions = new DockerfileOptions("123")
             .setPatchingEnabled()

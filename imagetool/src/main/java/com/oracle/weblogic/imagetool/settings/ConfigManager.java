@@ -186,7 +186,19 @@ public class ConfigManager {
      */
     public InstallerMetaData getInstallerForPlatform(InstallerType installerType, Architecture platformName,
                                                      String installerVersion) {
-        return cacheStore.getInstallerForPlatform(installerType, platformName, installerVersion);
+        return cacheStore.getInstallerForPlatform(installerType, platformName, installerVersion, installerVersion);
+    }
+
+    /**
+     * Return the metadata for the platformed installer.
+     * @param platformName platform name
+     * @param installerVersion version of the installer
+     * @param commonName common name of the installer
+     * @return InstallerMetaData meta data for the installer
+     */
+    public InstallerMetaData getInstallerForPlatform(InstallerType installerType, Architecture platformName,
+                                                     String installerVersion, String commonName) {
+        return cacheStore.getInstallerForPlatform(installerType, platformName, installerVersion, commonName);
     }
 
     /**

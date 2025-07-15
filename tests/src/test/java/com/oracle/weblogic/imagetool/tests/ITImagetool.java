@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.oracle.weblogic.imagetool.cli.menu.KubernetesTarget;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.tests.annotations.IntegrationTest;
@@ -26,7 +27,6 @@ import com.oracle.weblogic.imagetool.tests.utils.CacheCommand;
 import com.oracle.weblogic.imagetool.tests.utils.CommandResult;
 import com.oracle.weblogic.imagetool.tests.utils.CreateAuxCommand;
 import com.oracle.weblogic.imagetool.tests.utils.CreateCommand;
-import com.oracle.weblogic.imagetool.tests.utils.RebaseCommand;
 import com.oracle.weblogic.imagetool.tests.utils.Runner;
 import com.oracle.weblogic.imagetool.tests.utils.UpdateCommand;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -539,7 +539,6 @@ class ITImagetool {
             assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
             // output should show newly added patch
             String errorMessage = Utils.getMessage("IMG-0160", testPatchID);
-            System.out.println(errorMessage);
             assertTrue(listResult.stdout().contains(errorMessage));
         }
     }
@@ -784,30 +783,31 @@ class ITImagetool {
     }
 
     /**
-     * Use the Rebase function to move a domain to a new image.
+     * Create image with non existent installer.
      *
      * @throws Exception - if any error occurs
      */
-    //@Test
-    //@Order(13)
-    //@Tag("gate")
-    //@DisplayName("Rebase the WLS domain")
-    void rebaseWlsImg(TestInfo testInfo) throws Exception {
-        assumeTrue(wlsImgBuilt);
-        assumeTrue(domainImgBuilt);
-        String tagName = build_tag + ":" + getMethodName(testInfo);
-        String command = new RebaseCommand()
-            .sourceImage(build_tag, "createWlsImgUsingWdt")
-            .targetImage(build_tag, "updateWlsImg")
-            .tag(tagName)
-            .build();
+    @Test
+    @Order(13)
+    @Tag("gate")
+    @DisplayName("Creat the WLS domain with non existent installer")
+    void createImagewithWrongVersion(TestInfo testInfo) throws Exception {
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
-            CommandResult result = Runner.run(command, out, logger);
-            assertEquals(0, result.exitValue(), "for command: " + command);
 
-            // verify the docker image is created
-            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+            String tagName = build_tag + ":" + getMethodName(testInfo);
+            // create a WLS image with a domain
+            String command = new CreateCommand()
+                .tag(tagName)
+                .version("NOSUCHTHING")
+                .platform(PLATFORM_AMD64)
+                .build();
+
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(1, result.exitValue(), "for command: " + command);
+            String errorMessage = Utils.getMessage("IMG-0145", InstallerType.WLS.toString(),
+                PLATFORM_AMD64, "NOSUCHTHING");
+            assertTrue(result.stdout().contains(errorMessage));
         }
     }
 

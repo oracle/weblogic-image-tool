@@ -28,7 +28,7 @@ public class DeleteInstaller extends CacheOperation {
     public CommandResponse call() throws CacheStoreException {
         ConfigManager configManager = ConfigManager.getInstance();
         Map<String, Map<String, List<InstallerMetaData>>> data = configManager.getInstallers();
-        if (type == null || version == null || architecture == null) {
+        if (type == null || (version == null && commonName == null) || architecture == null) {
             return CommandResponse.success("IMG-0124");
         }
         boolean exists = false;
@@ -43,6 +43,8 @@ public class DeleteInstaller extends CacheOperation {
             } else {
                 search = commonName;
             }
+            System.out.println("Deleting installer " + itemType + " from " + search);
+
             exists = Optional.ofNullable(items.get(search))
                 .map(list -> list.stream().anyMatch(i -> Architecture.fromString(i.getArchitecture())
                     .equals(architecture) && i.getProductVersion().equalsIgnoreCase(version)))
@@ -70,25 +72,25 @@ public class DeleteInstaller extends CacheOperation {
     }
 
     @Option(
-        names = {"--type"},
+        names = {"-t", "--type"},
         description = "Filter installer type.  e.g. wls, jdk, wdt."
     )
     private InstallerType type;
 
     @Option(
-        names = {"--cn"},
+        names = {"-cn", "--commonName"},
         description = "Filter by common name."
     )
     private String commonName;
 
     @Option(
-        names = {"--version"},
+        names = {"-v", "--version"},
         description = "Specific version to delete."
     )
     private String version;
 
     @Option(
-        names = {"--architecture"},
+        names = {"-a", "--architecture"},
         description = "Specific architecture to delete."
     )
     private Architecture architecture;
