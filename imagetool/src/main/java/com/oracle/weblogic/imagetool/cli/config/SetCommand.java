@@ -3,6 +3,8 @@
 
 package com.oracle.weblogic.imagetool.cli.config;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
@@ -63,6 +65,22 @@ public class SetCommand implements Callable<CommandResponse> {
                 logger.severe("IMG-0161", name, value);
                 return false;
             }
+        }
+
+        if ("defaultBuildPlatform".equalsIgnoreCase(name) || "containerEngine".equalsIgnoreCase(name)) {
+            if (!"linux/amd64".equals(value) && !"linux/arm64".equals(value)) {
+                logger.severe("IMG-0162");
+                return false;
+            }
+        }
+
+        if ("buildContextDirectory".equalsIgnoreCase(name) || "patchDirectory".equalsIgnoreCase(name)
+            || "installerDirectory".equalsIgnoreCase(name)) {
+            if (!Files.isDirectory(Paths.get(value))) {
+                logger.severe("IMG-0163", name, value);
+                return false;
+            }
+            return true;
         }
         return true;
     }
