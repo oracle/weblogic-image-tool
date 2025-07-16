@@ -34,6 +34,7 @@ public class CreateCommand extends ImageToolCommand {
     private boolean wdtRunRcu;
     private boolean wdtModelOnly;
     private String platform;
+    private String commonName;
 
     public CreateCommand() {
         super("create");
@@ -148,6 +149,11 @@ public class CreateCommand extends ImageToolCommand {
         return this;
     }
 
+    public CreateCommand commonName(String value) {
+        commonName = value;
+        return this;
+    }
+
 
     /**
      * Generate the command using the provided command line options.
@@ -176,6 +182,8 @@ public class CreateCommand extends ImageToolCommand {
             + field("--wdtDomainType", wdtDomainType)
             + field("--wdtRunRCU", wdtRunRcu)
             + field("--platform", platform)
+            + field("--commonName", commonName)
             + field("--wdtModelOnly", wdtModelOnly);
+
     }
 }

@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -36,18 +37,28 @@ public class ListInstallers extends CacheOperation {
             printLine(itemType + ":");
 
             data.get(itemType).forEach((installer, metaData) -> {
+
                 if (commonName != null && !commonName.equalsIgnoreCase(installer)) {
                     return;
                 }
                 // commonName is null or version is specified
-                if (version != null && !version.equalsIgnoreCase(installer)) {
+                if (commonName == null && version != null && !version.equalsIgnoreCase(installer)) {
                     return;
                 }
                 printLine("  " + installer + ":");
+                List<InstallerMetaData> sortedList = new ArrayList<>(metaData);
 
-                List<InstallerMetaData> sortedList = metaData.stream()
-                    .sorted(Comparator.comparing(InstallerMetaData::getArchitecture))
-                    .collect(Collectors.toList());
+                if (commonName != null && version != null) {
+                    sortedList = metaData.stream()
+                        .filter(c -> c.getProductVersion().equals(version))
+                        .sorted(Comparator.comparing(InstallerMetaData::getArchitecture))
+                        .collect(Collectors.toList());
+
+                } else {
+                    sortedList = metaData.stream()
+                        .sorted(Comparator.comparing(InstallerMetaData::getArchitecture))
+                        .collect(Collectors.toList());
+                }
 
                 printDetails(sortedList, InstallerType.fromString(itemType));
             });

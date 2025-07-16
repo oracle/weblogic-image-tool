@@ -80,6 +80,7 @@ class ITImagetool {
     private static final String P27342434_ID = "27342434";
     private static final String P28186730_ID = "28186730";
     private static final String WLS_VERSION = "12.2.1.3.0";
+    private static final String CUSTOM_WLS_VERSION = "custom122130";
     private static final String OPATCH_VERSION = "13.9.4.2.17";
     private static final String JDK_VERSION = "8u202";
     private static final String JDK_VERSION_212 = "8u212";
@@ -895,6 +896,72 @@ class ITImagetool {
             verifyFilePermissions("/auxiliary/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
         }
     }
+
+    /**
+     * Test caching of an installer of type WLS.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(16)
+    @Tag("gate")
+    @Tag("cache")
+    @DisplayName("Add WLS installer to cache using custom name")
+    void cacheAddInstallerWlsUsingCommonName(TestInfo testInfo) throws Exception {
+        Path wlsPath = Paths.get(STAGING_DIR, WLS_INSTALLER);
+        String command = new CacheCommand()
+            .addInstaller(true)
+            .type("wls")
+            .version(WLS_VERSION)
+            .commonName(CUSTOM_WLS_VERSION)
+            .path(wlsPath)
+            .architecture(AMD64)
+            .build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            // the process return code for addInstaller should be 0
+            System.out.println("Result: " + result.stdout());
+            assertEquals(0, result.exitValue(), "for command: " + command);
+            // verify the result
+            String listCommand = new CacheCommand().listInstallers(true).type("wls")
+                .commonName(CUSTOM_WLS_VERSION).version(WLS_VERSION).build();
+            CommandResult listResult = Runner.run(listCommand, out, logger);
+            // the process return code for listItems should be 0
+            System.out.println("Result: " + listResult.stdout());
+            assertEquals(0, listResult.exitValue(), "for command: " + listCommand);
+            // output should show newly added WLS installer
+            assertTrue(listResult.stdout().contains(wlsPath.toString()));
+            assertTrue(listResult.stdout().contains(CUSTOM_WLS_VERSION + ":"));
+        }
+    }
+
+    /**
+     * create a WLS image with custom name.
+     *
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    @Order(17)
+    @Tag("gate")
+    @DisplayName("Create custom WebLogic Server image")
+    void createCustomWlsImg(TestInfo testInfo) throws Exception {
+        String tagName = build_tag + ":" + getMethodName(testInfo);
+        String command = new CreateCommand().platform(PLATFORM_AMD64).tag(tagName)
+            .commonName(CUSTOM_WLS_VERSION).version(WLS_VERSION).build();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(command, out, logger);
+            assertEquals(0, result.exitValue(), "for command: " + command);
+
+            // verify the docker image is created
+            assertTrue(imageExists(tagName), "Image was not created: " + tagName);
+
+            wlsImgBuilt = true;
+        }
+    }
+
+
 
     /**
      * Create a FMW image with internet access to download PSU.
