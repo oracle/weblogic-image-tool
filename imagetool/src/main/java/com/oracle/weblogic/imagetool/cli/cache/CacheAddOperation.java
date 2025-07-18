@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.cli.cache;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStore;
@@ -39,23 +40,44 @@ public abstract class CacheAddOperation extends CacheOperation {
         String type = getKey();
         String name = getCommonName();
 
-        if (name == null) {
-            name = getVersion();
-        }
-
         Architecture arch = getArchitecture();
         // Force WDT to be generic
         if (InstallerType.fromString(type) == InstallerType.WDT) {
             arch = Architecture.GENERIC;
         }
-        InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.fromString(type),
-            arch, name);
+
+        InstallerMetaData metaData;
+
+        if (getCommonName() == null) {
+            metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.fromString(type),
+                arch, getVersion());
+            name = getVersion();
+        } else {
+            metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.fromString(type),
+                arch, getVersion(), getCommonName());
+        }
+
         if (metaData != null) {
             return CommandResponse.success("IMG-0075");
+        } else {
+            if (getCommonName() != null) {
+                // Check the case for commonName, only one version is allowed
+                List<InstallerMetaData> tempList = ConfigManager.getInstance()
+                    .listInstallerByCommonName(InstallerType.fromString(type),
+                    getCommonName());
+                if (tempList != null && !tempList.isEmpty()) {
+                    for (InstallerMetaData installerMetaData : tempList) {
+                        if (!installerMetaData.getProductVersion().equals(getVersion())) {
+                            return CommandResponse.error("IMG-0164", installerMetaData.getProductVersion());
+                        }
+                    }
+                }
+            }
         }
+
         metaData = new InstallerMetaData(arch.toString(), filePath.toAbsolutePath().toString(),
             getVersion(), getBaseFMWVersion());
-        ConfigManager.getInstance().addInstaller(InstallerType.fromString(type), getCommonName(), metaData);
+        ConfigManager.getInstance().addInstaller(InstallerType.fromString(type), name, metaData);
         // if the new value is the same as the existing cache value, do nothing
 
         return CommandResponse.success("IMG-0050", type, metaData.getProductVersion(), metaData.getLocation());

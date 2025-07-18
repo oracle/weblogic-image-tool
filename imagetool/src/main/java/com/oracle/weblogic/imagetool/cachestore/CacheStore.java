@@ -167,6 +167,7 @@ public class CacheStore {
 
     /**
      * Return the metadata for the platformed installer.
+     * @param  installerType installer type
      * @param platformName platform name
      * @param installerVersion version of the installer
      * @return InstallerMetaData meta data for the installer
@@ -188,6 +189,31 @@ public class CacheStore {
         }
         return null;
 
+    }
+
+    /**
+     * Return the metadata for the platformed installer.
+     * @param  installerType installer type
+     * @param commonName common name
+     * @return InstallerMetaData meta data for the installer
+     */
+
+    public List<InstallerMetaData> listInstallerByCommonName(InstallerType installerType, String commonName) {
+
+
+        installerType = (installerType == null) ? InstallerType.WLS : installerType;
+
+        String installerKey = installerType.toString().toUpperCase();
+
+        Map<String, List<InstallerMetaData>> installers = getInstallers().get(installerKey);
+        if (installers != null && !installers.isEmpty()) {
+            for (String key : installers.keySet()) {
+                if (key.equals(commonName)) {
+                    return installers.get(key);
+                }
+            }
+        }
+        return null;
     }
 
     /**

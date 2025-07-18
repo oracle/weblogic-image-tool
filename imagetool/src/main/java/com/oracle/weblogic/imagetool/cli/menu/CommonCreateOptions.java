@@ -43,6 +43,23 @@ public class CommonCreateOptions extends CommonPatchingOptions {
     void prepareNewImage() throws IOException, InterruptedException, XPathExpressionException, AruException {
 
         logger.entering();
+
+        if (installerVersion == null && commonName == null) {
+            installerVersion = DEFAULT_WLS_VERSION;
+        }
+
+        if (commonName != null) {
+            // reset version
+            List<InstallerMetaData> dataList = ConfigManager.getInstance()
+                .listInstallerByCommonName(InstallerType.fromString(getInstallerType().toString()), commonName);
+            if (dataList != null && !dataList.isEmpty()) {
+                installerVersion = dataList.get(0).getProductVersion();
+            } else {
+                String errorMsg = Utils.getMessage("IMG-0166", commonName);
+                throw new IOException(errorMsg);
+            }
+        }
+
         copyOptionsFromImage();
 
 
@@ -248,8 +265,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
 
     @Option(
         names = {"--version"},
-        description = "Installer version. Default: ${DEFAULT-VALUE}",
-        required = true,
+        description = "Installer version.",
         defaultValue = DEFAULT_WLS_VERSION
     )
     private String installerVersion;
