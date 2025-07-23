@@ -65,7 +65,11 @@ public enum ConfigAttributeName {
     aruRetryMax("AruRetryMax") {
         @Override
         public void set(UserSettingsFile settings, String value) {
-            settings.setAruRetryMax(Integer.parseInt(value));
+            if (value != null) {
+                settings.setAruRetryMax(Integer.parseInt(value));
+            } else {
+                settings.setAruRetryMax(null);
+            }
         }
 
         @Override
@@ -121,7 +125,11 @@ public enum ConfigAttributeName {
     aruRetryInterval("AruRetryInterval") {
         @Override
         public void set(UserSettingsFile settings, String value) {
-            settings.setAruRetryInterval(Integer.parseInt(value));
+            if (value != null) {
+                settings.setAruRetryInterval(Integer.parseInt(value));
+            } else {
+                settings.setAruRetryInterval(null);
+            }
         }
 
         @Override
