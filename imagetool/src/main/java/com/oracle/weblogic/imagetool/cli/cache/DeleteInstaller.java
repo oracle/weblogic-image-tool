@@ -43,7 +43,6 @@ public class DeleteInstaller extends CacheOperation {
             } else {
                 search = commonName;
             }
-            System.out.println("Deleting installer " + itemType + " from " + search);
 
             exists = Optional.ofNullable(items.get(search))
                 .map(list -> list.stream().anyMatch(i -> Architecture.fromString(i.getArchitecture())
@@ -54,21 +53,21 @@ public class DeleteInstaller extends CacheOperation {
                         .map(list -> list.removeIf(i -> Architecture.fromString(i.getArchitecture())
                             .equals(architecture) && i.getProductVersion().equalsIgnoreCase(version)));
 
+
                 if (items.get(search).isEmpty()) {
                     items.remove(search);
                 }
-                break;
+
+                try {
+                    configManager.saveAllInstallers(data);
+                } catch (IOException e) {
+                    throw new CacheStoreException(e.getMessage(), e);
+                }
+
+                return CommandResponse.success("IMG-0169", search, version, architecture);
             }
         }
-        if (!exists) {
-            return CommandResponse.success("IMG-0125");
-        }
-        try {
-            configManager.saveAllInstallers(data);
-        } catch (IOException e) {
-            throw new CacheStoreException(e.getMessage(), e);
-        }
-        return CommandResponse.success(null);
+        return CommandResponse.error("IMG-0125");
     }
 
     @Option(

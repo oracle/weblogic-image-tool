@@ -4,7 +4,6 @@
 package com.oracle.weblogic.imagetool.cli.cache;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,34 +37,40 @@ public class DeletePatch extends CacheOperation {
         if (patchId == null || version == null || architecture == null) {
             return CommandResponse.success("IMG-0126");
         }
-
-        for (Iterator<String> iterator = data.keySet().iterator(); iterator.hasNext(); ) {
-            String id = iterator.next();
+        for (String id : data.keySet()) {
             if (patchId.equalsIgnoreCase(id)) {
                 List<PatchMetaData> items = data.get(id);
                 if (isPatchVersionMatched(items)) {
 
-                    Optional.of(items)
-                        .map(list -> list.removeIf(i -> i.getPatchVersion().equals(version)
-                            && Architecture.fromString(i.getArchitecture()).equals(architecture)));
-                    // if all patches are removed for this bug number, remove this bug number from the store.
-                    if (items.isEmpty()) {
-                        data.remove(id);
+                    Optional<PatchMetaData> d = Optional.of(items).flatMap(list -> list.stream().filter(i ->
+                        i.getPatchVersion().equals(version)
+                            && Architecture.fromString(i.getArchitecture()).equals(architecture)).findAny());
+
+                    if (d.isPresent()) {
+                        Optional.of(items)
+                            .map(list -> list.removeIf(i -> i.getPatchVersion().equals(version)
+                                && Architecture.fromString(i.getArchitecture()).equals(architecture)));
+                        // if all patches are removed for this bug number, remove this bug number from the store.
+                        if (items.isEmpty()) {
+                            data.remove(id);
+                        }
+                        try {
+                            configManager.saveAllPatches(data);
+                        } catch (IOException e) {
+                            throw new CacheStoreException(e.getMessage(), e);
+                        }
+
+                        return CommandResponse.success("IMG-0168", patchId, version, architecture);
                     }
-                    break;
+
 
                 } else {
-                    return CommandResponse.success("IMG-0127");
+                    return CommandResponse.error("IMG-0127");
                 }
 
             }
         }
-        try {
-            configManager.saveAllPatches(data);
-        } catch (IOException e) {
-            throw new CacheStoreException(e.getMessage(), e);
-        }
-        return CommandResponse.success(null);
+        return CommandResponse.error("IMG-0127");
     }
 
     @Option(
