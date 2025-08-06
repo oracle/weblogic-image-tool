@@ -31,46 +31,47 @@ public class DeletePatch extends CacheOperation {
 
     @Override
     public CommandResponse call() throws CacheStoreException {
-        ConfigManager configManager = ConfigManager.getInstance();
-        Map<String, List<PatchMetaData>> data = configManager.getAllPatches();
-
+        // Early validation - fail fast if required parameters are missing
         if (patchId == null || version == null || architecture == null) {
             return CommandResponse.success("IMG-0126");
         }
-        for (String id : data.keySet()) {
-            if (patchId.equalsIgnoreCase(id)) {
-                List<PatchMetaData> items = data.get(id);
-                if (isPatchVersionMatched(items)) {
 
-                    Optional<PatchMetaData> d = Optional.of(items).flatMap(list -> list.stream().filter(i ->
-                        i.getPatchVersion().equals(version)
-                            && Architecture.fromString(i.getArchitecture()).equals(architecture)).findAny());
+        ConfigManager configManager = ConfigManager.getInstance();
+        Map<String, List<PatchMetaData>> data = configManager.getAllPatches();
 
-                    if (d.isPresent()) {
-                        Optional.of(items)
-                            .map(list -> list.removeIf(i -> i.getPatchVersion().equals(version)
-                                && Architecture.fromString(i.getArchitecture()).equals(architecture)));
-                        // if all patches are removed for this bug number, remove this bug number from the store.
-                        if (items.isEmpty()) {
-                            data.remove(id);
-                        }
-                        try {
-                            configManager.saveAllPatches(data);
-                        } catch (IOException e) {
-                            throw new CacheStoreException(e.getMessage(), e);
-                        }
-
-                        return CommandResponse.success("IMG-0168", patchId, version, architecture);
-                    }
-
-
-                } else {
-                    return CommandResponse.error("IMG-0127");
-                }
-
-            }
+        // Use direct map lookup instead of iterating through all keys
+        List<PatchMetaData> patches = data.get(patchId);
+        if (patches == null) {
+            return CommandResponse.error("IMG-0127");
         }
-        return CommandResponse.error("IMG-0127");
+
+        // Check version compatibility first
+        if (!isPatchVersionMatched(patches)) {
+            return CommandResponse.error("IMG-0127");
+        }
+
+        // Find and remove the matching patch in a single operation
+        boolean removed = patches.removeIf(patch ->
+            version.equals(patch.getPatchVersion()) &&
+                architecture.equals(Architecture.fromString(patch.getArchitecture()))
+        );
+
+        if (!removed) {
+            return CommandResponse.error("IMG-0127");
+        }
+
+        // Clean up empty patch list
+        if (patches.isEmpty()) {
+            data.remove(patchId);
+        }
+
+        // Save changes
+        try {
+            configManager.saveAllPatches(data);
+            return CommandResponse.success("IMG-0168", patchId, version, architecture);
+        } catch (IOException e) {
+            throw new CacheStoreException(e.getMessage(), e);
+        }
     }
 
     @Option(

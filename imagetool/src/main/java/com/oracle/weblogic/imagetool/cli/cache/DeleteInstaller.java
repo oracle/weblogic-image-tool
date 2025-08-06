@@ -6,7 +6,6 @@ package com.oracle.weblogic.imagetool.cli.cache;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
@@ -31,40 +30,43 @@ public class DeleteInstaller extends CacheOperation {
         if (type == null || (version == null && commonName == null) || architecture == null) {
             return CommandResponse.success("IMG-0124");
         }
-        boolean exists = false;
-        for (String itemType : data.keySet()) {
+        String searchKey = commonName != null ? commonName : version;
+        for (Map.Entry<String, Map<String, List<InstallerMetaData>>> entry : data.entrySet()) {
+            String itemType = entry.getKey();
+
             if (type != null && type != InstallerType.fromString(itemType)) {
                 continue;
             }
             Map<String, List<InstallerMetaData>> items = data.get(itemType);
-            String search;
-            if (commonName == null) {
-                search = version;
-            } else {
-                search = commonName;
+            List<InstallerMetaData> installers = items.get(searchKey);
+            if (installers == null || installers.isEmpty()) {
+                return CommandResponse.error("IMG-0125");
             }
 
-            exists = Optional.ofNullable(items.get(search))
-                .map(list -> list.stream().anyMatch(i -> Architecture.fromString(i.getArchitecture())
-                    .equals(architecture) && i.getProductVersion().equalsIgnoreCase(version)))
-                .orElse(false);
-            if (exists) {
-                Optional.ofNullable(items.get(search))
-                        .map(list -> list.removeIf(i -> Architecture.fromString(i.getArchitecture())
-                            .equals(architecture) && i.getProductVersion().equalsIgnoreCase(version)));
+            boolean removed = false;
+            if (commonName != null) {
+                removed = installers.removeIf(installer ->
+                    Architecture.fromString(installer.getArchitecture()).equals(architecture));
 
+            } else {
+                removed = installers.removeIf(installer -> installer.getProductVersion()
+                    .equalsIgnoreCase(version)
+                    && Architecture.fromString(installer.getArchitecture()).equals(architecture));
+            }
 
-                if (items.get(search).isEmpty()) {
-                    items.remove(search);
+            if (removed) {
+
+                if (items.get(searchKey).isEmpty()) {
+                    items.remove(searchKey);
                 }
 
                 try {
                     configManager.saveAllInstallers(data);
+                    return CommandResponse.success("IMG-0169", searchKey, version, architecture);
                 } catch (IOException e) {
                     throw new CacheStoreException(e.getMessage(), e);
                 }
 
-                return CommandResponse.success("IMG-0169", search, version, architecture);
             }
         }
         return CommandResponse.error("IMG-0125");
@@ -93,5 +95,7 @@ public class DeleteInstaller extends CacheOperation {
         description = "Specific architecture to delete."
     )
     private Architecture architecture;
+
+
 
 }
