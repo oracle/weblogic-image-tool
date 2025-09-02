@@ -127,6 +127,20 @@ public abstract class CommonOptions {
      */
     BuildCommand getInitialBuildCmd(String contextFolder) {
         logger.entering();
+
+        if (buildPlatform == null) {
+            buildPlatform = new ArrayList<>();
+        }
+        if (buildPlatform.isEmpty()) {
+            ConfigManager configManager = ConfigManager.getInstance();
+            if (configManager.getDefaultBuildPlatform() != null) {
+                buildPlatform.add(configManager.getDefaultBuildPlatform());
+            } else {
+                buildPlatform.add(Architecture.getLocalArchitecture().name());
+            }
+        }
+
+
         BuildCommand cmdBuilder = new BuildCommand(buildEngine, contextFolder)
             .useBuildx(useBuildx)
             .forceRm(!skipcleanup)

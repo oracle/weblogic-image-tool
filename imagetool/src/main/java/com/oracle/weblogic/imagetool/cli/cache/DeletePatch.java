@@ -52,8 +52,8 @@ public class DeletePatch extends CacheOperation {
 
         // Find and remove the matching patch in a single operation
         boolean removed = patches.removeIf(patch ->
-            version.equals(patch.getPatchVersion()) &&
-                architecture.equals(Architecture.fromString(patch.getArchitecture()))
+            version.equals(patch.getPatchVersion())
+                && architecture.equals(Architecture.fromString(patch.getArchitecture()))
         );
 
         if (!removed) {
