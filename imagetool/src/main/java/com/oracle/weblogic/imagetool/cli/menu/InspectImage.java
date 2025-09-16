@@ -35,13 +35,14 @@ public class InspectImage implements Callable<CommandResponse> {
         }
 
         Properties baseImageProperties =
-            Utils.getBaseImageProperties(buildEngine, imageName, scriptToRun, tempDirectory);
+            Utils.getBaseImageProperties(buildEngine, imageName, imagePlatform, scriptToRun, tempDirectory);
 
         System.out.println(new InspectOutput(baseImageProperties));
 
         return CommandResponse.success(null);
     }
 
+    @SuppressWarnings("unused")
     @Option(
         names = {"--image", "-i"},
         required = true,
@@ -58,18 +59,28 @@ public class InspectImage implements Callable<CommandResponse> {
     )
     String buildEngine = Constants.BUILDER_DEFAULT;
 
+    @SuppressWarnings("unused")
     @Option(
-        names = {"--patches"},
+        names = {"--patches", "-p"},
         description = "Include OPatch information in the output, including a list of patches applied.",
         defaultValue = "false"
     )
     private boolean listPatches;
 
+    @SuppressWarnings("unused")
     @Option(
-        names = {"--format"},
+        names = {"--format", "-f"},
         paramLabel = "FORMAT",
         description = "Output format. Supported values: ${COMPLETION-CANDIDATES} Default: ${DEFAULT-VALUE}",
         defaultValue = "JSON"
     )
     private OutputFormat outputFormat;
+
+    @SuppressWarnings("unused")
+    @Option(
+        names = {"--platform"},
+        paramLabel = "<image platform>",
+        description = "Specify the platform for selecting the image. Example: linux/amd64 or linux/arm64"
+    )
+    private String imagePlatform;
 }

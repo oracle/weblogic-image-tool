@@ -210,7 +210,7 @@ public abstract class CommonOptions {
                 logger.finer(props);
             }
         } else {
-            props = Utils.getBaseImageProperties(buildEngine, fromImage,
+            props = Utils.getBaseImageProperties(buildEngine, fromImage, buildPlatform,
                 "/probe-env/inspect-image.sh", buildDir());
         }
         return props;
@@ -330,6 +330,10 @@ public abstract class CommonOptions {
 
     public String buildId() {
         return buildId;
+    }
+
+    public String buildPlatform() {
+        return buildPlatform;
     }
 
     /**

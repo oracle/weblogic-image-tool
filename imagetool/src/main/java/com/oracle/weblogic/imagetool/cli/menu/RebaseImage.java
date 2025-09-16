@@ -45,7 +45,7 @@ public class RebaseImage extends CommonCreateOptions implements Callable<Command
             dockerfileOptions.setSourceImage(sourceImage);
 
             logger.info("IMG-0091", sourceImage);
-            Properties sourceImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage,
+            Properties sourceImageProperties = Utils.getBaseImageProperties(buildEngine, sourceImage, buildPlatform(),
                 "/probe-env/inspect-image.sh", buildDir());
 
             String oldOracleHome = sourceImageProperties.getProperty("oracleHome", null);
@@ -62,7 +62,7 @@ public class RebaseImage extends CommonCreateOptions implements Callable<Command
                 dockerfileOptions.setRebaseToTarget(true);
 
                 Properties targetImageProperties = Utils.getBaseImageProperties(buildEngine, targetImage,
-                    "/probe-env/inspect-image.sh", buildDir());
+                    buildPlatform(), "/probe-env/inspect-image.sh", buildDir());
                 newOracleHome = targetImageProperties.getProperty("oracleHome", null);
                 newJavaHome = targetImageProperties.getProperty("javaHome", null);
                 useFileOwnerFromTarget(targetImageProperties);

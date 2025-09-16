@@ -53,7 +53,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
 
             dockerfileOptions.setBaseImage(fromImage()).setWdtBase(fromImage());
 
-            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage(),
+            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage(), buildPlatform(),
                 "/probe-env/inspect-image-long.sh", buildDir());
 
             dockerfileOptions.setJavaHome(baseImageProperties.getProperty("javaHome", null));
