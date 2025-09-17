@@ -17,8 +17,9 @@ Usage: imagetool inspect [OPTIONS]
 | --- | --- | --- |
 | `--image`, `-i` | (Required) The image ID or image name to be inspected.  |   |
 | `--builder`, `-b` | Executable to inspect Docker images. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
-| `--format` | The output format. Supported values: `JSON` | `JSON`  |
-| `--patches` | Include OPatch information in the output, including a list of WebLogic patches that are applied.  |   |
+| `--format`, `-f`  | The output format. Supported values: `JSON` | `JSON`  |
+| `--patches`. `-p`  | Include OPatch information in the output, including a list of WebLogic patches that are applied.  |   |
+| `--plarform`  | Specify the platform for selecting the image (`--image`).  | host platform  |
 
 #### Use an argument file
 
