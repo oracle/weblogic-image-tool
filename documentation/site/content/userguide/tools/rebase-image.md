@@ -18,7 +18,7 @@ Usage: imagetool rebase [OPTIONS]
 | Parameter | Definition | Default |
 | --- | --- | --- |
 | `--sourceImage` | (Required) Source Image containing the WebLogic domain. |   |
-| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
+| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:14.1.2.0.0`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
@@ -49,7 +49,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `MFT`, `OAM`, `ODI`, `OHS`, `OIG`, `OUD`, `OUD_WLS`, `OID`, `OSB`, `SOA`, `SOA_OSB`, `SOA_OSB_B2B`, `WCC`, `WCP`, `WCS`  | `WLS`  |
 | `--useBuildx` | Use BuildKit for building the container image.  |  |
 | `--user` | Your Oracle support email ID. When supplying `user`, you must supply the password either as an environment variable using `--passwordEnv`, or as a file using `--passwordFile`, or interactively, on the command line with `--password`. |   |
-| `--version` | Installer version. | `12.2.1.3.0`  |
+| `--version` | Installer version. | `14.1.2.0.0`  |
 
 ### Additional information
 
@@ -118,10 +118,10 @@ For example, create a file called `build_args`:
 
 ```bash
 rebase
---tag wls:122140
---sourceImage wls:122130
---version 12.2.1.4.0
---jdkVersion 8u221
+--tag wls:141200
+--sourceImage wls:141100
+--version 14.1.2.0.0
+--jdkVersion 21.0.6
 ```
 
 Use it on the command line, as follows:
@@ -139,22 +139,22 @@ The commands below assume that all the required JDK, WLS, or FMW (WebLogic infra
  to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
 
-- Update the JDK for an existing domain.  Copy the existing domain from `sample:v1` where the JDK was 8u202 to a new
-image called `sample:v2` and install the newer JDK 8u221 with WebLogic Server 12.2.1.3.0.
+- Update the JDK for an existing domain.  Copy the existing domain from `sample:v1` where the JDK was 8u401 to a new
+image called `sample:v2` and install the newer JDK 21.0.6 with WebLogic Server 14.1.2.0.0.
     ```bash
-    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 14.1.2.0.0 --jdkVersion 21.0.6
     ```
 
 - Update the Oracle Home for an existing domain with a newer WebLogic version.  Copy a domain from an existing image to
-a new image with a new install of WebLogic Server 12.2.1.4.0.  Copy the domain
+a new image with a new install of WebLogic Server 14.1.2.0.0.  Copy the domain
 from `sample:v1` and select the desired WebLogic installer using the `--version` argument.  
     ```bash
-    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 14.1.4.0.0 --jdkVersion 21.0.6
     ```
 
 - Update the JDK and/or Oracle Home for an existing domain using another image with pre-installed binaries.
 Copy the domain from the source image named `sample:v1` to a new image called `sample:v2` based on a target image
-named `fmw:12214`.  **Note**: The Oracle Home and JDK must be installed in the same same folders on each image.
+named `fmw:1412`.  **Note**: The Oracle Home and JDK must be installed in the same folders on each image.
     ```bash
-    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
+    $ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:1412
     ```

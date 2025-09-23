@@ -18,7 +18,7 @@ Usage: imagetool create [OPTIONS]
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
-| `--tag` | **(Required)** Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0`  |   |
+| `--tag` | **(Required)** Tag for the final build image. Example: `store/oracle/weblogic:14.1.2.0.0`  |   |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
@@ -51,7 +51,7 @@ Usage: imagetool create [OPTIONS]
 | `--type` | Installer type. Supported values: `WLS`, `WLSDEV`, `WLSSLIM`, `FMW`, `IDM`, `MFT`, `OAM`, `ODI`, `OHS`, `OIG`, `OUD`, `OUD_WLS`, `OID`, `OSB`, `SOA`, `SOA_OSB`, `SOA_OSB_B2B`, `WCC`, `WCP`, `WCS`  | `WLS`  |
 | `--useBuildx` | Use BuildKit for building the container image.  |  |
 | `--user` | Oracle support email ID. When supplying `user`, you must supply the password either as an environment variable using `--passwordEnv`, or as a file using `--passwordFile`, or interactively, on the command line with `--password`.  |   |
-| `--version` | Installer version. | `12.2.1.3.0`  |
+| `--version` | Installer version. | `14.1.2.0.0`  |
 | `--wdtArchive` | A WDT archive ZIP file or comma-separated list of files.  |   |
 | `--wdtDomainHome` | Path to the `-domain_home` for WDT.  | `/u01/domains/base_domain`  |
 | `--wdtDomainType` | WDT domain type. Supported values: `WLS`, `JRF`, `RestrictedJRF`  | `WLS`  |
@@ -187,8 +187,8 @@ For example, create a file called `build_args`:
 ```bash
 create
 --type wls
---version 12.2.1.3.0
---tag wls:122130
+--version 14.1.2.0.0
+--tag wls:141200
 --user acmeuser@mycompany.com
 --httpProxyUrl http://mycompany-proxy:80
 --httpsProxyUrl http://mycompany-proxy:80
@@ -208,7 +208,7 @@ $ imagetool @/path/to/build_args
 The following commands assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
  to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
 
-- Create an image named `sample:wls` with the WebLogic installer 12.2.1.3.0, server JDK 8u202, and latest PSU applied.
+- Create an image named `sample:wls` with the WebLogic installer 14.1.2.0.0, server JDK 21.0.6, and latest PSU applied.
     ```bash
     $ imagetool create --tag sample:wls --latestPSU --user testuser@xyz.com --password hello
     ```
