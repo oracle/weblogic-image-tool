@@ -26,7 +26,7 @@ Update WebLogic Docker image with selected patches
 | Parameter | Definition | Default |
 | --- | --- | --- |
 | `--fromImage` | (Required) Container image to be extended. The provided image MUST contain an Oracle Home with middleware installed. The `fromImage` option serves as a starting point for the new image to be created. |  |
-| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:12.2.1.3.0` |  |
+| `--tag` | (Required) Tag for the final build image. Example: `store/oracle/weblogic:14.1.2.0.0` |  |
 | `--additionalBuildCommands` | Path to a file with additional build commands. For more details, see [Additional information](#--additionalbuildcommands). | |
 | `--additionalBuildFiles` | Additional files that are required by your `additionalBuildCommands`.  A comma separated list of files that should be copied to the build context. See [Additional information](#--additionalbuildfiles). |  |
 | `--builder`, `-b` | Executable to process the Dockerfile. Use the full path of the executable if not on your path. | Defaults to `docker`, or, when set, to the value in environment variable `WLSIMG_BUILDER`. |
@@ -160,8 +160,8 @@ For example, create a file called `build_args`:
 
 ```bash
 update
---fromImage weblogic:12.2.1.3.0
---tag wls:122130-patched
+--fromImage weblogic:14.1.4.0.0
+--tag wls:141200-patched
 --patches 123456
 --user acmeuser@mycompany.com
 --passwordEnv MYPWD
@@ -189,10 +189,10 @@ $ imagetool @/path/to/build_args
     $ imagetool update --fromImage sample:1.0 --tag sample:1.1 --user test@xyz.com --password hello --patches 12345678,87654321
     ```
 
-- Update an image named `wls:12.2.1.3.0` by creating a new WebLogic domain using WDT and tag it as `mydomain:1`.  The WDT
+- Update an image named `wls:14.1.4.0.0` by creating a new WebLogic domain using WDT and tag it as `mydomain:1`.  The WDT
 installer is accessed from the cache with key wdt_1.1.1.  The model and archive to use are located in a subfolder named `wdt`.
     ```bash
-    $ imagetool update --fromImage wls:12.2.1.3.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
+    $ imagetool update --fromImage wls:14.1.4.0.0 --tag mydomain:1 --wdtArchive ./wdt/my_domain.zip --wdtModel ./wdt/my_domain.yaml --wdtVersion 1.1.1
     ```
 
 - Use `deployApps` from WDT to deploy a new application, the WLS Metrics Exporter.  The model and archive to use are
