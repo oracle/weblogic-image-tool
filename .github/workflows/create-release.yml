@@ -19,7 +19,7 @@ jobs:
           mvn -version
           mvn -B clean package
       - id: version
-        run: echo "name=number::`echo "${{ github.ref_name }}" | sed 's/release-//'`"
+        run: echo "number=`echo "${{ github.ref_name }}" | sed 's/release-//'`" >> $GITHUB_OUTPUT
       - name: Create draft release and attach installer zip
         env:
           GH_TOKEN: ${{ github.token }}
