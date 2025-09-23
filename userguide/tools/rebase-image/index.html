@@ -12,20 +12,20 @@
     <title>Rebase Image :: WebLogic Image Tool</title>
 
     
-    <link href="/weblogic-image-tool/css/nucleus.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1758511704" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1758511704" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/nucleus.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hybrid.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/featherlight.min.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/auto-complete.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/tabs.css?1758654545" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/hugo-theme.css?1758654545" rel="stylesheet">
     
     
 
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1758511704"></script>
+    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1758654545"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1758511704"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1758511704"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1758654545"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1758654545"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
     
 </script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1758511704"></script>
+<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1758654545"></script>
 
     
   </div>
@@ -751,7 +751,7 @@ similar to the <code>create</code> command.</p>
 </tr>
 <tr>
 <td><code>--tag</code></td>
-<td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:12.2.1.3.0</code></td>
+<td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:14.1.2.0.0</code></td>
 <td></td>
 </tr>
 <tr>
@@ -907,7 +907,7 @@ similar to the <code>create</code> command.</p>
 <tr>
 <td><code>--version</code></td>
 <td>Installer version.</td>
-<td><code>12.2.1.3.0</code></td>
+<td><code>14.1.2.0.0</code></td>
 </tr>
 </tbody>
 </table>
@@ -1018,10 +1018,10 @@ so that the group permissions match the user permissions.</p>
 <p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
 <p>For example, create a file called <code>build_args</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rebase
-</span></span><span style="display:flex;"><span>--tag wls:122140
-</span></span><span style="display:flex;"><span>--sourceImage wls:122130
-</span></span><span style="display:flex;"><span>--version 12.2.1.4.0
-</span></span><span style="display:flex;"><span>--jdkVersion 8u221
+</span></span><span style="display:flex;"><span>--tag wls:141200
+</span></span><span style="display:flex;"><span>--sourceImage wls:141100
+</span></span><span style="display:flex;"><span>--version 14.1.2.0.0
+</span></span><span style="display:flex;"><span>--jdkVersion 21.0.6
 </span></span></code></pre></div><p>Use it on the command line, as follows:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool @/path/to/build_args
 </span></span></code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
@@ -1030,21 +1030,21 @@ so that the group permissions match the user permissions.</p>
 to the cache directory. Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command to set it up.</p>
 <ul>
 <li>
-<p>Update the JDK for an existing domain.  Copy the existing domain from <code>sample:v1</code> where the JDK was 8u202 to a new
-image called <code>sample:v2</code> and install the newer JDK 8u221 with WebLogic Server 12.2.1.3.0.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.3.0 --jdkVersion 8u221
+<p>Update the JDK for an existing domain.  Copy the existing domain from <code>sample:v1</code> where the JDK was 8u401 to a new
+image called <code>sample:v2</code> and install the newer JDK 21.0.6 with WebLogic Server 14.1.2.0.0.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 14.1.2.0.0 --jdkVersion 21.0.6
 </span></span></code></pre></div></li>
 <li>
 <p>Update the Oracle Home for an existing domain with a newer WebLogic version.  Copy a domain from an existing image to
-a new image with a new install of WebLogic Server 12.2.1.4.0.  Copy the domain
+a new image with a new install of WebLogic Server 14.1.2.0.0.  Copy the domain
 from <code>sample:v1</code> and select the desired WebLogic installer using the <code>--version</code> argument.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 12.2.1.4.0 --jdkVersion 8u221
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 14.1.4.0.0 --jdkVersion 21.0.6
 </span></span></code></pre></div></li>
 <li>
 <p>Update the JDK and/or Oracle Home for an existing domain using another image with pre-installed binaries.
 Copy the domain from the source image named <code>sample:v1</code> to a new image called <code>sample:v2</code> based on a target image
-named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK must be installed in the same same folders on each image.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:12214
+named <code>fmw:1412</code>.  <strong>Note</strong>: The Oracle Home and JDK must be installed in the same folders on each image.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:1412
 </span></span></code></pre></div></li>
 </ul>
 
@@ -1486,19 +1486,19 @@ named <code>fmw:12214</code>.  <strong>Note</strong>: The Oracle Home and JDK mu
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1758511704"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1758511704"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1758511704"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1758511704"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1758511704"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1758511704"></script>
+    <script src="/weblogic-image-tool/js/clipboard.min.js?1758654545"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1758654545"></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1758654545"></script>
+    <script src="/weblogic-image-tool/js/jquery.sticky.js?1758654545"></script>
+    <script src="/weblogic-image-tool/js/featherlight.min.js?1758654545"></script>
+    <script src="/weblogic-image-tool/js/highlight.pack.js?1758654545"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1758511704"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1758511704"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1758511704"></script>
+    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1758654545"></script>
+    <script src="/weblogic-image-tool/js/learn.js?1758654545"></script>
+    <script src="/weblogic-image-tool/js/hugo-learn.js?1758654545"></script>
     
         
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1758511704"></script>
+            <script src="/weblogic-image-tool/mermaid/mermaid.js?1758654545"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
