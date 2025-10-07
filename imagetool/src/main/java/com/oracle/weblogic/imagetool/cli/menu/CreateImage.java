@@ -35,7 +35,7 @@ public class CreateImage extends CommonCreateOptions implements Callable<Command
             prepareNewImage();
 
             // build wdt args if user passes --wdtModelPath
-            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
+            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir(), getTargetArchitecture());
 
             // Create Dockerfile
             String dockerfile = Utils.writeDockerfile(buildDir() + File.separator + "Dockerfile",

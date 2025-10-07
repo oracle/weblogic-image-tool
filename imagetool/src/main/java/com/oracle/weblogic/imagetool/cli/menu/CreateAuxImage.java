@@ -41,7 +41,7 @@ public class CreateAuxImage extends CommonOptions
 
             copyOptionsFromImage();
 
-            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
+            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir(), getTargetArchitecture());
 
             // Create Dockerfile
             String dockerfile = Utils.writeDockerfile(buildDir() + File.separator + "Dockerfile",
