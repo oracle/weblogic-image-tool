@@ -34,7 +34,7 @@ FROM os_update AS final_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
 ENV ORACLE_HOME={{{oracle_home}}} \
-    LD_LIBRARY_PATH={{{oracle_home}}}/oracle_common/adr:$LD_LIBRARY_PATH \
+    LD_LIBRARY_PATH={{{oracle_home}}}/oracle_common/adr \
 {{#installJava}}
     JAVA_HOME={{{java_home}}} \
 {{/installJava}}
