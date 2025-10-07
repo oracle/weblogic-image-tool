@@ -15,6 +15,7 @@ import com.oracle.weblogic.imagetool.api.model.CachedFile;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
@@ -57,7 +58,8 @@ public class WdtBaseOptions {
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @throws IOException in case of error
      */
-    public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir) throws IOException {
+    public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir, Architecture architecture)
+        throws IOException {
         logger.entering(tmpDir);
 
         if (!userProvidedFiles() && skipWdtInstaller()) {
@@ -84,7 +86,7 @@ public class WdtBaseOptions {
         }
 
         if (!skipWdtInstaller()) {
-            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion);
+            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion, architecture);
             Path wdtfile = wdtInstaller.copyFile(cache(), tmpDir);
             dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
         }
