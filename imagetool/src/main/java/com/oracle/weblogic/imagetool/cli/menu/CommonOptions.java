@@ -156,7 +156,7 @@ public abstract class CommonOptions {
 
         // if it is multiplatform build and using docker
 
-        if (buildId != null && buildPlatform.size() > 1) {
+        if (buildId != null && useBuildx) {
             // if push is specified, ignore load value
             if (!buildEngine.equalsIgnoreCase("podman")) {
                 if (push) {
