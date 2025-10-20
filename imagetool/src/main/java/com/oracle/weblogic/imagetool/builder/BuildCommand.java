@@ -20,7 +20,7 @@ public class BuildCommand extends AbstractCommand {
     private final List<BuildArg> buildArgs;
     private List<String> additionalOptions;
     private final String context;
-    private boolean useBuildx = false;
+    private boolean useBuildx = true;
     private List<String> buildPlatforms = new ArrayList<>();
 
     /**
@@ -89,7 +89,7 @@ public class BuildCommand extends AbstractCommand {
      * @return this
      */
     public BuildCommand forceRm(boolean value) {
-        if (value && !useBuildx) {
+        if (value && useBuildx) {
             command.add("--force-rm");
         }
         return this;

@@ -530,7 +530,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--useBuildx"},
-        description = "Use the BuildKit for building the container image (default when building multi-architecture)"
+        description = "Use the BuildKit for building the container image (default is true)"
     )
     private boolean useBuildx;
 
