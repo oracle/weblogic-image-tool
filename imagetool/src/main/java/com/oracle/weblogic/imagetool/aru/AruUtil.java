@@ -110,6 +110,10 @@ public class AruUtil {
         throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
+            if (product == AruProduct.OWSM && ("14.1.1.0.0".equals(version) || "15.1.1.0.0".equals(version))) {
+                // OWSM is included with WLS installs, but OWSM did not have a release in 14.1.1 and 15.1.1
+                continue;
+            }
             List<AruPatch> psuList = getLatestPsu(product, version, architecture, userId, password);
             if (!psuList.isEmpty()) {
                 for (AruPatch psu: psuList) {
@@ -178,6 +182,10 @@ public class AruUtil {
                                                 String userId, String password) throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
+            if (product == AruProduct.OWSM && ("14.1.1.0.0".equals(version) || "15.1.1.0.0".equals(version))) {
+                // OWSM is included with WLS installs, but OWSM did not have a release in 14.1.1 and 15.1.1
+                continue;
+            }
             List<AruPatch> patches = getRecommendedPatches(type, product, version, architecture, userId, password);
 
             if (!patches.isEmpty()) {
