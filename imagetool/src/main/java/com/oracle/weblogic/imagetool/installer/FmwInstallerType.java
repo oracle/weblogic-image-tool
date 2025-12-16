@@ -26,15 +26,17 @@ public enum FmwInstallerType {
 
     // Oracle WebLogic Server
     WLS(Utils.toSet(AruProduct.WLS, AruProduct.COH, AruProduct.FMWPLAT, AruProduct.FIT, AruProduct.JDBC,
-        AruProduct.FMW_GLCM,
-        AruProduct.OSS), InstallerType.WLS), // Added OSS for a special patching issue for 12.2.1.4 JDBC fix
+        AruProduct.FMW_GLCM, AruProduct.OSS, AruProduct.OWSM),
+        InstallerType.WLS),
+    // WLS: Added OSS for a special patching issue for 12.2.1.4 JDBC fix
+    // WLS: Added OWSM because osdt jars are included in the WLS install
     WLSSLIM(Utils.toSet(WLS.products),
         InstallerType.WLSSLIM),
     WLSDEV(Utils.toSet(WLS.products),
         InstallerType.WLSDEV),
 
     // Oracle WebLogic Server Infrastructure (JRF)
-    FMW(Utils.toSet(WLS.products, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM),
+    FMW(Utils.toSet(WLS.products, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS),
         InstallerType.FMW),
     // Oracle Service Bus
     OSB(Utils.toSet(FMW.products, AruProduct.OSB),
