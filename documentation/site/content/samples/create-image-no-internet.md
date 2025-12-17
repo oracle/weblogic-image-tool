@@ -3,6 +3,7 @@ title: "Create an image without Internet access"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 2
+description: "Sample that creates an image without Internet access."
 ---
 
 
@@ -23,7 +24,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
      `jdk-8u202-linux-x64.tar.gz`
 
 
-2. Use the [Cache Tool]({{< relref "/userguide/tools/cache.md" >}}) to add the installers:
+2. Use the [Cache Tool]({{% relref "/userguide/tools/cache.md" %}}) to add the installers:
 
     ```bash
     $ imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
@@ -41,7 +42,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
    $ imagetool cache addPatch --patchId 27342434_12.2.1.3.0 --path /home/acmeuser/cache/p27342434_122130_Generic.zip
    ```
 
-   **Note**: Refer to the [Cache]({{< relref "/userguide/tools/cache.md" >}}) commands for the format of ```patchId```.
+   **Note**: Refer to the [Cache]({{% relref "/userguide/tools/cache.md" %}}) commands for the format of ```patchId```.
 
 4. Then, run the command to create the image:
 

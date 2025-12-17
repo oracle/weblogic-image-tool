@@ -6,6 +6,6 @@ chapter = true
 pre = "<b> </b>"
 +++
 
-# Developer Guide
-
 The Developer Guide provides information for developers who want to build the installer from source or contribute to the code.
+
+{{% children type="list" description="true" %}}

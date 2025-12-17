@@ -8,7 +8,7 @@ weight: 3
 
 #### Before you begin
 
-Make sure that you have fulfilled the [Prerequisites]({{< relref "/userguide/prerequisites.md" >}}) and [Setup]({{< relref "/userguide/setup.md" >}}) requirements.
+Make sure that you have fulfilled the [Prerequisites]({{% relref "/userguide/prerequisites.md" %}}) and [Setup]({{% relref "/userguide/setup.md" %}}) requirements.
 
 #### Overview
 
@@ -27,7 +27,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
      `jdk-8u202-linux-x64.tar.gz`
 
 
-2. Use the [Cache Tool]({{< relref "/userguide/tools/cache.md" >}}) to add the installers:
+2. Use the [Cache Tool]({{% relref "/userguide/tools/cache.md" %}}) to add the installers:
 
     ```bash
     $ imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
@@ -49,7 +49,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
     wls_12.2.1.3.0=/home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip
     ```
 
-3. Run the [`imagetool create`]({{< relref "/userguide/tools/create-image.md" >}}) command:
+3. Run the [`imagetool create`]({{% relref "/userguide/tools/create-image.md" %}}) command:
 
    ```bash
    $ imagetool create --tag wls:12.2.1.3.0

@@ -3,6 +3,7 @@ title: "Create an image with full Internet access"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 1
+description: "Sample that creates an image with full Internet access."
 ---
 
 
@@ -23,7 +24,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
      `jdk-8u202-linux-x64.tar.gz`
 
 
-2. Use the [Cache Tool]({{< relref "/userguide/tools/cache.md" >}}) to add the installers:
+2. Use the [Cache Tool]({{% relref "/userguide/tools/cache.md" %}}) to add the installers:
 
     ```bash
     $ imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz
@@ -35,7 +36,7 @@ and save them in a directory of your choice, for example, `/home/acmeuser/wls-in
 
     **Note**:  The value of the version must be a valid WebLogic Server version number. This version number is used to verify and find the correct patch file to download from Oracle Support.  The format of the version is a 5 digits tuple, separated by period.  For example,  ```12.2.1.3.0``` ```12.1.3.0.0```
 
-3. Create the image using the [Create Tool]({{< relref "/userguide/tools/create-image.md" >}}) commands. For example:
+3. Create the image using the [Create Tool]({{% relref "/userguide/tools/create-image.md" %}}) commands. For example:
 
   ```bash
   $ imagetool create --tag wls:12.2.1.3.0 --latestPSU --version 12.2.1.3.0 --user  username@mycompany.com --passwordEnv MYPWD  
