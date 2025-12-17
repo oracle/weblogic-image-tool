@@ -3,13 +3,14 @@ title: "Create an image with a WLS domain using WDT"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 4
+description: "Sample that creates an image containing a WLS domain using WDT."
 ---
 
 The Image Tool lets you create a customized WebLogic domain in the image using the [WebLogic Deploy Tool](https://oracle.github.io/weblogic-deploy-tooling/).
 
 ### Steps
 
-1. Create the image, as directed in the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide.
+1. Create the image, as directed in the [Quick Start]({{% relref "/quickstart/quickstart.md" %}}) guide.
 
 2. Download the [WebLogic Deploy Tool](https://github.com/oracle/weblogic-deploy-tooling/releases), and then add it to the cache store:
 

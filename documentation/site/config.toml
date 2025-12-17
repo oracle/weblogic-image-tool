@@ -6,7 +6,7 @@ languageCode = "en-us"
 title = "WebLogic Image Tool"
 
 # Change the default theme to be use when building the site with Hugo
-theme = "hugo-theme-learn"
+theme = "hugo-theme-relearn-8.3.0"
 
 publishDir = "docs"
 
@@ -14,6 +14,14 @@ publishDir = "docs"
 [outputs]
   home = [ "HTML", "RSS", "JSON"]
 
+[markup]
+  defaultMarkdownHandler = 'goldmark'
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
 [params]
+  hideAuthorDate = true
   # disable the copy to clipboard links
   disableInlineCopyToClipBoard = true
+  themeVariant = "learn"

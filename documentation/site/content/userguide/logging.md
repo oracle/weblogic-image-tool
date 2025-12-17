@@ -3,6 +3,7 @@ title: "Logging"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 5
+description: "Learn how to configure the Image Tool logging framework."
 ---
 
 The Image Tool uses standard Java logging. To alter the default logging settings, you can modify the `logging.properties`

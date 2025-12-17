@@ -206,7 +206,7 @@ $ imagetool @/path/to/build_args
 ### Usage scenarios
 
 The following commands assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
- to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
+ to the cache directory. Use the [cache]({{% relref "/userguide/tools/cache.md" %}}) command to set it up.
 
 - Create an image named `sample:wls` with the WebLogic installer 14.1.2.0.0, server JDK 21.0.6, and latest PSU applied.
     ```bash

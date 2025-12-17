@@ -3,6 +3,7 @@ title: "Cleanup"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 4
+description: "Learn how to clean up temporary directories created by the Image Tool."
 ---
 
 

@@ -6,6 +6,6 @@ chapter = true
 pre = "<b> </b>"
 +++
 
-# User Guide
-
 The User Guide provides detailed usage information for the WebLogic Image Tool, including typical use case scenarios.
+
+{{% children type="list" description="true" %}}

@@ -6,4 +6,4 @@ chapter = true
 pre = "<b> </b>"
 +++
 
-# Samples
+{{% children type="list" description="true" %}}

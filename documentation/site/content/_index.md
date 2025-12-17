@@ -1,3 +1,7 @@
+---
+hideHeader: true
+---
+
 # WebLogic Image Tool
 
 Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into
@@ -19,7 +23,7 @@ the JDK and Oracle Home as part of moving the domain.
 * Create a new container image by applying WebLogic patches to an existing image. In addition,
  if one did not exist previously, you can create a WebLogic domain, update an existing domain, or deploy an application.
 
-For detailed information, see [Image Tool]({{< relref "/userguide/tools/_index.md" >}}).
+For detailed information, see [Image Tool]({{% relref "/userguide/tools/_index.md" %}}).
 
 ***
 ### Current production release
@@ -29,16 +33,17 @@ WebLogic Image Tool version and release information can be found [here](https://
 ***
 ### Recent changes and known issues
 
-See the [Release Notes]({{< relref "/release-notes.md" >}}) for issues and important information.
+See the [Release Notes](https://github.com/oracle/weblogic-image-tool/releases/)
+for issues and important information.
 
 
 ### About this documentation
 
-* Use the [Quick Start]({{< relref "/quickstart/quickstart.md" >}}) guide to create a Linux based WebLogic container image.
-* The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including command options and usage scenarios.
-* The [Samples]({{< relref "/samples/" >}}) provide typical and informative use cases.
-* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WIT is built. Those
-who wish to contribute to the WebLogic Image Tool code will find useful information [here]({{< relref "/developer/contribute.md" >}}).
+* Use the [Quick Start]({{% relref "/quickstart/quickstart.md" %}}) guide to create a Linux based WebLogic container image.
+* The [User Guide]({{% relref "/userguide/" %}}) contains detailed usage information, including command options and usage scenarios.
+* The [Samples]({{% relref "/samples/" %}}) provide typical and informative use cases.
+* The [Developer Guide]({{% relref "/developer/" %}}) provides details for people who want to understand how WIT is built. Those
+who wish to contribute to the WebLogic Image Tool code will find useful information [here]({{% relref "/developer/contribute.md" %}}).
 
 
 ### Related projects
@@ -47,7 +52,6 @@ who wish to contribute to the WebLogic Image Tool code will find useful informat
 * [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/)
 * [WebLogic Kubernetes Toolkit UI](https://oracle.github.io/weblogic-toolkit-ui/)
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
-* [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://oracle.github.io/weblogic-remote-console/)
 
 ### Supported Fusion Middleware (FMW) products

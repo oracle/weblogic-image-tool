@@ -136,7 +136,7 @@ $ imagetool @/path/to/build_args
 **Note**: Use `--passwordEnv` or `--passwordFile` instead of `--password`.
 
 The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
- to the cache directory. Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
+ to the cache directory. Use the [cache]({{% relref "/userguide/tools/cache.md" %}}) command to set it up.
 
 
 - Update the JDK for an existing domain.  Copy the existing domain from `sample:v1` where the JDK was 8u401 to a new

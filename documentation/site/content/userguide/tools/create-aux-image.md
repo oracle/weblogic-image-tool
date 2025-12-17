@@ -154,7 +154,7 @@ $ imagetool @/path/to/build_args
 ### Usage scenarios
 
 The following commands assume that the required WDT installer has been downloaded and added to the ImageTool cache.
-Use the [cache]({{< relref "/userguide/tools/cache.md" >}}) command to set it up.
+Use the [cache]({{% relref "/userguide/tools/cache.md" %}}) command to set it up.
 
 - Create an image named `wdt:1.10` with the latest [WebLogic Deploy Tooling](https://oracle.github.io/weblogic-deploy-tooling/) version.
     ```bash

@@ -3,6 +3,7 @@ title: "Contribute to WIT"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 2
+description: "How to contribute to the development of the Image Tool."
 ---
 
 Oracle welcomes contributions to this repository from anyone.

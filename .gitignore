@@ -7,3 +7,5 @@
 **/target
 **/.DS_Store
 .mvn/maven.config
+**/.hugo_build.lock
+documentation/**/docs

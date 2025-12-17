@@ -3,6 +3,7 @@ title: "Prerequisites"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 1
+description: "Learn about the Image Tool's prerequisites."
 ---
 
 - A container image client on the build machine, such as Docker or Podman. 

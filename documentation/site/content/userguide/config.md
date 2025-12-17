@@ -3,6 +3,7 @@ title: "Configuration"
 date: 2024-04-16T08:00:00-05:00
 draft: false
 weight: 5
+description: "Learn about advanced configuration of the Image Tool."
 ---
 
 The default configuration is typically adequate for common use. But, the following environment variables are provided for
