@@ -3,7 +3,7 @@
   <channel>
     <title>Quick Start Guide :: WebLogic Image Tool</title>
     <link>https://oracle.github.io/weblogic-image-tool/quickstart/index.html</link>
-    <description>Use this Quick Start guide to create a Linux based WebLogic container image.&#xA;StepsBefore you begin Make sure that you have fulfilled the Prerequisites and Setup requirements. Overview The high level steps for creating an image are: Download the Java and WebLogic installers from the Oracle Software Delivery Cloud . Add the installers to the cache store. Run the imagetool command to create the image. Do this Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
+    <description>Use this Quick Start guide to create a Linux based WebLogic container image.&#xA;StepsHow to run the quickstart sample.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>
@@ -13,7 +13,7 @@
       <link>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-image-tool/quickstart/quickstart/index.html</guid>
-      <description>Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements.&#xA;Overview The high level steps for creating an image are:&#xA;Download the Java and WebLogic installers from the Oracle Software Delivery Cloud . Add the installers to the cache store. Run the imagetool command to create the image. Do this Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:</description>
+      <description>How to run the quickstart sample.</description>
     </item>
   </channel>
 </rss>

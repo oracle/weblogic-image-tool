@@ -33,8 +33,8 @@ var relearn_searchindex = [
   },
   {
     "breadcrumb": "WebLogic Image Tool",
-    "content": "Use this Quick Start guide to create a Linux based WebLogic container image.\nStepsBefore you begin Make sure that you have fulfilled the Prerequisites and Setup requirements. Overview The high level steps for creating an image are: Download the Java and WebLogic installers from the Oracle Software Delivery Cloud . Add the installers to the cache store. Run the imagetool command to create the image. Do this Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:",
-    "description": "Use this Quick Start guide to create a Linux based WebLogic container image.\nStepsBefore you begin Make sure that you have fulfilled the Prerequisites and Setup requirements. Overview The high level steps for creating an image are: Download the Java and WebLogic installers from the Oracle Software Delivery Cloud . Add the installers to the cache store. Run the imagetool command to create the image. Do this Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:",
+    "content": "Use this Quick Start guide to create a Linux based WebLogic container image.\nStepsHow to run the quickstart sample.",
+    "description": "Use this Quick Start guide to create a Linux based WebLogic container image.\nStepsHow to run the quickstart sample.",
     "tags": [],
     "title": "Quick Start Guide",
     "uri": "/weblogic-image-tool/quickstart/index.html"
@@ -98,7 +98,7 @@ var relearn_searchindex = [
   {
     "breadcrumb": "WebLogic Image Tool \u003e Quick Start Guide",
     "content": "Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements.\nOverview The high level steps for creating an image are:\nDownload the Java and WebLogic installers from the Oracle Software Delivery Cloud . Add the installers to the cache store. Run the imagetool command to create the image. Do this Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:\nfmw_12.2.1.3.0_wls_Disk1_1of1.zip\njdk-8u202-linux-x64.tar.gz\nUse the Cache Tool to add the installers:\n$ imagetool cache addInstaller --type jdk --version 8u202 --path /home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz $ imagetool cache addInstaller --type wls --version 12.2.1.3.0 --path /home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip You can verify the cache entries by:\n$ imagetool cache listItems Cache contents jdk_8u202=/home/acmeuser/wls-installers/jdk-8u202-linux-x64.tar.gz wls_12.2.1.3.0=/home/acmeuser/wls-installers/fmw_12.2.1.3.0_wls_Disk1_1of1.zip Run the imagetool create command:\n$ imagetool create --tag wls:12.2.1.3.0 The final image will have the following structure:\n[oracle@c3fe8ee0167d oracle]$ ls -arlt /u01/ total 20 drwxr-xr-x 7 oracle oracle 4096 May 28 23:40 jdk drwxr-xr-x 11 oracle oracle 4096 May 28 23:40 oracle drwxr-xr-x 5 oracle oracle 4096 May 28 23:40 . drwxr-xr-x 18 root root 4096 May 29 01:31 ..",
-    "description": "Before you begin Make sure that you have fulfilled the Prerequisites and Setup requirements.\nOverview The high level steps for creating an image are:\nDownload the Java and WebLogic installers from the Oracle Software Delivery Cloud . Add the installers to the cache store. Run the imagetool command to create the image. Do this Download these Java and WebLogic installers from the Oracle Software Delivery Cloud and save them in a directory of your choice, for example, /home/acmeuser/wls-installers:",
+    "description": "How to run the quickstart sample.",
     "tags": [],
     "title": "Steps",
     "uri": "/weblogic-image-tool/quickstart/quickstart/index.html"
