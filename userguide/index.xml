@@ -1,60 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>User Guide on WebLogic Image Tool</title>
-    <link>https://oracle.github.io/weblogic-image-tool/userguide/</link>
-    <description>Recent content in User Guide on WebLogic Image Tool</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <title>User Guide :: WebLogic Image Tool</title>
+    <link>https://oracle.github.io/weblogic-image-tool/userguide/index.html</link>
+    <description>The User Guide provides detailed usage information for the WebLogic Image Tool, including typical use case scenarios.&#xA;PrerequisitesLearn about the Image Tool&#39;s prerequisites.&#xA;SetupInstall the WebLogic Image Tool.&#xA;Image Tool CommandsLearn about the commands supported by the Image Tool.&#xA;CleanupLearn how to clean up temporary directories created by the Image Tool.&#xA;ConfigurationLearn about advanced configuration of the Image Tool.&#xA;LoggingLearn how to configure the Image Tool logging framework.</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/userguide/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 16 Apr 2024 08:00:00 -0500</lastBuildDate>
+    <atom:link href="https://oracle.github.io/weblogic-image-tool/userguide/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Prerequisites</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/</guid>
-      <description>A container image client on the build machine, such as Docker or Podman. For Docker, a minimum version of 18.03.1.ce is required. For Podman, a minimum version of 3.0.1 is required. An installed version of Java to run Image Tool, version 8+. Installers for Oracle WebLogic Server and Oracle JDK from the Oracle Software Delivery Cloud for installation into the new image. When using the imagetool alias from setup.sh instead of the shell script (imagetool.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/prerequisites/index.html</guid>
+      <description>Learn about the Image Tool&#39;s prerequisites.</description>
     </item>
-    
     <item>
       <title>Setup</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/setup/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/setup/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/setup/</guid>
-      <description>Download the WIT release ZIP file to a desired location. The latest ZIP file can be found on the project releases page. Alternatively, you can download the ZIP file with cURL. curl -m 120 -fL https://github.com/oracle/weblogic-image-tool/releases/latest/download/imagetool.zip -o ./imagetool.zip Unzip the downloaded ZIP file into a directory of your choice. All of the contents of the ZIP file will be extracted into a single subdirectory named imagetool. OPTIONALLY: You may build the project (mvn clean package) to create the ZIP file installer in .</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/setup/index.html</guid>
+      <description>Install the WebLogic Image Tool.</description>
     </item>
-    
+    <item>
+      <title>Image Tool Commands</title>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/index.html</link>
+      <pubDate>Fri, 22 Feb 2019 00:00:00 +0000</pubDate>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/index.html</guid>
+      <description>Learn about the commands supported by the Image Tool.</description>
+    </item>
     <item>
       <title>Cleanup</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/cleanup/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/cleanup/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/cleanup/</guid>
-      <description>The Image Tool creates a temporary Docker context directory, prefixed by wlsimgbuilder_temp, every time the tool runs. Under normal circumstances, this context directory will be deleted. However, if the process is aborted or the tool is unable to remove the directory, it is safe for you to delete it manually.
-By default, the Image Tool creates the Docker context directory under the user&amp;rsquo;s home directory. If you prefer to use a different directory for the temporary context, set the environment variable WLSIMG_BLDDIR.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/cleanup/index.html</guid>
+      <description>Learn how to clean up temporary directories created by the Image Tool.</description>
     </item>
-    
     <item>
       <title>Configuration</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/config/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/config/index.html</link>
       <pubDate>Tue, 16 Apr 2024 08:00:00 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/config/</guid>
-      <description>The default configuration is typically adequate for common use. But, the following environment variables are provided for non-typical use cases when the default values are insufficient.
-Environment variables WLSIMG_BLDDIR - During the build process, Image Tool creates a Docker context directory where it will create a Dockerfile and copy necessary files for the container image build. Setting this variable to another directory overrides the default of the user&amp;rsquo;s home directory as the parent folder of the Docker context directory.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/config/index.html</guid>
+      <description>Learn about advanced configuration of the Image Tool.</description>
     </item>
-    
     <item>
       <title>Logging</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/logging/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/logging/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/logging/</guid>
-      <description>The Image Tool uses standard Java logging. To alter the default logging settings, you can modify the logging.properties file under the bin directory where you installed the Image Tool.
-To enable debug logging In logging.properties, comment the existing handlers property and uncomment the second handlers line below the first line that you just commented. This should make the logging.properties file look something like this:
-#handlers=java.util.logging.ConsoleHandler $ handlers=java.util.logging.FileHandler, java.util.logging.ConsoleHandler Then, change level to FINE or FINER.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/logging/index.html</guid>
+      <description>Learn how to configure the Image Tool logging framework.</description>
     </item>
-    
   </channel>
 </rss>

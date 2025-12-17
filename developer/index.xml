@@ -1,33 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Developer Guide on WebLogic Image Tool</title>
-    <link>https://oracle.github.io/weblogic-image-tool/developer/</link>
-    <description>Recent content in Developer Guide on WebLogic Image Tool</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <title>Developer Guide :: WebLogic Image Tool</title>
+    <link>https://oracle.github.io/weblogic-image-tool/developer/index.html</link>
+    <description>The Developer Guide provides information for developers who want to build the installer from source or contribute to the code.&#xA;Build from sourceHow to build the Image Tool from source.&#xA;Contribute to WITHow to contribute to the development of the Image Tool.</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/developer/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>
+    <atom:link href="https://oracle.github.io/weblogic-image-tool/developer/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Build from source</title>
-      <link>https://oracle.github.io/weblogic-image-tool/developer/source/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/developer/source/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/developer/source/</guid>
-      <description>The Image Tool installer is available for download on the Releases page. If you want to build the installer from source instead of downloading it, follow these instructions:
-Download and install JDK 8u261+. Download and install Maven 3.6.3+. Clone this repository to your local environment. Cloning options are shown under the Code button at the root of this project. For example, git clone https://github.com/oracle/weblogic-image-tool.git. From inside the top-level directory of the cloned project, weblogic-image-tool, using Maven, execute one or more of these phases: validate - Validate the project is correct and all necessary information is available.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/developer/source/index.html</guid>
+      <description>How to build the Image Tool from source.</description>
     </item>
-    
     <item>
       <title>Contribute to WIT</title>
-      <link>https://oracle.github.io/weblogic-image-tool/developer/contribute/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/developer/contribute/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/developer/contribute/</guid>
-      <description>Oracle welcomes contributions to this repository from anyone.
-If you want to submit a pull request to fix a bug or enhance an existing feature, please first open an issue and link to that issue when you submit your pull request.
-If you have any questions about a possible submission, feel free to open an issue too.
-Contributing to the WebLogic Image Tool repository Pull requests can be made under The Oracle Contributor Agreement (OCA).</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/developer/contribute/index.html</guid>
+      <description>How to contribute to the development of the Image Tool.</description>
     </item>
-    
   </channel>
 </rss>

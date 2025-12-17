@@ -1,673 +1,166 @@
 <!DOCTYPE html>
-<html lang="en" class="js csstransforms3d">
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.108.0">
-    <meta name="description" content="">
-
-
-    <link rel="icon" href="/weblogic-image-tool/images/favicon.png" type="image/png">
-
-    <title> :: WebLogic Image Tool</title>
-
-    
-    <link href="/weblogic-image-tool/css/nucleus.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1765770427" rel="stylesheet">
-    
-    
-
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1765770427"></script>
-
-    <style>
-      :root #header + #content > #left > #rlblock_left{
-          display:none !important;
-      }
-      
-        :not(pre) > code + span.copy-to-clipboard {
-            display: none;
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="generator" content="Hugo 0.152.2">
+    <meta name="generator" content="Relearn 8.3.0">
+    <meta name="description" content="WebLogic Image Tool Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker and Kubernetes, WebLogic now runs in a cloud neutral infrastructure. To help simplify and automate the creation of container images for WebLogic Server, we are providing this open source WebLogic Image Tool (WIT).">
+    <meta name="author" content="">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="WebLogic Image Tool">
+    <meta name="twitter:description" content="WebLogic Image Tool Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker and Kubernetes, WebLogic now runs in a cloud neutral infrastructure. To help simplify and automate the creation of container images for WebLogic Server, we are providing this open source WebLogic Image Tool (WIT).">
+    <meta property="og:url" content="https://oracle.github.io/weblogic-image-tool/index.html">
+    <meta property="og:site_name" content="WebLogic Image Tool">
+    <meta property="og:title" content="WebLogic Image Tool">
+    <meta property="og:description" content="WebLogic Image Tool Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker and Kubernetes, WebLogic now runs in a cloud neutral infrastructure. To help simplify and automate the creation of container images for WebLogic Server, we are providing this open source WebLogic Image Tool (WIT).">
+    <meta property="og:locale" content="en_us">
+    <meta property="og:type" content="website">
+    <meta itemprop="name" content="WebLogic Image Tool">
+    <meta itemprop="description" content="WebLogic Image Tool Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker and Kubernetes, WebLogic now runs in a cloud neutral infrastructure. To help simplify and automate the creation of container images for WebLogic Server, we are providing this open source WebLogic Image Tool (WIT).">
+    <meta itemprop="datePublished" content="2024-04-16T08:00:00-05:00">
+    <meta itemprop="dateModified" content="2024-04-16T08:00:00-05:00">
+    <meta itemprop="wordCount" content="427">
+    <title>WebLogic Image Tool</title>
+    <link href="/weblogic-image-tool/index.xml" rel="alternate" type="application/rss+xml" title="WebLogic Image Tool">
+    <link href="/weblogic-image-tool/index.json" rel="alternate" type="application/json" title="WebLogic Image Tool">
+    <link href="/weblogic-image-tool/images/logo.png?1766008598" rel="icon" type="image/png">
+    <link href="/weblogic-image-tool/css/auto-complete/auto-complete.min.css?1766008598" rel="stylesheet">
+    <script src="/weblogic-image-tool/js/auto-complete/auto-complete.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/search-lunr.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/search.min.js?1766008598" defer></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.index_js_url="/weblogic-image-tool/searchindex.en.js?1766008598";
+    </script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.stemmer.support.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.multi.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.en.min.js?1766008598" defer></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.contentLangs=['en'];
+    </script>
+    <link href="/weblogic-image-tool/fonts/fontawesome/css/fontawesome-all.min.css?1766008598" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-image-tool/fonts/fontawesome/css/fontawesome-all.min.css?1766008598" rel="stylesheet"></noscript>
+    <link href="/weblogic-image-tool/css/perfect-scrollbar/perfect-scrollbar.min.css?1766008598" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.min.css?1766008598" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/format-html.min.css?1766008598" rel="stylesheet" id="R-format-style">
+    <script>
+      window.relearn = window.relearn || {};
+      // configuration
+      window.relearn.min = `.min`;
+      window.relearn.path='\/index.html';
+      window.relearn.relBasePath='.';
+      window.relearn.relBaseUri='..';
+      window.relearn.absBaseUri='https:\/\/oracle.github.io\/weblogic-image-tool';
+      window.relearn.disableInlineCopyToClipboard=true;
+      window.relearn.enableBlockCodeWrap=true;
+      // legal
+      window.relearn.getItem = (s,n) => {return s.getItem(n)};
+      window.relearn.setItem = (s,n,v) => {return s.setItem(n,v)};
+      window.relearn.removeItem = (s,n) => {return s.removeItem(n)};
+      // translations
+      window.T_Copy_to_clipboard = `Copy text to clipboard`;
+      window.T_Copied_to_clipboard = `Text copied to clipboard!`;
+      window.T_Link_copied_to_clipboard = `Link copied to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+      window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
+      // variant stuff
+      window.relearn.themevariants = [ 'learn' ];
+      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.changeVariant = function(variant) {
+        var oldVariant = document.documentElement.dataset.rThemeVariant;
+        window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+        document.documentElement.dataset.rThemeVariant = variant;
+        if (oldVariant != variant) {
+          document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
+          window.relearn.markVariant();
         }
-      
-    </style>
-    
+      }
+      window.relearn.markVariant = function() {
+        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant");
+        document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
+      }
+      window.relearn.initVariant = function() {
+        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant") ?? "";
+        if( variant == window.relearn.customvariantname ){
+        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+          variant = window.relearn.themevariants[0];
+          window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+        }
+        document.documentElement.dataset.rThemeVariant = variant;
+      }
+      window.relearn.initVariant();
+      window.relearn.markVariant();
+    </script>
   </head>
-  <body class="" data-url="/weblogic-image-tool/">
-    <nav id="sidebar" class="">
-
-
-
-  <div id="header-wrapper">
-    <div id="header">
-      <a id="logo" href="https://oracle.github.io/weblogic-image-tool">
-  <img src="https://oracle.github.io/weblogic-image-tool/images/logo.png" height="90"><br/>
-  WebLogic Image Tool
-</a>
-
-    </div>
-    
-        <div class="searchbox">
-    <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="search" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-times"></i></span>
-</div>
-
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1765770427"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1765770427"></script>
-<script type="text/javascript">
-    
-        var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
-    
-</script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1765770427"></script>
-
-    
-  </div>
-
-    <div class="highlightable">
-    <ul class="topics">
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-image-tool">Home</a></li>
-        
-          
-          
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/quickstart/" title="Quick Start" class="dd-item
-        
-        
-        
-        ">
-      <a href="/weblogic-image-tool/quickstart/">
-          <b> </b>Quick Start
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/quickstart/quickstart/" title="Steps" class="dd-item ">
-        <a href="/weblogic-image-tool/quickstart/quickstart/">
-        Steps
-        
-        </a>
+  <body class="mobile-support html" data-url="/weblogic-image-tool/index.html">
+    <div id="R-body" class="default-animation">
+      <div id="R-body-overlay"></div>
+      <nav id="R-topbar">
+        <div class="topbar-wrapper">
+          <div class="topbar-sidebar-divider"></div>
+          <div class="topbar-area topbar-area-start" data-area="start">
+            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
+            </div>
+            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button></span>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper">
+<nav class="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#current-production-release">Current production release</a></li>
+        <li><a href="#recent-changes-and-known-issues">Recent changes and known issues</a></li>
+        <li><a href="#about-this-documentation">About this documentation</a></li>
+        <li><a href="#related-projects">Related projects</a></li>
+        <li><a href="#supported-fusion-middleware-fmw-products">Supported Fusion Middleware (FMW) products</a></li>
+      </ul>
     </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-          
-          
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/userguide/" title="User Guide" class="dd-item
-        
-        
-        
-        ">
-      <a href="/weblogic-image-tool/userguide/">
-          <b> </b>User Guide
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-            
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/prerequisites/" title="Prerequisites" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/prerequisites/">
-        Prerequisites
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/setup/" title="Setup" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/setup/">
-        Setup
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/userguide/tools/" title="Image Tool" class="dd-item
-        
-        
-        
-        ">
-      <a href="/weblogic-image-tool/userguide/tools/">
-          <b> </b>Image Tool
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/create-image/" title="Create Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/create-image/">
-        Create Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/create-aux-image/" title="Create Auxiliary Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/create-aux-image/">
-        Create Auxiliary Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/rebase-image/" title="Rebase Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/rebase-image/">
-        Rebase Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/update-image/" title="Update Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/update-image/">
-        Update Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/inspect-image/" title="Inspect Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/inspect-image/">
-        Inspect Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/cache/" title="Cache" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/cache/">
-        Cache
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/cleanup/" title="Cleanup" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/cleanup/">
-        Cleanup
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/config/" title="Configuration" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/config/">
-        Configuration
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/logging/" title="Logging" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/logging/">
-        Logging
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-          
-          
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/samples/" title="Samples" class="dd-item
-        
-        
-        
-        ">
-      <a href="/weblogic-image-tool/samples/">
-          <b> </b>Samples
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/samples/create-image-with-internet/" title="Create an image with full Internet access" class="dd-item ">
-        <a href="/weblogic-image-tool/samples/create-image-with-internet/">
-        Create an image with full Internet access
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/samples/create-image-no-internet/" title="Create an image without Internet access" class="dd-item ">
-        <a href="/weblogic-image-tool/samples/create-image-no-internet/">
-        Create an image without Internet access
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/samples/patching-image/" title="Patch an existing image" class="dd-item ">
-        <a href="/weblogic-image-tool/samples/patching-image/">
-        Patch an existing image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/samples/create-image-wdt/" title="Create an image with a WLS domain using WDT" class="dd-item ">
-        <a href="/weblogic-image-tool/samples/create-image-wdt/">
-        Create an image with a WLS domain using WDT
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-          
-          
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/developer/" title="Developer Guide" class="dd-item
-        
-        
-        
-        ">
-      <a href="/weblogic-image-tool/developer/">
-          <b> </b>Developer Guide
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/developer/source/" title="Build from source" class="dd-item ">
-        <a href="/weblogic-image-tool/developer/source/">
-        Build from source
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/developer/contribute/" title="Contribute to WIT" class="dd-item ">
-        <a href="/weblogic-image-tool/developer/contribute/">
-        Contribute to WIT
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-          
-        
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-image-tool/release-notes">Release Notes</a></li>
-    </ul>
-
-    
-    
-
-    
-    <section id="footer">
-      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
-<p>&nbsp</p>
-<p><a href="https://github.com/oracle/weblogic-image-tool"><i class="fab fa-github"></i> GitHub repo</a></p>
-<p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
-
-    </section>
-  </div>
+  </ul>
 </nav>
-
-
-
-
-        <section id="body">
-        <div id="overlay"></div>
-        <div class="padding highlightable">
-              
-        <div id="head-tags">
-        
+                </div>
+              </div>
+            </div>
+          </div>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">WebLogic Image Tool</span><meta itemprop="position" content="1"></li>
+          </ol>
+          <div class="topbar-area topbar-area-end" data-area="end">
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle"><span><i class="fa-fw fas fa-chevron-left"></i></span></span>
+            </div>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-image-tool/quickstart/index.html" title="Quick Start Guide (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
+            </div>
+            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper">
+                  <div class="topbar-area topbar-area-more" data-area="more">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div id="body-inner">
-          
+      </nav>
+      <div id="R-main-overlay"></div>
+      <main id="R-body-inner" class="highlightable page" tabindex="-1">
+        <div class="flex-block-wrapper">
+<article class="default">
+  <header class="headline">
+  </header>
 
-        
 
-<span id="sidebar-toggle-span">
-<a href="#" id="sidebar-toggle" data-sidebar-toggle=""><i class="fas fa-bars"></i> navigation</a>
-</span>
 
- 
-<h1 id="weblogic-image-tool">WebLogic Image Tool</h1>
+
+
+<h1 id="weblogic-image-tool">WebLogic Image Tool<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h1>
 <p>Oracle is finding ways for organizations using WebLogic Server to run important workloads, to move those workloads into
 the cloud, and to simplify and speed up the application deployment life cycle. By adopting industry standards, such as Docker
 and Kubernetes, WebLogic now runs in a cloud neutral infrastructure.  To help simplify and automate the creation of
@@ -684,31 +177,136 @@ the JDK and Oracle Home as part of moving the domain.</li>
 <li>Create a new container image by applying WebLogic patches to an existing image. In addition,
 if one did not exist previously, you can create a WebLogic domain, update an existing domain, or deploy an application.</li>
 </ul>
-<p>For detailed information, see <a href="/userguide/tools/">Image Tool</a>.</p>
+<p>For detailed information, see 
+
+<a href="/weblogic-image-tool/userguide/tools/"
+   
+   >
+Image Tool
+</a>
+.</p>
 <hr>
-<h3 id="current-production-release">Current production release</h3>
-<p>WebLogic Image Tool version and release information can be found <a href="https://github.com/oracle/weblogic-image-tool/releases">here</a>.</p>
+<h3 id="current-production-release">Current production release<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p>WebLogic Image Tool version and release information can be found 
+
+<a href="https://github.com/oracle/weblogic-image-tool/releases"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+here
+</a>
+.</p>
 <hr>
-<h3 id="recent-changes-and-known-issues">Recent changes and known issues</h3>
-<p>See the <a href="/weblogic-image-tool/release-notes/">Release Notes</a> for issues and important information.</p>
-<h3 id="about-this-documentation">About this documentation</h3>
+<h3 id="recent-changes-and-known-issues">Recent changes and known issues<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p>See the 
+
+<a href="https://github.com/oracle/weblogic-image-tool/releases/"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+Release Notes
+</a>
+
+for issues and important information.</p>
+<h3 id="about-this-documentation">About this documentation<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <ul>
-<li>Use the <a href="/weblogic-image-tool/quickstart/quickstart/">Quick Start</a> guide to create a Linux based WebLogic container image.</li>
-<li>The <a href="/weblogic-image-tool/userguide/">User Guide</a> contains detailed usage information, including command options and usage scenarios.</li>
-<li>The <a href="/weblogic-image-tool/samples/">Samples</a> provide typical and informative use cases.</li>
-<li>The <a href="/weblogic-image-tool/developer/">Developer Guide</a> provides details for people who want to understand how WIT is built. Those
-who wish to contribute to the WebLogic Image Tool code will find useful information <a href="/weblogic-image-tool/developer/contribute/">here</a>.</li>
+<li>Use the 
+
+<a href="/weblogic-image-tool/quickstart/quickstart/"
+   
+   >
+Quick Start
+</a>
+ guide to create a Linux based WebLogic container image.</li>
+<li>The 
+
+<a href="/weblogic-image-tool/userguide/"
+   
+   >
+User Guide
+</a>
+ contains detailed usage information, including command options and usage scenarios.</li>
+<li>The 
+
+<a href="/weblogic-image-tool/samples/"
+   
+   >
+Samples
+</a>
+ provide typical and informative use cases.</li>
+<li>The 
+
+<a href="/weblogic-image-tool/developer/"
+   
+   >
+Developer Guide
+</a>
+ provides details for people who want to understand how WIT is built. Those
+who wish to contribute to the WebLogic Image Tool code will find useful information 
+
+<a href="/weblogic-image-tool/developer/contribute/"
+   
+   >
+here
+</a>
+.</li>
 </ul>
-<h3 id="related-projects">Related projects</h3>
+<h3 id="related-projects">Related projects<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <ul>
-<li><a href="https://oracle.github.io/weblogic-kubernetes-operator/">WebLogic Kubernetes Operator</a></li>
-<li><a href="https://oracle.github.io/weblogic-deploy-tooling/">WebLogic Deploy Tooling</a></li>
-<li><a href="https://oracle.github.io/weblogic-toolkit-ui/">WebLogic Kubernetes Toolkit UI</a></li>
-<li><a href="https://github.com/oracle/weblogic-monitoring-exporter">WebLogic Monitoring Exporter</a></li>
-<li><a href="https://github.com/oracle/weblogic-logging-exporter">WebLogic Logging Exporter</a></li>
-<li><a href="https://oracle.github.io/weblogic-remote-console/">WebLogic Remote Console</a></li>
+<li>
+
+<a href="https://oracle.github.io/weblogic-kubernetes-operator/"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+WebLogic Kubernetes Operator
+</a>
+</li>
+<li>
+
+<a href="https://oracle.github.io/weblogic-deploy-tooling/"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+WebLogic Deploy Tooling
+</a>
+</li>
+<li>
+
+<a href="https://oracle.github.io/weblogic-toolkit-ui/"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+WebLogic Kubernetes Toolkit UI
+</a>
+</li>
+<li>
+
+<a href="https://github.com/oracle/weblogic-monitoring-exporter"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+WebLogic Monitoring Exporter
+</a>
+</li>
+<li>
+
+<a href="https://oracle.github.io/weblogic-remote-console/"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+WebLogic Remote Console
+</a>
+</li>
 </ul>
-<h3 id="supported-fusion-middleware-fmw-products">Supported Fusion Middleware (FMW) products</h3>
+<h3 id="supported-fusion-middleware-fmw-products">Supported Fusion Middleware (FMW) products<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>Use WebLogic Image Tool to create, update, and rebase the following FMW product images:</p>
 <ul>
 <li>Oracle WebLogic Server (WLS)</li>
@@ -728,447 +326,86 @@ who wish to contribute to the WebLogic Image Tool code will find useful informat
 <li>Oracle WebCenter Portal (WCP)</li>
 <li>Oracle WebCenter Sites (WCS)</li>
 </ul>
-	
-  
-        
+
+  <footer class="footline">
+  </footer>
+</article>
         </div>
-        
+      </main>
+    </div>
+    <aside id="R-sidebar" class="default-animation">
+      <div id="R-header-topbar" class="default-animation"></div>
+      <div id="R-header-wrapper" class="default-animation">
+        <div id="R-header" class="default-animation">
 
+
+<a id="logo" href="https://oracle.github.io/weblogic-image-tool/">
+  <img src="https://oracle.github.io/weblogic-image-tool//images/logo.png" height="90"><br/>
+  WebLogic Image Tool
+</a>
+
+        </div>
+        <search><form action="/weblogic-image-tool/search/index.html" method="get">
+          <div class="searchbox default-animation">
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <label class="a11y-only" for="R-search-by">Search</label>
+            <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+          </div>
+        </form></search>
       </div>
+      <div id="R-homelinks" class="default-animation homelinks">
+        <div class="R-menu-divider default-animation">
+          <hr class="padding">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks">
+          <ul class="space collapsible-menu">
+            <li class="active " data-nav-url="/weblogic-image-tool/index.html"><a class="padding" href="/weblogic-image-tool/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols">
+          <ul class="">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding">
+        </div>
+      </div>
+      <div id="R-content-wrapper" class="highlightable">
+        <div class="R-sidebarmenu R-shortcutmenu-main">
+          <ul class="enlarge morespace collapsible-menu">
+            <li class="" data-nav-url="/weblogic-image-tool/quickstart/index.html"><a class="padding" href="/weblogic-image-tool/quickstart/index.html"><b> </b>Quick Start Guide</a><ul id="R-subsections-d63193e927818b6cb77d9c791ea48a61" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/index.html"><a class="padding" href="/weblogic-image-tool/userguide/index.html"><b> </b>User Guide</a><ul id="R-subsections-74b4df3a3d9365853f09e9f1dfe7bbba" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-url="/weblogic-image-tool/samples/index.html"><a class="padding" href="/weblogic-image-tool/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-url="/weblogic-image-tool/developer/index.html"><a class="padding" href="/weblogic-image-tool/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
+          </ul>
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts">
+          <ul class="space collapsible-menu">
+          </ul>
+        </div>
+        <div id="R-footer-margin"></div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols">
+          <ul class="">
+          </ul>
+        </div>
+<div id="R-footer">
 
-    <div id="navigation">
-        
-        
-
-        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                        
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                        
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-            
-        
-
-        
-
-
-	 
-	 
-		
-		
-			<a class="nav nav-next" href="/weblogic-image-tool/quickstart/" title="Quick Start" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
-		
-	
-    </div>
-
-    </section>
-
-    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
-      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
-    </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1765770427"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1765770427"></script>
-    
-        
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1765770427"></script>
-        
-        <script>
-            mermaid.initialize({ startOnLoad: true });
-        </script>
-    
-    
-
+<p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-toolkit-ui"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
+</div>
+      </div>
+    </aside>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar/perfect-scrollbar.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/theme.min.js?1766008598" defer></script>
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
-

@@ -1,73 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Image Tool on WebLogic Image Tool</title>
-    <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/</link>
-    <description>Recent content in Image Tool on WebLogic Image Tool</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <title>Image Tool Commands :: WebLogic Image Tool</title>
+    <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/index.html</link>
+    <description>Learn about the commands supported by the Image Tool.</description>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 22 Feb 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-image-tool/userguide/tools/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 11 Apr 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://oracle.github.io/weblogic-image-tool/userguide/tools/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Create Image</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/index.html</link>
       <pubDate>Thu, 11 Apr 2024 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/</guid>
-      <description>The create command helps build a WebLogic container image from a given base OS image. There are a number of optional parameters for this feature. The required option for the command is marked in the following table.
-NOTE: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID 2764636.1), because an SPB is not a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool create command with the --recommendedPatches option.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-image/index.html</guid>
+      <description>The create command creates a new container image and installs the requested Java and WebLogic software.</description>
     </item>
-    
     <item>
       <title>Create Auxiliary Image</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-aux-image/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-aux-image/index.html</link>
       <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-aux-image/</guid>
-      <description>The createAuxImage command helps build a container image from a given base OS image. Auxiliary images are very small images providing the WDT install files with WDT models, archives, and variables for WebLogic Kubernetes Operator - Auxiliary Images. These images are an alternative approach for including Model-in-Image model files, application archive files, WebLogic Deploying Tooling installation files, or other types of files, in your WebLogic Server Kubernetes Operator environment.
-There are a number of optional parameters for this feature.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/create-aux-image/index.html</guid>
+      <description>The createAuxImage command creates a new container image with WDT install and optional models, archives, and variables files.</description>
     </item>
-    
     <item>
       <title>Rebase Image</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/index.html</link>
       <pubDate>Thu, 11 Apr 2024 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/</guid>
-      <description>The rebase command creates a new container image and copies an existing WebLogic domain to that new image.
-The new container image can be based on an existing image in the repository or created as part of the rebase operation similar to the create command.
-Usage: imagetool rebase [OPTIONS] Parameter Definition Default --sourceImage (Required) Source Image containing the WebLogic domain. --tag (Required) Tag for the final build image. Example: store/oracle/weblogic:14.1.2.0.0 --additionalBuildCommands Path to a file with additional build commands.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/index.html</guid>
+      <description>The rebase command creates a new container image using an existing WebLogic domain from an existing image.</description>
     </item>
-    
     <item>
       <title>Update Image</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/index.html</link>
       <pubDate>Thu, 11 Apr 2024 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/</guid>
-      <description>After you have created a container image with the Image Tool, you may want to change it from time to time. Use the update command to update the existing container images created with the Image Tool. For example, you may want to:
-Apply a WebLogic patch Apply the latest PSU from Oracle Create a new WebLogic domain (if one did not already exist) Deploy a new application to an existing domain Modify the domain configuration (add a data source, change a port number, and such) NOTE: The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID 2764636.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/update-image/index.html</guid>
+      <description>The update command creates a new container image by applying WebLogic patches to an existing image.</description>
     </item>
-    
     <item>
       <title>Inspect Image</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/index.html</link>
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/</guid>
-      <description>The inspect command reports on the contents of a container image providing version and location information for Java and WebLogic installations.
-Usage: imagetool inspect [OPTIONS] Parameter Definition Default --image, -i (Required) The image ID or image name to be inspected. --builder, -b Executable to inspect Docker images. Use the full path of the executable if not on your path. Defaults to docker, or, when set, to the value in environment variable WLSIMG_BUILDER.</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/inspect-image/index.html</guid>
+      <description>The inspect command reports on the contents of a container image.</description>
     </item>
-    
     <item>
       <title>Cache</title>
-      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/</link>
+      <link>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/index.html</link>
       <pubDate>Sat, 23 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/</guid>
-      <description>The Image Tool maintains a local file cache store. This store is used to look up where the Java, WebLogic Server installers, and WebLogic Server patches reside in the local file system.
-By default, the cache store is located in the user&amp;rsquo;s $HOME/cache directory. Under this directory, the lookup information is stored in the .metadata file. All automatically downloaded patches also reside in this directory.
-You can change the default cache store location by setting the environment variable WLSIMG_CACHEDIR:</description>
+      <guid>https://oracle.github.io/weblogic-image-tool/userguide/tools/cache/index.html</guid>
+      <description>The Image Tool maintains metadata on the local file system for patches and installers.  You can use the cache command to manipulate the local metadata.</description>
     </item>
-    
   </channel>
 </rss>

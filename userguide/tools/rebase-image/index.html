@@ -1,705 +1,118 @@
 <!DOCTYPE html>
-<html lang="en" class="js csstransforms3d">
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.108.0">
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="generator" content="Hugo 0.152.2">
+    <meta name="generator" content="Relearn 8.3.0">
     <meta name="description" content="The rebase command creates a new container image using an existing WebLogic domain from an existing image.">
-
-
-    <link rel="icon" href="/weblogic-image-tool/images/favicon.png" type="image/png">
-
+    <meta name="author" content="">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Rebase Image :: WebLogic Image Tool">
+    <meta name="twitter:description" content="The rebase command creates a new container image using an existing WebLogic domain from an existing image.">
+    <meta property="og:url" content="https://oracle.github.io/weblogic-image-tool/userguide/tools/rebase-image/index.html">
+    <meta property="og:site_name" content="WebLogic Image Tool">
+    <meta property="og:title" content="Rebase Image :: WebLogic Image Tool">
+    <meta property="og:description" content="The rebase command creates a new container image using an existing WebLogic domain from an existing image.">
+    <meta property="og:locale" content="en_us">
+    <meta property="og:type" content="article">
+    <meta property="article:section" content="User Guide">
+    <meta property="article:published_time" content="2024-04-11T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-04-11T00:00:00+00:00">
+    <meta itemprop="name" content="Rebase Image :: WebLogic Image Tool">
+    <meta itemprop="description" content="The rebase command creates a new container image using an existing WebLogic domain from an existing image.">
+    <meta itemprop="datePublished" content="2024-04-11T00:00:00+00:00">
+    <meta itemprop="dateModified" content="2024-04-11T00:00:00+00:00">
+    <meta itemprop="wordCount" content="1286">
     <title>Rebase Image :: WebLogic Image Tool</title>
-
-    
-    <link href="/weblogic-image-tool/css/nucleus.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/fontawesome-all.min.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hybrid.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/featherlight.min.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/perfect-scrollbar.min.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/auto-complete.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/atom-one-dark-reasonable.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/tabs.css?1765770427" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/hugo-theme.css?1765770427" rel="stylesheet">
-    
-    
-
-    <script src="/weblogic-image-tool/js/jquery-3.6.0.min.js?1765770427"></script>
-
-    <style>
-      :root #header + #content > #left > #rlblock_left{
-          display:none !important;
-      }
-      
-        :not(pre) > code + span.copy-to-clipboard {
-            display: none;
+    <link href="/weblogic-image-tool/images/logo.png?1766008598" rel="icon" type="image/png">
+    <link href="/weblogic-image-tool/css/auto-complete/auto-complete.min.css?1766008598" rel="stylesheet">
+    <script src="/weblogic-image-tool/js/auto-complete/auto-complete.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/search-lunr.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/search.min.js?1766008598" defer></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.index_js_url="/weblogic-image-tool/searchindex.en.js?1766008598";
+    </script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.stemmer.support.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.multi.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.en.min.js?1766008598" defer></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.contentLangs=['en'];
+    </script>
+    <link href="/weblogic-image-tool/fonts/fontawesome/css/fontawesome-all.min.css?1766008598" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-image-tool/fonts/fontawesome/css/fontawesome-all.min.css?1766008598" rel="stylesheet"></noscript>
+    <link href="/weblogic-image-tool/css/perfect-scrollbar/perfect-scrollbar.min.css?1766008598" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.min.css?1766008598" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/format-html.min.css?1766008598" rel="stylesheet" id="R-format-style">
+    <script>
+      window.relearn = window.relearn || {};
+      // configuration
+      window.relearn.min = `.min`;
+      window.relearn.path='\/userguide\/tools\/rebase-image\/index.html';
+      window.relearn.relBasePath='..\/..\/..';
+      window.relearn.relBaseUri='..\/..\/..\/..';
+      window.relearn.absBaseUri='https:\/\/oracle.github.io\/weblogic-image-tool';
+      window.relearn.disableInlineCopyToClipboard=true;
+      window.relearn.enableBlockCodeWrap=true;
+      // legal
+      window.relearn.getItem = (s,n) => {return s.getItem(n)};
+      window.relearn.setItem = (s,n,v) => {return s.setItem(n,v)};
+      window.relearn.removeItem = (s,n) => {return s.removeItem(n)};
+      // translations
+      window.T_Copy_to_clipboard = `Copy text to clipboard`;
+      window.T_Copied_to_clipboard = `Text copied to clipboard!`;
+      window.T_Link_copied_to_clipboard = `Link copied to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+      window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
+      // variant stuff
+      window.relearn.themevariants = [ 'learn' ];
+      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.changeVariant = function(variant) {
+        var oldVariant = document.documentElement.dataset.rThemeVariant;
+        window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+        document.documentElement.dataset.rThemeVariant = variant;
+        if (oldVariant != variant) {
+          document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
+          window.relearn.markVariant();
         }
-      
-    </style>
-    
+      }
+      window.relearn.markVariant = function() {
+        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant");
+        document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
+      }
+      window.relearn.initVariant = function() {
+        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant") ?? "";
+        if( variant == window.relearn.customvariantname ){
+        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+          variant = window.relearn.themevariants[0];
+          window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+        }
+        document.documentElement.dataset.rThemeVariant = variant;
+      }
+      window.relearn.initVariant();
+      window.relearn.markVariant();
+    </script>
   </head>
-  <body class="" data-url="/weblogic-image-tool/userguide/tools/rebase-image/">
-    <nav id="sidebar" class="">
-
-
-
-  <div id="header-wrapper">
-    <div id="header">
-      <a id="logo" href="https://oracle.github.io/weblogic-image-tool">
-  <img src="https://oracle.github.io/weblogic-image-tool/images/logo.png" height="90"><br/>
-  WebLogic Image Tool
-</a>
-
-    </div>
-    
-        <div class="searchbox">
-    <label for="search-by"><i class="fas fa-search"></i></label>
-    <input data-search-input id="search-by" type="search" placeholder="Search...">
-    <span data-search-clear=""><i class="fas fa-times"></i></span>
-</div>
-
-<script type="text/javascript" src="/weblogic-image-tool/js/lunr.min.js?1765770427"></script>
-<script type="text/javascript" src="/weblogic-image-tool/js/auto-complete.js?1765770427"></script>
-<script type="text/javascript">
-    
-        var baseurl = "https:\/\/oracle.github.io\/weblogic-image-tool";
-    
-</script>
-<script type="text/javascript" src="/weblogic-image-tool/js/search.js?1765770427"></script>
-
-    
-  </div>
-
-    <div class="highlightable">
-    <ul class="topics">
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-image-tool">Home</a></li>
-        
-          
-          
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/quickstart/" title="Quick Start" class="dd-item
-        
-        
-        
-        ">
-      <a href="/weblogic-image-tool/quickstart/">
-          <b> </b>Quick Start
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/quickstart/quickstart/" title="Steps" class="dd-item ">
-        <a href="/weblogic-image-tool/quickstart/quickstart/">
-        Steps
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-          
-          
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/userguide/" title="User Guide" class="dd-item
-        parent
-        
-        
-        ">
-      <a href="/weblogic-image-tool/userguide/">
-          <b> </b>User Guide
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-            
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/prerequisites/" title="Prerequisites" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/prerequisites/">
-        Prerequisites
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/setup/" title="Setup" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/setup/">
-        Setup
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/userguide/tools/" title="Image Tool" class="dd-item
-        parent
-        
-        
-        ">
-      <a href="/weblogic-image-tool/userguide/tools/">
-          <b> </b>Image Tool
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/create-image/" title="Create Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/create-image/">
-        Create Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/create-aux-image/" title="Create Auxiliary Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/create-aux-image/">
-        Create Auxiliary Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/rebase-image/" title="Rebase Image" class="dd-item active">
-        <a href="/weblogic-image-tool/userguide/tools/rebase-image/">
-        Rebase Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/update-image/" title="Update Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/update-image/">
-        Update Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/inspect-image/" title="Inspect Image" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/inspect-image/">
-        Inspect Image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/tools/cache/" title="Cache" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/tools/cache/">
-        Cache
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/cleanup/" title="Cleanup" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/cleanup/">
-        Cleanup
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/config/" title="Configuration" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/config/">
-        Configuration
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/userguide/logging/" title="Logging" class="dd-item ">
-        <a href="/weblogic-image-tool/userguide/logging/">
-        Logging
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-          
-          
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/samples/" title="Samples" class="dd-item
-        
-        
-        
-        ">
-      <a href="/weblogic-image-tool/samples/">
-          <b> </b>Samples
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/samples/create-image-with-internet/" title="Create an image with full Internet access" class="dd-item ">
-        <a href="/weblogic-image-tool/samples/create-image-with-internet/">
-        Create an image with full Internet access
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/samples/create-image-no-internet/" title="Create an image without Internet access" class="dd-item ">
-        <a href="/weblogic-image-tool/samples/create-image-no-internet/">
-        Create an image without Internet access
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/samples/patching-image/" title="Patch an existing image" class="dd-item ">
-        <a href="/weblogic-image-tool/samples/patching-image/">
-        Patch an existing image
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/samples/create-image-wdt/" title="Create an image with a WLS domain using WDT" class="dd-item ">
-        <a href="/weblogic-image-tool/samples/create-image-wdt/">
-        Create an image with a WLS domain using WDT
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-          
-          
-
-
-
-
- 
-  
-    
-    <li data-nav-id="/weblogic-image-tool/developer/" title="Developer Guide" class="dd-item
-        
-        
-        
-        ">
-      <a href="/weblogic-image-tool/developer/">
-          <b> </b>Developer Guide
-          
-      </a>
-      
-      
-        <ul>
-          
-          
-          
-
-        
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/developer/source/" title="Build from source" class="dd-item ">
-        <a href="/weblogic-image-tool/developer/source/">
-        Build from source
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-            
-            
-
-
-
-
- 
-  
-    
-      <li data-nav-id="/weblogic-image-tool/developer/contribute/" title="Contribute to WIT" class="dd-item ">
-        <a href="/weblogic-image-tool/developer/contribute/">
-        Contribute to WIT
-        
-        </a>
-    </li>
-     
-  
- 
-
-            
-          
-        
-        </ul>
-      
-    </li>
-  
- 
-
-          
-        
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-image-tool/release-notes">Release Notes</a></li>
-    </ul>
-
-    
-    
-
-    
-    <section id="footer">
-      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
-<p>&nbsp</p>
-<p><a href="https://github.com/oracle/weblogic-image-tool"><i class="fab fa-github"></i> GitHub repo</a></p>
-<p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
-
-    </section>
-  </div>
-</nav>
-
-
-
-
-        <section id="body">
-        <div id="overlay"></div>
-        <div class="padding highlightable">
-              
-              <div>
-                <div id="top-bar">
-                
-                
-                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
-                    <span id="sidebar-toggle-span">
-                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
-                          <i class="fas fa-bars"></i>
-                        </a>
-                    </span>
-                  
-                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
-                  
-                  <span class="links">
-                 
-                 
-                    
-          
-          
-            
-            
-          
-          
-            
-            
-          
-          
-            
-            
-          
-          
-            <a href='/weblogic-image-tool/'></a> > <a href='/weblogic-image-tool/userguide/'>User Guide</a> > <a href='/weblogic-image-tool/userguide/tools/'>Image Tool</a> > Rebase Image
-          
-        
-          
-        
-          
-        
-          
-        
-                 
-                  </span>
-                </div>
-                
-                    <div class="progress">
-    <div class="wrapper">
-<nav id="TableOfContents">
+  <body class="mobile-support html" data-url="/weblogic-image-tool/userguide/tools/rebase-image/index.html">
+    <div id="R-body" class="default-animation">
+      <div id="R-body-overlay"></div>
+      <nav id="R-topbar">
+        <div class="topbar-wrapper">
+          <div class="topbar-sidebar-divider"></div>
+          <div class="topbar-area topbar-area-start" data-area="start">
+            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
+            </div>
+            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button></span>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper">
+<nav class="TableOfContents">
   <ul>
     <li>
       <ul>
@@ -709,271 +122,308 @@
     </li>
   </ul>
 </nav>
-    </div>
-</div>
-
-                
+                </div>
               </div>
             </div>
-            
-        <div id="head-tags">
-        
+          </div>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-image-tool/index.html"><span itemprop="name">WebLogic Image Tool</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-image-tool/userguide/index.html"><span itemprop="name">User Guide</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-image-tool/userguide/tools/index.html"><span itemprop="name">Image Tool Commands</span></a><meta itemprop="position" content="3">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Rebase Image</span><meta itemprop="position" content="4"></li>
+          </ol>
+          <div class="topbar-area topbar-area-end" data-area="end">
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-image-tool/userguide/tools/create-aux-image/index.html" title="Create Auxiliary Image (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
+            </div>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-image-tool/userguide/tools/update-image/index.html" title="Update Image (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
+            </div>
+            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper">
+                  <div class="topbar-area topbar-area-more" data-area="more">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div id="body-inner">
-          
-            <h1>
-              
-              Rebase Image
-            </h1>
-          
+      </nav>
+      <div id="R-main-overlay"></div>
+      <main id="R-body-inner" class="highlightable userguide" tabindex="-1">
+        <div class="flex-block-wrapper">
+<article class="default">
+  <header class="headline">
+  </header>
 
-        
+
+
+<h1 id="rebase-image">Rebase Image</h1>
+
 
 
 <p>The <code>rebase</code> command creates a new container image and copies an existing WebLogic domain to that new image.<br>
 The new container image can be based on an existing image in the repository or created as part of the rebase operation
 similar to the <code>create</code> command.</p>
-<pre tabindex="0"><code>Usage: imagetool rebase [OPTIONS]
-</code></pre><table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Definition</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--sourceImage</code></td>
-<td>(Required) Source Image containing the WebLogic domain.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--tag</code></td>
-<td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:14.1.2.0.0</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>--additionalBuildCommands</code></td>
-<td>Path to a file with additional build commands. For more details, see <a href="#--additionalbuildcommands">Additional information</a>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--additionalBuildFiles</code></td>
-<td>Additional files that are required by your <code>additionalBuildCommands</code>.  A comma separated list of files that should be copied to the build context. See <a href="#--additionalbuildfiles">Additional information</a>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--builder</code>, <code>-b</code></td>
-<td>Executable to process the Dockerfile. Use the full path of the executable if not on your path.</td>
-<td>Defaults to <code>docker</code>, or, when set, to the value in environment variable <code>WLSIMG_BUILDER</code>.</td>
-</tr>
-<tr>
-<td><code>--buildNetwork</code></td>
-<td>Networking mode for the RUN instructions during the image build.  See <code>--network</code> for Docker <code>build</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--chown</code></td>
-<td><code>userid:groupid</code> to be used for creating files within the image, such as the JDK, the FMW/WLS installs, etc.  If the user or group does not exist in the image, they will be added with useradd/groupadd.</td>
-<td><code>oracle:oracle</code></td>
-</tr>
-<tr>
-<td><code>--dryRun</code></td>
-<td>Skip Docker build execution and print the Dockerfile to stdout.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--fromImage</code></td>
-<td>Container image to use as a base image when creating a new image.</td>
-<td><code>ghcr.io/oracle/oraclelinux:8-slim</code></td>
-</tr>
-<tr>
-<td><code>--httpProxyUrl</code></td>
-<td>Proxy for the HTTP protocol. Example: <code>http://myproxy:80</code> or <code>http:user:passwd@myproxy:8080</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>--httpsProxyUrl</code></td>
-<td>Proxy for the HTTPS protocol. Example: <code>https://myproxy:80</code> or <code>https:user:passwd@myproxy:8080</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>--installerResponseFile</code></td>
-<td>One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--inventoryPointerFile</code></td>
-<td>Path to custom inventory pointer file.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--inventoryPointerInstallLoc</code></td>
-<td>Target location for the inventory pointer file.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--jdkVersion</code></td>
-<td>Version of the server JDK to install.</td>
-<td><code>8u202</code></td>
-</tr>
-<tr>
-<td><code>--latestPSU</code></td>
-<td>Find and apply the latest PatchSet Update.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--opatchBugNumber</code></td>
-<td>The patch number for OPatch (patching OPatch).</td>
-<td><code>28186730</code></td>
-</tr>
-<tr>
-<td><code>--packageManager</code></td>
-<td>Override the default package manager for the base image&rsquo;s operating system. Supported values: <code>APK</code>, <code>APTGET</code>, <code>NONE</code>, <code>OS_DEFAULT</code>, <code>YUM</code>, <code>ZYPPER</code></td>
-<td><code>OS_DEFAULT</code></td>
-</tr>
-<tr>
-<td><code>--password</code></td>
-<td>Request password for the Oracle Support <code>--user</code> on STDIN, see <code>--user</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--passwordEnv</code></td>
-<td>Environment variable containing the Oracle Support password, see <code>--user</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--passwordFile</code></td>
-<td>Path to a file containing just the Oracle Support password, see <code>--user</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--patches</code></td>
-<td>Comma separated list of patch IDs. Example: <code>12345678,87654321</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>--platform</code></td>
-<td>Set the target platform to build.  Supported values: <code>linux/amd64</code> or <code>linux/arm64</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--pull</code></td>
-<td>Always attempt to pull a newer version of base images during the build.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--recommendedPatches</code></td>
-<td>Find and apply the latest PatchSet Update and recommended patches. This takes precedence over <code>--latestPSU</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--skipcleanup</code></td>
-<td>Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--strictPatchOrdering</code></td>
-<td>Instruct OPatch to apply patches one at a time (uses <code>apply</code> instead of <code>napply</code>).</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--target</code></td>
-<td>Select the target environment in which the created image will be used. Supported values: <code>Default</code> (Docker/Kubernetes), <code>OpenShift</code>. See <a href="#--target">Additional information</a>.</td>
-<td><code>Default</code></td>
-</tr>
-<tr>
-<td><code>--targetImage</code></td>
-<td>Container image to extend for the domain&rsquo;s new image.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--type</code></td>
-<td>Installer type. Supported values: <code>WLS</code>, <code>WLSDEV</code>, <code>WLSSLIM</code>, <code>FMW</code>, <code>IDM</code>, <code>MFT</code>, <code>OAM</code>, <code>ODI</code>, <code>OHS</code>, <code>OIG</code>, <code>OUD</code>, <code>OUD_WLS</code>, <code>OID</code>, <code>OSB</code>, <code>SOA</code>, <code>SOA_OSB</code>, <code>SOA_OSB_B2B</code>, <code>WCC</code>, <code>WCP</code>, <code>WCS</code></td>
-<td><code>WLS</code></td>
-</tr>
-<tr>
-<td><code>--useBuildx</code></td>
-<td>Use BuildKit for building the container image.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--user</code></td>
-<td>Your Oracle support email ID. When supplying <code>user</code>, you must supply the password either as an environment variable using <code>--passwordEnv</code>, or as a file using <code>--passwordFile</code>, or interactively, on the command line with <code>--password</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>--version</code></td>
-<td>Installer version.</td>
-<td><code>14.1.2.0.0</code></td>
-</tr>
-</tbody>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0"><code>Usage: imagetool rebase [OPTIONS]</code></pre></div>
+<table>
+  <thead>
+      <tr>
+          <th>Parameter</th>
+          <th>Definition</th>
+          <th>Default</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>--sourceImage</code></td>
+          <td>(Required) Source Image containing the WebLogic domain.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--tag</code></td>
+          <td>(Required) Tag for the final build image. Example: <code>store/oracle/weblogic:14.1.2.0.0</code></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--additionalBuildCommands</code></td>
+          <td>Path to a file with additional build commands. For more details, see 
+
+<a href="#--additionalbuildcommands"
+   
+   >
+Additional information
+</a>
+.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--additionalBuildFiles</code></td>
+          <td>Additional files that are required by your <code>additionalBuildCommands</code>.  A comma separated list of files that should be copied to the build context. See 
+
+<a href="#--additionalbuildfiles"
+   
+   >
+Additional information
+</a>
+.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--builder</code>, <code>-b</code></td>
+          <td>Executable to process the Dockerfile. Use the full path of the executable if not on your path.</td>
+          <td>Defaults to <code>docker</code>, or, when set, to the value in environment variable <code>WLSIMG_BUILDER</code>.</td>
+      </tr>
+      <tr>
+          <td><code>--buildNetwork</code></td>
+          <td>Networking mode for the RUN instructions during the image build.  See <code>--network</code> for Docker <code>build</code>.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--chown</code></td>
+          <td><code>userid:groupid</code> to be used for creating files within the image, such as the JDK, the FMW/WLS installs, etc.  If the user or group does not exist in the image, they will be added with useradd/groupadd.</td>
+          <td><code>oracle:oracle</code></td>
+      </tr>
+      <tr>
+          <td><code>--dryRun</code></td>
+          <td>Skip Docker build execution and print the Dockerfile to stdout.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--fromImage</code></td>
+          <td>Container image to use as a base image when creating a new image.</td>
+          <td><code>ghcr.io/oracle/oraclelinux:8-slim</code></td>
+      </tr>
+      <tr>
+          <td><code>--httpProxyUrl</code></td>
+          <td>Proxy for the HTTP protocol. Example: <code>http://myproxy:80</code> or <code>http:user:passwd@myproxy:8080</code></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--httpsProxyUrl</code></td>
+          <td>Proxy for the HTTPS protocol. Example: <code>https://myproxy:80</code> or <code>https:user:passwd@myproxy:8080</code></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--installerResponseFile</code></td>
+          <td>One or more custom response files. A comma separated list of paths to installer response files. Overrides the default responses for the Oracle silent installer.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--inventoryPointerFile</code></td>
+          <td>Path to custom inventory pointer file.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--inventoryPointerInstallLoc</code></td>
+          <td>Target location for the inventory pointer file.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--jdkVersion</code></td>
+          <td>Version of the server JDK to install.</td>
+          <td><code>8u202</code></td>
+      </tr>
+      <tr>
+          <td><code>--latestPSU</code></td>
+          <td>Find and apply the latest PatchSet Update.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--opatchBugNumber</code></td>
+          <td>The patch number for OPatch (patching OPatch).</td>
+          <td><code>28186730</code></td>
+      </tr>
+      <tr>
+          <td><code>--packageManager</code></td>
+          <td>Override the default package manager for the base image&rsquo;s operating system. Supported values: <code>APK</code>, <code>APTGET</code>, <code>NONE</code>, <code>OS_DEFAULT</code>, <code>YUM</code>, <code>ZYPPER</code></td>
+          <td><code>OS_DEFAULT</code></td>
+      </tr>
+      <tr>
+          <td><code>--password</code></td>
+          <td>Request password for the Oracle Support <code>--user</code> on STDIN, see <code>--user</code>.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--passwordEnv</code></td>
+          <td>Environment variable containing the Oracle Support password, see <code>--user</code>.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--passwordFile</code></td>
+          <td>Path to a file containing just the Oracle Support password, see <code>--user</code>.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--patches</code></td>
+          <td>Comma separated list of patch IDs. Example: <code>12345678,87654321</code></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--platform</code></td>
+          <td>Set the target platform to build.  Supported values: <code>linux/amd64</code> or <code>linux/arm64</code>.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--pull</code></td>
+          <td>Always attempt to pull a newer version of base images during the build.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--recommendedPatches</code></td>
+          <td>Find and apply the latest PatchSet Update and recommended patches. This takes precedence over <code>--latestPSU</code>.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--skipcleanup</code></td>
+          <td>Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--strictPatchOrdering</code></td>
+          <td>Instruct OPatch to apply patches one at a time (uses <code>apply</code> instead of <code>napply</code>).</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--target</code></td>
+          <td>Select the target environment in which the created image will be used. Supported values: <code>Default</code> (Docker/Kubernetes), <code>OpenShift</code>. See 
+
+<a href="#--target"
+   
+   >
+Additional information
+</a>
+.</td>
+          <td><code>Default</code></td>
+      </tr>
+      <tr>
+          <td><code>--targetImage</code></td>
+          <td>Container image to extend for the domain&rsquo;s new image.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--type</code></td>
+          <td>Installer type. Supported values: <code>WLS</code>, <code>WLSDEV</code>, <code>WLSSLIM</code>, <code>FMW</code>, <code>IDM</code>, <code>MFT</code>, <code>OAM</code>, <code>ODI</code>, <code>OHS</code>, <code>OIG</code>, <code>OUD</code>, <code>OUD_WLS</code>, <code>OID</code>, <code>OSB</code>, <code>SOA</code>, <code>SOA_OSB</code>, <code>SOA_OSB_B2B</code>, <code>WCC</code>, <code>WCP</code>, <code>WCS</code></td>
+          <td><code>WLS</code></td>
+      </tr>
+      <tr>
+          <td><code>--useBuildx</code></td>
+          <td>Use BuildKit for building the container image.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--user</code></td>
+          <td>Your Oracle support email ID. When supplying <code>user</code>, you must supply the password either as an environment variable using <code>--passwordEnv</code>, or as a file using <code>--passwordFile</code>, or interactively, on the command line with <code>--password</code>.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>--version</code></td>
+          <td>Installer version.</td>
+          <td><code>14.1.2.0.0</code></td>
+      </tr>
+  </tbody>
 </table>
-<h3 id="additional-information">Additional information</h3>
-<h4 id="--additionalbuildcommands"><code>--additionalBuildCommands</code></h4>
+<h3 id="additional-information">Additional information<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<h4 id="--additionalbuildcommands"><code>--additionalBuildCommands</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>This is an advanced option that let&rsquo;s you provide additional commands to the Docker build step.<br>
 The input for this parameter is a simple text file that contains one or more of the valid sections. Valid sections for rebase:</p>
 <table>
-<thead>
-<tr>
-<th>Section</th>
-<th>Available Variables</th>
-<th>Build Stage</th>
-<th>Timing</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>initial-build-commands</code></td>
-<td>None</td>
-<td>All</td>
-<td>As root, and before any Image Tool actions.</td>
-</tr>
-<tr>
-<td><code>before-jdk-install</code></td>
-<td><code>JAVA_HOME</code> <code>DOMAIN_HOME</code></td>
-<td>Intermediate (JDK_BUILD)</td>
-<td>Before the JDK is installed.</td>
-</tr>
-<tr>
-<td><code>after-jdk-install</code></td>
-<td><code>JAVA_HOME</code> <code>DOMAIN_HOME</code></td>
-<td>Intermediate (JDK_BUILD)</td>
-<td>After the JDK is installed.</td>
-</tr>
-<tr>
-<td><code>before-fmw-install</code></td>
-<td><code>JAVA_HOME</code> <code>ORACLE_HOME</code> <code>DOMAIN_HOME</code></td>
-<td>Intermediate (WLS_BUILD)</td>
-<td>Before the Oracle Home is created.</td>
-</tr>
-<tr>
-<td><code>after-fmw-install</code></td>
-<td><code>JAVA_HOME</code> <code>ORACLE_HOME</code> <code>DOMAIN_HOME</code></td>
-<td>Intermediate (WLS_BUILD)</td>
-<td>After all of the Oracle middleware installers are finished.</td>
-</tr>
-<tr>
-<td><code>final-build-commands</code></td>
-<td><code>JAVA_HOME</code> <code>ORACLE_HOME</code> <code>DOMAIN_HOME</code></td>
-<td>Final image</td>
-<td>After all Image Tool actions are complete, and just before the container image is finalized.</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Section</th>
+          <th>Available Variables</th>
+          <th>Build Stage</th>
+          <th>Timing</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>initial-build-commands</code></td>
+          <td>None</td>
+          <td>All</td>
+          <td>As root, and before any Image Tool actions.</td>
+      </tr>
+      <tr>
+          <td><code>before-jdk-install</code></td>
+          <td><code>JAVA_HOME</code> <code>DOMAIN_HOME</code></td>
+          <td>Intermediate (JDK_BUILD)</td>
+          <td>Before the JDK is installed.</td>
+      </tr>
+      <tr>
+          <td><code>after-jdk-install</code></td>
+          <td><code>JAVA_HOME</code> <code>DOMAIN_HOME</code></td>
+          <td>Intermediate (JDK_BUILD)</td>
+          <td>After the JDK is installed.</td>
+      </tr>
+      <tr>
+          <td><code>before-fmw-install</code></td>
+          <td><code>JAVA_HOME</code> <code>ORACLE_HOME</code> <code>DOMAIN_HOME</code></td>
+          <td>Intermediate (WLS_BUILD)</td>
+          <td>Before the Oracle Home is created.</td>
+      </tr>
+      <tr>
+          <td><code>after-fmw-install</code></td>
+          <td><code>JAVA_HOME</code> <code>ORACLE_HOME</code> <code>DOMAIN_HOME</code></td>
+          <td>Intermediate (WLS_BUILD)</td>
+          <td>After all of the Oracle middleware installers are finished.</td>
+      </tr>
+      <tr>
+          <td><code>final-build-commands</code></td>
+          <td><code>JAVA_HOME</code> <code>ORACLE_HOME</code> <code>DOMAIN_HOME</code></td>
+          <td>Final image</td>
+          <td>After all Image Tool actions are complete, and just before the container image is finalized.</td>
+      </tr>
+  </tbody>
 </table>
 <p><strong>NOTE</strong>: Changes made in intermediate stages may not be carried forward to the final image unless copied manually.<br>
 The Image Tool will copy the Java Home and the Oracle Home directories to the final image.<br>
 Changes fully contained within these directories do not need an additional <code>COPY</code> command in the <code>final-build-commands</code> section.
 Each section can contain one or more valid Dockerfile commands and would look like the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#f92672">[</span>after-fmw-install<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#f92672">[</span>after-fmw-install<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
 </span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> rm /some/dir/unnecessary-file<span style="color:#960050;background-color:#1e0010">
 </span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>oracle:oracle files/my_additional_file.txt /u01<span style="color:#960050;background-color:#1e0010">
 </span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
 </span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#f92672">[</span>final-build-commands<span style="color:#f92672">]</span><span style="color:#960050;background-color:#1e0010">
-</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span><span style="color:#960050;background-color:#1e0010">
-</span></span></span></code></pre></div><h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code></h4>
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">LABEL</span> owner<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;middleware team&#34;</span></span></span></code></pre></div>
+<h4 id="--additionalbuildfiles"><code>--additionalBuildFiles</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>This option provides a way to supply additional files to the image build command.
 All provided files and directories are copied directly under the <code>files</code> subfolder of the build context.<br>
 To get those files into the image, additional build commands must be provided using the <code>additionalBuildCommands</code> options.
@@ -988,524 +438,164 @@ on when the build needs access to the file.  For example, if the file is needed 
 installation or domain creation steps, use the <code>final-build-commands</code> section so that the <code>COPY</code> command occurs in the
 final stage of the image build.  Or, if the file needs to change the Oracle Home prior to domain creation, use
 the <code>after-fmw-install</code> or <code>before-wdt-command</code> sections.</p>
-<h4 id="--target"><code>--target</code></h4>
+<h4 id="--target"><code>--target</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>By default, the generated WLS domain in your image will use the best practices defined by Oracle WebLogic Server.<br>
 The <code>target</code> option allows you to toggle the defaults so that the generated domain is easier to use in the target
 environment.  For example, the <code>--target OpenShift</code> option will change the file permissions in the domain directory
 so that the group permissions match the user permissions.</p>
 <table>
-<thead>
-<tr>
-<th>Target</th>
-<th>Default File Permissions</th>
-<th>Default File Ownership</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Default</code></td>
-<td><code>rwxr-x---</code></td>
-<td><code>oracle:oracle</code></td>
-</tr>
-<tr>
-<td><code>OpenShift</code></td>
-<td><code>rwxrwx---</code></td>
-<td><code>oracle:root</code></td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Target</th>
+          <th>Default File Permissions</th>
+          <th>Default File Ownership</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>Default</code></td>
+          <td><code>rwxr-x---</code></td>
+          <td><code>oracle:oracle</code></td>
+      </tr>
+      <tr>
+          <td><code>OpenShift</code></td>
+          <td><code>rwxrwx---</code></td>
+          <td><code>oracle:root</code></td>
+      </tr>
+  </tbody>
 </table>
-<h4 id="use-an-argument-file">Use an argument file</h4>
+<h4 id="use-an-argument-file">Use an argument file<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>You can save all arguments passed for the Image Tool in a file, then use the file as a parameter.</p>
 <p>For example, create a file called <code>build_args</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rebase
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rebase
 </span></span><span style="display:flex;"><span>--tag wls:141200
 </span></span><span style="display:flex;"><span>--sourceImage wls:141100
 </span></span><span style="display:flex;"><span>--version 14.1.2.0.0
-</span></span><span style="display:flex;"><span>--jdkVersion 21.0.6
-</span></span></code></pre></div><p>Use it on the command line, as follows:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool @/path/to/build_args
-</span></span></code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
+</span></span><span style="display:flex;"><span>--jdkVersion 21.0.6</span></span></code></pre></div>
+<p>Use it on the command line, as follows:</p>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool @/path/to/build_args</span></span></code></pre></div>
+<h3 id="usage-scenarios">Usage scenarios<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p><strong>Note</strong>: Use <code>--passwordEnv</code> or <code>--passwordFile</code> instead of <code>--password</code>.</p>
 <p>The commands below assume that all the required JDK, WLS, or FMW (WebLogic infrastructure) installers have been downloaded
-to the cache directory. Use the <a href="/weblogic-image-tool/userguide/tools/cache/">cache</a> command to set it up.</p>
+to the cache directory. Use the 
+
+<a href="/weblogic-image-tool/userguide/tools/cache/"
+   
+   >
+cache
+</a>
+ command to set it up.</p>
 <ul>
 <li>
 <p>Update the JDK for an existing domain.  Copy the existing domain from <code>sample:v1</code> where the JDK was 8u401 to a new
 image called <code>sample:v2</code> and install the newer JDK 21.0.6 with WebLogic Server 14.1.2.0.0.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 14.1.2.0.0 --jdkVersion 21.0.6
-</span></span></code></pre></div></li>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 14.1.2.0.0 --jdkVersion 21.0.6</span></span></code></pre></div>
+</li>
 <li>
 <p>Update the Oracle Home for an existing domain with a newer WebLogic version.  Copy a domain from an existing image to
 a new image with a new install of WebLogic Server 14.1.2.0.0.  Copy the domain
 from <code>sample:v1</code> and select the desired WebLogic installer using the <code>--version</code> argument.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 14.1.4.0.0 --jdkVersion 21.0.6
-</span></span></code></pre></div></li>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --version 14.1.4.0.0 --jdkVersion 21.0.6</span></span></code></pre></div>
+</li>
 <li>
 <p>Update the JDK and/or Oracle Home for an existing domain using another image with pre-installed binaries.
 Copy the domain from the source image named <code>sample:v1</code> to a new image called <code>sample:v2</code> based on a target image
 named <code>fmw:1412</code>.  <strong>Note</strong>: The Oracle Home and JDK must be installed in the same folders on each image.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:1412
-</span></span></code></pre></div></li>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ imagetool rebase --tag sample:v2 --sourceImage sample:v1 --targetImage fmw:1412</span></span></code></pre></div>
+</li>
 </ul>
 
-
-<footer class="footline">
-	
-</footer>
-
-        
+  <footer class="footline">
+  </footer>
+</article>
         </div>
-        
+      </main>
+    </div>
+    <aside id="R-sidebar" class="default-animation">
+      <div id="R-header-topbar" class="default-animation"></div>
+      <div id="R-header-wrapper" class="default-animation">
+        <div id="R-header" class="default-animation">
 
+
+<a id="logo" href="https://oracle.github.io/weblogic-image-tool/">
+  <img src="https://oracle.github.io/weblogic-image-tool//images/logo.png" height="90"><br/>
+  WebLogic Image Tool
+</a>
+
+        </div>
+        <search><form action="/weblogic-image-tool/search/index.html" method="get">
+          <div class="searchbox default-animation">
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <label class="a11y-only" for="R-search-by">Search</label>
+            <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+          </div>
+        </form></search>
       </div>
+      <div id="R-homelinks" class="default-animation homelinks">
+        <div class="R-menu-divider default-animation">
+          <hr class="padding">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks">
+          <ul class="space collapsible-menu">
+            <li class="" data-nav-url="/weblogic-image-tool/index.html"><a class="padding" href="/weblogic-image-tool/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols">
+          <ul class="">
+          </ul>
+        </div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding">
+        </div>
+      </div>
+      <div id="R-content-wrapper" class="highlightable">
+        <div class="R-sidebarmenu R-shortcutmenu-main">
+          <ul class="enlarge morespace collapsible-menu">
+            <li class="" data-nav-url="/weblogic-image-tool/quickstart/index.html"><a class="padding" href="/weblogic-image-tool/quickstart/index.html"><b> </b>Quick Start Guide</a><ul id="R-subsections-d63193e927818b6cb77d9c791ea48a61" class="collapsible-menu"></ul></li>
+            <li class="parent " data-nav-url="/weblogic-image-tool/userguide/index.html"><a class="padding" href="/weblogic-image-tool/userguide/index.html"><b> </b>User Guide</a><ul id="R-subsections-74b4df3a3d9365853f09e9f1dfe7bbba" class="collapsible-menu">
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/prerequisites/index.html"><a class="padding" href="/weblogic-image-tool/userguide/prerequisites/index.html">Prerequisites</a></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/setup/index.html"><a class="padding" href="/weblogic-image-tool/userguide/setup/index.html">Setup</a></li>
+            <li class="parent alwaysopen " data-nav-url="/weblogic-image-tool/userguide/tools/index.html"><a class="padding" href="/weblogic-image-tool/userguide/tools/index.html"><b> </b>Image Tool Commands</a><ul id="R-subsections-7b3bc9511e17e6cce72c059be01d1c1d" class="collapsible-menu">
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/tools/create-image/index.html"><a class="padding" href="/weblogic-image-tool/userguide/tools/create-image/index.html">Create Image</a></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/tools/create-aux-image/index.html"><a class="padding" href="/weblogic-image-tool/userguide/tools/create-aux-image/index.html">Create Auxiliary Image</a></li>
+            <li class="active " data-nav-url="/weblogic-image-tool/userguide/tools/rebase-image/index.html"><a class="padding" href="/weblogic-image-tool/userguide/tools/rebase-image/index.html">Rebase Image</a></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/tools/update-image/index.html"><a class="padding" href="/weblogic-image-tool/userguide/tools/update-image/index.html">Update Image</a></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/tools/inspect-image/index.html"><a class="padding" href="/weblogic-image-tool/userguide/tools/inspect-image/index.html">Inspect Image</a></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/tools/cache/index.html"><a class="padding" href="/weblogic-image-tool/userguide/tools/cache/index.html">Cache</a></li></ul></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/cleanup/index.html"><a class="padding" href="/weblogic-image-tool/userguide/cleanup/index.html">Cleanup</a></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/config/index.html"><a class="padding" href="/weblogic-image-tool/userguide/config/index.html">Configuration</a></li>
+            <li class="" data-nav-url="/weblogic-image-tool/userguide/logging/index.html"><a class="padding" href="/weblogic-image-tool/userguide/logging/index.html">Logging</a></li></ul></li>
+            <li class="" data-nav-url="/weblogic-image-tool/samples/index.html"><a class="padding" href="/weblogic-image-tool/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-url="/weblogic-image-tool/developer/index.html"><a class="padding" href="/weblogic-image-tool/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
+          </ul>
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts">
+          <ul class="space collapsible-menu">
+          </ul>
+        </div>
+        <div id="R-footer-margin"></div>
+        <div class="R-menu-divider default-animation">
+          <hr class="padding">
+        </div>
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols">
+          <ul class="">
+          </ul>
+        </div>
+<div id="R-footer">
 
-    <div id="navigation">
-        
-        
-
-        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                        
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                        
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-            
-        
-
-        
-
-
-	 
-	 
-		
-			<a class="nav nav-prev" href="/weblogic-image-tool/userguide/tools/create-aux-image/" title="Create Auxiliary Image"> <i class="fa fa-chevron-left"></i></a>
-		
-		
-			<a class="nav nav-next" href="/weblogic-image-tool/userguide/tools/update-image/" title="Update Image" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
-		
-	
-    </div>
-
-    </section>
-
-    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
-      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
-    </div>
-    <script src="/weblogic-image-tool/js/clipboard.min.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.min.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar.jquery.min.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/jquery.sticky.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/featherlight.min.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/highlight.pack.js?1765770427"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-image-tool/js/modernizr.custom-3.6.0.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/learn.js?1765770427"></script>
-    <script src="/weblogic-image-tool/js/hugo-learn.js?1765770427"></script>
-    
-        
-            <script src="/weblogic-image-tool/mermaid/mermaid.js?1765770427"></script>
-        
-        <script>
-            mermaid.initialize({ startOnLoad: true });
-        </script>
-    
-    
-
+<p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-toolkit-ui"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
+</div>
+      </div>
+    </aside>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar/perfect-scrollbar.min.js?1766008598" defer></script>
+    <script src="/weblogic-image-tool/js/theme.min.js?1766008598" defer></script>
+    <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
-
