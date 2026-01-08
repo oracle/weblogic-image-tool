@@ -5,6 +5,7 @@ package com.oracle.weblogic.imagetool.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -18,7 +19,11 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -41,6 +46,7 @@ import java.util.stream.Stream;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import org.jetbrains.annotations.NonNls;
@@ -793,5 +799,102 @@ public class Utils {
         //TODO: remove this method after moving to JDK 11+
         Objects.requireNonNull(target);
         return (Predicate<T>)target.negate();
+    }
+
+    /**
+     * Return the sha256 hash string of the file.
+     * @param filename file to check for sha256 hash
+     * @return sha256 hash value
+     */
+    public static String getSha256Hash(String filename) {
+        try {
+            MessageDigest digest;
+            try {
+                digest = MessageDigest.getInstance("SHA-256");
+            } catch (NoSuchAlgorithmException ex) {
+                throw new IOException(ex);
+            }
+            try (FileInputStream fis = new FileInputStream(filename)) {
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = fis.read(buffer)) != -1) {
+                    digest.update(buffer, 0, read);
+                }
+            }
+            byte[] hash = digest.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString().toUpperCase();
+
+        } catch (Exception ie) {
+            return "";
+        }
+    }
+
+    /**
+     * Get today's date in yyyy-mm-dd format.
+     * @return date format
+     */
+    public static String getTodayDate() {
+        LocalDate today = LocalDate.now();
+        return today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
+    /**
+     * Get epoch date in yyyy-mm-dd HH:MM:SS format.
+     * @return date format
+     */
+    public static String getReleaseDate(String epoch) {
+        if (epoch == null) {
+            return getTodayDate();
+        } else {
+            String [] dates = epoch.split(" ");
+            if (dates.length == 2) {
+                return dates[0];
+            } else {
+                return getTodayDate();
+            }
+        }
+    }
+
+    /**
+     * Return standard platform name from the possible names.
+     * @param platform input value to convert
+     * @return standardized platform name
+     */
+    public static String standardPlatform(String platform) {
+        if (Architecture.AMD64.getAcceptableNames().contains(platform)) {
+            return "linux/amd64";
+        }
+        if (Architecture.ARM64.getAcceptableNames().contains(platform)) {
+            return "linux/arm64";
+        }
+        return "Generic";
+    }
+
+    /**
+     * Return true if it is ok to return the generic installer if the specific architecture is not available.
+     * @param type installer type
+     * @return true if it is ok return the generic installer if the specific architecture is not available
+     */
+    public static boolean isGenericInstallerAcceptable(InstallerType type) {
+        List<InstallerType> types = Arrays.asList(InstallerType.WDT);
+        return types.contains(type);
+    }
+
+    /**
+     * Return true if the type is a base installer JDK, WDT, WLS, or FMW.
+     * @param type installer type
+     * @return true if the type is a base installer JDK, WDT, WLS, or FMW
+     */
+    public static boolean isBaseInstallerType(InstallerType type) {
+        return type.equals(InstallerType.WDT)
+            || type.equals(InstallerType.WLS)
+            || type.equals(InstallerType.JDK)
+            || type.equals(InstallerType.DB19)
+            || type.equals(InstallerType.OHS)
+            || type.equals(InstallerType.FMW);
     }
 }

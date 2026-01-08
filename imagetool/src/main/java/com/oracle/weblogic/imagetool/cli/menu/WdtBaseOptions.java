@@ -20,7 +20,6 @@ import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 public class WdtBaseOptions {
 
@@ -86,8 +85,8 @@ public class WdtBaseOptions {
         }
 
         if (!skipWdtInstaller()) {
-            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion, architecture);
-            Path wdtfile = wdtInstaller.copyFile(cache(), tmpDir);
+            CachedFile wdtInstaller = new CachedFile(InstallerType.WDT, wdtVersion, Architecture.GENERIC);
+            Path wdtfile = wdtInstaller.copyFile(tmpDir);
             dockerfileOptions.setWdtInstallerFilename(wdtfile.getFileName().toString());
         }
         logger.exiting();

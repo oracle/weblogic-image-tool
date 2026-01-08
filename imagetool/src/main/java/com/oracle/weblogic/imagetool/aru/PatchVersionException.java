@@ -5,7 +5,6 @@ package com.oracle.weblogic.imagetool.aru;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.util.Utils;
 
@@ -17,11 +16,7 @@ public class PatchVersionException extends IOException {
      * @param bugNumber         the bug number that was searched
      * @param versionsAvailable the list of versions for patches of that bug
      */
-    public PatchVersionException(String bugNumber, List<AruPatch> versionsAvailable) {
-        super(Utils.getMessage("IMG-0034", bugNumber,
-            versionsAvailable.stream()
-                .map(s -> bugNumber + "_" + s.version())
-                .collect(Collectors.joining(", ")))
-        );
+    public PatchVersionException(String bugNumber, List<String> versionsAvailable) {
+        super(Utils.getMessage("IMG-0034", bugNumber, versionsAvailable));
     }
 }

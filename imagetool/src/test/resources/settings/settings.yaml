@@ -1,0 +1,11 @@
+installerDirectory: settings/installers
+patchDirectory: settings/oraclePatches
+installerSettingsFile: src/test/resources/settings/installers.yaml
+patchSettingsFile: src/test/resources/settings/patches.yaml
+installers:
+  jdk:
+    defaultVersion: 8u401
+  wls:
+    defaultVersion: 12.2.1.4.0
+  wdt:
+    defaultVersion: latest

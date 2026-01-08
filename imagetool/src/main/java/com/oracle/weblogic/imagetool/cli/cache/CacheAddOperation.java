@@ -3,50 +3,116 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
+import com.oracle.weblogic.imagetool.cachestore.CacheStore;
+import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
+import com.oracle.weblogic.imagetool.patch.PatchMetaData;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import picocli.CommandLine.Option;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
 
 public abstract class CacheAddOperation extends CacheOperation {
 
     public abstract String getKey();
 
-    CommandResponse addToCache() throws CacheStoreException {
+    public abstract String getVersion();
+
+    public abstract String getCommonName();
+
+    public abstract Architecture getArchitecture();
+
+    public abstract String getDescription();
+
+    public abstract String getBaseFMWVersion();
+
+    CommandResponse addInstallerToCache() throws IOException {
+        if (filePath == null || !Files.isRegularFile(filePath)) {
+            return CommandResponse.error("IMG-0049", filePath);
+        }
+
+        String type = getKey();
+        String name = getCommonName();
+
+        Architecture arch = getArchitecture();
+        // Force WDT to be generic
+        if (InstallerType.fromString(type) == InstallerType.WDT) {
+            arch = Architecture.GENERIC;
+        }
+
+        InstallerMetaData metaData;
+
+        if (getCommonName() == null) {
+            metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.fromString(type),
+                arch, getVersion());
+            name = getVersion();
+        } else {
+            metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.fromString(type),
+                arch, getVersion(), getCommonName());
+        }
+
+        if (metaData != null) {
+            return CommandResponse.success("IMG-0075");
+        } else {
+            if (getCommonName() != null) {
+                // Check the case for commonName, only one version is allowed
+                List<InstallerMetaData> tempList = ConfigManager.getInstance()
+                    .listInstallerByCommonName(InstallerType.fromString(type),
+                    getCommonName());
+                if (tempList != null && !tempList.isEmpty()) {
+                    for (InstallerMetaData installerMetaData : tempList) {
+                        if (!installerMetaData.getProductVersion().equals(getVersion())) {
+                            return CommandResponse.error("IMG-0164", installerMetaData.getProductVersion());
+                        }
+                    }
+                }
+            }
+        }
+
+        metaData = new InstallerMetaData(arch.toString(), filePath.toAbsolutePath().toString(),
+            getVersion(), getBaseFMWVersion());
+        ConfigManager.getInstance().addInstaller(InstallerType.fromString(type), name, metaData);
+        // if the new value is the same as the existing cache value, do nothing
+
+        return CommandResponse.success("IMG-0050", type, metaData.getProductVersion(), metaData.getLocation());
+    }
+
+    CommandResponse addPatchToCache() throws IOException {
         // if file is invalid or does not exist, return an error
         if (filePath == null || !Files.isRegularFile(filePath)) {
             return CommandResponse.error("IMG-0049", filePath);
         }
 
-        String key = getKey();
-        // if the new value is the same as the existing cache value, do nothing
-        String existingValue = cache().getValueFromCache(key);
-        if (absolutePath().toString().equals(existingValue)) {
+        String bugNumber = getKey();
+        String version = getVersion();
+
+        int separator = bugNumber.indexOf(CacheStore.CACHE_KEY_SEPARATOR);
+        if (separator > 0) {
+            version = bugNumber.substring(separator + 1);
+            bugNumber = bugNumber.substring(0, separator);
+        }
+
+        PatchMetaData metaData = ConfigManager.getInstance().getPatchForPlatform(getArchitecture().toString(),
+            bugNumber, version);
+
+        if (metaData != null) {
             return CommandResponse.success("IMG-0075");
         }
 
-        // if there is already a cache entry and the user did not ask to force it, return an error
-        if (!force && existingValue != null) {
-            return CommandResponse.error("IMG-0048", key, existingValue);
-        }
+        Architecture arch = getArchitecture();
 
-        // input appears valid, add the entry to the cache and exit
-        cache().addToCache(key, absolutePath().toString());
-        return CommandResponse.success("IMG-0050", key, cache().getValueFromCache(key));
+        ConfigManager.getInstance().addPatch(bugNumber, arch.toString(), filePath.toAbsolutePath().toString(),
+            version, getDescription());
+
+        return CommandResponse.success("IMG-0130", bugNumber, version,
+            filePath.toAbsolutePath().toString());
     }
-
-    private Path absolutePath() {
-        if (absolutePath == null) {
-            absolutePath = filePath.toAbsolutePath();
-        }
-        return absolutePath;
-    }
-
-    private Path absolutePath = null;
 
     @Option(
         names = {"--force"},

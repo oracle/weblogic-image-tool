@@ -6,13 +6,21 @@ package com.oracle.weblogic.imagetool.cachestore;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.oracle.weblogic.imagetool.aru.AruException;
 import com.oracle.weblogic.imagetool.aru.MockAruUtil;
 import com.oracle.weblogic.imagetool.cli.menu.CommonOptions;
+import com.oracle.weblogic.imagetool.patch.PatchMetaData;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
+import com.oracle.weblogic.imagetool.util.TestSetup;
+import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -28,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Tag("unit")
 class OPatchFileTest {
     private static CacheStore cacheStore;
+    static final List<String> fileContents = Arrays.asList("A", "B", "C");
 
     @BeforeAll
     static void setup(@TempDir Path tempDir, @TempDir Path cacheDir)
@@ -36,11 +45,30 @@ class OPatchFileTest {
         // Mock REST calls to ARU for patches
         MockAruUtil.insertMockAruInstance(new MockAruUtil());
 
-        // Create a fake cache with a fake OPatch install
-        cacheStore  = new CacheStoreTestImpl(cacheDir);
-        Path installer = tempDir.resolve("opatch_install.zip");
-        Files.write(installer, Arrays.asList("A", "B", "C"));
-        cacheStore.addToCache("28186730_13.9.4.2.10", installer.toString());
+        TestSetup.setup(tempDir);
+        ConfigManager configManager = ConfigManager.getInstance();
+        Path patchFile = Paths.get(configManager.getPatchDetailsFile());
+
+        addPatchesToLocal(tempDir, configManager, patchFile, "28186730",
+            "Generic", "patch1.zip","13.9.4.2.10");
+
+    }
+
+    private static void addPatchesToLocal(Path tempDir, ConfigManager configManager, Path patchListingFile,
+                                          String bugNumber, String patchArchitecture, String patchLocation,
+                                          String patchVersion) throws IOException {
+        Map<String, List<PatchMetaData>> patches = configManager.getAllPatches();
+        List<PatchMetaData> latestPatches = patches.get(bugNumber);
+        if (latestPatches == null) {
+            latestPatches = new ArrayList<>();
+        }
+        Path path = tempDir.resolve(patchLocation);
+        Files.write(path, fileContents);
+        PatchMetaData latestPatch = new PatchMetaData(patchArchitecture, path.toAbsolutePath().toString(),
+            Utils.getSha256Hash(path.toAbsolutePath().toString()),"2024-10-17", patchVersion, "");
+        latestPatches.add(latestPatch);
+        patches.put(bugNumber, latestPatches);
+        configManager.saveAllPatches(patches);
     }
 
     @AfterAll
@@ -61,7 +89,7 @@ class OPatchFileTest {
     private void checkOpatchVersion(String expectedVersion, String patchId)
         throws XPathExpressionException, IOException, AruException {
 
-        OPatchFile opatchFile = OPatchFile.getInstance(patchId, "xxxx", "yyyy", cacheStore);
+        OPatchFile opatchFile = OPatchFile.getInstance(patchId, "xxxx", "yyyy");
         assertNotNull(opatchFile);
         assertEquals(expectedVersion, opatchFile.getVersion());
     }
@@ -90,7 +118,7 @@ class OPatchFileTest {
     void offlineFindHighestVersion() throws XPathExpressionException, IOException, AruException {
         // if the user does not specify an opatchBugNumber,
         // the code should search the local cache for the highest version
-        OPatchFile opatchFile = OPatchFile.getInstance(null, null, null, cacheStore);
+        OPatchFile opatchFile = OPatchFile.getInstance(null, null, null);
         assertNotNull(opatchFile);
         assertEquals("13.9.4.2.10", opatchFile.getVersion());
     }

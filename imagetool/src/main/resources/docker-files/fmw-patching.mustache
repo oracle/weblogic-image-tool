@@ -13,19 +13,23 @@
 {{/isOpatchPatchingEnabled}}
 
 {{#isPatchingEnabled}}
-    COPY --chown={{userid}}:{{groupid}} patches/* {{{tempDir}}}/patches/
+    COPY --chown={{userid}}:{{groupid}} patches/ {{{tempDir}}}/patches/
 
     {{^strictPatchOrdering}}
         # Apply all patches provided at the same time
-        RUN {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -nonrollbackable -phBaseDir {{{tempDir}}}/patches \
+        RUN if [ "$(ls -A {{{tempDir}}}/patches/$TARGETPLATFORM)" ] ; then \
+        {{{oracle_home}}}/OPatch/opatch napply -silent -oh {{{oracle_home}}} -nonrollbackable -phBaseDir {{{tempDir}}}/patches/$TARGETPLATFORM \
         && test $? -eq 0 \
         && {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}} \
-        || (cat {{{oracle_home}}}/cfgtoollogs/opatch/opatch*.log && exit 1)
+        || (cat {{{oracle_home}}}/cfgtoollogs/opatch/opatch*.log && exit 1) \
+        fi
     {{/strictPatchOrdering}}
     {{#strictPatchOrdering}}
         # Apply one patch at a time in the order they were specified
         {{#patches}}
-            RUN {{{oracle_home}}}/OPatch/opatch apply -silent -oh {{{oracle_home}}} -nonrollbackable {{{tempDir}}}/patches/{{{.}}}
+            RUN if [ "$(ls -A {{{tempDir}}}/patches/$TARGETPLATFORM)" ] ; then \
+            {{{oracle_home}}}/OPatch/opatch apply -silent -oh {{{oracle_home}}} -nonrollbackable {{{tempDir}}}/$TARGETPLATFORMpatches/$TARGETPLATFORM/{{{.}}} \
+            fi
         {{/patches}}
         RUN {{{oracle_home}}}/OPatch/opatch util cleanup -silent -oh {{{oracle_home}}}
     {{/strictPatchOrdering}}

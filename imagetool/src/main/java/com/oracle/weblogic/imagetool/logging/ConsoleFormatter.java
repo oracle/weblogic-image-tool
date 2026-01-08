@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * Format is "[ LEVEL ] message", with optional throw-ables.
  */
 public class ConsoleFormatter extends Formatter {
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.lineSeparator();
     public static final Pattern colorPattern = Pattern.compile("\\[\\[([a-z]+): (.+?)]]");
 
     static {

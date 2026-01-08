@@ -3,11 +3,12 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
+import java.io.IOException;
+
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
 import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.util.Architecture;
+import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -19,27 +20,49 @@ import picocli.CommandLine.Option;
 public class AddInstallerEntry extends CacheAddOperation {
 
     @Override
-    public CommandResponse call() throws CacheStoreException {
+    public CommandResponse call() throws IOException {
         if ("NONE".equalsIgnoreCase(version)) {
             throw new IllegalArgumentException("IMG-0105");
         }
 
-        return addToCache();
+        return addInstallerToCache();
     }
 
     @Override
     public String getKey() {
-        StringBuilder key = new StringBuilder(25)
-            .append(type)
-            .append(CacheStore.CACHE_KEY_SEPARATOR)
-            .append(version);
+        return type.toString();
+    }
 
-        if (architecture != null) {
-            key.append(CacheStore.CACHE_KEY_SEPARATOR)
-                .append(architecture);
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public String getCommonName() {
+        if (commonName == null) {
+            return version;
         }
+        return commonName;
+    }
 
-        return key.toString();
+    @Override
+    public Architecture getArchitecture() {
+        return architecture;
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
+    @Override
+    public String getBaseFMWVersion() {
+        if (!Utils.isBaseInstallerType(type)) {
+            return baseFMWVersion;
+        } else {
+            return null;
+        }
     }
 
     @Option(
@@ -52,15 +75,32 @@ public class AddInstallerEntry extends CacheAddOperation {
 
     @Option(
             names = {"-v", "--version"},
-            description = "Installer version. Ex: For WLS|FMW use 12.2.1.3.0 For jdk, use 8u201",
+            description = "Installer version. Ex: For WLS|FMW use 12.2.1.3.0 For jdk, use 8u201. The version for WLS, "
+                + "FMW etc. will be used to obtain patches.",
             required = true
     )
     private String version;
 
     @Option(
         names = {"-a", "--architecture"},
-        description = "(Optional) Installer architecture. Valid values: ${COMPLETION-CANDIDATES}"
+        required = true,
+        description = "Installer architecture. Valid values: ${COMPLETION-CANDIDATES}"
     )
     private Architecture architecture;
 
+    @Option(
+        names = {"-c", "--commonName"},
+        description = "(Optional) common name. Valid values:  Alphanumeric values with no special characters. "
+            + "If not specified, default to the version value.  Use this if you want to use a special name for the "
+            + "particular version of the installer."
+    )
+    private String commonName;
+
+    @Option(
+        names = {"-bv", "--baseFMWVersion"},
+        description = "Base FMW version. Used by upper level product dependent on base WLS version different from the "
+            + " stack installer.",
+        required = false
+    )
+    private String baseFMWVersion;
 }

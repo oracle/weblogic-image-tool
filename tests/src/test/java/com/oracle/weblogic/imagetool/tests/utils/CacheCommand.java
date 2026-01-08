@@ -6,28 +6,23 @@ package com.oracle.weblogic.imagetool.tests.utils;
 import java.nio.file.Path;
 
 public class CacheCommand extends ImageToolCommand {
+    private String commonName;
     private String version;
     private String type;
 
     // cache flags
-    private boolean listItems;
     private boolean addInstaller;
     private boolean addPatch;
-    private boolean addEntry;
-    private boolean deleteEntry;
+    private boolean listInstallers;
+    private boolean listPatches;
+    private boolean deletePatch;
+    private boolean deleteInstaller;
     private String path;
     private String patchId;
-    private String key;
-    private String value;
-
+    private String architecture;
 
     public CacheCommand() {
         super("cache");
-    }
-
-    public CacheCommand listItems(boolean value) {
-        listItems = value;
-        return this;
     }
 
     public CacheCommand addInstaller(boolean value) {
@@ -40,15 +35,24 @@ public class CacheCommand extends ImageToolCommand {
         return this;
     }
 
+    public CacheCommand listInstallers(boolean value) {
+        listInstallers = value;
+        return this;
+    }
 
-    public CacheCommand addEntry(boolean value) {
-        addEntry = value;
+    public CacheCommand listPatches(boolean value) {
+        listPatches = value;
+        return this;
+    }
+
+    public CacheCommand deletePatch(boolean value) {
+        deletePatch = value;
         return this;
     }
 
 
-    public CacheCommand deleteEntry(boolean value) {
-        deleteEntry = value;
+    public CacheCommand deleteInstaller(boolean value) {
+        deleteInstaller = value;
         return this;
     }
 
@@ -56,17 +60,7 @@ public class CacheCommand extends ImageToolCommand {
         path = value.toString();
         return this;
     }
-
-    public CacheCommand key(String value) {
-        key = value;
-        return this;
-    }
-
-    public CacheCommand value(Path value) {
-        this.value = value.toString();
-        return this;
-    }
-
+    
     public CacheCommand patchId(String value) {
         patchId = value;
         return this;
@@ -86,6 +80,16 @@ public class CacheCommand extends ImageToolCommand {
         return this;
     }
 
+    public CacheCommand architecture(String value) {
+        architecture = value;
+        return this;
+    }
+
+    public CacheCommand commonName(String value) {
+        commonName = value;
+        return this;
+    }
+
     /**
      * Generate the command using the provided command line options.
      * @return the imagetool command as a string suitable for running in ProcessBuilder
@@ -93,17 +97,18 @@ public class CacheCommand extends ImageToolCommand {
     @Override
     public String build() {
         return super.build()
-            + field("listItems", listItems)
             + field("addInstaller", addInstaller)
             + field("addPatch", addPatch)
-            + field("addEntry", addEntry)
-            + field("deleteEntry", deleteEntry)
-            + field("--key", key)
-            + field("--value", value)
+            + field("deleteInstaller", deleteInstaller)
+            + field("deletePatch", deletePatch)
+            + field("listPatches", listPatches)
+            + field("listInstallers", listInstallers)
+            + field("--commonName", commonName)
             + field("--version", version)
             + field("--type", type)
             + field("--path", path)
-            + field("--patchId", patchId);
+            + field("--patchId", patchId)
+            + field("--architecture", architecture);
     }
 
 }

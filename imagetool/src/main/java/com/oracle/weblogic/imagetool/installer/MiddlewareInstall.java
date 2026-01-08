@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -15,11 +16,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.oracle.weblogic.imagetool.api.model.CachedFile;
-import com.oracle.weblogic.imagetool.cachestore.CacheStore;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
+
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.CTX_FMW;
 
 public class MiddlewareInstall {
 
@@ -33,19 +38,72 @@ public class MiddlewareInstall {
      * @param type the requested middleware install type
      */
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
-                             Architecture target) throws FileNotFoundException {
-        logger.info("IMG-0039", type.installerListString(version), version);
+                             List<String> buildPlatform, String buildEngine, String commonName)
+        throws FileNotFoundException {
+        logger.info("IMG-0039", type.installerListString(), version);
         fmwInstallerType = type;
-
-        for (InstallerType installer : type.installerList(version)) {
-            MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
-            pkg.type = installer;
-            pkg.installer = new CachedFile(installer, version, target);
-            pkg.responseFile = new DefaultResponseFile(installer, type);
-            if (installer.equals(InstallerType.DB19)) {
-                pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
+        ConfigManager configManager = ConfigManager.getInstance();
+        if (buildPlatform == null) {
+            buildPlatform = new ArrayList<>();
+        }
+        if (buildPlatform.isEmpty()) {
+            if (configManager.getDefaultBuildPlatform() != null) {
+                buildPlatform.add(configManager.getDefaultBuildPlatform());
+            } else {
+                buildPlatform.add(Architecture.getLocalArchitecture().name());
             }
-            addInstaller(pkg);
+        }
+        Architecture localArchitecture = Architecture.getLocalArchitecture();
+        String originalType = type.toString();
+
+
+        for (InstallerType installerType : type.installerList(version)) {
+            for (String platform : buildPlatform) {
+
+                logger.info("IMG-0153", installerType, version, platform);
+                platform = Utils.standardPlatform(platform);
+                MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
+                Architecture arch = Architecture.fromString(platform);
+                if (localArchitecture != arch) {
+                    logger.warning("IMG-0146");
+                }
+                pkg.type = installerType;
+                if (AMD64_BLD.equals(platform)) {
+                    pkg.installer = new CachedFile(installerType, version, Architecture.AMD64, commonName);
+                }
+                if (ARM64_BLD.equals(platform)) {
+                    pkg.installer = new CachedFile(installerType, version, Architecture.ARM64, commonName);
+                }
+
+                // get the details from cache of whether there is a base version of WLS required.
+                String useVersion = version;
+                if (type.installerList().size() > 1 && installerType == InstallerType.FMW) {
+                    InstallerMetaData productData = configManager.getInstallerForPlatform(
+                        InstallerType.fromString(originalType),
+                        Architecture.fromString(platform), version);
+                    if (productData == null) {
+                        throw new IllegalArgumentException(Utils.getMessage("IMG-0145",
+                            InstallerType.fromString(originalType),
+                            Architecture.fromString(platform), version));
+                    }
+
+                    useVersion = productData.getBaseFMWVersion();
+                }
+
+                InstallerMetaData metaData = configManager.getInstallerForPlatform(installerType, arch, useVersion);
+                if (metaData == null) {
+                    throw new IllegalArgumentException(Utils.getMessage("IMG-0145", installerType,
+                        arch, useVersion));
+                }
+                pkg.installerPath = Paths.get(metaData.getLocation());
+                pkg.installerFilename = pkg.installerPath.getFileName().toString();
+                pkg.responseFile = new DefaultResponseFile(installerType, type);
+                pkg.platform = platform;
+                if (installerType.equals(InstallerType.DB19)) {
+                    pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
+                }
+                addInstaller(pkg);
+            }
         }
         setResponseFiles(responseFiles, version);
     }
@@ -75,19 +133,26 @@ public class MiddlewareInstall {
 
     /**
      * Copy all necessary installers to the build context directory.
-     * @param cacheStore cache where the installers are defined.
      * @param buildContextDir the directory where the installers should be copied.
      * @throws IOException if any of the copy commands fails.
      */
-    public void copyFiles(CacheStore cacheStore, String buildContextDir) throws IOException {
+    public void copyFiles(String buildContextDir) throws IOException {
         logger.entering();
+
         for (MiddlewareInstallPackage installPackage: installerFiles) {
-            Path filePath = installPackage.installer.copyFile(cacheStore, buildContextDir);
-            installPackage.installerFilename = filePath.getFileName().toString();
-            installPackage.jarName = getJarNameFromInstaller(filePath);
+            String buildContextDestination = buildContextDir;
+            // based on the platform copy to sub directory
+            if (installPackage.platform.equals(AMD64_BLD)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_FMW + AMD64_BLD;
+            } else if (installPackage.platform.equals(ARM64_BLD)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_FMW + ARM64_BLD;
+            }
+            Files.copy(installPackage.installerPath,
+                Paths.get(buildContextDestination).resolve(installPackage.installerPath.getFileName()));
+            installPackage.jarName = getJarNameFromInstaller(installPackage.installerPath);
             installPackage.isZip = installPackage.installerFilename.endsWith(".zip");
             installPackage.isBin = installPackage.jarName.endsWith(".bin");
-            installPackage.responseFile.copyFile(buildContextDir);
+            installPackage.responseFile.copyFile(buildContextDestination);
         }
         logger.exiting();
     }

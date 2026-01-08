@@ -7,7 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -18,6 +19,8 @@ import com.oracle.weblogic.imagetool.aru.NoPatchesFoundException;
 import com.oracle.weblogic.imagetool.aru.VersionNotFoundException;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.patch.PatchMetaData;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.Utils;
 
 public class OPatchFile extends PatchFile {
@@ -26,21 +29,20 @@ public class OPatchFile extends PatchFile {
 
     public static final String DEFAULT_BUG_NUM = "28186730";
 
+
     /**
      * Create an abstract OPatch file to help resolve the local file or download the remote patch.
      *
      * @param patchId  bug number and optional version
      * @param userid   the username to use for retrieving the patch
      * @param password the password to use with the userId to retrieve the patch
-     * @param cache    the local cache used for patch storage
      * @return an abstract OPatch file
      */
-    public static OPatchFile getInstance(String patchId, String userid, String password, CacheStore cache)
+    public static OPatchFile getInstance(String patchId, String providedVersion, String userid, String password)
         throws AruException, XPathExpressionException, IOException {
 
         logger.entering(patchId);
         String patchNumber = patchId;
-        String providedVersion = null;
         if (patchId == null) {
             // if the user did not provide a patch number, assume the default OPatch bug number
             patchNumber = DEFAULT_BUG_NUM;
@@ -54,13 +56,21 @@ public class OPatchFile extends PatchFile {
 
         AruPatch selectedPatch;
         if (isOffline(userid, password)) {
-            selectedPatch = getAruPatchOffline(patchNumber, providedVersion, cache);
+            selectedPatch = getAruPatchOffline(patchNumber, providedVersion);
         } else {
             try {
                 selectedPatch = getAruPatchOnline(patchNumber, providedVersion, userid, password);
             } catch (VersionNotFoundException notFound) {
                 // Could not find the user requested OPatch version on ARU, checking local cache before giving up
-                if (cache.containsKey(patchId)) {
+                Map<String, List<PatchMetaData>> patchSettings = ConfigManager.getInstance().getAllPatches();
+                final String searchVersion = providedVersion;
+                Optional<String> p = patchSettings.entrySet().stream()
+                    .filter(e -> e.getValue().stream()
+                        .anyMatch(m -> m.getPatchVersion().equalsIgnoreCase(searchVersion)))
+                    .map(Map.Entry::getKey)
+                    .findFirst();
+
+                if (p.isPresent()) {
                     logger.info("OPatch version {0} is not available online, using cached copy.", providedVersion);
                     selectedPatch = new AruPatch().patchId(patchNumber).version(providedVersion);
                 } else {
@@ -74,16 +84,29 @@ public class OPatchFile extends PatchFile {
         return new OPatchFile(selectedPatch, userid, password);
     }
 
+    /**
+     * Create an abstract OPatch file to help resolve the local file or download the remote patch.
+     *
+     * @param patchId  bug number and optional version
+     * @param userid   the username to use for retrieving the patch
+     * @param password the password to use with the userId to retrieve the patch
+     * @return an abstract OPatch file
+     */
+    public static OPatchFile getInstance(String patchId, String userid, String password)
+        throws AruException, XPathExpressionException, IOException {
+        return getInstance(patchId, null, userid, password);
+    }
+
     private static boolean isOffline(String userid, String password) {
         return userid == null || password == null;
     }
 
-    private static AruPatch getAruPatchOffline(String patchNumber, String providedVersion, CacheStore cache) {
+    private static AruPatch getAruPatchOffline(String patchNumber, String providedVersion) {
         // if working offline, update the placeholder in the list to have the provided version or the latest cached
         AruPatch offlinePatch = new AruPatch().patchId(patchNumber);
         if (Utils.isEmptyString(providedVersion)) {
             // user did not request a specific version, find the latest version of OPatch in the cache
-            offlinePatch.version(getLatestCachedVersion(cache, patchNumber));
+            offlinePatch.version(getLatestCachedVersion(patchNumber));
         } else {
             offlinePatch.version(providedVersion);
         }
@@ -94,7 +117,6 @@ public class OPatchFile extends PatchFile {
     private static AruPatch getAruPatchOnline(String patchNumber, String providedVersion,
                                               String userid, String password)
         throws XPathExpressionException, IOException, AruException {
-
         List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password)
             .filter(p -> p.isApplicableToTarget(2000)) // OPatch is always platform 2000/generic
             .filter(AruPatch::isOpenAccess) // filter ARU results based on access flag (discard protected versions)
@@ -132,22 +154,17 @@ public class OPatchFile extends PatchFile {
         super(patch, userId, password);
     }
 
-    private static String getLatestCachedVersion(CacheStore cache, String patchId) {
+    private static String getLatestCachedVersion(String patchId) {
         String latestVersion = "0.0.0.0.0";
-        Set<String> keys = cache.getCacheItems().keySet();
-        for (String key : keys) {
-            if (key.startsWith(patchId)) {
-                logger.fine("found OPatch entry in cache {0}", key);
-                int split = key.indexOf('_');
-                if (split < 0) {
-                    continue;
-                }
-                String cacheVersion = key.substring(split + 1);
-                if (Utils.compareVersions(latestVersion, cacheVersion) < 0) {
-                    logger.fine("using cache {0} as newer OPatch version instead of {1}", key, latestVersion);
-                    latestVersion = cacheVersion;
-                }
+        Map<String, List<PatchMetaData>> patchList = ConfigManager.getInstance().getAllPatches();
+        List<PatchMetaData> patchMetaDataList = patchList.get(patchId);
+        for (PatchMetaData patchMetaData : patchMetaDataList) {
+            String cacheVersion = patchMetaData.getPatchVersion();
+            if (Utils.compareVersions(latestVersion, cacheVersion) < 0) {
+                logger.fine("Found a later version {0}", cacheVersion);
+                latestVersion = cacheVersion;
             }
+
         }
         return latestVersion;
     }
@@ -165,12 +182,20 @@ public class OPatchFile extends PatchFile {
         return patchId != null && patchId.startsWith(DEFAULT_BUG_NUM + CacheStore.CACHE_KEY_SEPARATOR);
     }
 
-    @Override
-    public String resolve(CacheStore cacheStore) throws IOException {
+    /**
+     * resolve.
+     * @return string
+     * @throws IOException error
+     */
+    public String resolve() throws IOException {
         try {
-            return super.resolve(cacheStore);
+            return super.resolve();
         } catch (FileNotFoundException fnfe) {
-            throw new FileNotFoundException(Utils.getMessage("IMG-0062"));
+            throw new FileNotFoundException(Utils.getMessage("IMG-0062", this.getVersion()));
         }
+    }
+
+    public String getVersion() {
+        return super.getVersion();
     }
 }

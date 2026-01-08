@@ -1,0 +1,16 @@
+&& echo "INSTALLING {{type}}" \
+{{#isZip}}&& unzip -q "{{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}}" -d {{{tempDir}}}/{{{type}}} {{/isZip}}{{^isZip}}&& : {{/isZip}}\
+{{#preinstallCommands}}&& {{{tempDir}}}/{{{type}}}/{{{.}}} {{/preinstallCommands}}{{^preInstallCommands}}&& : {{/preInstallCommands}}\
+{{^isBin}}&& [ -f {{{tempDir}}}/{{{type}}}/{{jarName}} ] || cp {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} {{{tempDir}}}/{{{type}}} \
+&& {{{java_home}}}/bin/java -Djdk.lang.Process.launchMechanism=FORK  -Xmx1024m -jar {{{tempDir}}}/{{{type}}}/{{jarName}} \
+-silent ORACLE_HOME={{{oracle_home}}} \
+-responseFile {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{responseFile.name}} \
+-invPtrLoc {{inv_loc}}/oraInst.loc -ignoreSysPrereqs -force -novalidation {{/isBin}}{{#isBin}}&& : {{/isBin}}\
+{{#isBin}}&& [ -f {{{tempDir}}}/{{{type}}}/{{jarName}} ] || cp {{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{installerFilename}} {{{tempDir}}}/{{{type}}} \
+&& chmod +x {{{tempDir}}}/{{{type}}}/{{jarName}} \
+&& {{{tempDir}}}/{{{type}}}/{{jarName}} -force -ignoreSysPrereqs \
+-silent -responseFile "{{{tempDir}}}/{{{type}}}/$TARGETPLATFORM/{{responseFile.name}}" \
+-invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} \
+-jreLoc {{{java_home}}} {{/isBin}}{{^isBin}}&& : {{/isBin}}\
+&& chmod -R g+r {{{oracle_home}}} \
+&& { grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log || true; } \

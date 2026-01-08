@@ -1,0 +1,31 @@
+JDK:
+  17u11:
+    - {architecture: linux/arm64, dateAdded: '2025-03-20', digest: 7F1E921F932BD7E372CBBD277807BBBA774022558F2AA979FAFCDCED5D24619F,
+       location: /home/acme/Downloads/jdk-17_linux-aarch64_11bin.tar.gz, productVersion: 17u11}
+  8u401:
+    - {architecture: linux/amd64, dateAdded: '2025-05-01', digest: 19684FCCD7FF32A8400E952A643F0049449A772EF63B8037D5B917CBD137D173,
+       location: /home/acme/Downloads/jdk-8u401-linux-x64.tar.gz, productVersion: 8u401}
+    - {architecture: linux/arm64, dateAdded: '2025-05-02', digest: 811AF9AA1CE2EAA902C7923EA1A5B7012BDDB787DF0805ADED5F3663B210AA47,
+       location: /home/acme/Downloads/jdk-8u401-fcs-bin-b10-linux-aarch64-19_dec_2023.tar.gz,
+       productVersion: 8u401}
+  8u241:
+    - {architecture: linux/amd64, dateAdded: '2025-05-01', digest: 19784FCCD7FF32A8400E952A643F0049449A772EF63B8037D5B917CBD137D173,
+       location: /home/acme/Downloads/jdk-8u241-linux-x64.tar.gz, productVersion: 8u241}
+FMW:
+  14.1.2.0.0:
+    - {architecture: Generic, dateAdded: '2025-03-20', digest: 8D3125A358F5429B7EABE7AB28739A6053C4439DFD54EC351586875A4DE68BB0,
+       location: /home/acme/Downloads/V1045350-01.zip, productVersion: 14.1.2.0.0}
+WDT:
+  latest:
+    - {architecture: Generic, dateAdded: '2025-04-18', digest: 88DA46CE489A5FB506F9DE45D8E9D242810FE3ED270AFB11EE67760729F7BBEE,
+       location: /home/acme/dev/oracle/weblogic-deploy-tooling/installer/target/weblogic-deploy.zip,
+       productVersion: latest}
+WLS:
+  12.2.1.4.0:
+    - {architecture: linux/arm64, dateAdded: '2025-03-20', digest: 2630E4E3D6C8998DA8AA97FF6FF4A4A44F95A568DE8CF9DE01DCD47B753FF324,
+       location: /home/acme/Downloads/fmw_12.2.1.4.0_wls_generic_ARM_OCI.zip, productVersion: 12.2.1.4.0}
+    - {architecture: linux/amd64, dateAdded: '2025-05-01', digest: 4B3A2264875CE4D56CF6C4C70FC2E5895DB1F5CBC39EB5D4E28E46BFA65D2671,
+       location: /home/acme/Downloads/fmw_12.2.1.4.0_wls_lite_Disk1_1of1.zip, productVersion: 12.2.1.4.0}
+  14.1.2.0.0:
+    - {architecture: linux/arm64, dateAdded: '2025-04-24', digest: E0323E52FF26787E8397F813ABD44E1EB73814E9174146E852889127DB04F655,
+       location: /home/acme/Downloads/fmw_14.1.2.0.0_wls_generic._Disk1_1of1.zip, productVersion: 14.1.2.0.0}

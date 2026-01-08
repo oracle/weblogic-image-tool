@@ -24,6 +24,10 @@ import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import com.oracle.weblogic.imagetool.wdt.WdtOperation;
 
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
+
+
 /**
  * Provides the data used by the Dockerfile templates (in mustache).
  */
@@ -55,7 +59,7 @@ public class DockerfileOptions {
     private boolean isRebaseToNew;
     private boolean strictPatchOrdering;
 
-    private String javaInstaller;
+    private List<String> javaInstaller;
     private String username;
     private String groupname;
     private String javaHome;
@@ -1063,12 +1067,44 @@ public class DockerfileOptions {
         return mwInstallers.getInstallers();
     }
 
-    public void setJavaInstaller(String value) {
+    /**
+     * List of packaged to be installed for ARM.
+     * @return list of packages
+     */
+    public List<MiddlewareInstallPackage> installPackagesForARM() {
+        List<MiddlewareInstallPackage> result = mwInstallers.getInstallers()
+            .stream().filter(obj -> ARM64_BLD.equalsIgnoreCase(obj.platform))
+            .collect(Collectors.toList());
+        if (result.isEmpty()) {
+            result = mwInstallers.getInstallers()
+                .stream().filter(obj -> "Generic".equalsIgnoreCase(obj.platform))
+                .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    /**
+     * List of packaged to be installed for AMD.
+     * @return list of packages
+     */
+    public List<MiddlewareInstallPackage> installPackagesForAMD() {
+        List<MiddlewareInstallPackage> result = mwInstallers.getInstallers()
+            .stream().filter(obj -> AMD64_BLD.equalsIgnoreCase(obj.platform))
+            .collect(Collectors.toList());
+        if (result.isEmpty()) {
+            result = mwInstallers.getInstallers()
+                .stream().filter(obj -> "Generic".equalsIgnoreCase(obj.platform))
+                .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    public void setJavaInstaller(List<String> value) {
         javaInstaller = value;
     }
 
     @SuppressWarnings("unused")
-    public String java_pkg() {
+    public List<String> java_pkg() {
         return javaInstaller;
     }
 
@@ -1112,6 +1148,28 @@ public class DockerfileOptions {
         return useOwnerPermsForGroup;
     }
 
+    public boolean targetARMPlatform;
+
+    public DockerfileOptions setTargetARMPlatform(boolean value) {
+        this.targetARMPlatform = value;
+        return this;
+    }
+
+    public boolean targetARMPlatform() {
+        return targetARMPlatform;
+    }
+
+    public boolean targetAMDPlatform;
+
+    public DockerfileOptions setTargetAMDPlatform(boolean value) {
+        this.targetAMDPlatform = value;
+        return this;
+    }
+
+    public boolean targetAMDPlatform() {
+        return targetAMDPlatform;
+    }
+
     /**
      * Include OS packages for binary patching such as make for OPatch.
      * @param value true if additional OS patches for binary patching should be added to the image.
@@ -1129,6 +1187,7 @@ public class DockerfileOptions {
     public boolean includeBinaryOsPackages() {
         return includeBinaryOsPackages;
     }
+
 
     /**
      * Returns true if BusyBox options should be used in the Dockerfile.

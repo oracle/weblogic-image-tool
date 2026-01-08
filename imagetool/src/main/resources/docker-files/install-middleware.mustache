@@ -6,6 +6,8 @@
 FROM os_update AS wls_build
 {{#buildArgs}}ARG {{{.}}}
 {{/buildArgs}}
+ARG TARGETPLATFORM
+
 LABEL com.oracle.weblogic.imagetool.buildid="{{buildId}}"
 
 ENV JAVA_HOME={{{java_home}}} \
@@ -23,8 +25,8 @@ RUN mkdir -p {{{oracle_home}}} \
 
 {{#installJava}}COPY --from=jdk_build --chown={{userid}}:{{groupid}} ["{{{java_home}}}", "{{{java_home}}}/"]
 {{/installJava}}
-
-{{#installPackages}}COPY --chown={{userid}}:{{groupid}} ["{{installerFilename}}", "{{responseFile.name}}", "{{{tempDir}}}/{{{type}}}/"]
+# copy all installers and response files to the stage directory
+{{#installPackages}}COPY --chown={{userid}}:{{groupid}} fmw {{{tempDir}}}/{{{type}}}
 {{/installPackages}}
 COPY --chown={{userid}}:{{groupid}} oraInst.loc {{inv_loc}}/
 
@@ -34,28 +36,31 @@ USER {{userid}}
     {{{.}}}
 {{/beforeFmwInstall}}
 
-RUN echo "INSTALLING MIDDLEWARE" \
-{{#installPackages}}
-  && echo "INSTALLING {{type}}" \
-  # If installer is packaged in a ZIP, extract it before running it
-  {{#isZip}}&& unzip -q "{{{tempDir}}}/{{{type}}}/{{installerFilename}}" -d {{{tempDir}}}/{{{type}}} {{/isZip}} \
-  {{#preinstallCommands}}&& {{{tempDir}}}/{{{type}}}/{{{.}}} {{/preinstallCommands}} \
-  # IF the installer is a JAR file (not a .bin), run the silent install using Java
-  {{^isBin}}  && {{{java_home}}}/bin/java -Xmx1024m -jar {{{tempDir}}}/{{{type}}}/{{jarName}} \
-    -silent ORACLE_HOME={{{oracle_home}}} \
-    -responseFile {{{tempDir}}}/{{{type}}}/{{responseFile.name}} \
-    -invPtrLoc {{inv_loc}}/oraInst.loc \
-    -ignoreSysPrereqs -force -novalidation {{/isBin}}  \
-  # If the installer is a BIN, make sure it is executable and run the installer
-  {{#isBin}}  && chmod +x {{{tempDir}}}/{{{type}}}/{{jarName}} \
-  && {{{tempDir}}}/{{{type}}}/{{jarName}} \
-    -force -ignoreSysPrereqs -silent \
-    -responseFile {{{tempDir}}}/{{{type}}}/{{responseFile.name}} \
-    -invPtrLoc {{inv_loc}}/oraInst.loc ORACLE_HOME={{{oracle_home}}} -jreLoc {{{java_home}}} {{/isBin}}  \
-{{/installPackages}}
-  && test $? -eq 0 \
-  && chmod -R g+r {{{oracle_home}}} \
-  || (grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log && exit 1)
+# If installer is packaged in a ZIP, extract it before running it
+# IF the installer is a JAR file (not a .bin), run the silent install using Java
+# If the installer is a BIN, make sure it is executable and run the installer
+#
+# installPackagesForARM - list of packages to install for arm64 platform
+# installPackagesForAMD - list of packages to install for amd64 platform
+
+
+RUN case "$TARGETPLATFORM" in \
+    "linux/arm64") \
+        echo "INSTALLING MIDDLEWARE" \
+        {{#installPackagesForARM}}
+          {{> install-middleware-pkg }}
+        {{/installPackagesForARM}}
+        ;; \
+    "linux/amd64") \
+        echo "INSTALLING MIDDLEWARE" \
+        {{#installPackagesForAMD}}
+          {{> install-middleware-pkg }}
+        {{/installPackagesForAMD}}
+        ;; \
+    esac \
+    && chmod -R g+r {{{oracle_home}}} \
+    || { grep -vh "NOTIFICATION" /tmp/OraInstall*/install*.log || true; }
+
 
 {{#useOwnerPermsForGroup}}
   # OPatch needs write permissions to the logs folder and lock file when running in OpenShift

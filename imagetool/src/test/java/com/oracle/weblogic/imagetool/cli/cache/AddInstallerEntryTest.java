@@ -3,9 +3,15 @@
 
 package com.oracle.weblogic.imagetool.cli.cache;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 import com.oracle.weblogic.imagetool.installer.InstallerType;
+import com.oracle.weblogic.imagetool.util.TestSetup;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,6 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("unit")
 class AddInstallerEntryTest {
+
+    @BeforeAll
+    static void setup(@TempDir Path tempDir) throws IOException {
+        TestSetup.setup(tempDir);
+    }
+
     @Test
     void testMissingParameters() {
         final AddInstallerEntry addCommand = new AddInstallerEntry();
@@ -29,13 +41,13 @@ class AddInstallerEntryTest {
         // The value for --type must be one of the pre-defined types
         CommandLine.ParameterException pe = assertThrows(CommandLine.ParameterException.class, () ->
             new CommandLine(addCommand)
-                .parseArgs("--type", "a2z", "--version", "some_value", "--path", "/path/to/a/file")
+                .parseArgs("--type", "a2z", "--version", "some_value", "-a", "amd64", "--path", "/path/to/a/file")
         );
         assertTrue(pe.getMessage().contains("--type"));
 
         // repeat same command but use a valid type.  No exception should be thrown.
         new CommandLine(addCommand)
-            .parseArgs("--type", "WLS", "--version", "some_value", "--path", "/path/to/a/file");
+            .parseArgs("--type", "WLS", "--version", "some_value", "-a", "amd64", "--path", "/path/to/a/file");
     }
 
     @Test
@@ -54,8 +66,8 @@ class AddInstallerEntryTest {
         final AddInstallerEntry addCommand = new AddInstallerEntry();
         // The cache key should be a string made up of the type and version seperated by an underscore
         new CommandLine(addCommand)
-            .parseArgs("--type", "WLS", "--version", "12.2.1.4", "--path", "/path/to/a/file");
-        assertEquals("wls_12.2.1.4", addCommand.getKey());
+            .parseArgs("--type", "WLS", "--version", "12.2.1.4", "-a", "amd64", "--path", "/path/to/a/file");
+        assertEquals("wls", addCommand.getKey());
     }
 
     @Test
@@ -64,6 +76,6 @@ class AddInstallerEntryTest {
         // The cache key should be a string made up of the type, version, and architecture seperated by an underscore
         new CommandLine(addCommand)
             .parseArgs("--type", "WLS", "--version", "12.2.1.4", "-a", "amd64", "--path", "/path/to/a/file");
-        assertEquals("wls_12.2.1.4_amd64", addCommand.getKey());
+        assertEquals("wls", addCommand.getKey());
     }
 }

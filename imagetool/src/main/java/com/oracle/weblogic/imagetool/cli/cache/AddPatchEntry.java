@@ -6,6 +6,7 @@ package com.oracle.weblogic.imagetool.cli.cache;
 import java.util.Collections;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -22,11 +23,36 @@ public class AddPatchEntry extends CacheAddOperation {
     }
 
     @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public String getCommonName() {
+        return null;
+    }
+
+    @Override
+    public Architecture getArchitecture() {
+        return architecture;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public String getBaseFMWVersion() {
+        return "";
+    }
+
+    @Override
     public CommandResponse call() throws Exception {
         try {
             if (patchId != null && !patchId.isEmpty()) {
-                Utils.validatePatchIds(Collections.singletonList(patchId), false);
-                return addToCache();
+                Utils.validatePatchIds(Collections.singletonList(patchId), true);
+                return addPatchToCache();
             } else {
                 return CommandResponse.error("IMG-0076", "--patchId");
             }
@@ -41,4 +67,24 @@ public class AddPatchEntry extends CacheAddOperation {
             required = true
     )
     private String patchId;
+
+    @Option(
+        names = {"-v", "--version"},
+        description = "Patch version. ",
+        required = true
+    )
+    private String version;
+
+    @Option(
+        names = {"-a", "--architecture"},
+        required = true,
+        description = "Patch architecture. Valid values: arm64, amd64, Generic"
+    )
+    private Architecture architecture;
+
+    @Option(
+        names = {"-d", "--description"},
+        description = "Patch description."
+    )
+    private String description;
 }

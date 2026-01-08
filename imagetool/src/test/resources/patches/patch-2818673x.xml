@@ -44,7 +44,7 @@
                 <name>p28186730_139425_Generic.zip</name>
                 <size>45855234</size>
                 <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139425_Generic.zip?aru=23901536&patch_file=p28186730_139426_Generic.zip]]></download_url>
-                <digest type="SHA-256">8BFC99E439DA1D1663F88D6859EC19E9926A473C96B95889ABE5F45C055E1BB3</digest>
+                <digest type="SHA-256">706204F15CE1834AD298C8E8D270315652BBD6E40CEC489F65802DB2FDD03167</digest>
                 <digest type="SHA-1">41E3536305E6A71776717D700FA41B1A1AB0A493</digest>
             </file>
         </files>
@@ -90,7 +90,7 @@
                 <name>p28186730_139425_Generic.zip</name>
                 <size>45855234</size>
                 <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139425_Generic.zip?aru=23901536&patch_file=p28186730_139425_Generic.zip]]></download_url>
-                <digest type="SHA-256">8BFC99E439DA1D1663F88D6859EC19E9926A473C96B95889ABE5F45C055E1BB3</digest>
+                <digest type="SHA-256">706204F15CE1834AD298C8E8D270315652BBD6E40CEC489F65802DB2FDD03167</digest>
                 <digest type="SHA-1">41E3536305E6A71776717D700FA41B1A1AB0A493</digest>
             </file>
         </files>

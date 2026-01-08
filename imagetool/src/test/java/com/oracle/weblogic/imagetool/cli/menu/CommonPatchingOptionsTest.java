@@ -48,7 +48,7 @@ class CommonPatchingOptionsTest {
 
         @Override
         public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version, Architecture architecture,
-                                                    String userId, String password) {
+                                             String commonName, String userId, String password) {
             if (type.equals(FmwInstallerType.WLS)) {
                 List<AruPatch> list = new ArrayList<>();
                 list.add(new AruPatch().patchId("1").product("15991").description("psu")
@@ -63,7 +63,7 @@ class CommonPatchingOptionsTest {
 
         @Override
         public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, Architecture architecture,
-                                           String userId, String password) {
+                                String commonName, String userId, String password) {
             if (type.equals(FmwInstallerType.WLS)) {
                 List<AruPatch> list = new ArrayList<>();
                 list.add(new AruPatch().patchId("1").description("psu").psuBundle("x"));

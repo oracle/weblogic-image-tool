@@ -27,11 +27,16 @@ import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.patch.PatchMetaData;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.InvalidPatchIdFormatException;
 import com.oracle.weblogic.imagetool.util.Utils;
 import picocli.CommandLine.Option;
 
-import static com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory.cache;
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
+
 
 public abstract class CommonPatchingOptions extends CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonPatchingOptions.class);
@@ -147,22 +152,50 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         AruUtil.rest().validatePatches(installedPatches, aruPatches, userId, password);
 
         String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
+        Files.createDirectories(Paths.get(patchesFolderName, AMD64_BLD));
+        Files.createDirectories(Paths.get(patchesFolderName, ARM64_BLD));
         // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
+        ConfigManager configManager = ConfigManager.getInstance();
         for (AruPatch patch : aruPatches) {
-            PatchFile patchFile = new PatchFile(patch, userId, password);
-            String patchLocation = patchFile.resolve(cache());
+            String platform = patch.platformName();
+            logger.info("Applying patch " + patch.patchId() + " version " + patch.version()
+                + " to " + platform);
+            PatchMetaData metaData = configManager.getPatchForPlatform(platform, patch.patchId(), patch.version());
+
+            if (metaData == null) {
+                // download the patch first
+                if (userId != null && password != null) {
+                    PatchFile patchFile = new PatchFile(patch, userId, password);
+                    String filePath = patchFile.resolve();
+                    metaData = configManager.getPatchForPlatform(platform, patch.patchId(), patch.version());
+                } else {
+                    throw logger.throwing(new IOException("No user credentials provided and "
+                        + "no offline patch downloaded: " + patch.patchId()));
+                }
+            }
+            //PatchFile patchFile = new PatchFile(patch, userId, password);
+
+            String patchLocation = metaData.getLocation();
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
+                logger.finer("Patch location " + patchLocation + " platform " + platform);
                 File cacheFile = new File(patchLocation);
                 try {
                     if (patch.fileName() == null) {
                         patch.fileName(cacheFile.getName());
                     }
-                    Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, cacheFile.getName()));
+                    if (platform.equals(ARM64_BLD) || platform.equalsIgnoreCase("generic")) {
+                        Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, ARM64_BLD,
+                            cacheFile.getName()));
+                    }
+                    if (platform.equals(AMD64_BLD) || platform.equalsIgnoreCase("generic")) {
+                        Files.copy(Paths.get(patchLocation), Paths.get(patchesFolderName, AMD64_BLD,
+                            cacheFile.getName()));
+                    }
                 } catch (FileAlreadyExistsException ee) {
-                    logger.warning("IMG-0077", patchFile.getKey());
+                    logger.warning("IMG-0077", patch.patchId());
                 }
             } else {
-                logger.severe("IMG-0024", patchFile.getKey());
+                logger.severe("IMG-0024", patch.patchId());
             }
         }
         if (!aruPatches.isEmpty()) {
@@ -227,26 +260,35 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 providedVersion = patchId.substring(split + 1);
                 patchId = patchId.substring(0, split);
             }
-            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
-                .filter(p -> p.isApplicableToTarget(getTargetArchitecture().getAruPlatform()))
-                .collect(Collectors.toList());
+            // If there are multiple platforms patches, we need to copy all of them to build context.
+            // In runtime, the docker file will determine which to use based on env.
 
-            // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
-            if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
-                // Do not continue if the user specified a patch number that cannot be applied.
-                throw logger.throwing(new InvalidPatchNumberException(Utils.getMessage("IMG-0098", patchId)));
-            }
+            List<String> buildPlatforms = getBuildPlatform();
+            for (String buildPlatform : buildPlatforms) {
+                List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
+                    .filter(p -> p.isApplicableToTarget(Architecture.fromString(buildPlatform).getAruPlatform()))
+                    .collect(Collectors.toList());
 
-            if (!patchVersions.isEmpty()) {
-                // if ARU found patches for the provided bug number, try to select the one the user needs by version
-                AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, effectivePsuVersion,
-                    getInstallerVersion());
-
-                String psuVersionOfSelected = findPsuVersion(selectedVersion);
-                if (Utils.isEmptyString(psuVersion) && !Utils.isEmptyString(psuVersionOfSelected)) {
-                    effectivePsuVersion = psuVersionOfSelected;
+                // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
+                if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
+                    // Do not continue if the user specified a patch number that cannot be applied.
+                    throw logger.throwing(new InvalidPatchNumberException(Utils.getMessage("IMG-0098", patchId)));
                 }
-                result.add(selectedVersion);
+
+                if (!patchVersions.isEmpty()) {
+                    // if ARU found patches for the provided bug number, try to select the one the user needs by version
+                    AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, effectivePsuVersion,
+                        getInstallerVersion());
+
+                    String psuVersionOfSelected = findPsuVersion(selectedVersion);
+                    if (Utils.isEmptyString(psuVersion) && !Utils.isEmptyString(psuVersionOfSelected)) {
+                        effectivePsuVersion = psuVersionOfSelected;
+                    }
+                    result.add(selectedVersion);
+                } else {
+                    logger.warning("IMG-0123", patchId, buildPlatform);
+                }
+
             }
         }
         logger.exiting(result);
@@ -272,33 +314,39 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
         }
 
-        if (recommendedPatches) {
-            // Get the latest PSU and its recommended patches
-            aruPatches = AruUtil.rest()
-                .getRecommendedPatches(getInstallerType(), getInstallerVersion(), getTargetArchitecture(),
+        List<String> buildPlatforms = getBuildPlatform();
+        for (String buildPlatform : buildPlatforms) {
+            if (recommendedPatches) {
+                // Get the latest PSU and its recommended patches
+                aruPatches = AruUtil.rest()
+                    .getRecommendedPatches(getInstallerType(), getInstallerVersion(),
+                        Architecture.fromString(buildPlatform), getCommonName(),
+                        userId, password);
+
+                if (aruPatches.isEmpty()) {
+                    recommendedPatches = false;
+                    logger.info("IMG-0084", getInstallerVersion());
+                } else if (FmwInstallerType.isBaseWeblogicServer(getInstallerType())) {
+                    // find and remove all ADR patches in the recommended patches list for base WLS installers
+                    List<AruPatch> discard = aruPatches.stream()
+                        .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
+                        .collect(Collectors.toList());
+                    // let the user know that the ADR patches will be discarded
+                    discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
+                    aruPatches.removeAll(discard);
+                }
+            } else if (latestPsu) {
+                // PSUs for WLS and JRF installers are considered WLS patches
+                aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(),
+                    Architecture.fromString(buildPlatform), getCommonName(),
                     userId, password);
 
-            if (aruPatches.isEmpty()) {
-                recommendedPatches = false;
-                logger.info("IMG-0084", getInstallerVersion());
-            } else if (FmwInstallerType.isBaseWeblogicServer(getInstallerType())) {
-                // find and remove all ADR patches in the recommended patches list for base WLS installers
-                List<AruPatch> discard = aruPatches.stream()
-                    .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
-                    .collect(Collectors.toList());
-                // let the user know that the ADR patches will be discarded
-                discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
-                aruPatches.removeAll(discard);
+                if (aruPatches.isEmpty()) {
+                    latestPsu = false;
+                    logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
+                }
             }
-        } else if (latestPsu) {
-            // PSUs for WLS and JRF installers are considered WLS patches
-            aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(), getTargetArchitecture(),
-                userId, password);
 
-            if (aruPatches.isEmpty()) {
-                latestPsu = false;
-                logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
-            }
         }
 
         return aruPatches;
@@ -313,7 +361,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
     void prepareOpatchInstaller(String tmpDir, String opatchBugNumber)
         throws IOException, XPathExpressionException, AruException {
         logger.entering(opatchBugNumber);
-        String filePath = OPatchFile.getInstance(opatchBugNumber, userId, password, cache()).resolve(cache());
+        String filePath = OPatchFile.getInstance(opatchBugNumber, userId, password).resolve();
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();
@@ -329,6 +377,15 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         return password;
     }
 
+    private String commonName;
+
+    void setCommonName(String commonName) {
+        this.commonName = commonName;
+    }
+
+    String getCommonName() {
+        return commonName;
+    }
 
     @Option(
         names = {"--user"},
@@ -405,4 +462,5 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         description = "Installer type. Default: WLS. Supported values: ${COMPLETION-CANDIDATES}"
     )
     private FmwInstallerType installerType = FmwInstallerType.WLS;
+
 }

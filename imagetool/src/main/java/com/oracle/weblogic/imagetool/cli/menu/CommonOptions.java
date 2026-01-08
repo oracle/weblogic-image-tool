@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2025, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -12,20 +12,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
+import com.oracle.weblogic.imagetool.builder.AbstractCommand;
 import com.oracle.weblogic.imagetool.builder.BuildCommand;
 import com.oracle.weblogic.imagetool.cli.HelpVersionProvider;
 import com.oracle.weblogic.imagetool.inspect.OperatingSystemProperties;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.AdditionalBuildCommands;
 import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.Constants;
@@ -37,7 +41,11 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+import static com.oracle.weblogic.imagetool.util.Constants.AMD64_BLD;
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
 import static com.oracle.weblogic.imagetool.util.Constants.BUSYBOX_OS_IDS;
+import static com.oracle.weblogic.imagetool.util.Constants.CTX_FMW;
+import static com.oracle.weblogic.imagetool.util.Constants.CTX_JDK;
 
 public abstract class CommonOptions {
     private static final LoggingFacade logger = LoggingFactory.getLogger(CommonOptions.class);
@@ -101,7 +109,7 @@ public abstract class CommonOptions {
         }
     }
 
-    void runDockerCommand(String dockerfile, BuildCommand command) throws IOException, InterruptedException {
+    void runDockerCommand(String dockerfile, AbstractCommand command) throws IOException, InterruptedException {
         logger.info("IMG-0078", command.toString());
 
         if (dryRun) {
@@ -121,12 +129,25 @@ public abstract class CommonOptions {
      */
     BuildCommand getInitialBuildCmd(String contextFolder) {
         logger.entering();
-        BuildCommand cmdBuilder = new BuildCommand(buildEngine, contextFolder);
 
-        cmdBuilder.tag(imageTag)
+        if (buildPlatform == null) {
+            buildPlatform = new ArrayList<>();
+        }
+        if (buildPlatform.isEmpty()) {
+            ConfigManager configManager = ConfigManager.getInstance();
+            if (configManager.getDefaultBuildPlatform() != null) {
+                buildPlatform.add(configManager.getDefaultBuildPlatform());
+            } else {
+                buildPlatform.add(Architecture.getLocalArchitecture().name());
+            }
+        }
+
+
+        BuildCommand cmdBuilder = new BuildCommand(buildEngine, contextFolder)
             .useBuildx(useBuildx)
-            .platform(buildPlatform)
             .forceRm(!skipcleanup)
+            .tag(imageTag)
+            .platform(buildPlatform)
             .network(buildNetwork)
             .pull(buildPull)
             .additionalOptions(buildOptions)
@@ -135,6 +156,20 @@ public abstract class CommonOptions {
             .buildArg("https_proxy", httpsProxyUrl, httpsProxyUrl != null && httpsProxyUrl.contains("@"))
             .buildArg("no_proxy", nonProxyHosts);
 
+        // if it is multiplatform build and using docker
+
+        if (buildId != null && useBuildx) {
+            // if push is specified, ignore load value
+            if (!buildEngine.equalsIgnoreCase("podman")) {
+                if (push) {
+                    cmdBuilder.push(push);
+                } else if (load) {
+                    cmdBuilder.load(load);
+                } else {
+                    cmdBuilder.push(true);
+                }
+            }
+        }
         logger.exiting();
         return cmdBuilder;
     }
@@ -152,6 +187,24 @@ public abstract class CommonOptions {
             buildDirectory = tmpDir.toAbsolutePath().toString();
             logger.info("IMG-0003", buildDirectory);
         }
+        Path fmwamd64 = Paths.get(CTX_FMW + AMD64_BLD);
+        Path fmwarm64 = Paths.get(CTX_FMW + ARM64_BLD);
+        Path jdkamd64 = Paths.get(CTX_JDK + AMD64_BLD);
+        Path jdkarm64 = Paths.get(CTX_JDK + ARM64_BLD);
+
+        if (!Files.exists(fmwamd64)) {
+            Files.createDirectories(Paths.get(buildDirectory).resolve(fmwamd64));
+        }
+        if (!Files.exists(fmwarm64)) {
+            Files.createDirectories(Paths.get(buildDirectory).resolve(fmwarm64));
+        }
+        if (!Files.exists(jdkamd64)) {
+            Files.createDirectories(Paths.get(buildDirectory).resolve(jdkamd64));
+        }
+        if (!Files.exists(jdkarm64)) {
+            Files.createDirectories(Paths.get(buildDirectory).resolve(jdkarm64));
+        }
+
         return buildDirectory;
     }
 
@@ -200,22 +253,6 @@ public abstract class CommonOptions {
         logger.exiting();
     }
 
-    private Properties getBaseImageProperties() throws IOException, InterruptedException {
-        Properties props;
-        if (isOptionSet("--fromImageProperties")) {
-            props = new Properties();
-            try (Reader reader = new FileReader(fromImageProperties.toFile())) {
-                props.load(reader);
-                logger.info("IMG-0123", fromImageProperties);
-                logger.finer(props);
-            }
-        } else {
-            props = Utils.getBaseImageProperties(buildEngine, fromImage, buildPlatform,
-                "/probe-env/inspect-image.sh", buildDir());
-        }
-        return props;
-    }
-
     /**
      * Set the docker options (dockerfile template bean) by extracting information from the fromImage.
      *
@@ -226,7 +263,8 @@ public abstract class CommonOptions {
         if (isOptionSet("--fromImage")) {
             logger.info("IMG-0002", fromImage);
 
-            Properties baseImageProperties = getBaseImageProperties();
+            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage,
+                "/probe-env/inspect-image.sh", buildDir());
 
             String existingJavaHome = baseImageProperties.getProperty("javaHome", null);
             if (existingJavaHome != null) {
@@ -332,21 +370,28 @@ public abstract class CommonOptions {
         return buildId;
     }
 
-    public String buildPlatform() {
-        return buildPlatform;
-    }
-
     /**
-     * Given the provided --buildPlatform, derive the architecture from the provided string.
-     * Docker/Podman refer to the target architecture as the build platform.
-     * @return The specified target architecture, or the local OS architecture if none was provided.
+     * Return build platforms from cli or settings or default system.
+     * @return architecture list
      */
-    public Architecture getTargetArchitecture() {
-        if (buildPlatform != null) {
-            return Architecture.fromString(buildPlatform);
+    public List<String> getBuildPlatform() {
+        if (buildPlatform == null) {
+            buildPlatform = new ArrayList<>();
+            java.lang.String platform = ConfigManager.getInstance().getDefaultBuildPlatform();
+            if (platform == null) {
+                platform = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
+            }
+            buildPlatform.add(platform);
         }
-
-        return Architecture.getLocalArchitecture();
+        for (String platform : buildPlatform) {
+            boolean valid = Architecture.AMD64.getAcceptableNames().contains(platform)
+                || Architecture.ARM64.getAcceptableNames().contains(platform);
+            if (!valid) {
+                throw new IllegalArgumentException("Unknown build platform: " + platform);
+            }
+        }
+        buildPlatform.replaceAll(value -> Utils.standardPlatform(Architecture.fromString(value).toString()));
+        return buildPlatform.stream().distinct().collect(Collectors.toList());
     }
 
     @Option(
@@ -364,14 +409,6 @@ public abstract class CommonOptions {
         defaultValue = Constants.ORACLE_LINUX
     )
     private String fromImage;
-
-    @Option(
-        names = {"--fromImageProperties"},
-        paramLabel = "<Properties Filename>",
-        description = "Properties that describe the --fromImage.  "
-        + "If not provided, docker run will be used to inspect the --fromImage image."
-    )
-    private Path fromImageProperties;
 
     @Option(
         names = {"--httpProxyUrl"},
@@ -476,13 +513,26 @@ public abstract class CommonOptions {
     @Option(
         names = {"--platform"},
         paramLabel = "<target platform>",
+        split = ",",
         description = "Set the target platform to build. Example: linux/amd64 or linux/arm64"
     )
-    private String buildPlatform;
+    private List<String> buildPlatform;
+
+    @Option(
+        names = {"--push"},
+        description = "push the image to the remote repository, only used when building multiplatform images"
+    )
+    private boolean push = false;
+
+    @Option(
+        names = {"--load"},
+        description = "load the image to the local repository, only used when building multiplatform images"
+    )
+    private boolean load = false;
 
     @Option(
         names = {"--useBuildx"},
-        description = "Use the BuildKit for building the container image (default when building multi-architecture)"
+        description = "Use the BuildKit for building the container image (default is true)"
     )
     private boolean useBuildx;
 

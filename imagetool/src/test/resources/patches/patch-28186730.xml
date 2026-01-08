@@ -45,7 +45,7 @@
                 <name>p28186730_139425_Generic.zip</name>
                 <size>45855234</size>
                 <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139425_Generic.zip?aru=23901536&patch_file=p28186730_139425_Generic.zip]]></download_url>
-                <digest type="SHA-256">8BFC99E439DA1D1663F88D6859EC19E9926A473C96B95889ABE5F45C055E1BB3</digest>
+                <digest type="SHA-256">706204F15CE1834AD298C8E8D270315652BBD6E40CEC489F65802DB2FDD03167</digest>
                 <digest type="SHA-1">41E3536305E6A71776717D700FA41B1A1AB0A493</digest>
             </file>
         </files>
@@ -99,7 +99,7 @@
                 <size>45731967</size>
                 <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139424_Generic.zip?aru=23574493&patch_file=p28186730_139424_Generic.zip]]></download_url>
                 <digest type="SHA-1">1C03A8D8C54236E52FB1F4B6C49C9D161DA17D84</digest>
-                <digest type="SHA-256">0CB78A061B47B3466656BBB08EF850EF1206ECF4A350BD7E116D77E439081664</digest>
+                <digest type="SHA-256">706204F15CE1834AD298C8E8D270315652BBD6E40CEC489F65802DB2FDD03167</digest>
             </file>
         </files>
         <updated_date in_epoch_ms="1594458862000">2020-07-11 09:14:22</updated_date>
@@ -145,7 +145,7 @@
                 <name>p28186730_139420_Generic.zip</name>
                 <size>46242780</size>
                 <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139420_Generic.zip?aru=23342012&patch_file=p28186730_139420_Generic.zip]]></download_url>
-                <digest type="SHA-256">514233AA5C7B392798B787416F75B339E3C0FA60430C5D962DC30C7BAB68A6F3</digest>
+                <digest type="SHA-256">706204F15CE1834AD298C8E8D270315652BBD6E40CEC489F65802DB2FDD03167</digest>
                 <digest type="SHA-1">8D0F09675D4D7531BDB691D9DCAB5DA4387E5E8C</digest>
             </file>
         </files>
@@ -192,7 +192,7 @@
                 <name>p28186730_139422_Generic.zip</name>
                 <size>46620588</size>
                 <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139422_Generic.zip?aru=23332459&patch_file=p28186730_139422_Generic.zip]]></download_url>
-                <digest type="SHA-256">6167A23A45A89D48A7F638AD6E5919E24BB9202D2D821216D7E41AF3ACBA0376</digest>
+                <digest type="SHA-256">706204F15CE1834AD298C8E8D270315652BBD6E40CEC489F65802DB2FDD03167</digest>
                 <digest type="SHA-1">724F228313383CCD84885CB057A5E2B5E80E7132</digest>
             </file>
         </files>
@@ -240,7 +240,7 @@
                 <size>46518865</size>
                 <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p28186730_139421_Generic.zip?aru=23332538&patch_file=p28186730_139421_Generic.zip]]></download_url>
                 <digest type="SHA-1">F7D2E3C781A6E73B3359B9246253CDBA956F29B6</digest>
-                <digest type="SHA-256">E092400E722E52627E143B6D4CB055C49815D4C987642C183DCE9F2DAFD82B2A</digest>
+                <digest type="SHA-256">706204F15CE1834AD298C8E8D270315652BBD6E40CEC489F65802DB2FDD03167</digest>
             </file>
         </files>
         <updated_date in_epoch_ms="1579592219000">2020-01-21 07:36:59</updated_date>

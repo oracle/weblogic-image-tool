@@ -19,6 +19,8 @@ public class UpdateCommand extends ImageToolCommand {
     private String wdtArchive;
     private String wdtVariables;
     private boolean wdtModelOnly;
+    private String platform;
+
 
     public UpdateCommand() {
         super("update");
@@ -36,6 +38,11 @@ public class UpdateCommand extends ImageToolCommand {
 
     public UpdateCommand patches(String... values) {
         patches = String.join(",", values);
+        return this;
+    }
+
+    public UpdateCommand platform(String value) {
+        platform = value;
         return this;
     }
 
@@ -78,6 +85,7 @@ public class UpdateCommand extends ImageToolCommand {
             + field("--wdtModel", wdtModel)
             + field("--wdtArchive", wdtArchive)
             + field("--wdtVariables", wdtVariables)
+            + field("--platform", platform)
             + field("--wdtModelOnly", wdtModelOnly);
     }
 }

@@ -12,18 +12,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.xpath.XPathExpressionException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreException;
-import com.oracle.weblogic.imagetool.cachestore.CacheStoreFactory;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
+import com.oracle.weblogic.imagetool.installer.InstallerMetaData;
+import com.oracle.weblogic.imagetool.installer.InstallerType;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
 import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
@@ -44,6 +43,9 @@ import static com.oracle.weblogic.imagetool.util.Utils.not;
 public class AruUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
+    private static final String GENERIC_NAME = "Generic";
+    private static final String AMD_NAME = "linux/amd64";
+    private static final String ARM_NAME = "linux/arm64";
 
     private static AruUtil instance;
 
@@ -106,7 +108,7 @@ public class AruUtil {
      * @throws AruException when an error occurs trying to access ARU metadata
      */
     public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, Architecture architecture,
-                                       String userId, String password)
+                          String commonName, String userId, String password)
         throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
@@ -114,7 +116,18 @@ public class AruUtil {
                 // OWSM is included with WLS installs, but OWSM did not have a release in 14.1.1 and 15.1.1
                 continue;
             }
-            List<AruPatch> psuList = getLatestPsu(product, version, architecture, userId, password);
+
+            String baseVersion = version;
+
+            if (type == FmwInstallerType.IDM && product == AruProduct.JRF) {
+                InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.IDM,
+                    architecture, version, commonName);
+                if (metaData != null && metaData.getBaseFMWVersion() != null) {
+                    baseVersion = metaData.getBaseFMWVersion();
+                }
+            }
+
+            List<AruPatch> psuList = getLatestPsu(product, baseVersion, architecture, userId, password);
             if (!psuList.isEmpty()) {
                 for (AruPatch psu: psuList) {
                     String patchAndVersion = psu.patchId() + "_" + psu.version();
@@ -179,14 +192,26 @@ public class AruUtil {
      * @return Document listing of all patches (full details)
      */
     public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version, Architecture architecture,
-                                                String userId, String password) throws AruException {
+                                    String commonName, String userId, String password) throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
             if (product == AruProduct.OWSM && ("14.1.1.0.0".equals(version) || "15.1.1.0.0".equals(version))) {
                 // OWSM is included with WLS installs, but OWSM did not have a release in 14.1.1 and 15.1.1
                 continue;
             }
-            List<AruPatch> patches = getRecommendedPatches(type, product, version, architecture, userId, password);
+
+            String baseVersion = version;
+
+            if (type == FmwInstallerType.IDM && product == AruProduct.JRF) {
+
+                InstallerMetaData metaData = ConfigManager.getInstance().getInstallerForPlatform(InstallerType.IDM,
+                    architecture, version, commonName);
+                if (metaData != null && metaData.getBaseFMWVersion() != null) {
+                    baseVersion = metaData.getBaseFMWVersion();
+                }
+            }
+
+            List<AruPatch> patches = getRecommendedPatches(type, product, baseVersion, architecture, userId, password);
 
             if (!patches.isEmpty()) {
                 patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
@@ -210,7 +235,7 @@ public class AruUtil {
      * @throws AruException when response from ARU has an error or fails
      */
     List<AruPatch> getRecommendedPatches(FmwInstallerType type, AruProduct product, String version,
-                                        Architecture architecture, String userId, String password) throws AruException {
+                             Architecture architecture, String userId, String password) throws AruException {
         logger.entering(product, version);
         List<AruPatch> patches = Collections.emptyList();
         try {
@@ -273,7 +298,7 @@ public class AruUtil {
     }
 
     List<AruPatch> getReleaseRecommendations(AruProduct product, String releaseNumber, Architecture architecture,
-                                             String userId, String password)
+                                     String userId, String password)
         throws AruException, XPathExpressionException, RetryFailedException {
 
         Document patchesDocument = retry(
@@ -495,7 +520,7 @@ public class AruUtil {
         throws AruException, IOException, XPathExpressionException {
 
         if (userId == null || password == null) {
-            return getPatchesOffline(bugNumber).stream();
+            return ConfigManager.getInstance().getAruPatchForBugNumber(bugNumber).stream();
         }
 
         String url = String.format(BUG_SEARCH_URL, bugNumber);
@@ -510,31 +535,6 @@ public class AruUtil {
         }
     }
 
-    private List<AruPatch> getPatchesOffline(String bugNumber) throws CacheStoreException {
-        List<AruPatch> patchesInCache = new ArrayList<>();
-        // Cache keys are in the form {bug number}_{version} or {bug number}_{version}_{architecture}
-        Pattern pattern = Pattern.compile("^([^_]+)_([^_]+)(?:_(.+))?$");
-        // Get a list of patches in the cache for the given bug number
-        for (String patchId: CacheStoreFactory.cache().getKeysForType(bugNumber)) {
-            AruPatch patch = new AruPatch();
-            Matcher matcher = pattern.matcher(patchId);
-            if (matcher.find() && matcher.groupCount() < 2) {
-                logger.fine("While getting patches for {0}, discarded bad cache key {1}", bugNumber, patchId);
-            }
-            patch.patchId(matcher.group(1));
-            patch.version(matcher.group(2));
-            if (matcher.groupCount() == 3 && matcher.group(3) != null) {
-                int aruPlatform = Architecture.fromString(matcher.group(3)).getAruPlatform();
-                patch.platform(Integer.toString(aruPlatform));
-            } else {
-                // architecture was not specified in the cache key, assume generic platform
-                patch.platform("2000");
-            }
-            patch.description("description unavailable while working offline");
-            patchesInCache.add(patch);
-        }
-        return patchesInCache;
-    }
 
     /**
      * Download a patch file from ARU.
@@ -631,5 +631,44 @@ public class AruUtil {
         // When all retries are exhausted, raise an ARU exception to exit the process (give up)
         throw logger.throwing(new RetryFailedException());
     }
+
+    /**
+     * Get the translated aru platform.
+     * @param id from aru id
+     * @return text string fromm id number
+     */
+    public static String getAruPlatformName(String id) {
+        if ("2000".equals(id)) {
+            return GENERIC_NAME;
+        }
+        if ("541".equals(id)) {
+            return ARM_NAME;
+        }
+        if ("226".equals(id)) {
+            return AMD_NAME;
+        }
+
+        return GENERIC_NAME;
+    }
+
+    /**
+     * Get the translated aru platform.
+     * @param id from aru platform string
+     * @return platform number
+     */
+    public static String getAruPlatformId(String id) {
+        if (GENERIC_NAME.equalsIgnoreCase(id)) {
+            return "2000";
+        }
+        if (ARM_NAME.equals(id)) {
+            return "541";
+        }
+        if (AMD_NAME.equals(id)) {
+            return "226";
+        }
+
+        return "2000";
+    }
+
 }
 

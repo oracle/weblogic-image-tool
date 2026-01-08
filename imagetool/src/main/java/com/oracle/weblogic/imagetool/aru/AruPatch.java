@@ -3,6 +3,7 @@
 
 package com.oracle.weblogic.imagetool.aru;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,8 @@ import com.oracle.weblogic.imagetool.util.XPathUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static com.oracle.weblogic.imagetool.aru.AruUtil.getAruPlatformName;
 
 /**
  * Metadata for a patch, as defined by ARU.
@@ -36,6 +39,9 @@ public class AruPatch {
     private String downloadPath;
     private String fileName;
     private String access;
+    private String platformName = "Generic";
+    private String sha256Hash;
+    private String releasedDate;
 
     public String patchId() {
         return patchId;
@@ -63,6 +69,7 @@ public class AruPatch {
         return description;
     }
 
+
     public AruPatch description(String value) {
         description = value;
         return this;
@@ -77,6 +84,15 @@ public class AruPatch {
         return this;
     }
 
+    public String platformName() {
+        return platformName;
+    }
+
+    public AruPatch platformName(String platform) {
+        this.platformName = platform;
+        return this;
+    }
+
     public String release() {
         return release;
     }
@@ -86,6 +102,14 @@ public class AruPatch {
         return this;
     }
 
+    public AruPatch sha256Hash(String value) {
+        sha256Hash = value;
+        return this;
+    }
+
+    public String sha256Hash() {
+        return sha256Hash;
+    }
 
     public String releaseName() {
         return releaseName;
@@ -100,8 +124,14 @@ public class AruPatch {
         return platform;
     }
 
+    /**
+     * Setting platform value.
+     * @param value value of the platform
+     * @return this
+     */
     public AruPatch platform(String value) {
         platform = Integer.parseInt(value);
+        platformName = getAruPlatformName(value);
         return this;
     }
 
@@ -134,6 +164,15 @@ public class AruPatch {
     public AruPatch downloadPath(String value) {
         downloadPath = value;
         return this;
+    }
+
+    public AruPatch releasedDate(String value) {
+        releasedDate = value;
+        return this;
+    }
+
+    public String releasedDate() {
+        return Utils.getReleaseDate(releasedDate);
     }
 
     public String downloadUrl() {
@@ -208,8 +247,12 @@ public class AruPatch {
                     .product(XPathUtil.string(nodeList.item(i), "./product/@id"))
                     .psuBundle(XPathUtil.string(nodeList.item(i), "./psu_bundle"))
                     .access(XPathUtil.string(nodeList.item(i), "./access"))
+                    .sha256Hash(XPathUtil.string(nodeList.item(i),
+                        "./files/file/digest[@type='SHA-256']/text()"))
+                    .platformName(getAruPlatformName(XPathUtil.string(nodeList.item(i), "./platform/@id")))
                     .downloadHost(XPathUtil.string(nodeList.item(i), "./files/file/download_url/@host"))
                     .downloadPath(XPathUtil.string(nodeList.item(i), "./files/file/download_url/text()"))
+                    .releasedDate(XPathUtil.string(nodeList.item(i), "./released_date/text()"))
                     .platform(XPathUtil.string(nodeList.item(i), "./platform/@id"));
 
                 int index = patch.downloadPath().indexOf("patch_file=");
@@ -275,10 +318,13 @@ public class AruPatch {
         } else if (patchMap.containsKey(installerVersion)) {
             selected = patchMap.get(installerVersion);
         }
-
         logger.exiting(selected);
         if (selected == null) {
-            throw logger.throwing(new PatchVersionException(patches.get(0).patchId(), patches));
+            List<String> versionStrings = new ArrayList<>();
+            for (AruPatch aruPatch : patches) {
+                versionStrings.add(patches.get(0).patchId() + "_" + aruPatch.version());
+            }
+            throw logger.throwing(new PatchVersionException(patches.get(0).patchId(), versionStrings));
         } else {
             logger.info("IMG-0099", selected.patchId(), selected.version(), selected.description());
             return selected;
@@ -299,6 +345,21 @@ public class AruPatch {
 
     @Override
     public String toString() {
-        return patchId + " - " + description;
+        return "AruPatch{"
+            + "patchId='" + patchId + '\''
+            + ", version='" + version + '\''
+            + ", description='" + description + '\''
+            + ", product='" + product + '\''
+            + ", release='" + release + '\''
+            + ", releaseName='" + releaseName + '\''
+            + ", psuBundle='" + psuBundle + '\''
+            + ", downloadHost='" + downloadHost + '\''
+            + ", downloadPath='" + downloadPath + '\''
+            + ", fileName='" + fileName + '\''
+            + ", access='" + access + '\''
+            + ", platform='" + platform + '\''
+            + ", platformName='" + platformName + '\''
+            + ", sha256Hash='" + sha256Hash + '\''
+            + '}';
     }
 }

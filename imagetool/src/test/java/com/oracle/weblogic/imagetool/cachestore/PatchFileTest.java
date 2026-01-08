@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +28,11 @@ import com.oracle.weblogic.imagetool.aru.PatchVersionException;
 import com.oracle.weblogic.imagetool.aru.VersionNotFoundException;
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
+import com.oracle.weblogic.imagetool.patch.PatchMetaData;
+import com.oracle.weblogic.imagetool.settings.ConfigManager;
+import com.oracle.weblogic.imagetool.settings.UserSettingsFile;
 import com.oracle.weblogic.imagetool.util.Architecture;
+import com.oracle.weblogic.imagetool.util.TestSetup;
 import com.oracle.weblogic.imagetool.util.Utils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 
+import static com.oracle.weblogic.imagetool.util.Constants.ARM64_BLD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -49,28 +56,33 @@ class PatchFileTest {
     static final String BUGNUMBER = "456789";
     static final String SOME_VERSION = "12.2.1.3.0";
     static Level originalLogLevel;
+    static UserSettingsFile userSettingsFile;
 
-    private static void addToCache(Path tempDir, String key, String filename) throws IOException {
-        Path path = tempDir.resolve(filename);
-        Files.write(path, fileContents);
-        cacheStore.addToCache(key, path.toString());
-    }
 
     @BeforeAll
     static void setup(@TempDir Path tempDir)
         throws IOException, NoSuchFieldException, IllegalAccessException {
+        TestSetup.setup(tempDir);
+        ConfigManager configManager = ConfigManager.getInstance();
+        Path patchFile = Paths.get(configManager.getPatchDetailsFile());
 
-        cacheStore  = new FileStoreTestImpl();
-        // build a fake cache with fake installers
-        addToCache(tempDir, BUGNUMBER + "_" + SOME_VERSION, "patch1.zip");
-        addToCache(tempDir, "wls_12.2.1.4.0", "installer.file.122140.jar");
-        addToCache(tempDir, "11100003_12.2.1.3.181016", "p11100003_12213181016_Generic.zip");
-        addToCache(tempDir, "11100003_12.2.1.3.0", "p11100003_122130_Generic.zip");
-        addToCache(tempDir, "11100007_12.2.1.4.0_arm64", "p11100007_122140_ARM64.zip");
-        addToCache(tempDir, "11100007_12.2.1.4.0_amd64", "p11100007_122140_AMD64.zip");
-        addToCache(tempDir, "11100008_12.2.1.4.0_arm64", "p11100008_122140_ARM64.zip");
-        addToCache(tempDir, "11100008_12.2.1.4.0_amd64", "p11100008_122140_AMD64.zip");
-        addToCache(tempDir, "11100008_12.2.1.4.0", "p11100008_122140_GENERIC.zip");
+        addPatchesToLocal(tempDir, configManager, patchFile, BUGNUMBER,
+            "Generic", "patch1.zip",SOME_VERSION);
+        addPatchesToLocal(tempDir, configManager, patchFile, "11100003",
+            "Generic", "p11100003_12213181016_Generic.zip","12.2.1.3.0.181016");
+        addPatchesToLocal(tempDir, configManager, patchFile, "11100003",
+            "Generic", "p11100003_122130_Generic.zip","12.2.1.3.0");
+        addPatchesToLocal(tempDir, configManager, patchFile, "11100007",
+            "linux/arm64", "p11100007_122140_ARM64.zip","12.2.1.4.0");
+        addPatchesToLocal(tempDir, configManager, patchFile, "11100007",
+            "linux/amd64", "p11100007_122140_AMD64.zip","12.2.1.4.0");
+        addPatchesToLocal(tempDir, configManager, patchFile, "11100008",
+            "linux/arm64", "p11100008_122140_ARM64.zip","12.2.1.4.0");
+        addPatchesToLocal(tempDir, configManager, patchFile, "11100008",
+            "linux/amd64", "p11100008_122140_AMD64.zip","12.2.1.4.0");
+        addPatchesToLocal(tempDir, configManager, patchFile, "11100008",
+            "Generic", "p11100008_122140_GENERIC.zip","12.2.1.4.0");
+
         // disable console logging
         LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
         originalLogLevel = logger.getLevel();
@@ -82,21 +94,28 @@ class PatchFileTest {
         aruRest.set(aruRest, new TestAruUtil());
 
         // insert test class into CacheStoreFactory to intercept cache calls
-        Field cacheFactory = CacheStoreFactory.class.getDeclaredField("store");
-        cacheFactory.setAccessible(true);
-        cacheFactory.set(cacheFactory, cacheStore);
+        //Field cacheFactory = CacheStoreFactory.class.getDeclaredField("store");
+        //cacheFactory.setAccessible(true);
+        //cacheFactory.set(cacheFactory, cacheStore);
     }
 
-    public static class FileStoreTestImpl extends FileCacheStore {
-        public FileStoreTestImpl() throws CacheStoreException {
-            super();
+    private static void addPatchesToLocal(Path tempDir, ConfigManager configManager, Path patchListingFile,
+                                          String bugNumber, String patchArchitecture, String patchLocation,
+                                          String patchVersion) throws IOException {
+        Map<String, List<PatchMetaData>> patches = configManager.getAllPatches();
+        List<PatchMetaData> latestPatches = patches.get(bugNumber);
+        if (latestPatches == null) {
+            latestPatches = new ArrayList<>();
         }
-
-        @Override
-        String getCacheDirSetting() {
-            return PatchFileTest.cacheDir.toString();
-        }
+        Path path = tempDir.resolve(patchLocation);
+        Files.write(path, fileContents);
+        PatchMetaData latestPatch = new PatchMetaData(patchArchitecture, path.toAbsolutePath().toString(),
+            Utils.getSha256Hash(path.toAbsolutePath().toString()),"2024-10-17", patchVersion, "");
+        latestPatches.add(latestPatch);
+        patches.put(bugNumber, latestPatches);
+        configManager.saveAllPatches(patches);
     }
+
 
     /**
      * Intercept calls to the ARU REST API during unit testing.
@@ -145,11 +164,6 @@ class PatchFileTest {
         aruRest.setAccessible(true);
         aruRest.set(aruRest, null);
 
-        // remove test class from CacheStoreFactory instance
-        Field cacheStore = CacheStoreFactory.class.getDeclaredField("store");
-        cacheStore.setAccessible(true);
-        cacheStore.set(cacheStore, null);
-
         // restore original logging level after this test suite completes
         LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
         logger.setLevel(originalLogLevel);
@@ -160,13 +174,15 @@ class PatchFileTest {
         // resolve should fail for a PatchFile that is not in the store
         AruPatch aruPatch1 = new AruPatch().patchId("99999").version(SOME_VERSION);
         PatchFile p1 = new PatchFile(aruPatch1, null,null);
-        assertThrows(FileNotFoundException.class, () -> p1.resolve(cacheStore));
+        assertThrows(FileNotFoundException.class, () -> p1.resolve());
 
         // PatchFile resolve should result in the same behavior has getting the path from the cache store
         AruPatch aruPatch2 = new AruPatch().patchId(BUGNUMBER).version(SOME_VERSION);
         PatchFile patch2 = new PatchFile(aruPatch2, null,null);
-        String expected = cacheStore.getValueFromCache(BUGNUMBER + "_" + SOME_VERSION);
-        assertEquals(expected, patch2.resolve(cacheStore), "failed to resolve patch in cache");
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", BUGNUMBER, SOME_VERSION);
+        String expected = patchMetaData.getLocation();
+        assertEquals(expected, patch2.resolve(), "failed to resolve patch in cache");
     }
 
     @Test
@@ -185,10 +201,13 @@ class PatchFileTest {
         assertNotNull(aruPatch);
         PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
 
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_12.2.1.3.0");
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", patchId, "12.2.1.3.0");
+
+        String filePathFromCache = patchMetaData.getLocation();
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -228,10 +247,13 @@ class PatchFileTest {
         assertNotNull(aruPatch);
         PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
 
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_12.2.1.3.0");
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", patchId, aruPatch.version());
+
+        String filePathFromCache = patchMetaData.getLocation();
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -253,10 +275,13 @@ class PatchFileTest {
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, "12.2.1.3.181016", "12.2.1.3.0");
         assertNotNull(aruPatch);
         PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_12.2.1.3.0");
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", patchId, aruPatch.version());
+
+        String filePathFromCache = patchMetaData.getLocation();
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -279,10 +304,14 @@ class PatchFileTest {
         assertNotNull(aruPatch);
         PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
 
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_12.2.1.3.181016");
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", patchId, aruPatch.version());
+
+        String filePathFromCache = patchMetaData.getLocation();
+
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -305,10 +334,14 @@ class PatchFileTest {
         assertNotNull(aruPatch);
         PatchFile patchFile = new PatchFile(aruPatch, null, null);
 
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from cache");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_" + SOME_VERSION);
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", patchId, aruPatch.version());
+
+        String filePathFromCache = patchMetaData.getLocation();
+
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -330,10 +363,13 @@ class PatchFileTest {
         assertNotNull(aruPatch);
         PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
 
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        String filePathFromCache = cacheStore.getValueFromCache(patchId + "_12.2.1.3.0");
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", patchId, aruPatch.version());
+
+        String filePathFromCache = patchMetaData.getLocation();
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -352,7 +388,8 @@ class PatchFileTest {
         String patchId = "11100002";
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x").collect(Collectors.toList());
         assertThrows(VersionNotFoundException.class,
-            () -> AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.1"));
+            () -> AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016",
+                "12.2.1.3.1"));
     }
 
     @Test
@@ -367,13 +404,17 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = null;
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x");
 
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
         assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
-        String filePathFromCache = cacheStore.getValueFromCache("28186730_13.9.4.2.5");
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", "28186730", "13.9.4.2.5");
+
+        String filePathFromCache = patchMetaData.getLocation();
+
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -390,7 +431,7 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = "28186730_13.9.4.2.5";
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x");
 
         assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
     }
@@ -408,7 +449,7 @@ class PatchFileTest {
         // 28186730 has multiple patches available, but none are specified
         String patchId = "28186730_13.9.4.2.2";
         assertThrows(VersionNotFoundException.class, () ->
-            OPatchFile.getInstance(patchId, "x", "x", cacheStore));
+            OPatchFile.getInstance(patchId, "x", "x"));
     }
 
 
@@ -425,14 +466,18 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = "2818673x";
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x");
 
         assertEquals("13.9.4.2.5", patchFile.getVersion());
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
         assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
-        String filePathFromCache = cacheStore.getValueFromCache("28186730_13.9.4.2.5");
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            "Generic", "28186730", "13.9.4.2.5");
+
+        String filePathFromCache = patchMetaData.getLocation();
+
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }
@@ -444,13 +489,15 @@ class PatchFileTest {
 
         aruPatch.platform("541"); // if local system is ARM
         PatchFile p1 = new PatchFile(aruPatch, null,null);
-        assertFalse(Utils.isEmptyString(p1.resolve(cacheStore)));
-        assertEquals("11100007_12.2.1.4.0_arm64", p1.toString());
+        String filePath = p1.resolve();
+        assertFalse(Utils.isEmptyString(filePath));
+        assertEquals("p11100007_122140_ARM64.zip", Paths.get(filePath).getFileName().toString());
 
         aruPatch.platform("226"); // if local system is x86-64
         PatchFile p2 = new PatchFile(aruPatch, null,null);
-        assertFalse(Utils.isEmptyString(p2.resolve(cacheStore)));
-        assertEquals("11100007_12.2.1.4.0_amd64", p2.toString());
+        filePath = p2.resolve();
+        assertFalse(Utils.isEmptyString(filePath));
+        assertEquals("p11100007_122140_AMD64.zip", Paths.get(filePath).getFileName().toString());
     }
 
     @Test
@@ -458,6 +505,8 @@ class PatchFileTest {
         // 11100007 has multiple patches, 1 ARM and 1 AMD
         String patchId = "11100007";
         String version = "12.2.1.4.0";
+
+        List<AruPatch> aruPatches1 = AruUtil.rest().getPatches(patchId, null, null).collect(Collectors.toList());
         List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null)
             .filter(p -> p.isApplicableToTarget(Architecture.ARM64.getAruPlatform()))
             .collect(Collectors.toList());
@@ -465,11 +514,14 @@ class PatchFileTest {
         assertNotNull(aruPatch);
         PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
 
-        String filePath = patchFile.resolve(cacheStore);
+        String filePath = patchFile.resolve();
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
-        String key = patchId + "_" + version + "_" + Architecture.ARM64;
-        String filePathFromCache = cacheStore.getValueFromCache(key);
+        PatchMetaData patchMetaData = ConfigManager.getInstance().getPatchForPlatform(
+            ARM64_BLD, patchId, version);
+
+        String filePathFromCache = patchMetaData.getLocation();
+
         assertNotNull(filePathFromCache, "Could not find new patch in cache");
         assertEquals(filePath, filePathFromCache, "Patch in cache does not match");
     }

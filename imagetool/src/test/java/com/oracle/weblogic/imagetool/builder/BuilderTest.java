@@ -17,7 +17,7 @@ class BuilderTest {
     private static final String BUILD_ENGINE = "docker";
 
     private String expected(String options) {
-        return String.format("%s build %s %s", BUILD_ENGINE, options, BUILD_CONTEXT);
+        return String.format("%s build %s %s --progress=plain", BUILD_ENGINE, options, BUILD_CONTEXT);
     }
 
     @Test

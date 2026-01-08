@@ -15,7 +15,8 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
  */
 public enum Architecture {
     ARM64(541, "arm64", "linux/arm64", "aarch64"), // Linux ARM 64-bit
-    AMD64(226, "amd64", "linux/amd64", "x86_64"); // Linux AMD 64-bit
+    AMD64(226, "amd64", "linux/amd64", "x86_64"), // Linux AMD 64-bit
+    GENERIC(2000, "Generic");
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(Architecture.class);
 
@@ -64,8 +65,9 @@ public enum Architecture {
                 }
             }
         }
-        logger.warning("IMG-0121", value);
-        return AMD64;
+
+        logger.warning("IMG-0121", value, Architecture.getLocalArchitecture());
+        return Architecture.getLocalArchitecture();
     }
 
     /**

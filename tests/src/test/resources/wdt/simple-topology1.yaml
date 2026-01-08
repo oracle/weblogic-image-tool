@@ -13,6 +13,7 @@ topology:
     ProductionModeEnabled: true
     Cluster:
         cluster1:
+            FrontendHost: localhost
             ClientCertProxyEnabled: true
             DynamicServers:
                 ServerTemplate: template1

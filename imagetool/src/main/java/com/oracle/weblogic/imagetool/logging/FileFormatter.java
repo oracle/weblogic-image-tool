@@ -20,7 +20,7 @@ public class FileFormatter extends Formatter {
     private static final Pattern CATALOG_KEY_PATTERN = Pattern.compile(CATALOG_KEY_PATTERN_STRING);
 
     private static final String DATE_FORMAT_STRING = "####<{0,date,yyyy.MM.dd} {0,time,HH:mm:ss}>";
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.lineSeparator();
 
     private Object[] args;
     private MessageFormat formatter;

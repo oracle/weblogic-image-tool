@@ -18,6 +18,7 @@ public class CreateAuxCommand extends ImageToolCommand {
     private String wdtVariables;
     private String wdtDomainHome;
     private boolean wdtModelOnly;
+    private String platform;
 
     public CreateAuxCommand() {
         super("createAuxImage");
@@ -67,6 +68,11 @@ public class CreateAuxCommand extends ImageToolCommand {
         return this;
     }
 
+    public CreateAuxCommand platform(String value) {
+        platform = value;
+        return this;
+    }
+
     /**
      * Generate the command using the provided command line options.
      * @return the imagetool command as a string suitable for running in ProcessBuilder
@@ -81,6 +87,7 @@ public class CreateAuxCommand extends ImageToolCommand {
             + field("--wdtArchive", wdtArchive)
             + field("--wdtVariables", wdtVariables)
             + field("--wdtDomainHome", wdtDomainHome)
+            + field("--platform", platform)
             + field("--wdtModelOnly", wdtModelOnly);
     }
 }
