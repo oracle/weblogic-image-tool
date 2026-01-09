@@ -41,7 +41,6 @@ This documentation includes information for users and for developers.
 * [WebLogic Deploy Tooling](https://github.com/oracle/weblogic-deploy-tooling)
 * [WebLogic Kubernetes Toolkit UI](https://github.com/oracle/weblogic-toolkit-ui)
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
-* [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
 
 ## Contributing
@@ -56,7 +55,7 @@ vulnerability disclosure process.
 
 ## License
 
-Copyright (c) 2019, 2021 Oracle and/or its affiliates.
+Copyright (c) 2019, 2026 Oracle and/or its affiliates.
 
 Released under the Universal Permissive License v1.0 as shown at
 <https://oss.oracle.com/licenses/upl/>.

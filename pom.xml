@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.oracle.weblogic.lifecycle.imagetool</groupId>
     <artifactId>imagetool-parent</artifactId>
-    <version>1.16.3-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>WebLogic Image Tool</name>
@@ -122,6 +122,10 @@
                         <configuration>
                             <skip>${skipITs}</skip>
                             <rules>
+                                <requireJavaVersion>
+                                    <version>11</version>
+                                    <message>You must use JDK 11 or higher to run the build.</message>
+                                </requireJavaVersion>
                                 <requireEnvironmentVariable>
                                     <variableName>ORACLE_SUPPORT_USERNAME</variableName>
                                     <message>For integration tests, you must set the environment variable ORACLE_SUPPORT_USERNAME to a valid OTN credential for patch access.</message>
