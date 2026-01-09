@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -431,7 +430,6 @@ public class Utils {
      *
      * @param builder       the binary to create the container (like docker)
      * @param dockerImage   the name of the Docker image to be run
-     * @param imagePlatform the platform of the Docker image to be run
      * @param script        the script resource (path to the script in the JAR)
      * @param contextDir    the image build context folder
      * @return The key/value pairs representing the ENV of the Docker image
@@ -440,14 +438,13 @@ public class Utils {
      */
     public static Properties getBaseImageProperties(String builder,
                                                     String dockerImage,
-                                                    String imagePlatform,
                                                     String script,
                                                     String contextDir) throws IOException, InterruptedException {
-        logger.entering(builder, dockerImage, imagePlatform, script, contextDir);
+        logger.entering(builder, dockerImage, script, contextDir);
         final String scriptToRun = "test-env.sh";
         Utils.copyResourceAsFile(script, contextDir + File.separator + scriptToRun);
-        List<String> imageEnvCmd = Utils.getDockerRunCmd(builder, imagePlatform,
-            contextDir + File.separator + scriptToRun, dockerImage);
+        List<String> imageEnvCmd =
+            Utils.getDockerRunCmd(builder, contextDir + File.separator + scriptToRun, dockerImage);
         logger.info("IMG-0097", dockerImage);
         Properties result = Utils.runDockerCommand(imageEnvCmd);
         logger.exiting(result);
@@ -458,13 +455,12 @@ public class Utils {
      * Constructs a docker command to run a script in the container with a volume mount.
      *
      * @param builder        docker/podman executable
-     * @param imagePlatform  the platform for selecting the image (multi-arch images)
      * @param scriptToRun    the local script to encode and run
      * @param dockerImage    docker image tag
      * @return command
      */
-    private static List<String> getDockerRunCmd(String builder, String imagePlatform, String scriptToRun,
-                                                String dockerImage) throws IOException {
+    private static List<String> getDockerRunCmd(String builder, String scriptToRun, String dockerImage)
+        throws IOException {
 
         // We are removing the volume mount option, -v won't work in remote docker daemon and also
         // problematic if the mounted volume source is on a nfs volume as we have no idea what the docker volume
@@ -475,21 +471,11 @@ public class Utils {
 
         byte[] fileBytes = Files.readAllBytes(Paths.get(scriptToRun));
         String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
-        String shellCommand = String.format("echo %s | base64 -d | /bin/sh", encodedFile);
-        logger.finest("running command in image [" + shellCommand + "]");
-        List<String> command = new ArrayList<>(10);
-        command.add(builder);
-        command.add("run");
-        if (imagePlatform != null) {
-            command.add("--platform");
-            command.add(imagePlatform);
-        }
-        command.add("--rm");
-        command.add(dockerImage);
-        command.add("/bin/sh");
-        command.add("-c");
-        command.add(shellCommand);
-        return command;
+        String oneCommand = String.format("echo %s | base64 -d | /bin/sh", encodedFile);
+        logger.finest("running command in image [" + oneCommand + "]");
+        return Stream.of(
+            builder, "run", "--rm",
+            dockerImage, "/bin/sh", "-c", oneCommand).collect(Collectors.toList());
     }
 
     /**

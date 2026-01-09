@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.installer;
@@ -40,7 +40,7 @@ public class MiddlewareInstall {
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
                              List<String> buildPlatform, String buildEngine, String commonName)
         throws FileNotFoundException {
-        logger.info("IMG-0039", type.installerListString(), version);
+        logger.info("IMG-0039", type.installerListString(version), version);
         fmwInstallerType = type;
         ConfigManager configManager = ConfigManager.getInstance();
         if (buildPlatform == null) {
@@ -77,7 +77,7 @@ public class MiddlewareInstall {
 
                 // get the details from cache of whether there is a base version of WLS required.
                 String useVersion = version;
-                if (type.installerList().size() > 1 && installerType == InstallerType.FMW) {
+                if (type.installerList(version).size() > 1 && installerType == InstallerType.FMW) {
                     InstallerMetaData productData = configManager.getInstallerForPlatform(
                         InstallerType.fromString(originalType),
                         Architecture.fromString(platform), version);

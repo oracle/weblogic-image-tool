@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -35,7 +35,7 @@ public class InspectImage implements Callable<CommandResponse> {
         }
 
         Properties baseImageProperties =
-            Utils.getBaseImageProperties(buildEngine, imageName, imagePlatform, scriptToRun, tempDirectory);
+            Utils.getBaseImageProperties(buildEngine, imageName, scriptToRun, tempDirectory);
 
         System.out.println(new InspectOutput(baseImageProperties));
 

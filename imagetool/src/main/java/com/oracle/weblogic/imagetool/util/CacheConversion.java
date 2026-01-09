@@ -1,4 +1,4 @@
-// Copyright (c) 2025, Oracle and/or its affiliates.
+// Copyright (c) 2025, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -18,7 +18,7 @@ import com.oracle.weblogic.imagetool.logging.LoggingFactory;
 import picocli.CommandLine;
 
 /**
- * Utility to convert image tool 1.x cache store to 2.0 format
+ * Utility to convert image tool 1.x cache store to 2.0 format.
  */
 @CommandLine.Command(
     name = "convert",

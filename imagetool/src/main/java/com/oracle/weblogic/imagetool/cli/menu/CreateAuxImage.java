@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -41,7 +41,7 @@ public class CreateAuxImage extends CommonOptions
 
             copyOptionsFromImage();
 
-            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir(), getTargetArchitecture());
+            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
 
             // Create Dockerfile
             String dockerfile = Utils.writeDockerfile(buildDir() + File.separator + "Dockerfile",

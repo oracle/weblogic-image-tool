@@ -1,4 +1,4 @@
-// Copyright (c) 2021, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -140,7 +140,8 @@ public class CommonCreateOptions extends CommonPatchingOptions {
             if (getInstallerType().equals(FmwInstallerType.OID)) {
                 verifyOIDInstallers(configManager, arch, buildPlatform, installerVersion);
             } else {
-                verifyNormalInstallers(getInstallerType().installerList(), configManager, arch, buildPlatform);
+                verifyNormalInstallers(getInstallerType().installerList(installerVersion),
+                    configManager, arch, buildPlatform);
             }
         }
 

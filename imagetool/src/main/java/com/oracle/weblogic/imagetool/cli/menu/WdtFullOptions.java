@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.DockerfileOptions;
 import com.oracle.weblogic.imagetool.util.DomainHomeSourceType;
 import com.oracle.weblogic.imagetool.util.ResourceTemplateOptions;
@@ -37,7 +36,7 @@ public class WdtFullOptions extends WdtBaseOptions {
      * @throws IOException in case of error
      */
     @Override
-    public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir, Architecture architecture)
+    public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir)
         throws IOException {
         logger.entering(tmpDir);
         if (!userProvidedFiles()) {
@@ -50,7 +49,7 @@ public class WdtFullOptions extends WdtBaseOptions {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0103"));
         }
         // user provided WDT files and a WDT installer, so call WdtBaseOptions.handleWdtArgs
-        super.handleWdtArgs(dockerfileOptions, tmpDir, architecture);
+        super.handleWdtArgs(dockerfileOptions, tmpDir);
 
         String encryptionKey = Utils.getPasswordFromInputs(encryptionKeyStr, encryptionKeyFile, encryptionKeyEnv);
         if (encryptionKey != null) {

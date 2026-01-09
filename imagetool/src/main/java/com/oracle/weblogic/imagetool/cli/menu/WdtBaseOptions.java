@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -57,7 +57,7 @@ public class WdtBaseOptions {
      * @param tmpDir the tmp directory which is passed to docker as the build context directory
      * @throws IOException in case of error
      */
-    public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir, Architecture architecture)
+    public void handleWdtArgs(DockerfileOptions dockerfileOptions, String tmpDir)
         throws IOException {
         logger.entering(tmpDir);
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -52,7 +52,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
 
             dockerfileOptions.setBaseImage(fromImage()).setWdtBase(fromImage());
 
-            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage(), buildPlatform(),
+            Properties baseImageProperties = Utils.getBaseImageProperties(buildEngine, fromImage(),
                 "/probe-env/inspect-image-long.sh", buildDir());
 
             dockerfileOptions.setJavaHome(baseImageProperties.getProperty("javaHome", null));
@@ -138,7 +138,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
             BuildCommand cmdBuilder = getInitialBuildCmd(buildDir());
 
             // build wdt args if user passes --wdtModelPath
-            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir(), getTargetArchitecture());
+            wdtOptions.handleWdtArgs(dockerfileOptions, buildDir());
             dockerfileOptions.setWdtCommand(wdtOperation);
             if (dockerfileOptions.runRcu()
                 && (wdtOperation == WdtOperation.UPDATE || wdtOperation == WdtOperation.DEPLOY)) {
