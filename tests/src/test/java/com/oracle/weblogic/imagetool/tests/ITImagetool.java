@@ -768,7 +768,6 @@ class ITImagetool {
             // verify the file created in [before-jdk-install] section
             verifyFileInImage(tagName, "/auxiliary/models/simple-topology.yaml", "AdminUserName: weblogic");
             verifyFilePermissions("/auxiliary/models/archive.zip", "-rw-r-----", tagName, out);
-            verifyFilePermissions("/auxiliary/models/archive.zip", "-rw-r-----", tagName, out);
             verifyFilePermissions("/auxiliary/weblogic-deploy/bin/createDomain.sh", "-rwxr-x---", tagName, out);
         }
     }
