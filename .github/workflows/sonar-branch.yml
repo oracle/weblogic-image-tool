@@ -26,7 +26,7 @@ jobs:
           mvn -B clean package
       - name: Sonar Scan
         run: |
-          mvn -B sonar:sonar \
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.branch.name=${GITHUB_REF##*/} \
           -Dsonar.projectKey=oracle_weblogic-image-tool
         env:
