@@ -38,72 +38,67 @@ public class MiddlewareInstall {
      * @param type the requested middleware install type
      */
     public MiddlewareInstall(FmwInstallerType type, String version, List<Path> responseFiles,
-                             List<String> buildPlatform, String buildEngine, String commonName)
+                             String buildPlatform, String buildEngine, String commonName)
         throws FileNotFoundException {
         logger.info("IMG-0039", type.installerListString(version), version);
         fmwInstallerType = type;
         ConfigManager configManager = ConfigManager.getInstance();
         if (buildPlatform == null) {
-            buildPlatform = new ArrayList<>();
-        }
-        if (buildPlatform.isEmpty()) {
             if (configManager.getDefaultBuildPlatform() != null) {
-                buildPlatform.add(configManager.getDefaultBuildPlatform());
+                buildPlatform = configManager.getDefaultBuildPlatform();
             } else {
-                buildPlatform.add(Architecture.getLocalArchitecture().name());
+                buildPlatform = Architecture.getLocalArchitecture().name();
             }
         }
         Architecture localArchitecture = Architecture.getLocalArchitecture();
         String originalType = type.toString();
 
-
         for (InstallerType installerType : type.installerList(version)) {
-            for (String platform : buildPlatform) {
 
-                logger.info("IMG-0153", installerType, version, platform);
-                platform = Utils.standardPlatform(platform);
-                MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
-                Architecture arch = Architecture.fromString(platform);
-                if (localArchitecture != arch) {
-                    logger.warning("IMG-0146");
-                }
-                pkg.type = installerType;
-                if (AMD64_BLD.equals(platform)) {
-                    pkg.installer = new CachedFile(installerType, version, Architecture.AMD64, commonName);
-                }
-                if (ARM64_BLD.equals(platform)) {
-                    pkg.installer = new CachedFile(installerType, version, Architecture.ARM64, commonName);
-                }
-
-                // get the details from cache of whether there is a base version of WLS required.
-                String useVersion = version;
-                if (type.installerList(version).size() > 1 && installerType == InstallerType.FMW) {
-                    InstallerMetaData productData = configManager.getInstallerForPlatform(
-                        InstallerType.fromString(originalType),
-                        Architecture.fromString(platform), version);
-                    if (productData == null) {
-                        throw new IllegalArgumentException(Utils.getMessage("IMG-0145",
-                            InstallerType.fromString(originalType),
-                            Architecture.fromString(platform), version));
-                    }
-
-                    useVersion = productData.getBaseFMWVersion();
-                }
-
-                InstallerMetaData metaData = configManager.getInstallerForPlatform(installerType, arch, useVersion);
-                if (metaData == null) {
-                    throw new IllegalArgumentException(Utils.getMessage("IMG-0145", installerType,
-                        arch, useVersion));
-                }
-                pkg.installerPath = Paths.get(metaData.getLocation());
-                pkg.installerFilename = pkg.installerPath.getFileName().toString();
-                pkg.responseFile = new DefaultResponseFile(installerType, type);
-                pkg.platform = platform;
-                if (installerType.equals(InstallerType.DB19)) {
-                    pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
-                }
-                addInstaller(pkg);
+            logger.info("IMG-0153", installerType, version, buildPlatform);
+            buildPlatform = Utils.standardPlatform(buildPlatform);
+            MiddlewareInstallPackage pkg = new MiddlewareInstallPackage();
+            Architecture arch = Architecture.fromString(buildPlatform);
+            if (localArchitecture != arch) {
+                logger.warning("IMG-0146");
             }
+            pkg.type = installerType;
+            if (AMD64_BLD.equals(buildPlatform)) {
+                pkg.installer = new CachedFile(installerType, version, Architecture.AMD64, commonName);
+            }
+            if (ARM64_BLD.equals(buildPlatform)) {
+                pkg.installer = new CachedFile(installerType, version, Architecture.ARM64, commonName);
+            }
+
+            // get the details from cache of whether there is a base version of WLS required.
+            String useVersion = version;
+            if (type.installerList(version).size() > 1 && installerType == InstallerType.FMW) {
+                InstallerMetaData productData = configManager.getInstallerForPlatform(
+                    InstallerType.fromString(originalType),
+                    Architecture.fromString(buildPlatform), version);
+                if (productData == null) {
+                    throw new IllegalArgumentException(Utils.getMessage("IMG-0145",
+                        InstallerType.fromString(originalType),
+                        Architecture.fromString(buildPlatform), version));
+                }
+
+                useVersion = productData.getBaseFMWVersion();
+            }
+
+            InstallerMetaData metaData = configManager.getInstallerForPlatform(installerType, arch, useVersion);
+            if (metaData == null) {
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0145", installerType,
+                    arch, useVersion));
+            }
+            pkg.installerPath = Paths.get(metaData.getLocation());
+            pkg.installerFilename = pkg.installerPath.getFileName().toString();
+            pkg.responseFile = new DefaultResponseFile(installerType, type);
+            pkg.platform = buildPlatform;
+            if (installerType.equals(InstallerType.DB19)) {
+                pkg.preinstallCommands = Collections.singletonList("34761383/changePerm.sh /u01/oracle");
+            }
+            addInstaller(pkg);
+
         }
         setResponseFiles(responseFiles, version);
     }

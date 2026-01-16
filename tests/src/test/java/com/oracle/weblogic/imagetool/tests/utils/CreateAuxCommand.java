@@ -19,6 +19,8 @@ public class CreateAuxCommand extends ImageToolCommand {
     private String wdtDomainHome;
     private boolean wdtModelOnly;
     private String platform;
+    private boolean load;
+    private boolean push;
 
     public CreateAuxCommand() {
         super("createAuxImage");
@@ -42,6 +44,17 @@ public class CreateAuxCommand extends ImageToolCommand {
         wdtVersion = value;
         return this;
     }
+
+    public CreateAuxCommand load(boolean value) {
+        load = value;
+        return this;
+    }
+
+    public CreateAuxCommand push(boolean value) {
+        push = value;
+        return this;
+    }
+
 
     public CreateAuxCommand wdtModel(Path... values) {
         wdtModel = Arrays.stream(values).map(Path::toString).collect(Collectors.joining(","));
@@ -88,6 +101,8 @@ public class CreateAuxCommand extends ImageToolCommand {
             + field("--wdtVariables", wdtVariables)
             + field("--wdtDomainHome", wdtDomainHome)
             + field("--platform", platform)
+            + field("--load", load)
+            + field("--push", push)
             + field("--wdtModelOnly", wdtModelOnly);
     }
 }

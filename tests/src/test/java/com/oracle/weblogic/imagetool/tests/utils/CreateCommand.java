@@ -23,6 +23,8 @@ public class CreateCommand extends ImageToolCommand {
     private String patches;
     private String additionalBuildCommands;
     private String kubernetesTarget;
+    private boolean load;
+    private boolean push;
 
     // WDT flags
     private String wdtVersion;
@@ -154,6 +156,15 @@ public class CreateCommand extends ImageToolCommand {
         return this;
     }
 
+    public CreateCommand load(boolean value) {
+        load = value;
+        return this;
+    }
+
+    public CreateCommand push(boolean value) {
+        push = value;
+        return this;
+    }
 
     /**
      * Generate the command using the provided command line options.
@@ -183,6 +194,8 @@ public class CreateCommand extends ImageToolCommand {
             + field("--wdtRunRCU", wdtRunRcu)
             + field("--platform", platform)
             + field("--commonName", commonName)
+            + field("--load", load)
+            + field("--push", push)
             + field("--wdtModelOnly", wdtModelOnly);
 
     }

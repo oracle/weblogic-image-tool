@@ -263,33 +263,31 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             // If there are multiple platforms patches, we need to copy all of them to build context.
             // In runtime, the docker file will determine which to use based on env.
 
-            List<String> buildPlatforms = getBuildPlatform();
-            for (String buildPlatform : buildPlatforms) {
-                List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
-                    .filter(p -> p.isApplicableToTarget(Architecture.fromString(buildPlatform).getAruPlatform()))
-                    .collect(Collectors.toList());
+            String buildPlatform = getBuildPlatform();
+            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
+                .filter(p -> p.isApplicableToTarget(Architecture.fromString(buildPlatform).getAruPlatform()))
+                .collect(Collectors.toList());
 
-                // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
-                if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
-                    // Do not continue if the user specified a patch number that cannot be applied.
-                    throw logger.throwing(new InvalidPatchNumberException(Utils.getMessage("IMG-0098", patchId)));
-                }
-
-                if (!patchVersions.isEmpty()) {
-                    // if ARU found patches for the provided bug number, try to select the one the user needs by version
-                    AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, effectivePsuVersion,
-                        getInstallerVersion());
-
-                    String psuVersionOfSelected = findPsuVersion(selectedVersion);
-                    if (Utils.isEmptyString(psuVersion) && !Utils.isEmptyString(psuVersionOfSelected)) {
-                        effectivePsuVersion = psuVersionOfSelected;
-                    }
-                    result.add(selectedVersion);
-                } else {
-                    logger.warning("IMG-0123", patchId, buildPlatform);
-                }
-
+            // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
+            if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
+                // Do not continue if the user specified a patch number that cannot be applied.
+                throw logger.throwing(new InvalidPatchNumberException(Utils.getMessage("IMG-0098", patchId)));
             }
+
+            if (!patchVersions.isEmpty()) {
+                // if ARU found patches for the provided bug number, try to select the one the user needs by version
+                AruPatch selectedVersion = AruPatch.selectPatch(patchVersions, providedVersion, effectivePsuVersion,
+                    getInstallerVersion());
+
+                String psuVersionOfSelected = findPsuVersion(selectedVersion);
+                if (Utils.isEmptyString(psuVersion) && !Utils.isEmptyString(psuVersionOfSelected)) {
+                    effectivePsuVersion = psuVersionOfSelected;
+                }
+                result.add(selectedVersion);
+            } else {
+                logger.warning("IMG-0123", patchId, buildPlatform);
+            }
+
         }
         logger.exiting(result);
         return result;
@@ -314,39 +312,36 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
         }
 
-        List<String> buildPlatforms = getBuildPlatform();
-        for (String buildPlatform : buildPlatforms) {
-            if (recommendedPatches) {
-                // Get the latest PSU and its recommended patches
-                aruPatches = AruUtil.rest()
-                    .getRecommendedPatches(getInstallerType(), getInstallerVersion(),
-                        Architecture.fromString(buildPlatform), getCommonName(),
-                        userId, password);
-
-                if (aruPatches.isEmpty()) {
-                    recommendedPatches = false;
-                    logger.info("IMG-0084", getInstallerVersion());
-                } else if (FmwInstallerType.isBaseWeblogicServer(getInstallerType())) {
-                    // find and remove all ADR patches in the recommended patches list for base WLS installers
-                    List<AruPatch> discard = aruPatches.stream()
-                        .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
-                        .collect(Collectors.toList());
-                    // let the user know that the ADR patches will be discarded
-                    discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
-                    aruPatches.removeAll(discard);
-                }
-            } else if (latestPsu) {
-                // PSUs for WLS and JRF installers are considered WLS patches
-                aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(),
+        String buildPlatform = getBuildPlatform();
+        if (recommendedPatches) {
+            // Get the latest PSU and its recommended patches
+            aruPatches = AruUtil.rest()
+                .getRecommendedPatches(getInstallerType(), getInstallerVersion(),
                     Architecture.fromString(buildPlatform), getCommonName(),
                     userId, password);
 
-                if (aruPatches.isEmpty()) {
-                    latestPsu = false;
-                    logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
-                }
+            if (aruPatches.isEmpty()) {
+                recommendedPatches = false;
+                logger.info("IMG-0084", getInstallerVersion());
+            } else if (FmwInstallerType.isBaseWeblogicServer(getInstallerType())) {
+                // find and remove all ADR patches in the recommended patches list for base WLS installers
+                List<AruPatch> discard = aruPatches.stream()
+                    .filter(p -> p.description().startsWith("ADR FOR WEBLOGIC SERVER"))
+                    .collect(Collectors.toList());
+                // let the user know that the ADR patches will be discarded
+                discard.forEach(p -> logger.info("IMG-0085", p.patchId()));
+                aruPatches.removeAll(discard);
             }
+        } else if (latestPsu) {
+            // PSUs for WLS and JRF installers are considered WLS patches
+            aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(),
+                Architecture.fromString(buildPlatform), getCommonName(),
+                userId, password);
 
+            if (aruPatches.isEmpty()) {
+                latestPsu = false;
+                logger.fine("Latest PSU NOT FOUND, ignoring latestPSU flag");
+            }
         }
 
         return aruPatches;

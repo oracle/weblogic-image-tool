@@ -20,7 +20,8 @@ public class UpdateCommand extends ImageToolCommand {
     private String wdtVariables;
     private boolean wdtModelOnly;
     private String platform;
-
+    private boolean load;
+    private boolean push;
 
     public UpdateCommand() {
         super("update");
@@ -33,6 +34,16 @@ public class UpdateCommand extends ImageToolCommand {
 
     public UpdateCommand tag(String value) {
         tag = value;
+        return this;
+    }
+
+    public UpdateCommand load(boolean value) {
+        load = value;
+        return this;
+    }
+
+    public UpdateCommand push(boolean value) {
+        push = value;
         return this;
     }
 
@@ -86,6 +97,8 @@ public class UpdateCommand extends ImageToolCommand {
             + field("--wdtArchive", wdtArchive)
             + field("--wdtVariables", wdtVariables)
             + field("--platform", platform)
+            + field("--load", load)
+            + field("--push", push)
             + field("--wdtModelOnly", wdtModelOnly);
     }
 }

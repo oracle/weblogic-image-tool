@@ -3,8 +3,6 @@
 
 package com.oracle.weblogic.imagetool.builder;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,7 +17,7 @@ class BuilderTest {
     private static final String BUILD_ENGINE = "docker";
 
     private String expected(String options) {
-        return String.format("%s buildx build %s %s --progress=plain", BUILD_ENGINE, options, BUILD_CONTEXT);
+        return String.format("%s build %s %s --progress=plain", BUILD_ENGINE, options, BUILD_CONTEXT);
     }
 
     @Test
@@ -89,11 +87,12 @@ class BuilderTest {
         BuildCommand cmd = new BuildCommand(BUILD_ENGINE, BUILD_CONTEXT)
             .tag("img:4")
             .pull(true)
-            .platform(new ArrayList<>(Collections.singletonList("linux/amd64")))
+            .platform("linux/amd64")
             .forceRm(true)
             .network("private-net")
+            .useBuildx(true)
             .buildArg(argMap);
-
+        // TODO check
         // expect that "--force-rm" will not be used, expect "buildx build" will be used
         assertEquals(
             String.format("%s buildx build %s %s %s",

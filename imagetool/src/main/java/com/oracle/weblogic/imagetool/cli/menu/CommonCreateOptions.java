@@ -63,41 +63,36 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         copyOptionsFromImage();
 
 
-        List<String> buildPlatforms = getBuildPlatform();
+        String buildPlatform = getBuildPlatform();
         // Verify version and installers exists first
-        verifyInstallers(buildPlatforms);
+        verifyInstallers(buildPlatform);
 
         if (dockerfileOptions.installJava()) {
-
             List<String> jdkFilePathList = new ArrayList<>();
-            for (String jdkPlatform : buildPlatforms) {
-                String buildContextDestination = buildDir();
-                Architecture arch = Architecture.fromString(jdkPlatform);
-                if (jdkPlatform.equals(AMD64_BLD)) {
-                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + AMD64_BLD;
-                    dockerfileOptions.setTargetAMDPlatform(true);
-                } else if (jdkPlatform.equals(ARM64_BLD)) {
-                    buildContextDestination = buildContextDestination + "/" + CTX_JDK + ARM64_BLD;
-                    dockerfileOptions.setTargetARMPlatform(true);
-                }
-                //CachedFile jdk = new CachedFile(InstallerType.JDK, jdkVersion, jdkPlatform);
-                //Path installerPath = jdk.copyFile(cache(), buildContextDestination);
-                InstallerMetaData installerMetaData = ConfigManager.getInstance()
-                    .getInstallerForPlatform(InstallerType.JDK, arch, jdkVersion);
-                if (installerMetaData == null) {
-                    throw new IllegalArgumentException(Utils.getMessage("IMG-0145", InstallerType.JDK,
-                        arch, jdkVersion));
-                }
-                Path installerPath = Paths.get(installerMetaData.getLocation());
-                Files.copy(installerPath, Paths.get(buildContextDestination).resolve(installerPath.getFileName()));
-                jdkFilePathList.add(installerPath.getFileName().toString());
+            String buildContextDestination = buildDir();
+            Architecture arch = Architecture.fromString(buildPlatform);
+            if (buildPlatform.equals(AMD64_BLD)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_JDK + AMD64_BLD;
+                dockerfileOptions.setTargetAMDPlatform(true);
+            } else if (buildPlatform.equals(ARM64_BLD)) {
+                buildContextDestination = buildContextDestination + "/" + CTX_JDK + ARM64_BLD;
+                dockerfileOptions.setTargetARMPlatform(true);
             }
+            InstallerMetaData installerMetaData = ConfigManager.getInstance()
+                .getInstallerForPlatform(InstallerType.JDK, arch, jdkVersion);
+            if (installerMetaData == null) {
+                throw new IllegalArgumentException(Utils.getMessage("IMG-0145", InstallerType.JDK,
+                    arch, jdkVersion));
+            }
+            Path installerPath = Paths.get(installerMetaData.getLocation());
+            Files.copy(installerPath, Paths.get(buildContextDestination).resolve(installerPath.getFileName()));
+            jdkFilePathList.add(installerPath.getFileName().toString());
             dockerfileOptions.setJavaInstaller(jdkFilePathList);
         }
 
         if (dockerfileOptions.installMiddleware()) {
             MiddlewareInstall install =
-                new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, buildPlatforms,
+                new MiddlewareInstall(getInstallerType(), installerVersion, installerResponseFiles, buildPlatform,
                     buildEngine, commonName);
             install.copyFiles(buildDir());
             dockerfileOptions.setMiddlewareInstall(install);
@@ -130,21 +125,18 @@ public class CommonCreateOptions extends CommonPatchingOptions {
         logger.exiting();
     }
 
-    void verifyInstallers(List<String> buildPlatforms) throws IOException {
+    void verifyInstallers(String buildPlatform) throws IOException {
         ConfigManager configManager = ConfigManager.getInstance();
         // Verify version and installers exists first
-        for (String buildPlatform : buildPlatforms) {
-            Architecture arch = Architecture.fromString(buildPlatform);
-            jdkVersion = resetInstallerVersion(InstallerType.JDK, jdkVersion);
-            verifyInstallerExists(configManager, InstallerType.JDK, arch, jdkVersion, buildPlatform);
-            if (getInstallerType().equals(FmwInstallerType.OID)) {
-                verifyOIDInstallers(configManager, arch, buildPlatform, installerVersion);
-            } else {
-                verifyNormalInstallers(getInstallerType().installerList(installerVersion),
-                    configManager, arch, buildPlatform);
-            }
+        Architecture arch = Architecture.fromString(buildPlatform);
+        jdkVersion = resetInstallerVersion(InstallerType.JDK, jdkVersion);
+        verifyInstallerExists(configManager, InstallerType.JDK, arch, jdkVersion, buildPlatform);
+        if (getInstallerType().equals(FmwInstallerType.OID)) {
+            verifyOIDInstallers(configManager, arch, buildPlatform, installerVersion);
+        } else {
+            verifyNormalInstallers(getInstallerType().installerList(installerVersion),
+                configManager, arch, buildPlatform);
         }
-
     }
 
     void verifyOIDInstallers(ConfigManager configManager, Architecture arch,

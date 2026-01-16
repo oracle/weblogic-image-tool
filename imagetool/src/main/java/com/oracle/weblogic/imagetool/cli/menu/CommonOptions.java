@@ -10,14 +10,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.oracle.weblogic.imagetool.api.model.CommandResponse;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
@@ -129,14 +127,11 @@ public abstract class CommonOptions {
         logger.entering();
 
         if (buildPlatform == null) {
-            buildPlatform = new ArrayList<>();
-        }
-        if (buildPlatform.isEmpty()) {
             ConfigManager configManager = ConfigManager.getInstance();
             if (configManager.getDefaultBuildPlatform() != null) {
-                buildPlatform.add(configManager.getDefaultBuildPlatform());
+                buildPlatform = configManager.getDefaultBuildPlatform();
             } else {
-                buildPlatform.add(Architecture.getLocalArchitecture().name());
+                buildPlatform = Architecture.getLocalArchitecture().name();
             }
         }
 
@@ -155,7 +150,6 @@ public abstract class CommonOptions {
             .buildArg("no_proxy", nonProxyHosts);
 
         // if it is multiplatform build and using docker
-
         if (buildId != null && useBuildx) {
             // if push is specified, ignore load value
             if (!buildEngine.equalsIgnoreCase("podman")) {
@@ -372,24 +366,15 @@ public abstract class CommonOptions {
      * Return build platforms from cli or settings or default system.
      * @return architecture list
      */
-    public List<String> getBuildPlatform() {
+    public String getBuildPlatform() {
         if (buildPlatform == null) {
-            buildPlatform = new ArrayList<>();
             java.lang.String platform = ConfigManager.getInstance().getDefaultBuildPlatform();
             if (platform == null) {
                 platform = Utils.standardPlatform(Architecture.getLocalArchitecture().toString());
             }
-            buildPlatform.add(platform);
+            buildPlatform = platform;
         }
-        for (String platform : buildPlatform) {
-            boolean valid = Architecture.AMD64.getAcceptableNames().contains(platform)
-                || Architecture.ARM64.getAcceptableNames().contains(platform);
-            if (!valid) {
-                throw new IllegalArgumentException("Unknown build platform: " + platform);
-            }
-        }
-        buildPlatform.replaceAll(value -> Utils.standardPlatform(Architecture.fromString(value).toString()));
-        return buildPlatform.stream().distinct().collect(Collectors.toList());
+        return buildPlatform;
     }
 
     @Option(
@@ -511,10 +496,9 @@ public abstract class CommonOptions {
     @Option(
         names = {"--platform"},
         paramLabel = "<target platform>",
-        split = ",",
         description = "Set the target platform to build. Example: linux/amd64 or linux/arm64"
     )
-    private List<String> buildPlatform;
+    private String buildPlatform;
 
     @Option(
         names = {"--push"},
@@ -530,7 +514,7 @@ public abstract class CommonOptions {
 
     @Option(
         names = {"--useBuildx"},
-        description = "Use the BuildKit for building the container image (default is true)"
+        description = "Use the BuildKit for building the container image (default is false)"
     )
     private boolean useBuildx;
 

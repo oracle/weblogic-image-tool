@@ -20,8 +20,8 @@ public class BuildCommand extends AbstractCommand {
     private final List<BuildArg> buildArgs;
     private List<String> additionalOptions;
     private final String context;
-    private boolean useBuildx = true;
-    private List<String> buildPlatforms = new ArrayList<>();
+    private boolean useBuildx = false;
+    private String buildPlatform;
 
     /**
      * Create a build command for creating an image.  At some point, it might
@@ -68,17 +68,13 @@ public class BuildCommand extends AbstractCommand {
      * @param value a single platform name.
      * @return this
      */
-    public BuildCommand platform(List<String> value) {
-        buildPlatforms = value;
+    public BuildCommand platform(String value) {
+        buildPlatform = value;
         if (value == null || value.isEmpty()) {
             return this;
         }
         command.add("--platform");
-        command.add(String.join(",", value));
-        // Only use buildx for multi platform build
-        if (value.size() > 1) {
-            useBuildx = true;
-        }
+        command.add(value);
         return this;
     }
 
@@ -89,7 +85,7 @@ public class BuildCommand extends AbstractCommand {
      * @return this
      */
     public BuildCommand forceRm(boolean value) {
-        if (value && useBuildx) {
+        if (value) {
             command.add("--force-rm");
         }
         return this;
@@ -172,7 +168,7 @@ public class BuildCommand extends AbstractCommand {
      * @param value true to add the pull
      */
     public BuildCommand push(boolean value) {
-        if (value) {
+        if (value && useBuildx) {
             command.add("--push");
         }
         return this;
@@ -183,7 +179,7 @@ public class BuildCommand extends AbstractCommand {
      * @param value true to add the pull
      */
     public BuildCommand load(boolean value) {
-        if (value) {
+        if (value && useBuildx) {
             command.add("--load");
         }
         return this;
@@ -224,8 +220,8 @@ public class BuildCommand extends AbstractCommand {
      * @return build platforms
      */
 
-    public List<String> getBuildPlatforms() {
-        return buildPlatforms;
+    public String getBuildPlatform() {
+        return buildPlatform;
     }
 
     /**

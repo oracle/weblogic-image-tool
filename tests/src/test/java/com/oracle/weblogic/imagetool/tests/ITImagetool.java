@@ -257,8 +257,6 @@ class ITImagetool {
             }
         }
 
-        setupDockerMultiPlatform();
-
         // verify that required files/installers are available
         verifyStagedFiles(JDK_INSTALLER, WLS_INSTALLER, WDT_INSTALLER, P27342434_INSTALLER, P28186730_INSTALLER,
             FMW_INSTALLER, JDK_INSTALLER_NEWER);
@@ -703,7 +701,7 @@ class ITImagetool {
     @DisplayName("Create default WebLogic Server image")
     void createWlsImg(TestInfo testInfo) throws Exception {
         String tagName = build_tag + ":" + getMethodName(testInfo);
-        String command = new CreateCommand().platform(PLATFORM_AMD64).tag(tagName).build();
+        String command = new CreateCommand().platform(PLATFORM_AMD64).tag(tagName).load(true).build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(command, out, logger);
@@ -734,6 +732,7 @@ class ITImagetool {
             .tag(tagName)
             .platform(PLATFORM_AMD64)
             .patches(P27342434_ID)
+            .load(true)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -771,6 +770,7 @@ class ITImagetool {
                 .wdtDomainHome("/u01/domains/simple_domain")
                 .wdtVariables(WDT_VARIABLES)
                 .platform(PLATFORM_AMD64)
+                .load(true)
                 .build();
 
             CommandResult result = Runner.run(command, out, logger);
@@ -845,6 +845,7 @@ class ITImagetool {
                 .wdtModelOnly(true)
                 .platform(PLATFORM_AMD64)
                 .type("wls")
+                .load(true)
                 .build();
 
             CommandResult result = Runner.run(command, out, logger);
@@ -880,6 +881,7 @@ class ITImagetool {
             .wdtArchive(WDT_ARCHIVE)
             .wdtVersion(WDT_VERSION)
             .platform(PLATFORM_AMD64)
+            .load(true)
             .build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -947,7 +949,7 @@ class ITImagetool {
     @DisplayName("Create custom WebLogic Server image")
     void createCustomWlsImg(TestInfo testInfo) throws Exception {
         String tagName = build_tag + ":" + getMethodName(testInfo);
-        String command = new CreateCommand().platform(PLATFORM_AMD64).tag(tagName)
+        String command = new CreateCommand().platform(PLATFORM_AMD64).tag(tagName).load(true)
             .commonName(CUSTOM_WLS_VERSION).version(WLS_VERSION).build();
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {

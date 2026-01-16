@@ -34,7 +34,7 @@ Usage: imagetool createAuxImage [OPTIONS]
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080`  |   |
 | `--load` | Load into local repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored.|
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `YUM`, `ZYPPER`  |   |
-| `--platform` | Comma separated list (no space between) of target platforms  for the image: linux/amd64 or linux/arm64|
+| `--platform` | Target platform for the image: linux/amd64 or linux/arm64|
 | `--pull` | Always attempt to pull a newer version of base images during the build.  |   |
 | `--push` | Push to remote repository - only valid for docker building multi platforms images, user is assumed logged in to the repo registry already.  All others are ignored. |
 | `--skipcleanup` | Do not delete the build context folder, intermediate images, and failed build containers. For debugging purposes.  |   |
