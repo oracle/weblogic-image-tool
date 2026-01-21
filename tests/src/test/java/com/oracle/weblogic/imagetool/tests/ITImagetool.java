@@ -1254,9 +1254,35 @@ class ITImagetool {
     private void verifyFilePermissions(String path, String expected, String tagName, PrintWriter out)
         throws IOException, InterruptedException {
         String command = String.format("docker run --rm -t %s stat -c '%%A' %s", tagName, path);
-        String actual = Runner.run(command, out, logger).stdout().trim();
-        assertEquals(expected, actual.substring(0, expected.length()),"Incorrect file permissions for "
-            + path + " raw output: " + actual);
+        String rawStdout = Runner.run(command, out, logger).stdout().trim();
+        String actualMode = extractCleanStatOutput(rawStdout);
+        if (actualMode == null || actualMode.isEmpty()) {
+            throw new AssertionError(
+                "No valid stat -c '%A' output found for path: " + path
+                    + "\nRaw stdout:\n" + rawStdout
+                    + "\nCommand used: " + command
+            );
+        }
+        // actualMode is now e.g. "drwxr-xr-x." or "drwxr-xr-x"
+        // Compare prefix (handles optional SELinux . or +@ indicators)
+        assertEquals(expected, actualMode.substring(0, expected.length()),
+            "Incorrect file permissions for " + path + " - got: "
+                + actualMode
+                + " raw stdout:\n" + rawStdout);
+    }
+
+    private String extractCleanStatOutput(String raw) {
+
+        String actualMode;
+
+        if (raw.contains("Emulate Docker CLI using podman")) {
+            // Linux Podman case: strip prefix + cleanup
+            actualMode = raw.replaceFirst(".*msg\\.", "").trim();
+            actualMode = actualMode.replaceAll("^[^d-]*", "").trim();
+        } else {
+            actualMode = raw;
+        }
+        return actualMode;  // nothing matched → caller will throw with raw output
     }
 
     /**
