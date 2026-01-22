@@ -1253,7 +1253,7 @@ class ITImagetool {
      */
     private void verifyFilePermissions(String path, String expected, String tagName, PrintWriter out)
         throws IOException, InterruptedException {
-        String command = String.format("docker run --rm -t %s stat -c '%%A' %s", tagName, path);
+        String command = String.format("docker run --platform linux/amd64 --rm -t %s stat -c '%%A' %s", tagName, path);
         String rawStdout = Runner.run(command, out, logger).stdout().trim();
         String actualMode = extractCleanStatOutput(rawStdout);
         if (actualMode == null || actualMode.isEmpty()) {
