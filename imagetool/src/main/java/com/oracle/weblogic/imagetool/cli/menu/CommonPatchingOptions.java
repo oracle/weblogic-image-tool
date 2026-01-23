@@ -310,10 +310,11 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         return tmpPatchesDir;
     }
 
-    void prepareOpatchInstaller(String tmpDir, String opatchBugNumber)
+    void prepareOpatchInstaller(String tmpDir, String installerVersion, String opatchBugNumber)
         throws IOException, XPathExpressionException, AruException {
         logger.entering(opatchBugNumber);
-        String filePath = OPatchFile.getInstance(opatchBugNumber, userId, password, cache()).resolve(cache());
+        String filePath =
+            OPatchFile.getInstance(opatchBugNumber, installerVersion, userId, password, cache()).resolve(cache());
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();

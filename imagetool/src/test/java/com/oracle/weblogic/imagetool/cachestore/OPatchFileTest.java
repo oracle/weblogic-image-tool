@@ -33,7 +33,7 @@ class OPatchFileTest {
     static void setup(@TempDir Path tempDir, @TempDir Path cacheDir)
         throws NoSuchFieldException, IllegalAccessException, IOException {
 
-        // Mock REST calls to ARU for patches
+        // Mock REST calls to ARU for patches. MockAruUtil loads "ARU" patches from XML files in test/resources/patches
         MockAruUtil.insertMockAruInstance(new MockAruUtil());
 
         // Create a fake cache with a fake OPatch install
@@ -56,12 +56,19 @@ class OPatchFileTest {
 
         assertFalse(OPatchFile.isOPatchPatch("28186731"), "Should not match");
         assertFalse(OPatchFile.isOPatchPatch("281867301"), "OPatch bug number with additional number");
+
+        // test again with Jakarta OPatch patch ID
+        assertTrue(OPatchFile.isOPatchPatch("38256237"), "OPatch bug number");
+        assertTrue(OPatchFile.isOPatchPatch("38256237_13.9.6.0.0"), "OPatch bug number with version");
+        assertTrue(OPatchFile.isOPatchPatch("38256237_1"), "OPatch bug number with separator");
+
+        assertFalse(OPatchFile.isOPatchPatch("382562371"), "OPatch bug number with additional number");
     }
 
-    private void checkOpatchVersion(String expectedVersion, String patchId)
+    private void checkOpatchVersion(String expectedVersion, String patchId, String installerVersion)
         throws XPathExpressionException, IOException, AruException {
 
-        OPatchFile opatchFile = OPatchFile.getInstance(patchId, "xxxx", "yyyy", cacheStore);
+        OPatchFile opatchFile = OPatchFile.getInstance(patchId, installerVersion, "xxxx", "yyyy", cacheStore);
         assertNotNull(opatchFile);
         assertEquals(expectedVersion, opatchFile.getVersion());
     }
@@ -70,27 +77,28 @@ class OPatchFileTest {
     void onlineFindSpecifiedVersion() throws XPathExpressionException, IOException, AruException {
         // if the user specifies the opatchBugNumber with a specific version, the code should search ARU
         // and if not found, find it locally in the cache
-        checkOpatchVersion("13.9.4.2.10", "28186730_13.9.4.2.10");
+        checkOpatchVersion("13.9.4.2.10", "28186730_13.9.4.2.10", "12.2.1.4.0");
+        checkOpatchVersion("13.9.6.0.0", "38256237_13.9.6.0.0", "15.1.1.0.0");
 
         // if the user specifies the opatchBugNumber with a specific version, the code should search ARU
         // and if found, return the one that was found   13.9.4.2.5
-        checkOpatchVersion("13.9.4.2.5", "28186730_13.9.4.2.5");
+        checkOpatchVersion("13.9.4.2.5", "28186730_13.9.4.2.5", "12.2.1.4.0");
     }
 
     @Test
     void onlineFindAruVersion() throws XPathExpressionException, IOException, AruException {
         // if the user provides just the OPatch bug number, the code should search ARU for the latest available version
-        checkOpatchVersion("13.9.4.2.5", "28186730");
+        checkOpatchVersion("13.9.4.2.5", "28186730", "12.2.1.4.0");
 
         // if the user does not specify an opatchBugNumber, the code should search ARU for the latest available version
-        checkOpatchVersion("13.9.4.2.5", null);
+        checkOpatchVersion("13.9.4.2.5", null, "12.2.1.4.0");
     }
 
     @Test
     void offlineFindHighestVersion() throws XPathExpressionException, IOException, AruException {
         // if the user does not specify an opatchBugNumber,
         // the code should search the local cache for the highest version
-        OPatchFile opatchFile = OPatchFile.getInstance(null, null, null, cacheStore);
+        OPatchFile opatchFile = OPatchFile.getInstance(null, "12.2.1.4.0", null, null, cacheStore);
         assertNotNull(opatchFile);
         assertEquals("13.9.4.2.10", opatchFile.getVersion());
     }

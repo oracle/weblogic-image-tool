@@ -101,7 +101,8 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
                 String password = getPassword();
 
                 if (shouldUpdateOpatch()) {
-                    OPatchFile opatchFile = OPatchFile.getInstance(opatchBugNumber, userId, password, cache());
+                    OPatchFile opatchFile =
+                        OPatchFile.getInstance(opatchBugNumber, installerVersion, userId, password, cache());
                     String opatchFilePath = opatchFile.resolve(cache());
 
                     // if there is a newer version of OPatch than contained in the image, update OPatch

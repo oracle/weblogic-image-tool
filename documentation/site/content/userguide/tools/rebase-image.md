@@ -33,7 +33,7 @@ Usage: imagetool rebase [OPTIONS]
 | `--inventoryPointerInstallLoc` | Target location for the inventory pointer file.  |   |
 | `--jdkVersion` | Version of the server JDK to install.  | `8u202`  |
 | `--latestPSU` | Find and apply the latest PatchSet Update.  |   |
-| `--opatchBugNumber` | The patch number for OPatch (patching OPatch).  | `28186730`  |
+| `--opatchBugNumber` | The patch number for OPatch (patching OPatch). The default is dependent on the product install being patched, 28186730 for <=14.1.2.0.0 or 38256237 for 15.1.1 and Jakarta based releases | `28186730` or `38256237` |
 | `--packageManager` | Override the default package manager for the base image's operating system. Supported values: `APK`, `APTGET`, `NONE`, `OS_DEFAULT`, `YUM`, `ZYPPER`  | `OS_DEFAULT`  |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`.  |   |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`.  |   |

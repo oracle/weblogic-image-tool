@@ -36,7 +36,7 @@ Update WebLogic Docker image with selected patches
 | `--httpProxyUrl` | Proxy for the HTTP protocol. Example: `http://myproxy:80` or `http:user:passwd@myproxy:8080` |  |
 | `--httpsProxyUrl` | Proxy for the HTTPS protocol. Example: `https://myproxy:80` or `https:user:passwd@myproxy:8080` |  |
 | `--latestPSU` | (DEPRECATED) Find and apply the latest PatchSet Update, see [Additional information](#--latestpsu). |  |
-| `--opatchBugNumber` | The patch number for OPatch (patching OPatch). | `28186730` |
+| `--opatchBugNumber` | The patch number for OPatch (patching OPatch). The default is dependent on the product install being patched, 28186730 for <=14.1.2.0.0 or 38256237 for 15.1.1 and Jakarta based releases | `28186730` or `38256237` |
 | `--password` | Request password for the Oracle Support `--user` on STDIN, see `--user`. |  |
 | `--passwordEnv` | Environment variable containing the Oracle Support password, see `--user`. |  |
 | `--passwordFile` | Path to a file containing just the Oracle Support password, see `--user`.  |  |

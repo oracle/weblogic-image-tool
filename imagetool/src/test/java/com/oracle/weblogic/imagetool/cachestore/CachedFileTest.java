@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import static com.oracle.weblogic.imagetool.cachestore.OPatchFile.DEFAULT_BUG_NUM;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -55,9 +54,9 @@ class CachedFileTest {
         cacheStore.addToCache("wls_14.1.1.0.0_linux/arm64", path1411.toString());
 
         // OPatch files
-        cacheStore.addToCache(DEFAULT_BUG_NUM + "_13.9.2.0.0", "/not/used");
-        cacheStore.addToCache(DEFAULT_BUG_NUM + "_13.9.4.0.0", "/not/used");
-        cacheStore.addToCache(DEFAULT_BUG_NUM + "_13.9.2.2.2", "/not/used");
+        cacheStore.addToCache("28186730_13.9.2.0.0", "/not/used");
+        cacheStore.addToCache("28186730_13.9.4.0.0", "/not/used");
+        cacheStore.addToCache("28186730_13.9.2.2.2", "/not/used");
     }
 
     @Test
@@ -149,17 +148,22 @@ class CachedFileTest {
 
     @Test
     void latestOpatchVersion() throws IOException, AruException, XPathExpressionException {
+        String installerVersion = "12.2.1.4.0";
+        String opatchBugNum = OPatchFile.getOpatchBugNum(installerVersion);
         // OPatch file should default to the default OPatch bug number and the latest version found in cache
-        OPatchFile patchFile = OPatchFile.getInstance(null, null, null, cacheStore);
-        assertEquals(DEFAULT_BUG_NUM + "_13.9.4.0.0", patchFile.getKey(),
+        OPatchFile patchFile = OPatchFile.getInstance(null, installerVersion, null, null, cacheStore);
+        assertEquals(opatchBugNum + "_13.9.4.0.0", patchFile.getKey(),
             "failed to get latest Opatch version from the cache");
     }
 
     @Test
     void specificOpatchVersion() throws IOException, AruException, XPathExpressionException {
+        String installerVersion = "12.2.1.4.0";
+        String opatchBugNum = OPatchFile.getOpatchBugNum(installerVersion);
         // OPatch file should default to the default OPatch bug number and the latest version found in cache
-        OPatchFile patchFile = OPatchFile.getInstance(DEFAULT_BUG_NUM + "_13.9.2.2.2", null, null, cacheStore);
-        assertEquals(DEFAULT_BUG_NUM + "_13.9.2.2.2", patchFile.getKey(),
+        OPatchFile patchFile =
+            OPatchFile.getInstance(opatchBugNum + "_13.9.2.2.2", installerVersion, null, null, cacheStore);
+        assertEquals(opatchBugNum + "_13.9.2.2.2", patchFile.getKey(),
             "failed to get specific Opatch version from the cache");
     }
 }

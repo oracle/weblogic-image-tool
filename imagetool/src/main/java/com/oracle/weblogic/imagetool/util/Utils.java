@@ -312,18 +312,18 @@ public class Utils {
      * a qualifier.  If both versions have qualifiers and are otherwise equal, they are compared using
      * String.compareTo() to determine the result.
      *
-     * @param thisVersion  - first version
-     * @param otherVersion  - second version
-     * @return returns 0 if the versions are equal, greater than zero if thisVersion is newer,
-     *     and less than zero if thisVersion is older.
+     * @param firstVersion  - first version
+     * @param secondVersion - second version
+     * @return returns 0 if the versions are equal, greater than zero if firstVersion is newer,
+     *     and less than zero if firstVersion is older.
      */
-    public static int compareVersionsNullsFirst(String thisVersion, String otherVersion) {
-        if (isEmptyString(thisVersion)) {
-            return (isEmptyString(otherVersion)) ? 0 : -1;
-        } else if (isEmptyString(otherVersion)) {
+    public static int compareVersionsNullsFirst(String firstVersion, String secondVersion) {
+        if (isEmptyString(firstVersion)) {
+            return (isEmptyString(secondVersion)) ? 0 : -1;
+        } else if (isEmptyString(secondVersion)) {
             return 1;
         } else {
-            return compareVersions(thisVersion, otherVersion);
+            return compareVersions(firstVersion, secondVersion);
         }
     }
 
@@ -332,21 +332,21 @@ public class Utils {
      * a qualifier.  If both versions have qualifiers and are otherwise equal, they are compared using
      * String.compareTo() to determine the result.
      *
-     * @param thisVersion  - first version
-     * @param otherVersion - second version
-     * @return returns 0 if the versions are equal, greater than zero if thisVersion is newer,
-     *     and less than zero if thisVersion is older.
+     * @param firstVersion  - first version
+     * @param secondVersion - second version
+     * @return returns 0 if the versions are equal, greater than zero if firstVersion is greater than secondVersion,
+     *     and less than zero if firstVersion is less than secondVersion.
      */
-    public static int compareVersions(String thisVersion, String otherVersion) {
-        if (isEmptyString(thisVersion) || isEmptyString(otherVersion)) {
+    public static int compareVersions(String firstVersion, String secondVersion) {
+        if (isEmptyString(firstVersion) || isEmptyString(secondVersion)) {
             throw new IllegalArgumentException("cannot compare null strings");
         }
 
-        String[] tmp = thisVersion.split("-");
+        String[] tmp = firstVersion.split("-");
         String strippedThisVersion = tmp[0];
         String[] thisVersionElements = strippedThisVersion.split("\\.");
 
-        tmp = otherVersion.split("-");
+        tmp = secondVersion.split("-");
         String strippedOtherVersion = tmp[0];
         String[] otherVersionElements = strippedOtherVersion.split("\\.");
 
@@ -382,10 +382,10 @@ public class Utils {
         // Finally, look to see if one or both versions have a qualifier if they are otherwise the same.
         //
         int useCase = 0;
-        if (thisVersion.indexOf('-') != -1) {
+        if (firstVersion.indexOf('-') != -1) {
             useCase += 1;
         }
-        if (otherVersion.indexOf('-') != -1) {
+        if (secondVersion.indexOf('-') != -1) {
             useCase += 2;
         }
         switch (useCase) {
@@ -398,8 +398,8 @@ public class Utils {
                 break;
 
             case 3:
-                String thisQualifier = thisVersion.substring(thisVersion.indexOf('-'));
-                String otherQualifier = otherVersion.substring(otherVersion.indexOf('-'));
+                String thisQualifier = firstVersion.substring(firstVersion.indexOf('-'));
+                String otherQualifier = secondVersion.substring(secondVersion.indexOf('-'));
                 result = thisQualifier.compareTo(otherQualifier);
                 break;
 
