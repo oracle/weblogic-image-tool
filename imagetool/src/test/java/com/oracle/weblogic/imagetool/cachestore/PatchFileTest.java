@@ -367,7 +367,7 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = null;
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "12.2.1.4.0", "x", "x", cacheStore);
 
         String filePath = patchFile.resolve(cacheStore);
 
@@ -390,7 +390,7 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = "28186730_13.9.4.2.5";
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "15.1.1.0.0", "x", "x", cacheStore);
 
         assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
     }
@@ -408,7 +408,7 @@ class PatchFileTest {
         // 28186730 has multiple patches available, but none are specified
         String patchId = "28186730_13.9.4.2.2";
         assertThrows(VersionNotFoundException.class, () ->
-            OPatchFile.getInstance(patchId, "x", "x", cacheStore));
+            OPatchFile.getInstance(patchId, "14.1.1.0.0", "x", "x", cacheStore));
     }
 
 
@@ -425,7 +425,7 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = "2818673x";
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "14.1.1.0.0", "x", "x", cacheStore);
 
         assertEquals("13.9.4.2.5", patchFile.getVersion());
         String filePath = patchFile.resolve(cacheStore);

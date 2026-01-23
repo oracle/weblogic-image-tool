@@ -1,0 +1,50 @@
+<results md5_sum="cb576cb95f994b21b2d3ac05d71bbc69">
+    <generated_date in_epoch_ms="1769017707000">2026-01-21 17:48:27</generated_date>
+    <patch has_prereqs="n" has_postreqs="n" is_system_patch="n">
+        <bug>
+            <number>38256237</number>
+            <abstract><![CDATA[OPATCH 13.9.6.0.0 FOR WLS 15.1.1.0.0]]></abstract>
+        </bug>
+        <name>38256237</name>
+        <type>Patch</type>
+        <status>Available</status>
+        <access id="m">Open access</access>
+        <url>
+            <patch_readme host="https://updates.oracle.com"><![CDATA[/Orion/Services/download?type=readme&aru=27721209]]></patch_readme>
+            <patch_details><![CDATA[/download/38256237.html]]></patch_details>
+        </url>
+        <request_id>27721209</request_id>
+        <urm_components>
+            <qparts ctype_id="201">
+                <qpart cid="468882" version="Q12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></qpart>
+            </qparts>
+            <urm_releases ctype_id="5">
+                <urm_release cid="1197055" version="13.9.6.0.0"><![CDATA[OPatch]]></urm_release>
+            </urm_releases>
+        </urm_components>
+        <product id="31944" bugdb_id="12753"><![CDATA[Oracle Global Lifecycle Management OPatch]]></product>
+        <release id="600000000235990" name="13.9.6.0.0" platform_patch_not_required="Y" cc="N"><![CDATA[OPatch 13.9.6.0.0]]></release>
+        <platform id="2000" bugdb_id="289"><![CDATA[Generic Platform]]></platform>
+        <language id="0" iso_code="EN"><![CDATA[American English]]></language>
+        <translations_available>No</translations_available>
+        <classification id="185">Security</classification>
+        <patch_classification id="185">Security</patch_classification>
+        <life_cycle id="175">Recommended</life_cycle>
+        <support_level id="G">General Support</support_level>
+        <entitlements>
+            <entitlement code="SW"/>
+        </entitlements>
+        <size>82278604</size>
+        <files>
+            <file>
+                <name>p38256237_139600_Generic.zip</name>
+                <size>82278604</size>
+                <download_url host="https://updates.oracle.com"><![CDATA[/Orion/Services/download/p38256237_139600_Generic.zip?aru=27721209&patch_file=p38256237_139600_Generic.zip]]></download_url>
+                <digest type="SHA-256">E9F7196C00E22C2B51A90CBCD3A7274BE37A05F7718F8ACAE7CBFC0325078C13</digest>
+                <digest type="SHA-1">FA5D5AE8616EE7A1000D2A3A82569B4262343D2F</digest>
+            </file>
+        </files>
+        <updated_date in_epoch_ms="1768857913000">2026-01-19 21:25:13</updated_date>
+        <released_date in_epoch_ms="1753842832000">2025-07-30 02:33:52</released_date>
+    </patch>
+</results>

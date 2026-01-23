@@ -24,18 +24,41 @@ public class OPatchFile extends PatchFile {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(OPatchFile.class);
 
-    public static final String DEFAULT_BUG_NUM = "28186730";
+    /**
+     * Patch ID for OPatch 13.9.4.x.x. OPatch for Java EE based products (javax).
+      */
+    private static final String PATCH1394 = "28186730";
+    /**
+     * Patch ID for OPatch 13.9.6.x.x. OPatch for Jakarta EE based products.
+     */
+    private static final String PATCH1396 = "38256237";
+
+    /**
+     * Determines the OPatch bug number (patchid) based on the provided product version.
+     * @param installerVersion the version of the installed product such as WebLogic Server.
+     * @return the bug ID for OPatch
+     */
+    public static String getOpatchBugNum(String installerVersion) {
+        // Versions newer than 14.1.2 are Jakarta-based
+        if (Utils.compareVersions("14.1.2.25", installerVersion) > 0) {
+            return PATCH1394;
+        } else {
+            return PATCH1396;
+        }
+    }
 
     /**
      * Create an abstract OPatch file to help resolve the local file or download the remote patch.
      *
      * @param patchId  bug number and optional version
+     * @param installerVersion  version of product to be patched
      * @param userid   the username to use for retrieving the patch
      * @param password the password to use with the userId to retrieve the patch
      * @param cache    the local cache used for patch storage
      * @return an abstract OPatch file
      */
-    public static OPatchFile getInstance(String patchId, String userid, String password, CacheStore cache)
+    public static OPatchFile getInstance(String patchId, String installerVersion,
+                                         String userid, String password, CacheStore cache)
         throws AruException, XPathExpressionException, IOException {
 
         logger.entering(patchId);
@@ -43,7 +66,7 @@ public class OPatchFile extends PatchFile {
         String providedVersion = null;
         if (patchId == null) {
             // if the user did not provide a patch number, assume the default OPatch bug number
-            patchNumber = DEFAULT_BUG_NUM;
+            patchNumber = getOpatchBugNum(installerVersion);
         } else if (patchId.contains(CacheStore.CACHE_KEY_SEPARATOR)) {
             // if the user provides a specific version, use that version or fail.  like 28186730_13.9.4.2.4
             int separator = patchId.indexOf(CacheStore.CACHE_KEY_SEPARATOR);
@@ -159,10 +182,12 @@ public class OPatchFile extends PatchFile {
      * @return true if and only if the patchId matches an OPatch bug number.
      */
     public static boolean isOPatchPatch(String patchId) {
-        if (DEFAULT_BUG_NUM.equals(patchId)) {
+        if (PATCH1394.equals(patchId) || PATCH1396.equals(patchId)) {
             return true;
         }
-        return patchId != null && patchId.startsWith(DEFAULT_BUG_NUM + CacheStore.CACHE_KEY_SEPARATOR);
+        return patchId != null
+            && (patchId.startsWith(PATCH1394 + CacheStore.CACHE_KEY_SEPARATOR)
+              || patchId.startsWith(PATCH1396 + CacheStore.CACHE_KEY_SEPARATOR));
     }
 
     @Override

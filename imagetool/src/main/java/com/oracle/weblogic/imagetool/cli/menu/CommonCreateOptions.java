@@ -55,7 +55,7 @@ public class CommonCreateOptions extends CommonPatchingOptions {
 
         // If patching, patch OPatch first
         if (applyingPatches() && shouldUpdateOpatch()) {
-            prepareOpatchInstaller(buildDir(), opatchBugNumber);
+            prepareOpatchInstaller(buildDir(), installerVersion, opatchBugNumber);
         }
 
         Utils.setOracleHome(installerResponseFiles, dockerfileOptions);
