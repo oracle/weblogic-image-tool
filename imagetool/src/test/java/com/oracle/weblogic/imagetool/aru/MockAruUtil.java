@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -17,7 +17,7 @@ public class MockAruUtil extends AruUtil {
      */
 
     @Override
-    Document getAllReleases(String userId, String password) {
+    Document getAllReleases(String token) {
         try {
             return ResourceUtils.getXmlFromResource("/releases.xml");
         } catch (IOException e) {
@@ -27,9 +27,9 @@ public class MockAruUtil extends AruUtil {
     }
 
     @Override
-    public Stream<AruPatch> getPatches(String bugNumber, String user, String password)
+    public Stream<AruPatch> getPatches(String bugNumber, String token)
         throws IOException, XPathExpressionException {
-        if (user == null || password == null) {
+        if (token == null) {
             // running in offline mode (no credentials to connect to ARU)
             return Stream.of(new AruPatch().patchId(bugNumber));
         } else {

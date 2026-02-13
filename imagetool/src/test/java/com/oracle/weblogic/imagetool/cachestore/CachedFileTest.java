@@ -151,7 +151,7 @@ class CachedFileTest {
         String installerVersion = "12.2.1.4.0";
         String opatchBugNum = OPatchFile.getOpatchBugNum(installerVersion);
         // OPatch file should default to the default OPatch bug number and the latest version found in cache
-        OPatchFile patchFile = OPatchFile.getInstance(null, installerVersion, null, null, cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(null, installerVersion, null, cacheStore);
         assertEquals(opatchBugNum + "_13.9.4.0.0", patchFile.getKey(),
             "failed to get latest Opatch version from the cache");
     }
@@ -162,7 +162,7 @@ class CachedFileTest {
         String opatchBugNum = OPatchFile.getOpatchBugNum(installerVersion);
         // OPatch file should default to the default OPatch bug number and the latest version found in cache
         OPatchFile patchFile =
-            OPatchFile.getInstance(opatchBugNum + "_13.9.2.2.2", installerVersion, null, null, cacheStore);
+            OPatchFile.getInstance(opatchBugNum + "_13.9.2.2.2", installerVersion, null, cacheStore);
         assertEquals(opatchBugNum + "_13.9.2.2.2", patchFile.getKey(),
             "failed to get specific Opatch version from the cache");
     }

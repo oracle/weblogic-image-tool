@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -98,15 +98,14 @@ public class AruUtil {
     /**
      * Get list of PSU available for each of the ARU products for the given FMW install type.
      *
-     * @param type FMW installer type
-     * @param version  version number like 12.2.1.3.0
-     * @param userId   OTN credential user
-     * @param password OTN credential password
+     * @param type    FMW installer type
+     * @param version version number like 12.2.1.3.0
+     * @param token   OTN credential password
      * @return a list of patches from ARU
      * @throws AruException when an error occurs trying to access ARU metadata
      */
     public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, Architecture architecture,
-                                       String userId, String password)
+                                       String token)
         throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
@@ -114,7 +113,7 @@ public class AruUtil {
                 // OWSM is included with WLS installs, but OWSM did not have a release in 14.1.1 and 15.1.1
                 continue;
             }
-            List<AruPatch> psuList = getLatestPsu(product, version, architecture, userId, password);
+            List<AruPatch> psuList = getLatestPsu(product, version, architecture, token);
             if (!psuList.isEmpty()) {
                 for (AruPatch psu: psuList) {
                     String patchAndVersion = psu.patchId() + "_" + psu.version();
@@ -134,27 +133,26 @@ public class AruUtil {
     /**
      * Get list of PSU available for given product and version.
      *
-     * @param product  ARU product type, like WLS
-     * @param version  version number like 12.2.1.3.0
-     * @param userId   OTN credential user
-     * @param password OTN credential password
+     * @param product ARU product type, like WLS
+     * @param version version number like 12.2.1.3.0
+     * @param token   OTN credential password
      * @return the latest PSU for the given product and version
      * @throws AruException when response from ARU has an error or fails
      */
     List<AruPatch> getLatestPsu(AruProduct product, String version, Architecture architecture,
-                                String userId, String password)
+                                String token)
         throws AruException {
         logger.entering(product, version);
         try {
             logger.info("IMG-0019", product.description());
-            String releaseNumber = getReleaseNumber(product, version, userId, password);
+            String releaseNumber = getReleaseNumber(product, version, token);
             if (Utils.isEmptyString(releaseNumber)) {
                 // ARU does not have a release number for the given product and version, return empty patch list
                 logger.info(Utils.getMessage("IMG-0082", version, product.description()));
                 return Collections.emptyList();
             }
             Document aruRecommendations = retry(
-                () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
+                () -> getRecommendedPatchesMetadata(product, releaseNumber, token));
             logger.exiting();
             return AruPatch.getPatches(aruRecommendations)
                 .filter(p -> p.isApplicableToTarget(architecture.getAruPlatform()))
@@ -173,20 +171,19 @@ public class AruUtil {
     /**
      * Get list of recommended patches available for all the products that are part of the FMW installer type.
      *
-     * @param type FMW installer type
-     * @param version  version number like 12.2.1.3.0
-     * @param userId   user
+     * @param type    FMW installer type
+     * @param version version number like 12.2.1.3.0
      * @return Document listing of all patches (full details)
      */
     public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version, Architecture architecture,
-                                                String userId, String password) throws AruException {
+                                                String token) throws AruException {
         List<AruPatch> result = new ArrayList<>();
         for (AruProduct product : type.products()) {
             if (product == AruProduct.OWSM && ("14.1.1.0.0".equals(version) || "15.1.1.0.0".equals(version))) {
                 // OWSM is included with WLS installs, but OWSM did not have a release in 14.1.1 and 15.1.1
                 continue;
             }
-            List<AruPatch> patches = getRecommendedPatches(type, product, version, architecture, userId, password);
+            List<AruPatch> patches = getRecommendedPatches(type, product, version, architecture, token);
 
             if (!patches.isEmpty()) {
                 patches.forEach(p -> logger.info("IMG-0068", product.description(), p.patchId(), p.description()));
@@ -202,26 +199,25 @@ public class AruUtil {
     /**
      * Get list of recommended patches available for given product and version.
      *
-     * @param product  ARU product type, like WLS
-     * @param version  version number like 12.2.1.3.0
-     * @param userId   OTN credential user
-     * @param password OTN credential password
+     * @param product ARU product type, like WLS
+     * @param version version number like 12.2.1.3.0
+     * @param token   OTN credential password
      * @return the recommended patches for the given product and version
      * @throws AruException when response from ARU has an error or fails
      */
     List<AruPatch> getRecommendedPatches(FmwInstallerType type, AruProduct product, String version,
-                                        Architecture architecture, String userId, String password) throws AruException {
+                                         Architecture architecture, String token) throws AruException {
         logger.entering(product, version);
         List<AruPatch> patches = Collections.emptyList();
         try {
             logger.info("IMG-0067", product.description());
-            String releaseNumber = getReleaseNumber(product, version, userId, password);
+            String releaseNumber = getReleaseNumber(product, version, token);
             if (Utils.isEmptyString(releaseNumber)) {
                 // ARU does not have a release number for the given product and version, return an empty patch list
                 logger.info(Utils.getMessage("IMG-0082", version, product.description()));
             } else {
                 // Get a list of patches applicable to the given product and release number
-                patches = getReleaseRecommendations(product, releaseNumber, architecture, userId, password);
+                patches = getReleaseRecommendations(product, releaseNumber, architecture, token);
                 logger.fine("Search for {0} recommended patches returned {1}", product, patches.size());
                 if (type == FmwInstallerType.OHS) {
                     // Workaround for the Apache Plugin patch currently uploaded as an OHS patch.
@@ -235,12 +231,12 @@ public class AruUtil {
                     logger.fine("Recommended patch list contains a PSU, getting recommendations for PSU version {0}",
                         psuVersion);
                     // Get the release number for the PSU version number
-                    String psuReleaseNumber = getReleaseNumber(product, psuVersion, userId, password);
+                    String psuReleaseNumber = getReleaseNumber(product, psuVersion, token);
                     // If there is a release for the specific PSU, check it for overlay patches
                     if (!Utils.isEmptyString(psuReleaseNumber)) {
                         // Get recommended patches for PSU release (includes PSU overlay patches)
                         List<AruPatch> overlays =
-                            getReleaseRecommendations(product, psuReleaseNumber, architecture, userId, password);
+                            getReleaseRecommendations(product, psuReleaseNumber, architecture, token);
                         logger.fine("Search for PSU {0} overlay patches returned {1}", psuVersion, overlays.size());
                         patches.addAll(overlays);
                     } else {
@@ -273,11 +269,11 @@ public class AruUtil {
     }
 
     List<AruPatch> getReleaseRecommendations(AruProduct product, String releaseNumber, Architecture architecture,
-                                             String userId, String password)
+                                             String token)
         throws AruException, XPathExpressionException, RetryFailedException {
 
         Document patchesDocument = retry(
-            () -> getRecommendedPatchesMetadata(product, releaseNumber, userId, password));
+            () -> getRecommendedPatchesMetadata(product, releaseNumber, token));
 
         return AruPatch.getPatches(patchesDocument)
             .filter(p -> p.isApplicableToTarget(architecture.getAruPlatform()))
@@ -303,15 +299,14 @@ public class AruUtil {
      *
      * @param installedPatches opatch lsinventory content (null if none is passed)
      * @param patches          A list of patches number
-     * @param userId           userId for support account
-     * @param password         password for support account
+     * @param token            password for support account
      * @throws IOException when failed to access the aru api
      */
-    public void validatePatches(List<InstalledPatch> installedPatches, List<AruPatch> patches, String userId,
-                                       String password) throws IOException, AruException {
-        logger.entering(installedPatches, patches, userId);
+    public void validatePatches(List<InstalledPatch> installedPatches, List<AruPatch> patches,
+                                String token) throws IOException, AruException {
+        logger.entering(installedPatches, patches);
 
-        if (userId == null || password == null) {
+        if (token == null) {
             logger.warning(Utils.getMessage("IMG-0033"));
             return;
         }
@@ -326,7 +321,7 @@ public class AruUtil {
         logger.fine("Posting to ARU conflict check: {0}", payload.toString());
         // Use ARU conflict_check API to check provided patches and previously installed patches for conflicts
         try {
-            Document conflictResults = retry(() -> patchConflictCheck(payload.toString(), userId, password));
+            Document conflictResults = retry(() -> patchConflictCheck(payload.toString(), token));
             List<List<String>> conflictSets = getPatchConflictSets(conflictResults);
 
             if (conflictSets.isEmpty()) {
@@ -341,8 +336,8 @@ public class AruUtil {
         }
     }
 
-    Document patchConflictCheck(String payload, String userId, String password) throws IOException {
-        return HttpUtil.postCheckConflictRequest(CONFLICTCHECKER_URL, payload, userId, password);
+    Document patchConflictCheck(String payload, String token) throws IOException {
+        return HttpUtil.postCheckConflictRequest(CONFLICTCHECKER_URL, payload, token);
     }
 
     private Document allReleasesDocument = null;
@@ -351,16 +346,15 @@ public class AruUtil {
      * Lookup all Oracle releases metadata from Oracle ARU.
      * Left as protected method to facilitate unit testing.
      *
-     * @param userId   OTN credential user
-     * @param password OTN credential password
+     * @param token OTN credential password
      * @return the XML document from ARU with releases metadata
      * @throws AruException when ARU could not be reached or returns an error
      */
-    Document getAllReleases(String userId, String password) throws AruException {
+    Document getAllReleases(String token) throws AruException {
         if (allReleasesDocument == null) {
             logger.fine("Getting all releases document from ARU...");
             try {
-                allReleasesDocument = retry(() -> getAndVerify(REL_URL, userId, password));
+                allReleasesDocument = retry(() -> getAndVerify(REL_URL, token));
             } catch (RetryFailedException e) {
                 throw new AruException(Utils.getMessage("IMG-0081"));
             }
@@ -369,13 +363,13 @@ public class AruUtil {
     }
 
     // could be private, but leaving as protected for unit testing
-    Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber, String userId, String password)
+    Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber, String token)
         throws IOException, AruException, XPathExpressionException {
 
         logger.entering();
         String url = String.format(RECOMMENDED_PATCHES_URL, product.productId(), releaseNumber);
         logger.finer("getting recommended patches info from {0}", url);
-        Document response = HttpUtil.getXMLContent(url, userId, password);
+        Document response = HttpUtil.getXMLContent(url, token);
         verifyResponse(response);
         logger.exiting();
         return response;
@@ -384,19 +378,18 @@ public class AruUtil {
     /**
      * Get the release number for a given product and version.
      *
-     * @param product  AruProduct type, like WLS
-     * @param version  product version like 12.2.1.3.0
-     * @param userId   OTN credential user
-     * @param password OTN credential password
+     * @param product AruProduct type, like WLS
+     * @param version product version like 12.2.1.3.0
+     * @param token   OTN credential password
      * @return release number for the product and version provided
      * @throws AruException if the call to ARU fails, or the response from ARU had an error
      */
-    private String getReleaseNumber(AruProduct product, String version, String userId, String password)
+    private String getReleaseNumber(AruProduct product, String version, String token)
         throws AruException {
         logger.entering(product, version);
 
         String result;
-        Document allReleases = getAllReleases(userId, password);
+        Document allReleases = getAllReleases(token);
 
         String expression = String.format("string(/results/release[starts-with(text(), '%s %s')]/@id)",
             product.description(), version);
@@ -413,15 +406,14 @@ public class AruUtil {
     /**
      * Validates whether the given username and password are valid MOS credentials.
      *
-     * @param username support email id
-     * @param password password
+     * @param token password
      * @return true if credentials are valid
      */
-    public boolean checkCredentials(String username, String password) {
-        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+    public boolean checkCredentials(String token) {
+        if (token == null || token.isEmpty()) {
             return false;
         }
-        AruHttpHelper aruHttpHelper = new AruHttpHelper(username, password);
+        AruHttpHelper aruHttpHelper = new AruHttpHelper(token);
         try {
             aruHttpHelper.execSearch(ARU_LANG_URL);
         } catch (IOException e) {
@@ -434,9 +426,9 @@ public class AruUtil {
         return aruHttpHelper.success();
     }
 
-    private Document getAndVerify(String url, String userId, String password)
+    private Document getAndVerify(String url, String token)
         throws IOException, XPathExpressionException, AruException {
-        Document response = HttpUtil.getXMLContent(url, userId, password);
+        Document response = HttpUtil.getXMLContent(url, token);
         return verifyResponse(response);
     }
 
@@ -484,24 +476,24 @@ public class AruUtil {
     /**
      * Using a bug number, search ARU for a matching patches.
      * The same bug number can have multiple patches, one for each corresponding WLS version.
+     *
      * @param bugNumber the bug number to query ARU
-     * @param userId user credentials with access to OTN
-     * @param password password for the provided userId
+     * @param token     OAuth token for support
      * @return an AruPatch
-     * @throws IOException if there is an error retrieving the XML from ARU
+     * @throws IOException              if there is an error retrieving the XML from ARU
      * @throws XPathExpressionException if AruPatch failed while extracting patch data from the XML
      */
-    public Stream<AruPatch> getPatches(String bugNumber, String userId, String password)
+    public Stream<AruPatch> getPatches(String bugNumber, String token)
         throws AruException, IOException, XPathExpressionException {
 
-        if (userId == null || password == null) {
+        if (token == null) {
             return getPatchesOffline(bugNumber).stream();
         }
 
         String url = String.format(BUG_SEARCH_URL, bugNumber);
         logger.info("IMG-0063", bugNumber);
         try {
-            Document response = retry(() -> getAndVerify(url, userId, password));
+            Document response = retry(() -> getAndVerify(url, token));
             return AruPatch.getPatches(response);
         } catch (NoPatchesFoundException patchEx) {
             throw new NoPatchesFoundException(Utils.getMessage("IMG-0086", bugNumber), patchEx);
@@ -558,6 +550,28 @@ public class AruUtil {
 
     }
 
+    /**
+     * Download a patch file from ARU.
+     *
+     * @param aruPatch ARU metadata for the patch
+     * @param token password for support account
+     * @return path of the downloaded file
+     * @throws IOException when it fails to access the url
+     */
+
+    public String downloadAruPatch(AruPatch aruPatch, String targetDir, String token)
+        throws IOException {
+        try {
+            return retry(() -> downloadPatch(aruPatch, targetDir, token));
+        } catch (AruException | RetryFailedException e) {
+            logger.severe("IMG-0120");
+            throw logger.throwing(
+                new FileNotFoundException(Utils.getMessage("IMG-0037", aruPatch.patchId(), aruPatch.version())));
+        }
+
+    }
+
+
     private String downloadPatch(AruPatch aruPatch, String targetDir, String username, String password)
         throws IOException {
 
@@ -568,6 +582,28 @@ public class AruUtil {
         logger.info("IMG-0018", aruPatch.patchId());
         try {
             HttpUtil.getHttpExecutor(username, password)
+                .execute(Request.Get(aruPatch.downloadUrl()).connectTimeout(30000)
+                    .socketTimeout(30000))
+                .saveContent(new File(filename));
+        } catch (Exception ex) {
+            String message = Utils.getMessage("IMG-0107", filename, aruPatch.downloadUrl(), ex.getLocalizedMessage());
+            logger.severe(message);
+            throw new IOException(message, ex);
+        }
+        logger.exiting(filename);
+        return filename;
+    }
+
+    private String downloadPatch(AruPatch aruPatch, String targetDir, String token)
+        throws IOException {
+
+        logger.entering(aruPatch);
+
+        // download the remote patch file to the local target directory
+        String filename = targetDir + File.separator + aruPatch.fileName();
+        logger.info("IMG-0018", aruPatch.patchId());
+        try {
+            HttpUtil.getHttpExecutor(token)
                 .execute(Request.Get(aruPatch.downloadUrl()).connectTimeout(30000)
                     .socketTimeout(30000))
                 .saveContent(new File(filename));

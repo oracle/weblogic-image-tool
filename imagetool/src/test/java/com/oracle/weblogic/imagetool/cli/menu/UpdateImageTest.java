@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -16,7 +16,7 @@ class UpdateImageTest {
     @Tag("failing")
     void installerTypeTest() {
         UpdateImage updateImage = new UpdateImage();
-        new CommandLine(updateImage).parseArgs("--tag", "tag:1", "--user", "derek", "--password", "xxx",
+        new CommandLine(updateImage).parseArgs("--tag", "tag:1", "--token", "xxx",
             "--patches", "abc");
         // when not discovered from the fromImage, default should be WLS
         assertEquals(FmwInstallerType.WLS, updateImage.getInstallerType());
@@ -29,7 +29,7 @@ class UpdateImageTest {
     @Test
     void installerTypeOverrideTest() {
         UpdateImage updateImage = new UpdateImage();
-        new CommandLine(updateImage).parseArgs("--tag", "tag:1", "--user", "derek", "--password", "xxx",
+        new CommandLine(updateImage).parseArgs("--tag", "tag:1", "--token", "xxx",
             "--patches", "abc", "--type", "SOA");
         // when not discovered from the fromImage, value should be same as provided by user (not default)
         assertEquals(FmwInstallerType.SOA, updateImage.getInstallerType());

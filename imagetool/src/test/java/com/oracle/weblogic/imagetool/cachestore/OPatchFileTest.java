@@ -68,7 +68,7 @@ class OPatchFileTest {
     private void checkOpatchVersion(String expectedVersion, String patchId, String installerVersion)
         throws XPathExpressionException, IOException, AruException {
 
-        OPatchFile opatchFile = OPatchFile.getInstance(patchId, installerVersion, "xxxx", "yyyy", cacheStore);
+        OPatchFile opatchFile = OPatchFile.getInstance(patchId, installerVersion, "yyyy", cacheStore);
         assertNotNull(opatchFile);
         assertEquals(expectedVersion, opatchFile.getVersion());
     }
@@ -98,7 +98,7 @@ class OPatchFileTest {
     void offlineFindHighestVersion() throws XPathExpressionException, IOException, AruException {
         // if the user does not specify an opatchBugNumber,
         // the code should search the local cache for the highest version
-        OPatchFile opatchFile = OPatchFile.getInstance(null, "12.2.1.4.0", null, null, cacheStore);
+        OPatchFile opatchFile = OPatchFile.getInstance(null, "12.2.1.4.0", null, cacheStore);
         assertNotNull(opatchFile);
         assertEquals("13.9.4.2.10", opatchFile.getVersion());
     }

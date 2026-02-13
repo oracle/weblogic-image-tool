@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -41,8 +41,8 @@ class AruUtilTest {
      */
     public static class TestAruUtil extends MockAruUtil {
         @Override
-        Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber, String userId,
-                                               String password) {
+        Document getRecommendedPatchesMetadata(AruProduct product, String releaseNumber,
+                                               String token) {
             Document result;
             try {
                 // these release numbers are fake test data from the fake releases.xml found in test/resources
@@ -61,7 +61,7 @@ class AruUtilTest {
         }
 
         @Override
-        Document patchConflictCheck(String payload, String userId, String password) throws IOException {
+        Document patchConflictCheck(String payload, String token) throws IOException {
             if (payload.contains("<patch_group rel_id")) {
                 return ResourceUtils.getXmlFromResource("/conflict-check/double-conflict.xml");
             } else {
@@ -74,7 +74,7 @@ class AruUtilTest {
     void testRecommendedPatches() throws Exception {
         List<AruPatch> recommendedPatches =
             AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "12.2.1.3.0",
-                Architecture.AMD64, "x", "x");
+                Architecture.AMD64, "x");
         assertEquals(6, recommendedPatches.size());
         List<String> bugs = recommendedPatches.stream().map(AruPatch::patchId).collect(Collectors.toList());
         assertTrue(bugs.contains("31544340"));
@@ -86,7 +86,7 @@ class AruUtilTest {
 
         // if no recommended patches are found, method should return an empty list (test data does not have 12.2.1.4)
         recommendedPatches =
-            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, "12.2.1.4.0", Architecture.AMD64, "x", "x");
+            AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, "12.2.1.4.0", Architecture.AMD64, "x");
         assertTrue(recommendedPatches.isEmpty());
     }
 
@@ -94,14 +94,14 @@ class AruUtilTest {
     void testNoRecommendedPatches() throws Exception {
         List<AruPatch> recommendedPatches =
             AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "12.2.1.4.0",
-                Architecture.AMD64, "x", "x");
+                Architecture.AMD64, "x");
         assertEquals(0, recommendedPatches.size());
     }
 
     @Test
     void testGetLatestPsu() throws Exception {
         List<AruPatch> latestPsu =
-            AruUtil.rest().getLatestPsu(AruProduct.WLS, "12.2.1.3.0", Architecture.AMD64, "x", "x");
+            AruUtil.rest().getLatestPsu(AruProduct.WLS, "12.2.1.3.0", Architecture.AMD64, "x");
         assertEquals(1, latestPsu.size());
         List<String> bugs = latestPsu.stream().map(AruPatch::patchId).collect(Collectors.toList());
         assertTrue(bugs.contains("31535411"));
@@ -111,12 +111,12 @@ class AruUtilTest {
     void testReleaseNotFound() throws Exception {
         // should not throw an exception, and return no patches when release does not exist
         List<AruPatch> latestPsu =
-            AruUtil.rest().getLatestPsu(AruProduct.WLS, "3.0.0.0.0", Architecture.AMD64, "x", "x");
+            AruUtil.rest().getLatestPsu(AruProduct.WLS, "3.0.0.0.0", Architecture.AMD64, "x");
         assertEquals(0, latestPsu.size());
 
         List<AruPatch> recommendedPatches =
             AruUtil.rest().getRecommendedPatches(FmwInstallerType.WLS, AruProduct.WLS, "3.0.0.0.0",
-                Architecture.AMD64, "x", "x");
+                Architecture.AMD64, "x");
         assertEquals(0, recommendedPatches.size());
     }
 
@@ -138,12 +138,27 @@ class AruUtilTest {
     @Test
     void testValidatePatches() throws IOException, AruException {
         // should not throw a conflict exception
-        AruUtil.rest().validatePatches(new ArrayList<>(), new ArrayList<>(), "blah", "blah");
+        AruUtil.rest().validatePatches(new ArrayList<>(), new ArrayList<>(), "blah");
 
         List<AruPatch> patches = new ArrayList<>();
         patches.add(new AruPatch());
         assertThrows(PatchConflictException.class,
-            () -> AruUtil.rest().validatePatches(new ArrayList<>(), patches, "blah", "blah"));
+            () -> AruUtil.rest().validatePatches(new ArrayList<>(), patches, "blah"));
+    }
+
+    //@Test
+    void downloadPatch() throws IOException, AruException {
+        System.setProperty("https.proxyHost","www-proxy-hqdc.us.oracle.com");
+        System.setProperty("https.proxyPort", "80");
+        System.setProperty("https.noProxy","*.oracle.com");
+
+        AruPatch testPatch = new AruPatch();
+        testPatch.patchId("37642901");
+        testPatch.downloadHost("https://updates-uat.oracle.com");
+        testPatch.downloadPath("/Orion/Services/download/p37642901_190000_Linux-x86-64.zip"
+            + "?aru=27123174&patch_file=p37642901_190000_Linux-x86-64.zip");
+        testPatch.fileName("p37642901_190000_Linux-x86-64.zip");
+        AruUtil.rest().downloadAruPatch(testPatch, "/tmp", "eyJ4NXQjUzI1NiI6");
     }
 
 }

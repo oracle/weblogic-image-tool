@@ -55,11 +55,12 @@ public abstract class CommonPatchingOptions extends CommonOptions {
     @Override
     void initializeOptions() throws IOException, InvalidCredentialException, InvalidPatchIdFormatException {
         super.initializeOptions();
-        password = Utils.getPasswordFromInputs(passwordStr, passwordFile, passwordEnv);
+        token = Utils.getPasswordFromInputs(tokenStr, tokenFile, tokenEnv);
 
         if (applyingPatches()) {
-            // if userid or password is provided, validate the pair of provided values
-            if ((userId != null || password != null) && !AruUtil.rest().checkCredentials(userId, password)) {
+            // if userid or token is provided, validate the pair of provided values
+            // TODO - probably print out userId/token no longer used? or remove check here
+            if (token != null && !AruUtil.rest().checkCredentials(token)) {
                 throw new InvalidCredentialException();
             }
 
@@ -144,12 +145,12 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         // add user-provided patch list to any patches that were found for latestPsu or recommendedPatches
         aruPatches.addAll(resolveUserRequestedPatches(psuVersion));
 
-        AruUtil.rest().validatePatches(installedPatches, aruPatches, userId, password);
+        AruUtil.rest().validatePatches(installedPatches, aruPatches, token);
 
         String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
         // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
         for (AruPatch patch : aruPatches) {
-            PatchFile patchFile = new PatchFile(patch, userId, password);
+            PatchFile patchFile = new PatchFile(patch, token);
             String patchLocation = patchFile.resolve(cache());
             if (patchLocation != null && !Utils.isEmptyString(patchLocation)) {
                 File cacheFile = new File(patchLocation);
@@ -227,7 +228,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 providedVersion = patchId.substring(split + 1);
                 patchId = patchId.substring(0, split);
             }
-            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
+            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, token)
                 .filter(p -> p.isApplicableToTarget(getTargetArchitecture().getAruPlatform()))
                 .collect(Collectors.toList());
 
@@ -268,7 +269,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             return aruPatches;
         }
 
-        if (userId == null || password == null) {
+        if (token == null) {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0031"));
         }
 
@@ -276,7 +277,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
             // Get the latest PSU and its recommended patches
             aruPatches = AruUtil.rest()
                 .getRecommendedPatches(getInstallerType(), getInstallerVersion(), getTargetArchitecture(),
-                    userId, password);
+                    token);
 
             if (aruPatches.isEmpty()) {
                 recommendedPatches = false;
@@ -293,7 +294,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         } else if (latestPsu) {
             // PSUs for WLS and JRF installers are considered WLS patches
             aruPatches = AruUtil.rest().getLatestPsu(getInstallerType(), getInstallerVersion(), getTargetArchitecture(),
-                userId, password);
+                token);
 
             if (aruPatches.isEmpty()) {
                 latestPsu = false;
@@ -314,7 +315,7 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         throws IOException, XPathExpressionException, AruException {
         logger.entering(opatchBugNumber);
         String filePath =
-            OPatchFile.getInstance(opatchBugNumber, installerVersion, userId, password, cache()).resolve(cache());
+            OPatchFile.getInstance(opatchBugNumber, installerVersion, token, cache()).resolve(cache());
         String filename = new File(filePath).getName();
         Files.copy(Paths.get(filePath), Paths.get(tmpDir, filename));
         dockerfileOptions.setOPatchPatchingEnabled();
@@ -322,46 +323,36 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         logger.exiting(filename);
     }
 
-    String getUserId() {
-        return userId;
+
+    String getToken() {
+        return token;
     }
 
-    String getPassword() {
-        return password;
-    }
-
+    private String token;
 
     @Option(
-        names = {"--user"},
-        paramLabel = "<support email>",
-        description = "Oracle Support email id"
-    )
-    private String userId;
-
-    private String password;
-
-    @Option(
-        names = {"--password"},
+        names = {"--token"},
         interactive = true,
         arity = "0..1",
-        paramLabel = "<support password>",
-        description = "Enter password for Oracle Support userId on STDIN"
+        paramLabel = "<support oauth token>",
+        description = "Enter OAuth token for Oracle Support on STDIN"
     )
-    private String passwordStr;
+    private String tokenStr;
+
 
     @Option(
-        names = {"--passwordEnv"},
+        names = {"--tokenEnv"},
         paramLabel = "<environment variable>",
-        description = "environment variable containing the support password"
+        description = "environment variable containing the support token"
     )
-    private String passwordEnv;
+    private String tokenEnv;
 
     @Option(
-        names = {"--passwordFile"},
-        paramLabel = "<password file>",
-        description = "path to file containing just the password"
+        names = {"--tokenFile"},
+        paramLabel = "<token file>",
+        description = "path to file containing just the token"
     )
-    private Path passwordFile;
+    private Path tokenFile;
 
     @Option(
         names = {"--latestPSU"},

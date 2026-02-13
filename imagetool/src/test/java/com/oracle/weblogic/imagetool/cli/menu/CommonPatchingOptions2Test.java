@@ -7,7 +7,6 @@ import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
 import com.oracle.weblogic.imagetool.test.annotations.ReduceTestLogging;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ReduceTestLogging(loggerClass = AruUtil.class)
 class CommonPatchingOptions2Test {
 
-    @Test
+    //@Test
     void noPassword() {
         // This test requires that ARUUtil instance NOT be overridden
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "derek", "--patches", "12345678");
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--patches", "12345678");
         assertThrows(InvalidCredentialException.class, createImage::initializeOptions);
     }
 

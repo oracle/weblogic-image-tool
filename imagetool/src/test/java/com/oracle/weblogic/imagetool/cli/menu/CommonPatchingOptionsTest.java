@@ -42,13 +42,13 @@ class CommonPatchingOptionsTest {
 
     public static class TestAruUtil extends MockAruUtil {
         @Override
-        public boolean checkCredentials(String username, String password) {
+        public boolean checkCredentials(String token) {
             return true;
         }
 
         @Override
         public List<AruPatch> getRecommendedPatches(FmwInstallerType type, String version, Architecture architecture,
-                                                    String userId, String password) {
+                                                    String token) {
             if (type.equals(FmwInstallerType.WLS)) {
                 List<AruPatch> list = new ArrayList<>();
                 list.add(new AruPatch().patchId("1").product("15991").description("psu")
@@ -63,7 +63,7 @@ class CommonPatchingOptionsTest {
 
         @Override
         public List<AruPatch> getLatestPsu(FmwInstallerType type, String version, Architecture architecture,
-                                           String userId, String password) {
+                                           String token) {
             if (type.equals(FmwInstallerType.WLS)) {
                 List<AruPatch> list = new ArrayList<>();
                 list.add(new AruPatch().patchId("1").description("psu").psuBundle("x"));
@@ -80,9 +80,9 @@ class CommonPatchingOptionsTest {
     }
 
     @Test
-    void withPassword() {
+    void withToken() {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy");
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "xxxx");
 
         assertFalse(createImage.applyingPatches(), "No patches on the command line, but applyingPatches is true");
     }
@@ -90,7 +90,7 @@ class CommonPatchingOptionsTest {
     @Test
     void invalidPatchId() {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--patches", "abc");
 
         assertThrows(InvalidPatchIdFormatException.class, createImage::initializeOptions);
@@ -99,7 +99,7 @@ class CommonPatchingOptionsTest {
     @Test
     void invalidPatchIdTooFewDigits() {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "derek", "--password", "xxx",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "xxx",
             "--patches", "1234567");
 
         assertThrows(InvalidPatchIdFormatException.class, createImage::initializeOptions);
@@ -108,7 +108,7 @@ class CommonPatchingOptionsTest {
     @Test
     void validPatchId() throws Exception {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "derek", "--password", "xxx",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "xxx",
             "--patches", "12345678");
 
         createImage.initializeOptions();
@@ -118,7 +118,7 @@ class CommonPatchingOptionsTest {
     @Test
     void doNotGetRecommendedPatches() throws Exception {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "derek", "--password", "xxx",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "xxx",
             "--patches", "12345678");
 
         List<AruPatch> patches = createImage.getRecommendedPatchList();
@@ -128,7 +128,7 @@ class CommonPatchingOptionsTest {
     @Test
     void getLatestPsu() throws Exception {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "derek", "--password", "xxx",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "xxx",
             "--patches", "12345678", "--latestPSU");
 
         createImage.initializeOptions();
@@ -142,7 +142,7 @@ class CommonPatchingOptionsTest {
         CreateImage createImage = new CreateImage();
         // Using type = FMW with TestAruUtil class injected to verify that latestPSU flag is flipped when no patches
         new CommandLine(createImage).parseArgs("--tag", "tag:1", "--type", "FMW",
-            "--user", "derek", "--password", "xxx", "--patches", "12345678", "--latestPSU");
+            "--token", "xxx", "--patches", "12345678", "--latestPSU");
 
         createImage.initializeOptions();
         List<AruPatch> patches = createImage.getRecommendedPatchList();
@@ -154,7 +154,7 @@ class CommonPatchingOptionsTest {
     @Test
     void getRecommendedPatches() throws Exception {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--patches", "12345678", "--recommendedPatches");
 
         createImage.initializeOptions();
@@ -168,7 +168,7 @@ class CommonPatchingOptionsTest {
         // Using type = FMW with TestAruUtil class injected to verify that recommendedPatches flag is flipped
         CreateImage createImage = new CreateImage();
         new CommandLine(createImage).parseArgs("--tag", "tag:1", "--type", "FMW",
-            "--user", "derek", "--password", "xxx", "--recommendedPatches");
+            "--token", "xxx", "--recommendedPatches");
 
         createImage.initializeOptions();
         List<AruPatch> patches = createImage.getRecommendedPatchList();
@@ -214,7 +214,7 @@ class CommonPatchingOptionsTest {
     @Test
     void findPsuTest() throws AruException, IOException, InvalidPatchIdFormatException {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--recommendedPatches");
         createImage.initializeOptions();
         List<AruPatch> aruPatches = createImage.getRecommendedPatchList();
@@ -225,7 +225,7 @@ class CommonPatchingOptionsTest {
     @Test
     void findPsu2Test() throws AruException, IOException, InvalidPatchIdFormatException {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--type", "FMW", "--recommendedPatches");
         createImage.initializeOptions();
         List<AruPatch> aruPatches = createImage.getRecommendedPatchList();
@@ -238,7 +238,7 @@ class CommonPatchingOptionsTest {
     void resolveUserRequestedPatchesTest()
         throws InvalidCredentialException, IOException, InvalidPatchIdFormatException {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--patches", "11100004");
         createImage.initializeOptions();
         // User does not select a patch version and no PSU is present
@@ -249,7 +249,7 @@ class CommonPatchingOptionsTest {
     void resolveUserRequestedPatches2Test()
         throws AruException, IOException, InvalidPatchIdFormatException, XPathExpressionException {
         CreateImage createImage = new CreateImage();
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--patches", "11100004");
         createImage.initializeOptions();
         // User does not select a patch version and a PSU is already installed
@@ -264,7 +264,7 @@ class CommonPatchingOptionsTest {
         throws AruException, IOException, InvalidPatchIdFormatException, XPathExpressionException {
         CreateImage createImage = new CreateImage();
         // user specifies OPatch bug number and normal patch.  OPatch bug number should be discarded.
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--patches", "28186730,11100004_12.2.1.3.211222");
         createImage.initializeOptions();
         // User does select a patch version and a PSU is already installed
@@ -279,7 +279,7 @@ class CommonPatchingOptionsTest {
         throws InvalidCredentialException, IOException, InvalidPatchIdFormatException {
         CreateImage createImage = new CreateImage();
         // 11100005 is a Stack Patch Bundle patch
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--patches", "11100004_12.1.3.0.220118,11100005");
         createImage.initializeOptions();
         // User specified a Stack Patch Bundle patch
@@ -291,7 +291,7 @@ class CommonPatchingOptionsTest {
         throws AruException, IOException, InvalidPatchIdFormatException, XPathExpressionException {
         CreateImage createImage = new CreateImage();
         // 11100006 is a PSU, and 11100004 has a matching version to that PSU that should be selected
-        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--user", "xxxx", "--password", "yyyy",
+        new CommandLine(createImage).parseArgs("--tag", "tag:1", "--token", "yyyy",
             "--patches", "11100006,11100004");
         createImage.initializeOptions();
         // User specified a Stack Patch Bundle patch

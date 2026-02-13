@@ -118,17 +118,17 @@ class PatchFileTest {
         }
 
         @Override
-        public Stream<AruPatch> getPatches(String bugNumber, String userId, String password)
+        public Stream<AruPatch> getPatches(String bugNumber, String token)
             throws XPathExpressionException, AruException, IOException {
-            if (userId == null) {
-                return super.getPatches(bugNumber, userId, password);
+            if (token == null) {
+                return super.getPatches(bugNumber, token);
             } else {
                 return AruPatch.getPatches(responseCache.get(bugNumber));
             }
         }
 
         @Override
-        public String downloadAruPatch(AruPatch aruPatch, String targetDir, String username, String password)
+        public String downloadAruPatch(AruPatch aruPatch, String targetDir, String password)
             throws IOException {
             // download the remote patch file to the local target directory
             String filename = targetDir + File.separator + aruPatch.fileName();
@@ -159,12 +159,12 @@ class PatchFileTest {
     void resolveFile() throws IOException {
         // resolve should fail for a PatchFile that is not in the store
         AruPatch aruPatch1 = new AruPatch().patchId("99999").version(SOME_VERSION);
-        PatchFile p1 = new PatchFile(aruPatch1, null,null);
+        PatchFile p1 = new PatchFile(aruPatch1, null);
         assertThrows(FileNotFoundException.class, () -> p1.resolve(cacheStore));
 
         // PatchFile resolve should result in the same behavior has getting the path from the cache store
         AruPatch aruPatch2 = new AruPatch().patchId(BUGNUMBER).version(SOME_VERSION);
-        PatchFile patch2 = new PatchFile(aruPatch2, null,null);
+        PatchFile patch2 = new PatchFile(aruPatch2, null);
         String expected = cacheStore.getValueFromCache(BUGNUMBER + "_" + SOME_VERSION);
         assertEquals(expected, patch2.resolve(cacheStore), "failed to resolve patch in cache");
     }
@@ -180,10 +180,10 @@ class PatchFileTest {
          */
         String patchId = "11100001";
         // ARU contains three patch versions 12.2.1.1.0, 12.2.1.2.0, 12.2.1.3.0
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x").collect(Collectors.toList());
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x").collect(Collectors.toList());
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.0");
         assertNotNull(aruPatch);
-        PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
+        PatchFile patchFile = new PatchFile(aruPatch, "x");
 
         String filePath = patchFile.resolve(cacheStore);
 
@@ -206,7 +206,7 @@ class PatchFileTest {
          */
         String patchId = "11100002";
         // patch version in XML is actually 12.2.1.1.0, code will warn user and override patch version
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x").collect(Collectors.toList());
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x").collect(Collectors.toList());
         assertThrows(PatchVersionException.class,
             () -> AruPatch.selectPatch(aruPatches, null, null, "12.2.1.3.0"));
 
@@ -223,10 +223,10 @@ class PatchFileTest {
          *     Patch is found based on installer version.
          */
         String patchId = "11100001";
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x").collect(Collectors.toList());
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x").collect(Collectors.toList());
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, null, "12.2.1.3.0");
         assertNotNull(aruPatch);
-        PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
+        PatchFile patchFile = new PatchFile(aruPatch, "x");
 
         String filePath = patchFile.resolve(cacheStore);
 
@@ -249,10 +249,10 @@ class PatchFileTest {
 
         // 11100001 has multiple patches, but NO patches for a PSU
         String patchId = "11100001";
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x").collect(Collectors.toList());
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x").collect(Collectors.toList());
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, "12.2.1.3.181016", "12.2.1.3.0");
         assertNotNull(aruPatch);
-        PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
+        PatchFile patchFile = new PatchFile(aruPatch, "x");
         String filePath = patchFile.resolve(cacheStore);
 
         assertNotNull(filePath, "Patch resolve() failed to get file path from XML");
@@ -274,10 +274,10 @@ class PatchFileTest {
 
         // 11100003 has multiple patches, and most are for different PSUs of 12.2.1.3.0
         String patchId = "11100003";
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null).collect(Collectors.toList());
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null).collect(Collectors.toList());
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, "12.2.1.3.181016", "12.2.1.3.0");
         assertNotNull(aruPatch);
-        PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
+        PatchFile patchFile = new PatchFile(aruPatch, "x");
 
         String filePath = patchFile.resolve(cacheStore);
 
@@ -300,10 +300,10 @@ class PatchFileTest {
 
         // 11100001 has multiple patches, but NO patches for a PSU
         String patchId = BUGNUMBER;
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null).collect(Collectors.toList());
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null).collect(Collectors.toList());
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, null, null, SOME_VERSION);
         assertNotNull(aruPatch);
-        PatchFile patchFile = new PatchFile(aruPatch, null, null);
+        PatchFile patchFile = new PatchFile(aruPatch, null);
 
         String filePath = patchFile.resolve(cacheStore);
 
@@ -325,10 +325,10 @@ class PatchFileTest {
 
         // 11100003 has multiple patches, and most are for different PSUs of 12.2.1.3.0
         String patchId = "11100003";
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null).collect(Collectors.toList());
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null).collect(Collectors.toList());
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.1");
         assertNotNull(aruPatch);
-        PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
+        PatchFile patchFile = new PatchFile(aruPatch, "x");
 
         String filePath = patchFile.resolve(cacheStore);
 
@@ -350,7 +350,7 @@ class PatchFileTest {
          */
 
         String patchId = "11100002";
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x", "x").collect(Collectors.toList());
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, "x").collect(Collectors.toList());
         assertThrows(VersionNotFoundException.class,
             () -> AruPatch.selectPatch(aruPatches, "12.2.1.3.0", "12.2.1.3.181016", "12.2.1.3.1"));
     }
@@ -367,7 +367,7 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = null;
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "12.2.1.4.0", "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "12.2.1.4.0", "x", cacheStore);
 
         String filePath = patchFile.resolve(cacheStore);
 
@@ -390,7 +390,7 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = "28186730_13.9.4.2.5";
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "15.1.1.0.0", "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "15.1.1.0.0", "x", cacheStore);
 
         assertEquals("13.9.4.2.5", patchFile.getVersion(), "wrong version selected");
     }
@@ -408,7 +408,7 @@ class PatchFileTest {
         // 28186730 has multiple patches available, but none are specified
         String patchId = "28186730_13.9.4.2.2";
         assertThrows(VersionNotFoundException.class, () ->
-            OPatchFile.getInstance(patchId, "14.1.1.0.0", "x", "x", cacheStore));
+            OPatchFile.getInstance(patchId, "14.1.1.0.0", "x", cacheStore));
     }
 
 
@@ -425,7 +425,7 @@ class PatchFileTest {
 
         // 28186730 has multiple patches available, but none are specified
         String patchId = "2818673x";
-        OPatchFile patchFile = OPatchFile.getInstance(patchId, "14.1.1.0.0", "x", "x", cacheStore);
+        OPatchFile patchFile = OPatchFile.getInstance(patchId, "14.1.1.0.0", "x", cacheStore);
 
         assertEquals("13.9.4.2.5", patchFile.getVersion());
         String filePath = patchFile.resolve(cacheStore);
@@ -443,12 +443,12 @@ class PatchFileTest {
         AruPatch aruPatch = new AruPatch().patchId("11100007").version("12.2.1.4.0");
 
         aruPatch.platform("541"); // if local system is ARM
-        PatchFile p1 = new PatchFile(aruPatch, null,null);
+        PatchFile p1 = new PatchFile(aruPatch, null);
         assertFalse(Utils.isEmptyString(p1.resolve(cacheStore)));
         assertEquals("11100007_12.2.1.4.0_arm64", p1.toString());
 
         aruPatch.platform("226"); // if local system is x86-64
-        PatchFile p2 = new PatchFile(aruPatch, null,null);
+        PatchFile p2 = new PatchFile(aruPatch, null);
         assertFalse(Utils.isEmptyString(p2.resolve(cacheStore)));
         assertEquals("11100007_12.2.1.4.0_amd64", p2.toString());
     }
@@ -458,12 +458,12 @@ class PatchFileTest {
         // 11100007 has multiple patches, 1 ARM and 1 AMD
         String patchId = "11100007";
         String version = "12.2.1.4.0";
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null)
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null)
             .filter(p -> p.isApplicableToTarget(Architecture.ARM64.getAruPlatform()))
             .collect(Collectors.toList());
         AruPatch aruPatch = AruPatch.selectPatch(aruPatches, version, null, version);
         assertNotNull(aruPatch);
-        PatchFile patchFile = new PatchFile(aruPatch, "x", "x");
+        PatchFile patchFile = new PatchFile(aruPatch, "x");
 
         String filePath = patchFile.resolve(cacheStore);
 
@@ -479,7 +479,7 @@ class PatchFileTest {
         // 11100008 has multiple patches, 1 ARM, 1 AMD, and 1 GENERIC, generic and architecture specific cannot coexist
         String patchId = "11100008";
         String version = "12.2.1.4.0";
-        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null, null)
+        List<AruPatch> aruPatches = AruUtil.rest().getPatches(patchId, null)
             .filter(p -> p.isApplicableToTarget(Architecture.ARM64.getAruPlatform()))
             .collect(Collectors.toList());
         assertThrows(IllegalStateException.class,

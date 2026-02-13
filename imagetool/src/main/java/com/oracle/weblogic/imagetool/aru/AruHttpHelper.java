@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -18,31 +18,27 @@ import org.w3c.dom.NodeList;
 public class AruHttpHelper {
     private boolean success;
     private final AruProduct product;
-    private final String userId;
-    private final String password;
+    private final String token;
 
     /**
      * Constructor encapsulating the information for the ARU search.
      *
      * @param product ARU product
-     * @param userId ARU user credentials
-     * @param password ARU password credentials
+     * @param token   ARU password credentials
      */
-    AruHttpHelper(AruProduct product, String userId, String password) {
+    AruHttpHelper(AruProduct product, String token) {
         this.product = product;
-        this.userId = userId;
-        this.password = password;
+        this.token = token;
         this.success = true;
     }
 
     /**
      * For searches that only provide the credentials for the ARU searches.
      *
-     * @param userId ARU credentials userid
-     * @param password ARU credentials password
+     * @param token ARU credentials password
      */
-    AruHttpHelper(String userId, String password) {
-        this(null, userId, password);
+    AruHttpHelper(String token) {
+        this(null, token);
     }
 
     /**
@@ -54,21 +50,12 @@ public class AruHttpHelper {
     }
 
     /**
-     * Return the user for the ARU credentials.
-     *
-     * @return user id
-     */
-    String userId() {
-        return userId;
-    }
-
-    /**
      * Return the ARU credentials password.
      *
-     * @return password
+     * @return oauth token
      */
-    public String password() {
-        return password;
+    public String token() {
+        return token;
     }
 
     /**
@@ -86,7 +73,7 @@ public class AruHttpHelper {
      * @throws IOException if the search fails
      */
     AruHttpHelper execSearch(String url) throws IOException {
-        searchResult(HttpUtil.getXMLContent(url, userId(), password()));
+        searchResult(HttpUtil.getXMLContent(url, token()));
         return this;
     }
 

@@ -50,15 +50,14 @@ public class OPatchFile extends PatchFile {
     /**
      * Create an abstract OPatch file to help resolve the local file or download the remote patch.
      *
-     * @param patchId  bug number and optional version
-     * @param installerVersion  version of product to be patched
-     * @param userid   the username to use for retrieving the patch
-     * @param password the password to use with the userId to retrieve the patch
-     * @param cache    the local cache used for patch storage
+     * @param patchId          bug number and optional version
+     * @param installerVersion version of product to be patched
+     * @param token            the password to use with the userId to retrieve the patch
+     * @param cache            the local cache used for patch storage
      * @return an abstract OPatch file
      */
     public static OPatchFile getInstance(String patchId, String installerVersion,
-                                         String userid, String password, CacheStore cache)
+                                         String token, CacheStore cache)
         throws AruException, XPathExpressionException, IOException {
 
         logger.entering(patchId);
@@ -76,11 +75,11 @@ public class OPatchFile extends PatchFile {
         }
 
         AruPatch selectedPatch;
-        if (isOffline(userid, password)) {
+        if (isOffline(token)) {
             selectedPatch = getAruPatchOffline(patchNumber, providedVersion, cache);
         } else {
             try {
-                selectedPatch = getAruPatchOnline(patchNumber, providedVersion, userid, password);
+                selectedPatch = getAruPatchOnline(patchNumber, providedVersion, token);
             } catch (VersionNotFoundException notFound) {
                 // Could not find the user requested OPatch version on ARU, checking local cache before giving up
                 if (cache.containsKey(patchId)) {
@@ -94,11 +93,11 @@ public class OPatchFile extends PatchFile {
         }
 
         logger.exiting(selectedPatch);
-        return new OPatchFile(selectedPatch, userid, password);
+        return new OPatchFile(selectedPatch, token);
     }
 
-    private static boolean isOffline(String userid, String password) {
-        return userid == null || password == null;
+    private static boolean isOffline(String token) {
+        return token == null;
     }
 
     private static AruPatch getAruPatchOffline(String patchNumber, String providedVersion, CacheStore cache) {
@@ -115,10 +114,10 @@ public class OPatchFile extends PatchFile {
     }
 
     private static AruPatch getAruPatchOnline(String patchNumber, String providedVersion,
-                                              String userid, String password)
+                                              String token)
         throws XPathExpressionException, IOException, AruException {
 
-        List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, userid, password)
+        List<AruPatch> patches = AruUtil.rest().getPatches(patchNumber, token)
             .filter(p -> p.isApplicableToTarget(2000)) // OPatch is always platform 2000/generic
             .filter(AruPatch::isOpenAccess) // filter ARU results based on access flag (discard protected versions)
             .collect(Collectors.toList());
@@ -147,12 +146,11 @@ public class OPatchFile extends PatchFile {
      * An abstract OPatch file to help resolve the local file, and determine local patch version.
      * Default patch number for OPatch is 28186730.
      *
-     * @param patch    the OPatch ARU patch
-     * @param userId   the username to use for retrieving the patch
-     * @param password the password to use with the userId to retrieve the patch
+     * @param patch the OPatch ARU patch
+     * @param token the oauth token to retrieve the patch
      */
-    private OPatchFile(AruPatch patch, String userId, String password) {
-        super(patch, userId, password);
+    private OPatchFile(AruPatch patch, String token) {
+        super(patch, token);
     }
 
     private static String getLatestCachedVersion(CacheStore cache, String patchId) {

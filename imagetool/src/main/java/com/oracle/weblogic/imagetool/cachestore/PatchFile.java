@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cachestore;
@@ -19,21 +19,18 @@ public class PatchFile extends CachedFile {
     private static final LoggingFacade logger = LoggingFactory.getLogger(PatchFile.class);
 
     private final AruPatch aruPatch;
-    private final String userId;
-    private final String password;
+    private final String token;
 
     /**
      * Create an abstract file to hold the metadata for a patch file.
      *
      * @param aruPatch Patch metadata from ARU
-     * @param userId   the username to use for retrieving the patch
-     * @param password the password to use with the userId to retrieve the patch
+     * @param token    the oauth token to retrieve the patch
      */
-    public PatchFile(AruPatch aruPatch, String userId, String password) {
+    public PatchFile(AruPatch aruPatch, String token) {
         super(aruPatch.patchId(), aruPatch.version(), Architecture.fromAruPlatform(aruPatch.platform()));
         this.aruPatch = aruPatch;
-        this.userId = userId;
-        this.password = password;
+        this.token = token;
 
         if (Utils.isEmptyString(aruPatch.patchId())) {
             throw new IllegalArgumentException(Utils.getMessage("IMG-0058", aruPatch.patchId()));
@@ -50,7 +47,7 @@ public class PatchFile extends CachedFile {
     }
 
     private boolean offlineMode() {
-        return userId == null || password == null;
+        return token == null;
     }
 
     @Override
@@ -75,7 +72,7 @@ public class PatchFile extends CachedFile {
     }
 
     private String downloadPatch(CacheStore cacheStore) throws IOException {
-        String filename = AruUtil.rest().downloadAruPatch(aruPatch, cacheStore.getCacheDir(), userId, password);
+        String filename = AruUtil.rest().downloadAruPatch(aruPatch, cacheStore.getCacheDir(), token);
 
         // after downloading the file, update the cache metadata
         String patchKey = getKey();

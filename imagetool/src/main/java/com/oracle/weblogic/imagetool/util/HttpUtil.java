@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -20,6 +20,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
@@ -116,6 +117,25 @@ public class HttpUtil {
     }
 
     /**
+     * Return the xml result of a GET from the url.
+     *
+     * @param url      url of the aru server
+     * @param token    password for support account
+     * @return xml dom document
+     * @throws IOException when it fails to access the url
+     */
+    public static Document getXMLContent(String url, String token) throws IOException {
+        logger.entering(url);
+        String xmlString = getHttpExecutor(token).execute(Request.Get(url).connectTimeout(30000)
+                .socketTimeout(30000))
+            .returnContent().asString();
+        logger.finest(xmlString);
+        logger.exiting();
+        return parseXml(xmlString);
+    }
+
+
+    /**
      * Create an HTTP client with cookie and credentials for Oracle eDelivery.
      * @param userId Oracle credential
      * @param password Oracle credential
@@ -148,6 +168,32 @@ public class HttpUtil {
     }
 
     /**
+     * Create an HTTP client with cookie and credentials for Oracle eDelivery.
+     * @param token Oracle credential
+     * @return new HTTP Client ready to access eDelivery
+     */
+    public static HttpClient getOraClient(String token) {
+        RequestConfig.Builder config = RequestConfig.custom();
+        config.setCircularRedirectsAllowed(true);
+        config.setCookieSpec(CookieSpecs.STANDARD);
+
+        CookieStore cookieStore = new BasicCookieStore();
+
+        HttpClientBuilder builder = HttpClientBuilder.create()
+            .setDefaultRequestConfig(config.build())
+            .setRetryHandler(retryHandler())
+            .setUserAgent("Wget/1.10")
+            .setDefaultCookieStore(cookieStore).useSystemProperties();
+
+        if (token != null && !token.isEmpty()) {
+            builder.addInterceptorLast((HttpRequestInterceptor) (request, context) ->
+                request.addHeader("Authorization", "Bearer " + token));
+        }
+
+        return builder.useSystemProperties().build();
+    }
+
+    /**
      * Return a Executor for http access.
      * @param supportUserName  oracle support username
      * @param supportPassword oracle support password
@@ -175,6 +221,29 @@ public class HttpUtil {
         }
         return executor;
     }
+
+    /**
+     * Return a Executor for http access.
+     * @param token  oracle support oauth token
+     * @return Executor
+     */
+
+    public static Executor getHttpExecutor(String token) {
+
+        String proxyUser = System.getProperty("https.proxyUser");
+        String proxyPassword = System.getProperty("https.proxyPassword");
+        String proxyHost = System.getProperty("https.proxyHost");
+        String proxyPort  = System.getProperty("https.proxyPort");
+        Executor executor =  Executor.newInstance(getOraClient(token));
+
+        if (proxyHost != null) {
+            if (proxyPassword != null) {
+                executor.auth(new HttpHost(proxyHost, Integer.parseInt(proxyPort)), proxyUser, proxyPassword);
+            }
+        }
+        return executor;
+    }
+
 
     private static HttpRequestRetryHandler retryHandler() {
         return (exception, executionCount, context) -> {
@@ -213,14 +282,13 @@ public class HttpUtil {
      *
      * @param url      url for conflict checker api
      * @param payload  payload containing patches to check for conflicts
-     * @param username user name for support
-     * @param password password for support
+     * @param token password for support
      * @return dom document result of the conflict checker
      * @throws IOException if HTTP client fails
      */
 
-    public static Document postCheckConflictRequest(String url, String payload, String username, String password)
-            throws IOException {
+    public static Document postCheckConflictRequest(String url, String payload, String token)
+        throws IOException {
 
         logger.entering(url, payload);
         RequestConfig.Builder config = RequestConfig.custom();
@@ -229,7 +297,7 @@ public class HttpUtil {
 
         CookieStore cookieStore = new BasicCookieStore();
 
-        Executor httpExecutor = HttpUtil.getHttpExecutor(username, password);
+        Executor httpExecutor = HttpUtil.getHttpExecutor(token);
         httpExecutor.use(cookieStore);
 
 
@@ -253,8 +321,8 @@ public class HttpUtil {
 
                 xmlString =
                     httpExecutor.execute(Request.Post(url).connectTimeout(30000)
-                        .socketTimeout(30000)
-                        .body(entity))
+                            .socketTimeout(30000)
+                            .body(entity))
                         .returnContent().asString();
                 complete = true;
             } catch (IOException ioe) {
@@ -275,4 +343,6 @@ public class HttpUtil {
         return parseXml(xmlString);
 
     }
+
+
 }

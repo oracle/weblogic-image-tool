@@ -97,12 +97,11 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
 
             if (applyingPatches()) {
 
-                String userId = getUserId();
-                String password = getPassword();
+                String token = getToken();
 
                 if (shouldUpdateOpatch()) {
                     OPatchFile opatchFile =
-                        OPatchFile.getInstance(opatchBugNumber, installerVersion, userId, password, cache());
+                        OPatchFile.getInstance(opatchBugNumber, installerVersion, token, cache());
                     String opatchFilePath = opatchFile.resolve(cache());
 
                     // if there is a newer version of OPatch than contained in the image, update OPatch
@@ -119,7 +118,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
 
                 logger.finer("Verifying Patches to WLS ");
 
-                if (userId == null) {
+                if (token == null) {
                     logger.info("IMG-0009");
                 } else {
                     Utils.validatePatchIds(patches, true);
