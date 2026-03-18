@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -28,9 +28,10 @@ import com.oracle.weblogic.imagetool.util.Architecture;
 import com.oracle.weblogic.imagetool.util.HttpUtil;
 import com.oracle.weblogic.imagetool.util.Utils;
 import com.oracle.weblogic.imagetool.util.XPathUtil;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.fluent.Request;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.util.Timeout;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -44,6 +45,7 @@ import static com.oracle.weblogic.imagetool.util.Utils.not;
 public class AruUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(AruUtil.class);
+    private static final Timeout REQUEST_TIMEOUT = Timeout.ofSeconds(30);
 
     private static AruUtil instance;
 
@@ -426,7 +428,7 @@ public class AruUtil {
             aruHttpHelper.execSearch(ARU_LANG_URL);
         } catch (IOException e) {
             Throwable cause = (e.getCause() == null) ? e : e.getCause();
-            if (cause.getClass().isAssignableFrom(HttpResponseException.class)
+            if (cause instanceof HttpResponseException
                     && ((HttpResponseException) cause).getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 return false;
             }
@@ -568,8 +570,8 @@ public class AruUtil {
         logger.info("IMG-0018", aruPatch.patchId());
         try {
             HttpUtil.getHttpExecutor(username, password)
-                .execute(Request.Get(aruPatch.downloadUrl()).connectTimeout(30000)
-                    .socketTimeout(30000))
+                .execute(Request.get(aruPatch.downloadUrl()).connectTimeout(REQUEST_TIMEOUT)
+                    .responseTimeout(REQUEST_TIMEOUT))
                 .saveContent(new File(filename));
         } catch (Exception ex) {
             String message = Utils.getMessage("IMG-0107", filename, aruPatch.downloadUrl(), ex.getLocalizedMessage());
@@ -632,4 +634,3 @@ public class AruUtil {
         throw logger.throwing(new RetryFailedException());
     }
 }
-
