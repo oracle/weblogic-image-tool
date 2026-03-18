@@ -13,23 +13,17 @@ Third Party Runtime Dependencies
 
 The following packages are licensed under The Apache License, Version 2.0:
 
-org.apache.httpcomponents:fluent-hc
+org.apache.httpcomponents.client5:httpclient5-fluent
+Copyright 2011-2025 The Apache Software Foundation
+
+org.apache.httpcomponents.client5:httpclient5
 Copyright 1999-2025 The Apache Software Foundation
 
-org.apache.httpcomponents:httpclient
-Copyright 1999-2025 The Apache Software Foundation
+org.apache.httpcomponents.core5:httpcore5
+Copyright 2005-2025 The Apache Software Foundation
 
-org.apache.httpcomponents:httpcore
-Copyright 2005-2024 The Apache Software Foundation
-
-commons-codec:commons-codec
-Copyright 2002-2026 The Apache Software Foundation
-
-commons-codec:commons-logging
-Copyright 2001-2026 The Apache Software Foundation
-
-org.apache.httpcomponents:httpmime
-Copyright 1999-2020 The Apache Software Foundation
+org.apache.httpcomponents.core5:httpcore5-h2
+Copyright 2005-2025 The Apache Software Foundation
 
 info.picocli:picocli
 Copyright 2017 Remko Popma
@@ -209,11 +203,11 @@ TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
 The following packages are licensed under The MIT License:
 
-uk.org.webcompere:system-stubs-jupiter
-Copyright (c) 2020 Ashley Frieze (c) 2017 Stefan Birkner
+org.slf4j:slf4j-api
+Copyright (c) 2004-2022 QOS.ch Sarl (Switzerland)
 
-org.jetbrains:annotations
-Copyright (c) 2016-2024 JetBrains s.r.o.
+org.slf4j:slf4j-jdk14
+Copyright (c) 2004-2022 QOS.ch Sarl (Switzerland)
 
 
 The MIT License

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.util;
@@ -16,27 +16,26 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.oracle.weblogic.imagetool.logging.LoggingFacade;
 import com.oracle.weblogic.imagetool.logging.LoggingFactory;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.HttpRequestRetryHandler;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.fluent.Executor;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.HttpRequestRetryStrategy;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.fluent.Executor;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -44,6 +43,7 @@ import org.xml.sax.SAXException;
 public class HttpUtil {
 
     private static final LoggingFacade logger = LoggingFactory.getLogger(HttpUtil.class);
+    private static final Timeout REQUEST_TIMEOUT = Timeout.ofSeconds(30);
 
     private HttpUtil() {
         // utility class with static methods
@@ -107,9 +107,9 @@ public class HttpUtil {
      */
     public static Document getXMLContent(String url, String username, String password) throws IOException {
         logger.entering(url);
-        String xmlString = getHttpExecutor(username,password).execute(Request.Get(url).connectTimeout(30000)
-                .socketTimeout(30000))
-                .returnContent().asString();
+        String xmlString = getHttpExecutor(username, password)
+            .execute(Request.get(url).connectTimeout(REQUEST_TIMEOUT).responseTimeout(REQUEST_TIMEOUT))
+            .returnContent().asString();
         logger.finest(xmlString);
         logger.exiting();
         return parseXml(xmlString);
@@ -121,28 +121,28 @@ public class HttpUtil {
      * @param password Oracle credential
      * @return new HTTP Client ready to access eDelivery
      */
-    public static HttpClient getOraClient(String userId, String password) {
+    public static CloseableHttpClient getOraClient(String userId, String password) {
         logger.entering(userId);
         RequestConfig.Builder config = RequestConfig.custom();
         config.setCircularRedirectsAllowed(true);
-        config.setCookieSpec(CookieSpecs.STANDARD);
+        config.setCookieSpec(StandardCookieSpec.RELAXED);
 
-        CookieStore cookieStore = new BasicCookieStore();
+        BasicCookieStore cookieStore = new BasicCookieStore();
 
         HttpClientBuilder builder = HttpClientBuilder.create()
             .setDefaultRequestConfig(config.build())
-            .setRetryHandler(retryHandler())
+            .setRetryStrategy(retryHandler())
             .setUserAgent("Wget/1.10")
             .setDefaultCookieStore(cookieStore).useSystemProperties();
 
         if (userId != null && password != null) {
-            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
-                userId, password));
+            BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(new AuthScope(null, -1),
+                new UsernamePasswordCredentials(userId, password.toCharArray()));
             builder.setDefaultCredentialsProvider(credentialsProvider);
         }
 
-        HttpClient result = builder.useSystemProperties().build();
+        CloseableHttpClient result = builder.useSystemProperties().build();
         logger.exiting();
         return result;
     }
@@ -160,50 +160,55 @@ public class HttpUtil {
         String proxyPassword = System.getProperty("https.proxyPassword");
         String proxyHost = System.getProperty("https.proxyHost");
         String proxyPort  = System.getProperty("https.proxyPort");
-        Executor executor =  Executor.newInstance(getOraClient(supportUserName, supportPassword));
+        Executor executor = Executor.newInstance(getOraClient(supportUserName, supportPassword));
 
 
         if (proxyHost != null) {
+            HttpHost proxy = new HttpHost("https", proxyHost, Integer.parseInt(proxyPort));
             if (proxyPassword != null) {
-                executor.auth(new HttpHost(proxyHost, Integer.parseInt(proxyPort)), proxyUser, proxyPassword);
+                executor.auth(proxy, proxyUser, proxyPassword.toCharArray());
             }
 
-            executor
-                .auth(new HttpHost("login.oracle.com", 443), supportUserName, supportPassword)
-                .auth(new HttpHost(Constants.ARU_UPDATES_HOST, 443), supportUserName, supportPassword)
-                .authPreemptiveProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
+            if (supportUserName != null && supportPassword != null) {
+                executor
+                    .auth(new HttpHost("https", "login.oracle.com", 443), supportUserName,
+                        supportPassword.toCharArray())
+                    .auth(new HttpHost("https", Constants.ARU_UPDATES_HOST, 443), supportUserName,
+                        supportPassword.toCharArray());
+            }
+            executor.authPreemptiveProxy(proxy);
         }
         return executor;
     }
 
-    private static HttpRequestRetryHandler retryHandler() {
-        return (exception, executionCount, context) -> {
-
-            if (executionCount > 10) {
-                // Do not retry if over max retries
-                return false;
-            }
-            if (exception instanceof InterruptedIOException   // Timeout
-                || exception instanceof UnknownHostException  // Unknown Host
-                || exception instanceof SSLException) {       // SSL handshake failed
-                return false;
-            }
-
-            HttpClientContext clientContext = HttpClientContext.adapt(context);
-            HttpRequest request = clientContext.getRequest();
-            // return true if it is okay to retry this request type
-            boolean retriable = !(request instanceof HttpEntityEnclosingRequest);
-            if (retriable) {
-                try {
+    private static HttpRequestRetryStrategy retryHandler() {
+        return new DefaultHttpRequestRetryStrategy(10, TimeValue.ofSeconds(2)) {
+            @Override
+            public boolean retryRequest(HttpRequest request, IOException exception, int executionCount,
+                                        org.apache.hc.core5.http.protocol.HttpContext context) {
+                if (exception instanceof InterruptedIOException) {
+                    return false;
+                }
+                if (exception instanceof UnknownHostException) {
+                    return false;
+                }
+                if (exception instanceof SSLException) {
+                    return false;
+                }
+                boolean retriable = !(request instanceof ClassicHttpRequest)
+                    || ((ClassicHttpRequest) request).getEntity() == null;
+                if (retriable) {
                     long waitTime = executionCount < 5 ? 2 : 10;
                     logger.warning("Connect failed, retrying in {0} seconds, attempts={1} ", waitTime, executionCount);
-                    Thread.sleep(waitTime * 1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
                 }
-                return true;
-            } else {
-                return false;
+                return retriable && super.retryRequest(request, exception, executionCount, context);
+            }
+
+            @Override
+            public TimeValue getRetryInterval(org.apache.hc.core5.http.HttpResponse response,
+                                              int execCount,
+                                              org.apache.hc.core5.http.protocol.HttpContext context) {
+                return execCount < 5 ? TimeValue.ofSeconds(2) : TimeValue.ofSeconds(10);
             }
         };
     }
@@ -223,11 +228,7 @@ public class HttpUtil {
             throws IOException {
 
         logger.entering(url, payload);
-        RequestConfig.Builder config = RequestConfig.custom();
-        config.setCircularRedirectsAllowed(true);
-        config.setRedirectsEnabled(true);
-
-        CookieStore cookieStore = new BasicCookieStore();
+        BasicCookieStore cookieStore = new BasicCookieStore();
 
         Executor httpExecutor = HttpUtil.getHttpExecutor(username, password);
         httpExecutor.use(cookieStore);
@@ -244,16 +245,17 @@ public class HttpUtil {
         while (!complete) {
             try {
                 httpExecutor
-                    .execute(Request.Get(Constants.REL_URL).connectTimeout(30000).socketTimeout(30000))
+                    .execute(Request.get(Constants.REL_URL).connectTimeout(REQUEST_TIMEOUT)
+                        .responseTimeout(REQUEST_TIMEOUT))
                     .returnContent().asString();
 
-                HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                HttpEntity entity = MultipartEntityBuilder.create()
                     .addTextBody("request_xml", payload)
                     .build();
 
                 xmlString =
-                    httpExecutor.execute(Request.Post(url).connectTimeout(30000)
-                        .socketTimeout(30000)
+                    httpExecutor.execute(Request.post(url).connectTimeout(REQUEST_TIMEOUT)
+                        .responseTimeout(REQUEST_TIMEOUT)
                         .body(entity))
                         .returnContent().asString();
                 complete = true;
