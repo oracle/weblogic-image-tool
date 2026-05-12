@@ -14,5 +14,5 @@ description: "Install the WebLogic Image Tool."
     ```
 - Unzip the downloaded ZIP file into a directory of your choice.  
   - All of the contents of the ZIP file will be extracted into a single subdirectory named `imagetool`.
-- OPTIONALLY: You may build the project (`mvn clean package`) to create the ZIP file installer in `./imagetool/target` (see [Build From Source]({{% relref "/developer/source.md" %}})).
+- OPTIONALLY: You may build the project (`mvn clean package`) to create the ZIP file installer in `./installer/target` (see [Build From Source]({{% relref "/developer/source.md" %}})).
 - Set the JAVA_HOME environment variable to the location of the Java install (see [Prerequisites]({{% relref "/userguide/prerequisites.md" %}})).   
