@@ -182,7 +182,7 @@ public class UpdateImage extends CommonPatchingOptions implements Callable<Comma
     }
 
     void setImageInstallerType(String value) {
-        imageInstallerType = FmwInstallerType.fromProductList(value);
+        imageInstallerType = FmwInstallerType.fromDistributionList(value);
     }
 
     @Override
