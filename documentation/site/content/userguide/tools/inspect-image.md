@@ -60,7 +60,7 @@ $ imagetool @/path/to/build_args
       "oracleHome" : "/u01/oracle",
       "oracleHomeGroup" : "oracle",
       "oracleHomeUser" : "oracle",
-      "oracleInstalledProducts" : "WLS,COH,TOPLINK",
+      "oracleInstalledProducts" : "WebLogic Server",
       "packageManager" : "YUM",
       "wlsVersion" : "12.2.1.4.0"
     }
@@ -78,7 +78,7 @@ $ imagetool @/path/to/build_args
       "oracleHome" : "/u01/oracle",
       "oracleHomeGroup" : "oracle",
       "oracleHomeUser" : "oracle",
-      "oracleInstalledProducts" : "WLS,COH,TOPLINK",
+      "oracleInstalledProducts" : "WebLogic Server",
       "packageManager" : "YUM",
       "wlsVersion" : "12.2.1.4.0"
     }
