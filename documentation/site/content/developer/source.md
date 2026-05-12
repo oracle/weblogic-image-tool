@@ -6,51 +6,88 @@ weight: 1
 description: "How to build the Image Tool from source."
 ---
 
+The Image Tool installer is available on the [Releases](https://github.com/oracle/weblogic-image-tool/releases) page.
+If you want to build the installer from source instead, use the steps on this page.
 
-The Image Tool installer is available for download on the [Releases](https://github.com/oracle/weblogic-image-tool/releases) page.
-If you want to build the installer from source instead of downloading it, follow these instructions:
-1. Download and install JDK 8u261+.
-1. Download and install Maven 3.6.3+.
-1. Clone [this](https://github.com/oracle/weblogic-image-tool) repository to your local environment.
-   - Cloning options are shown under the `Code` button at the root of this project.
-   - For example, `git clone https://github.com/oracle/weblogic-image-tool.git`.
-1. From inside the top-level directory of the cloned project, `weblogic-image-tool`, using Maven, execute one or
-more of these phases:
-    - `validate` - Validate the project is correct and all necessary information is available.
-    - `compile`  - Compile the source code.
-    - `test`     - Test the compiled source code using the JUnit5 framework.
-    - `package`  - Create the installer ZIP file, `imagetool.zip`.
-    - `verify`   - Run integration tests using the JUnit5 framework (Prerequisite: Docker installed).
-    - `clean`    - Restore the source by removing any items created by `package` or another phase of the build.
+## Prerequisites
 
-**Note:** Maven executes build phases sequentially, `validate`, `compile`, `test`, `package`, `verify`, such that
-running `verify` will run all of these phases from `validate` through `package` before running `verify`.
+Before building the project, install the following tools:
 
-Because the `package` phase comes before the `verify` phase, it is not necessary to run the integration tests to create
-the Image Tool installer.  If you are making changes and want to validate those changes in your environment, you will
-need to do some additional setup before running the `verify` phase because several of the integration tests require
-access to the Oracle Technology Network.  To run the integration tests in the
-`verify` phase, you must specify three environment variables, `ORACLE_SUPPORT_USERNAME`, `ORACLE_SUPPORT_PASSWORD`,
-and `STAGING_DIR`.  The first two, Oracle Support user name and password, are used to connect to Oracle OTN for patches.
-The third, `STAGING_DIR`, should be a local folder where WebLogic Server installers, JDK installers, and pre-downloaded
-patches can be found.  The files required in the `STAGING_DIR` depend on which tests that you want to run.
+- JDK 11 or later
+- Maven 3.6.3 or later
+- Git
 
-**Example**: Run a set of integration tests (available groups are `cache`, `gate`, and `nightly`:
-```shell script
-$ mvn verify -Dtest.groups=cache
+If you want to run integration tests, you also need:
+
+- Docker or Podman
+- Oracle Support credentials, provided through the `ORACLE_SUPPORT_USERNAME` and `ORACLE_SUPPORT_PASSWORD`
+  environment variables
+- A local staging directory, provided through the `STAGING_DIR` environment variable, that contains the required
+  WebLogic Server installers, JDK installers, and pre-downloaded patches
+
+## Build the installer ZIP
+
+1. Clone the repository:
+
+   ```shell
+   git clone https://github.com/oracle/weblogic-image-tool.git
+   ```
+
+1. Change to the project root:
+
+   ```shell
+   cd weblogic-image-tool
+   ```
+
+1. Build the installer ZIP:
+
+   ```shell
+   mvn clean package
+   ```
+
+The build creates the installer ZIP file at `installer/target/imagetool.zip`.
+
+## Maven phases
+
+Use the standard Maven lifecycle phases shown in the following list:
+
+- `validate` - Validate the project and build prerequisites.
+- `compile` - Compile the source code.
+- `test` - Run the unit tests.
+- `package` - Create the installer ZIP file, `imagetool.zip`.
+- `verify` - Run the integration tests.
+- `clean` - Remove files created during the build.
+
+Maven runs phases in order. For example, `mvn verify` runs `validate`, `compile`, `test`, and `package` before it
+runs `verify`.
+
+Because `package` runs before `verify`, you do not need to run integration tests to create the installer ZIP.
+
+## Run integration tests
+
+If you want to validate changes in your environment, run the `verify` phase after completing the prerequisites for
+integration tests.
+
+### Examples
+
+Run a test group (`cache`, `gate`, or `nightly`):
+
+```shell
+mvn verify -Dtest.groups=cache
 ```
 
-**Example**: Run a single integration test:
-```shell script
-$ mvn verify -Dtest.groups=gate,nightly -Dit.test=ITImagetool#createWlsImg
+Run a single integration test:
+
+```shell
+mvn verify -Dtest.groups=gate,nightly -Dit.test=ITImagetool#createWlsImg
 ```
 
-Integration Test groups:
-- `cache` - Tests that build and manipulate the Image Tool cache.
-- `gate`  - A basic set of integration tests that are used to validate merge requests, including building several
-Docker image (~20 minutes).
-- `nightly` - The full set of integration tests building various container images including JRF and WLS
-installations (~2 hours).
+### Test groups
 
-**Note:** In order to run an integration test that builds an image like `createWlsImg`, you must run the `cache`
-group first to populate the cache with the WLS and JDK installers.
+- `cache` - Build and manipulate the Image Tool cache.
+- `gate` - Run the basic integration test suite used to validate merge requests, including several image builds
+  (about 20 minutes).
+- `nightly` - Run the full integration test suite, including various WLS and JRF image builds (about 2 hours).
+
+Run the `cache` group before an integration test that builds an image, such as `createWlsImg`, so that the WLS and JDK
+installers are already present in the cache.

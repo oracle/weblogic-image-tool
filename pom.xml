@@ -113,6 +113,25 @@
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>enforce-build-tool-versions</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[11,)</version>
+                                    <message>Building WebLogic Image Tool requires JDK 11 or later.</message>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>[3.6.3,)</version>
+                                    <message>Building WebLogic Image Tool requires Maven 3.6.3 or later.</message>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>enforce-build-environment</id>
                         <phase>verify</phase>
                         <goals>
