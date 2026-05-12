@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.installer;
@@ -6,7 +6,9 @@ package com.oracle.weblogic.imagetool.installer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,7 +38,8 @@ public enum FmwInstallerType {
         InstallerType.WLSDEV),
 
     // Oracle WebLogic Server Infrastructure (JRF)
-    FMW(Utils.toSet(WLS.products, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS),
+    FMW(Utils.toSet(WLS.products, AruProduct.FMW, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM,
+        AruProduct.EM, AruProduct.FMC, AruProduct.UMS, AruProduct.OVD),
         InstallerType.FMW),
     // Oracle Service Bus
     OSB(Utils.toSet(FMW.products, AruProduct.OSB),
@@ -60,19 +63,19 @@ public enum FmwInstallerType {
     IDM_WLS(Collections.singleton(AruProduct.IDM),
         InstallerType.IDM),
     // Oracle Access Manager
-    OAM(Utils.toSet(FMW.products, AruProduct.OAM),
+    OAM(Utils.toSet(FMW.products, AruProduct.OAM, AruProduct.IMS),
         InstallerType.FMW, InstallerType.OAM),
     // Oracle Identity Governance
     OIG(Utils.toSet(FMW.products, AruProduct.SOA, AruProduct.OSB, AruProduct.IDM),
         InstallerType.FMW, InstallerType.SOA, InstallerType.OSB, InstallerType.IDM),
     // Oracle Unified Directory
-    OUD(Collections.singleton(AruProduct.OUD),
+    OUD(Utils.toSet(AruProduct.OUD, AruProduct.IMS),
         InstallerType.OUD),
     // Oracle Unified Directory
-    OUD_WLS(Utils.toSet(FMW.products, AruProduct.OUD),
+    OUD_WLS(Utils.toSet(FMW.products, AruProduct.OUD, AruProduct.IMS),
         InstallerType.FMW, InstallerType.OUD),
     // Oracle Internet Directory
-    OID(Utils.toSet(FMW.products, AruProduct.OID),
+    OID(Utils.toSet(FMW.products, AruProduct.OID, AruProduct.IMS),
         InstallerType.FMW, InstallerType.OID),
     // Oracle WebCenter Content
     WCC(Utils.toSet(FMW.products, AruProduct.WCC),
@@ -84,7 +87,7 @@ public enum FmwInstallerType {
     WCS(Utils.toSet(FMW.products, AruProduct.WCS),
         InstallerType.FMW, InstallerType.WCS),
     OHS(Utils.toSet(AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC, AruProduct.FMWPLAT,
-        AruProduct.OSS, AruProduct.FIT, AruProduct.JRF, AruProduct.FMW_GLCM),
+        AruProduct.OSS, AruProduct.FIT, AruProduct.FMW, AruProduct.JRF, AruProduct.FMW_GLCM),
         InstallerType.OHS) {
         @Override
         public List<InstallerType> installerList(String version) {
@@ -121,7 +124,6 @@ public enum FmwInstallerType {
     }
 
     private static final List<FmwInstallerType> weblogicServerTypes = Arrays.asList(WLS, WLSDEV, WLSSLIM);
-
     private static final LoggingFacade logger = LoggingFactory.getLogger(FmwInstallerType.class);
 
     /**
@@ -133,39 +135,53 @@ public enum FmwInstallerType {
     }
 
     /**
-     * Derive the FmwInstallerType from a list of product families.
-     * These product families are found in inventory/registry.xml.
-     * @param products a comma-separated list of product families
-     * @return the best match for the list of product families
+     * Derive the FmwInstallerType from a list of registry.xml distributions.
+     * These distribution names are found in inventory/registry.xml under /registry/distributions/distribution.
+     * @param distributions a comma-separated list of registry.xml distribution names
+     * @return the best match for the list of distributions, or null if no known distributions are present
      */
-    public static FmwInstallerType fromProductList(String products) {
-        logger.entering(products);
-        if (Utils.isEmptyString(products)) {
+    public static FmwInstallerType fromDistributionList(String distributions) {
+        logger.entering(distributions);
+        if (Utils.isEmptyString(distributions)) {
             return null;
         }
 
-        // create a set from the comma-separated list
-        Set<AruProduct> productSet = Stream.of(products.split(","))
-            .map(e -> "INFRA".equals(e) ? "JRF" : e) // map -> replaces any occurrence of INFRA with JRF
-            .filter(AruProduct::isKnownAruProduct) // drop any products that cannot be patched individually (or unknown)
-            .map(AruProduct::valueOf) // convert String to AruProduct enum
-            .collect(Collectors.toSet());
+        Set<FmwInstallerType> distributionSet = Stream.of(distributions.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .map(ProductMap::getInstallerType)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toCollection(() -> EnumSet.noneOf(FmwInstallerType.class)));
 
-        logger.finer("Derived product set {0} from {1}", productSet, products);
+        logger.finer("Derived distribution set {0} from {1}", distributionSet, distributions);
 
-        for (FmwInstallerType type : values()) {
-            // Use the product set to compare products, but remove products that CIE does not include in registry.xml
-            Set<AruProduct> aruProducts = type.products().stream()
-                .filter(e -> !AruProduct.FMWPLAT.equals(e)) // never shows up on installed product family
-                .filter(e -> !AruProduct.JDEV.equals(e)) // never shows up on installed product family
-                .collect(Collectors.toSet());
+        FmwInstallerType installerType = findInstallerType(distributionSet);
+        logger.exiting(installerType);
+        return installerType;
+    }
 
-            if (aruProducts.equals(productSet)) {
-                logger.exiting(type);
+    private static FmwInstallerType findInstallerType(Set<FmwInstallerType> distributionSet) {
+        if (distributionSet.isEmpty()) {
+            return null;
+        }
+        if (distributionSet.contains(SOA) && distributionSet.contains(OSB)) {
+            return SOA_OSB;
+        }
+        if (distributionSet.contains(OUD)) {
+            return distributionSet.contains(FMW) ? OUD_WLS : OUD;
+        }
+        if (distributionSet.contains(IDM)) {
+            return distributionSet.contains(FMW) ? IDM : IDM_WLS;
+        }
+
+        List<FmwInstallerType> resolutionOrder = Arrays.asList(
+            OAM, OID, WCC, WCP, WCS, OHS, MFT, ODI, SOA, OSB, FMW, WLS
+        );
+        for (FmwInstallerType type : resolutionOrder) {
+            if (distributionSet.contains(type)) {
                 return type;
             }
         }
-        logger.exiting(WLS);
-        return WLS;
+        return null;
     }
 }

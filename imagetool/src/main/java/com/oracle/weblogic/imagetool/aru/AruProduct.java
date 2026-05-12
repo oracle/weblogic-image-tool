@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.aru;
@@ -11,12 +11,15 @@ import java.util.Arrays;
 public enum AruProduct {
     WLS("15991", "Oracle WebLogic Server"),
     COH("13964", "Oracle Coherence"),
-    JRF("10120", "Oracle Fusion Middleware"),
+    JRF("10120", "Oracle Java Required Files"),
+    FMW("10120", "Oracle Fusion Middleware"),
+    FMC("48949", "Fusion Middleware Control"),
     FMWPLAT("27638", "FMW Platform"),
     OSB("16011", "Oracle Service Bus"),
     SOA("12745", "Oracle SOA Suite"),
     MFT("27538", "Oracle Managed File Transfer"),
     IDM("18391", "Oracle Identity Manager"),
+    IMS("22295", "Oracle Identity Management"),
     OAM("18388", "Oracle Access Manager"),
     OHS("10300", "Oracle HTTP Server"),
     OUD("19748", "Oracle Unified Directory"),
@@ -32,7 +35,14 @@ public enum AruProduct {
     ODI("13724", "Oracle Data Integrator"),
     OSS("16609", "Oracle Security Service"),
     OAM_WG("18388", "Oracle Access Manager Web Gates"),
-    FMW_GLCM("31939", "Oracle Global Lifecycle Management FMW Installer")
+    FMW_GLCM("31939", "Oracle Global Lifecycle Management FMW Installer"),
+    EM("12385", "Enterprise Manager for Fusion Middleware"),
+    UMS("16612", "User Messaging Service"),
+    FORMS("9518", "Oracle Forms"),
+    REPORTS("9519", "Oracle Reports"),
+    ESS("15139", "Hyperion Essbase"),
+    EDQ("20269", "Oracle Enterprise Data Quality"),
+    OVD("13504", "Oracle Virtual Directory")
     ;
 
     private final String productId;

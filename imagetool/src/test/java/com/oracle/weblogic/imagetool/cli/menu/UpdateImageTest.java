@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.cli.menu;
@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Tag("unit")
 class UpdateImageTest {
     @Test
-    @Tag("failing")
     void installerTypeTest() {
         UpdateImage updateImage = new UpdateImage();
         new CommandLine(updateImage).parseArgs("--tag", "tag:1", "--user", "derek", "--password", "xxx",
@@ -21,7 +20,7 @@ class UpdateImageTest {
         // when not discovered from the fromImage, default should be WLS
         assertEquals(FmwInstallerType.WLS, updateImage.getInstallerType());
 
-        updateImage.setImageInstallerType("WLS,COH,TOPLINK,JDBC,FIT,INFRA,OPSS,OWSM"); // mimic inspect FMW image
+        updateImage.setImageInstallerType("WebLogic Server for FMW"); // mimic inspect FMW image
         // when discovered from the fromImage, value should be as discovered
         assertEquals(FmwInstallerType.FMW, updateImage.getInstallerType());
     }
@@ -34,9 +33,8 @@ class UpdateImageTest {
         // when not discovered from the fromImage, value should be same as provided by user (not default)
         assertEquals(FmwInstallerType.SOA, updateImage.getInstallerType());
 
-        updateImage.setImageInstallerType("FMW");
+        updateImage.setImageInstallerType("WebLogic Server for FMW");
         // when discovered from the fromImage, value should be same as provided by user
         assertEquals(FmwInstallerType.SOA, updateImage.getInstallerType());
     }
 }
-

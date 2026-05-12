@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2020, 2026, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 package com.oracle.weblogic.imagetool.installer;
@@ -44,29 +44,54 @@ class InstallerTest {
             "WLS product list is incorrect or out of order");
 
         AruProduct[] list2 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMW_GLCM, AruProduct.FMWPLAT, AruProduct.JDBC,
-            AruProduct.FIT, AruProduct.OSS, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM};
+            AruProduct.FIT, AruProduct.OSS, AruProduct.FMW, AruProduct.JDEV, AruProduct.OPSS,
+            AruProduct.OWSM, AruProduct.FMC, AruProduct.EM, AruProduct.UMS, AruProduct.OVD};
         assertEquals(Utils.toSet(list2), FmwInstallerType.FMW.products(),
             "FMW product list is incorrect or out of order");
 
         AruProduct[] list3 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMW_GLCM, AruProduct.FMWPLAT, AruProduct.JDBC,
-            AruProduct.FIT, AruProduct.OSS, AruProduct.JRF, AruProduct.JDEV, AruProduct.OPSS, AruProduct.OWSM,
-            AruProduct.SOA};
+            AruProduct.FIT, AruProduct.OSS, AruProduct.FMW, AruProduct.JDEV, AruProduct.OPSS,
+            AruProduct.OWSM, AruProduct.FMC, AruProduct.EM, AruProduct.UMS, AruProduct.OVD, AruProduct.SOA};
         assertEquals(Utils.toSet(list3), FmwInstallerType.SOA.products(),
             "SOA product list is incorrect or out of order");
+
+        AruProduct[] list4 = {AruProduct.WLS, AruProduct.COH, AruProduct.FMW_GLCM, AruProduct.FMWPLAT, AruProduct.JDBC,
+            AruProduct.FIT, AruProduct.OSS, AruProduct.FMW, AruProduct.JDEV, AruProduct.OPSS,
+            AruProduct.OWSM, AruProduct.FMC, AruProduct.EM, AruProduct.UMS, AruProduct.OVD, AruProduct.OAM,
+            AruProduct.IMS};
+        assertEquals(Utils.toSet(list4), FmwInstallerType.OAM.products(),
+            "OAM product list is incorrect or out of order");
+
+        AruProduct[] list5 = {AruProduct.OHS, AruProduct.OAM_WG, AruProduct.WLS, AruProduct.JDBC,
+            AruProduct.FMWPLAT, AruProduct.OSS, AruProduct.FIT, AruProduct.FMW, AruProduct.JRF,
+            AruProduct.FMW_GLCM};
+        assertEquals(Utils.toSet(list5), FmwInstallerType.OHS.products(),
+            "OHS product list is incorrect or out of order");
     }
 
     @Test
-    @Tag("failing")
-    void fromProductList() {
-        final String WLS_PRODUCTS = "WLS,COH,TOPLINK,JDBC,FIT,OSS";
-        final String FMW_PRODUCTS = WLS_PRODUCTS + ",INFRA,OPSS,OWSM";
-        assertEquals(FmwInstallerType.WLS, FmwInstallerType.fromProductList(WLS_PRODUCTS));
-        assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromProductList(FMW_PRODUCTS));
-        assertEquals(FmwInstallerType.SOA_OSB, FmwInstallerType.fromProductList(FMW_PRODUCTS + ",BPM,SOA,OSB"));
-        // Ignore unsupported products, but keep as many products as possible that ARE known
-        assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromProductList(FMW_PRODUCTS + ",OIM"));
-        assertNull(FmwInstallerType.fromProductList(""));
-        assertNull(FmwInstallerType.fromProductList(null));
+    void fromDistributionList() {
+        assertEquals(FmwInstallerType.WLS, FmwInstallerType.fromDistributionList("WebLogic Server,OPatch"));
+        assertEquals(FmwInstallerType.FMW, FmwInstallerType.fromDistributionList("WebLogic Server for FMW"));
+        assertEquals(FmwInstallerType.SOA, FmwInstallerType.fromDistributionList(
+            "WebLogic Server for FMW,BPM_SOA"));
+        assertEquals(FmwInstallerType.SOA_OSB, FmwInstallerType.fromDistributionList(
+            "WebLogic Server for FMW,BPM_SOA,ServiceBus"));
+        assertEquals(FmwInstallerType.OUD_WLS, FmwInstallerType.fromDistributionList(
+            "WebLogic Server for FMW,Oracle Unified Directory"));
+        assertEquals(FmwInstallerType.IDM_WLS, FmwInstallerType.fromDistributionList(
+            "Oracle Identity Management QuickStart"));
+        assertNull(FmwInstallerType.fromDistributionList("OPatch"));
+        assertNull(FmwInstallerType.fromDistributionList(""));
+        assertNull(FmwInstallerType.fromDistributionList(null));
+    }
+
+    @Test
+    void productMap() {
+        assertEquals(FmwInstallerType.WLS, ProductMap.getInstallerType("WebLogic Server"));
+        assertEquals(FmwInstallerType.FMW, ProductMap.getInstallerType("WebLogic Server for FMW"));
+        assertEquals(FmwInstallerType.SOA, ProductMap.getInstallerType("BPM_SOA"));
+        assertEquals(FmwInstallerType.OSB, ProductMap.getInstallerType("ServiceBus"));
+        assertNull(ProductMap.getInstallerType("OPatch"));
     }
 }
-

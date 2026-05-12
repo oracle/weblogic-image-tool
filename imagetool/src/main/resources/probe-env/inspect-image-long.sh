@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#Copyright (c) 2021, Oracle and/or its affiliates.
+#Copyright (c) 2021, 2026, Oracle and/or its affiliates.
 #
 #Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
@@ -81,7 +81,10 @@ if [ -n "$ORACLE_HOME" ]; then
           print "None"
       }' | sed 's/;$//')"
 
-  echo oracleInstalledProducts="$(awk -F\" '{ORS=","} /product-family/ { print $2 }' "$ORACLE_HOME"/inventory/registry.xml | sed 's/,$//')"
+  echo oracleInstalledProducts="$(
+    sed -n 's/.*<distribution [^>]*name=\"\([^\"]*\)\".*/\1/p' "$ORACLE_HOME"/inventory/registry.xml |
+    awk 'BEGIN { sep="" } { printf "%s%s", sep, $0; sep="," } END { print "" }'
+  )"
 fi
 
 echo __OS__arch="$(uname -m)"
