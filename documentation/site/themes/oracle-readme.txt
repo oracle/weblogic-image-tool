@@ -34,4 +34,4 @@ documentation/site/themes, update the theme setting in documentation/site/config
 and verify that these site-level overrides still render correctly.
 
 Use a Hugo version compatible with Relearn 9.x for validation.  The GitHub Pages
-workflow currently downloads Hugo 0.152.2, which works with this upgrade.
+workflow currently downloads Hugo 0.161.1, which works with this upgrade.
