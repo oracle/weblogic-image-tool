@@ -2,11 +2,11 @@
 googleAnalytics = "UA-129126578-2"
 
 baseURL = "/weblogic-image-tool/"
-languageCode = "en-us"
+locale = "en-us"
 title = "WebLogic Image Tool"
 
 # Change the default theme to be use when building the site with Hugo
-theme = "hugo-theme-relearn-8.3.0"
+theme = "hugo-theme-relearn-9.0.3"
 
 publishDir = "docs"
 
@@ -17,6 +17,9 @@ publishDir = "docs"
 [markup]
   defaultMarkdownHandler = 'goldmark'
   [markup.goldmark]
+    [markup.goldmark.parser]
+      [markup.goldmark.parser.attribute]
+        block = true
     [markup.goldmark.renderer]
       unsafe = true
 
@@ -24,4 +27,7 @@ publishDir = "docs"
   hideAuthorDate = true
   # disable the copy to clipboard links
   disableInlineCopyToClipBoard = true
+  externalLinkTarget = "_blank"
+  linkTitle = "WebLogic\nImage Tool"
+  logo = { src = "/images/logo.png", direction = "column" }
   themeVariant = "learn"
