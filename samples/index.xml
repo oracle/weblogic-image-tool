@@ -3,7 +3,7 @@
   <channel>
     <title>Samples :: WebLogic Image Tool</title>
     <link>https://oracle.github.io/weblogic-image-tool/samples/index.html</link>
-    <description>Create an image with full Internet accessSample that creates an image with full Internet access.&#xA;Create an image without Internet accessSample that creates an image without Internet access.&#xA;Patch an existing imageSample that patches an existing image.&#xA;Create an image with a WLS domain using WDTSample that creates an image containing a WLS domain using WDT.</description>
+    <description>Create an image with full Internet access Sample that creates an image with full Internet access.&#xA;Create an image without Internet access Sample that creates an image without Internet access.&#xA;Patch an existing image Sample that patches an existing image.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>

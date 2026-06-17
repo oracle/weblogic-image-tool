@@ -3,7 +3,7 @@
   <channel>
     <title>Developer Guide :: WebLogic Image Tool</title>
     <link>https://oracle.github.io/weblogic-image-tool/developer/index.html</link>
-    <description>The Developer Guide provides information for developers who want to build the installer from source or contribute to the code.&#xA;Build from sourceHow to build the Image Tool from source.&#xA;Contribute to WITHow to contribute to the development of the Image Tool.</description>
+    <description>The Developer Guide provides information for developers who want to build the installer from source or contribute to the code.&#xA;Build from source How to build the Image Tool from source.&#xA;Contribute to WIT How to contribute to the development of the Image Tool.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>

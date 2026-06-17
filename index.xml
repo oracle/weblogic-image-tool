@@ -13,28 +13,28 @@
       <link>https://oracle.github.io/weblogic-image-tool/quickstart/index.html</link>
       <pubDate>Fri, 22 Feb 2019 15:27:54 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-image-tool/quickstart/index.html</guid>
-      <description>Use this Quick Start guide to create a Linux based WebLogic container image.&#xA;StepsHow to run the quickstart sample.</description>
+      <description>Use this Quick Start guide to create a Linux based WebLogic container image.&#xA;Steps How to run the quickstart sample.</description>
     </item>
     <item>
       <title>User Guide</title>
       <link>https://oracle.github.io/weblogic-image-tool/userguide/index.html</link>
       <pubDate>Fri, 22 Feb 2019 15:27:54 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-image-tool/userguide/index.html</guid>
-      <description>The User Guide provides detailed usage information for the WebLogic Image Tool, including typical use case scenarios.&#xA;PrerequisitesLearn about the Image Tool&#39;s prerequisites.&#xA;SetupInstall the WebLogic Image Tool.&#xA;Image Tool CommandsLearn about the commands supported by the Image Tool.&#xA;CleanupLearn how to clean up temporary directories created by the Image Tool.&#xA;ConfigurationLearn about advanced configuration of the Image Tool.&#xA;LoggingLearn how to configure the Image Tool logging framework.</description>
+      <description>The User Guide provides detailed usage information for the WebLogic Image Tool, including typical use case scenarios.&#xA;Prerequisites Learn about the Image Tool&#39;s prerequisites.&#xA;Setup Install the WebLogic Image Tool.&#xA;Image Tool Commands Learn about the commands supported by the Image Tool.</description>
     </item>
     <item>
       <title>Samples</title>
       <link>https://oracle.github.io/weblogic-image-tool/samples/index.html</link>
       <pubDate>Fri, 22 Feb 2019 15:27:54 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-image-tool/samples/index.html</guid>
-      <description>Create an image with full Internet accessSample that creates an image with full Internet access.&#xA;Create an image without Internet accessSample that creates an image without Internet access.&#xA;Patch an existing imageSample that patches an existing image.&#xA;Create an image with a WLS domain using WDTSample that creates an image containing a WLS domain using WDT.</description>
+      <description>Create an image with full Internet access Sample that creates an image with full Internet access.&#xA;Create an image without Internet access Sample that creates an image without Internet access.&#xA;Patch an existing image Sample that patches an existing image.</description>
     </item>
     <item>
       <title>Developer Guide</title>
       <link>https://oracle.github.io/weblogic-image-tool/developer/index.html</link>
       <pubDate>Fri, 22 Feb 2019 15:27:54 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-image-tool/developer/index.html</guid>
-      <description>The Developer Guide provides information for developers who want to build the installer from source or contribute to the code.&#xA;Build from sourceHow to build the Image Tool from source.&#xA;Contribute to WITHow to contribute to the development of the Image Tool.</description>
+      <description>The Developer Guide provides information for developers who want to build the installer from source or contribute to the code.&#xA;Build from source How to build the Image Tool from source.&#xA;Contribute to WIT How to contribute to the development of the Image Tool.</description>
     </item>
   </channel>
 </rss>

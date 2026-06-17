@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
+<html id="R-html" lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <meta name="generator" content="Hugo 0.152.2">
-    <meta name="generator" content="Relearn 8.3.0">
+    <meta name="generator" content="Hugo 0.161.1">
+    <meta name="generator" content="Relearn 9.0.3">
     <meta name="description" content="Learn about the Image Tool&#39;s prerequisites.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
@@ -23,29 +23,29 @@
     <meta itemprop="description" content="Learn about the Image Tool&#39;s prerequisites.">
     <meta itemprop="datePublished" content="2019-02-23T17:19:24-05:00">
     <meta itemprop="dateModified" content="2019-02-23T17:19:24-05:00">
-    <meta itemprop="wordCount" content="162">
+    <meta itemprop="wordCount" content="161">
     <title>Prerequisites :: WebLogic Image Tool</title>
-    <link href="/weblogic-image-tool/images/logo.png?1781498981" rel="icon" type="image/png">
-    <link href="/weblogic-image-tool/css/auto-complete/auto-complete.min.css?1781498981" rel="stylesheet">
-    <script src="/weblogic-image-tool/js/auto-complete/auto-complete.min.js?1781498981" defer></script>
-    <script src="/weblogic-image-tool/js/search-lunr.min.js?1781498981" defer></script>
-    <script src="/weblogic-image-tool/js/search.min.js?1781498981" defer></script>
+    <link href="/weblogic-image-tool/images/logo.png?1781728544" rel="icon" type="image/png">
+    <link href="/weblogic-image-tool/css/auto-complete/auto-complete.min.css?1781728544" rel="stylesheet">
+    <script src="/weblogic-image-tool/js/auto-complete/auto-complete.min.js?1781728544" defer></script>
+    <script src="/weblogic-image-tool/js/search-lunr.min.js?1781728544" defer></script>
+    <script src="/weblogic-image-tool/js/search.min.js?1781728544" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-image-tool/searchindex.en.js?1781498981";
+      window.relearn.index_js_url="/weblogic-image-tool/searchindex.en.js?1781728544";
     </script>
-    <script src="/weblogic-image-tool/js/lunr/lunr.min.js?1781498981" defer></script>
-    <script src="/weblogic-image-tool/js/lunr/lunr.stemmer.support.min.js?1781498981" defer></script>
-    <script src="/weblogic-image-tool/js/lunr/lunr.multi.min.js?1781498981" defer></script>
-    <script src="/weblogic-image-tool/js/lunr/lunr.en.min.js?1781498981" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.min.js?1781728544" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.stemmer.support.min.js?1781728544" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.multi.min.js?1781728544" defer></script>
+    <script src="/weblogic-image-tool/js/lunr/lunr.en.min.js?1781728544" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-image-tool/fonts/fontawesome/css/fontawesome-all.min.css?1781498981" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-image-tool/fonts/fontawesome/css/fontawesome-all.min.css?1781498981" rel="stylesheet"></noscript>
-    <link href="/weblogic-image-tool/css/perfect-scrollbar/perfect-scrollbar.min.css?1781498981" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/theme.min.css?1781498981" rel="stylesheet">
-    <link href="/weblogic-image-tool/css/format-html.min.css?1781498981" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-image-tool/fonts/fontawesome/css/all.min.css?1781728544" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-image-tool/fonts/fontawesome/css/all.min.css?1781728544" rel="stylesheet"></noscript>
+    <link href="/weblogic-image-tool/css/perfect-scrollbar/perfect-scrollbar.min.css?1781728544" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/theme.min.css?1781728544" rel="stylesheet">
+    <link href="/weblogic-image-tool/css/format-html.min.css?1781728544" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -56,10 +56,6 @@
       window.relearn.absBaseUri='https:\/\/oracle.github.io\/weblogic-image-tool';
       window.relearn.disableInlineCopyToClipboard=true;
       window.relearn.enableBlockCodeWrap=true;
-      // legal
-      window.relearn.getItem = (s,n) => {return s.getItem(n)};
-      window.relearn.setItem = (s,n,v) => {return s.setItem(n,v)};
-      window.relearn.removeItem = (s,n) => {return s.removeItem(n)};
       // translations
       window.T_Copy_to_clipboard = `Copy text to clipboard`;
       window.T_Copied_to_clipboard = `Text copied to clipboard!`;
@@ -71,10 +67,10 @@
       window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
       // variant stuff
       window.relearn.themevariants = [ 'learn' ];
-      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.customvariantprefix = "my-custom-";
       window.relearn.changeVariant = function(variant) {
         var oldVariant = document.documentElement.dataset.rThemeVariant;
-        window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+        window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         document.documentElement.dataset.rThemeVariant = variant;
         if (oldVariant != variant) {
           document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
@@ -82,34 +78,40 @@
         }
       }
       window.relearn.markVariant = function() {
-        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant");
+        var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant");
         document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
       }
       window.relearn.initVariant = function() {
-        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant") ?? "";
-        if( variant == window.relearn.customvariantname ){
-        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+        var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant") ?? "";
+        if( !variant ||
+            (!variant.startsWith(window.relearn.customvariantprefix) && !window.relearn.themevariants.includes(variant)) ||
+            (variant.startsWith(window.relearn.customvariantprefix) && !window.localStorage.getItem(window.relearn.absBaseUri + "/variantstylesheet-" + variant)) ){
           variant = window.relearn.themevariants[0];
-          window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+          window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         }
         document.documentElement.dataset.rThemeVariant = variant;
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
-    </script>
+    </script><style>
+:root {
+  --LOGO-IMAGE-width: 90px;
+}
+</style>
+
   </head>
-  <body class="mobile-support html" data-url="/weblogic-image-tool/userguide/prerequisites/index.html">
+  <body class="mobile-support html" data-origin="/weblogic-image-tool/userguide/prerequisites/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
-      <nav id="R-topbar">
-        <div class="topbar-wrapper">
-          <div class="topbar-sidebar-divider"></div>
+      <nav id="R-topbar" class="default-animation">
+        <div class="topbar-wrapper default-animation">
+          <div class="topbar-sidebar-divider default-animation"></div>
           <div class="topbar-area topbar-area-start" data-area="start">
-            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+            <div class="topbar-button topbar-button-sidebar default-animation" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
             </div>
-            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
-<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button></span>
+            <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper"> 
                 </div>
@@ -119,13 +121,13 @@
           <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-image-tool/index.html"><span itemprop="name">WebLogic Image Tool</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-image-tool/userguide/index.html"><span itemprop="name">User Guide</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Prerequisites</span><meta itemprop="position" content="3"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-prev default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-image-tool/userguide/index.html" title="User Guide (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-next default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-image-tool/userguide/setup/index.html" title="Setup (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
@@ -144,10 +146,7 @@
   <header class="headline">
   </header>
 
-
-
 <h1 id="prerequisites">Prerequisites</h1>
-
 
 
 <ul>
@@ -158,27 +157,9 @@
 </ul>
 </li>
 <li>An installed version of Java to run Image Tool, version 8+.</li>
-<li>Installers for Oracle WebLogic Server and Oracle JDK from the 
-
-<a href="https://edelivery.oracle.com"
-   
-   
-target="_blank" rel="noopener noreferrer"
->
-Oracle Software Delivery Cloud
-</a>
- for installation into the new image.</li>
+<li>Installers for Oracle WebLogic Server and Oracle JDK from the <a href="https://edelivery.oracle.com" rel="external" target="_blank">Oracle Software Delivery Cloud</a> for installation into the new image.</li>
 <li>When using the <code>imagetool</code> alias from <code>setup.sh</code> instead of the shell script (<code>imagetool.sh</code>), Bash version 4.0 or later is required for <code>&lt;tab&gt;</code> command completion.</li>
-<li>When using any of the patching options, <code>--patches</code>, <code>--recommendedPatches</code>, or <code>--latestPSU</code>, you will need to provide 
-
-<a href="https://www.oracle.com/technical-resources/"
-   
-   
-target="_blank" rel="noopener noreferrer"
->
-Oracle Support
-</a>
- credentials.</li>
+<li>When using any of the patching options, <code>--patches</code>, <code>--recommendedPatches</code>, or <code>--latestPSU</code>, you will need to provide <a href="https://www.oracle.com/technical-resources/" rel="external" target="_blank">Oracle Support</a> credentials.</li>
 </ul>
 
 <details open class="box cstyle notices note">
@@ -187,16 +168,7 @@ Oracle Support
     Note
   </summary>
   <div class="box-content">
-<p>The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID 
-
-<a href="https://support.oracle.com/rs?type=doc&amp;id=2764636.1"
-   
-   
-target="_blank" rel="noopener noreferrer"
->
-2764636.1
-</a>
-), because an SPB is <em>not</em> a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool <code>create</code> or <code>update</code> command with the <code>--recommendedPatches</code> option.</p>
+<p>The WebLogic Image Tool does not support a Stack Patch Bundle (SPB; see Doc ID <a href="https://support.oracle.com/rs?type=doc&id=2764636.1" rel="external" target="_blank">2764636.1</a>), because an SPB is <em>not</em> a patch but a mechanism for applying all PSU and recommended CPU and SPU patches to a WebLogic Server installation, similar to invoking the Image Tool <code>create</code> or <code>update</code> command with the <code>--recommendedPatches</code> option.</p>
   </div>
 </details>
 
@@ -209,82 +181,77 @@ target="_blank" rel="noopener noreferrer"
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
       <div id="R-header-wrapper" class="default-animation">
-        <div id="R-header" class="default-animation">
 
-
-<a id="logo" href="https://oracle.github.io/weblogic-image-tool/">
-  <img src="https://oracle.github.io/weblogic-image-tool//images/logo.png" height="90"><br/>
+<a id="logo" href="/weblogic-image-tool/index.html">
+  <img src="/weblogic-image-tool/images/logo.png" height="90" alt="WebLogic Image Tool logo"><br/>
   WebLogic Image Tool
 </a>
 
-        </div>
         <search><form action="/weblogic-image-tool/search/index.html" method="get">
           <div class="searchbox default-animation">
-            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-fw fa-search"></i></button>
             <label class="a11y-only" for="R-search-by">Search</label>
             <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
-            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-fw fa-times" title="Clear search"></i></button>
           </div>
         </form></search>
       </div>
       <div id="R-homelinks" class="default-animation homelinks">
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-homelinks">
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks default-animation">
           <ul class="space collapsible-menu">
-            <li class="" data-nav-url="/weblogic-image-tool/index.html"><a class="padding" href="/weblogic-image-tool/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
+            <li class="" data-nav-id="/weblogic-image-tool/index.html"><a class="padding" href="/weblogic-image-tool/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
           </ul>
         </div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-headercontrols">
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols default-animation">
           <ul class="">
           </ul>
         </div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
       </div>
       <div id="R-content-wrapper" class="highlightable">
-        <div class="R-sidebarmenu R-shortcutmenu-main">
+        <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
-            <li class="" data-nav-url="/weblogic-image-tool/quickstart/index.html"><a class="padding" href="/weblogic-image-tool/quickstart/index.html"><b> </b>Quick Start Guide</a><ul id="R-subsections-d63193e927818b6cb77d9c791ea48a61" class="collapsible-menu"></ul></li>
-            <li class="parent " data-nav-url="/weblogic-image-tool/userguide/index.html"><a class="padding" href="/weblogic-image-tool/userguide/index.html"><b> </b>User Guide</a><ul id="R-subsections-74b4df3a3d9365853f09e9f1dfe7bbba" class="collapsible-menu">
-            <li class="active " data-nav-url="/weblogic-image-tool/userguide/prerequisites/index.html"><a class="padding" href="/weblogic-image-tool/userguide/prerequisites/index.html">Prerequisites</a></li>
-            <li class="" data-nav-url="/weblogic-image-tool/userguide/setup/index.html"><a class="padding" href="/weblogic-image-tool/userguide/setup/index.html">Setup</a></li>
-            <li class="alwaysopen " data-nav-url="/weblogic-image-tool/userguide/tools/index.html"><a class="padding" href="/weblogic-image-tool/userguide/tools/index.html"><b> </b>Image Tool Commands</a><ul id="R-subsections-7b3bc9511e17e6cce72c059be01d1c1d" class="collapsible-menu"></ul></li>
-            <li class="" data-nav-url="/weblogic-image-tool/userguide/cleanup/index.html"><a class="padding" href="/weblogic-image-tool/userguide/cleanup/index.html">Cleanup</a></li>
-            <li class="" data-nav-url="/weblogic-image-tool/userguide/config/index.html"><a class="padding" href="/weblogic-image-tool/userguide/config/index.html">Configuration</a></li>
-            <li class="" data-nav-url="/weblogic-image-tool/userguide/logging/index.html"><a class="padding" href="/weblogic-image-tool/userguide/logging/index.html">Logging</a></li></ul></li>
-            <li class="" data-nav-url="/weblogic-image-tool/samples/index.html"><a class="padding" href="/weblogic-image-tool/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
-            <li class="" data-nav-url="/weblogic-image-tool/developer/index.html"><a class="padding" href="/weblogic-image-tool/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-image-tool/quickstart/index.html"><a class="padding default-animation" href="/weblogic-image-tool/quickstart/index.html"><b> </b>Quick Start Guide</a><ul id="R-subsections-d63193e927818b6cb77d9c791ea48a61" class="collapsible-menu"></ul></li>
+            <li class="parent " data-nav-id="/weblogic-image-tool/userguide/index.html"><a class="padding default-animation" href="/weblogic-image-tool/userguide/index.html"><b> </b>User Guide</a><ul id="R-subsections-74b4df3a3d9365853f09e9f1dfe7bbba" class="collapsible-menu">
+            <li class="active " data-nav-id="/weblogic-image-tool/userguide/prerequisites/index.html"><a class="padding" href="/weblogic-image-tool/userguide/prerequisites/index.html">Prerequisites</a></li>
+            <li class="" data-nav-id="/weblogic-image-tool/userguide/setup/index.html"><a class="padding" href="/weblogic-image-tool/userguide/setup/index.html">Setup</a></li>
+            <li class="alwaysopen " data-nav-id="/weblogic-image-tool/userguide/tools/index.html"><a class="padding default-animation" href="/weblogic-image-tool/userguide/tools/index.html"><b> </b>Image Tool Commands</a><ul id="R-subsections-7b3bc9511e17e6cce72c059be01d1c1d" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-image-tool/userguide/cleanup/index.html"><a class="padding" href="/weblogic-image-tool/userguide/cleanup/index.html">Cleanup</a></li>
+            <li class="" data-nav-id="/weblogic-image-tool/userguide/config/index.html"><a class="padding" href="/weblogic-image-tool/userguide/config/index.html">Configuration</a></li>
+            <li class="" data-nav-id="/weblogic-image-tool/userguide/logging/index.html"><a class="padding" href="/weblogic-image-tool/userguide/logging/index.html">Logging</a></li></ul></li>
+            <li class="" data-nav-id="/weblogic-image-tool/samples/index.html"><a class="padding default-animation" href="/weblogic-image-tool/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-image-tool/developer/index.html"><a class="padding default-animation" href="/weblogic-image-tool/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
           </ul>
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-shortcuts">
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts default-animation">
           <ul class="space collapsible-menu">
           </ul>
         </div>
-        <div id="R-footer-margin"></div>
+        <div id="R-footer-margin" class="default-animation"></div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-footercontrols">
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols default-animation">
           <ul class="">
           </ul>
         </div>
-<div id="R-footer">
-
-<p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<div id="R-footer" class="default-animation"><p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
 <p>&nbsp</p>
 <p><a href="https://github.com/oracle/weblogic-image-tool"><i class="fab fa-github"></i> GitHub repo</a></p>
 <p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
 </div>
       </div>
     </aside>
-    <script src="/weblogic-image-tool/js/perfect-scrollbar/perfect-scrollbar.min.js?1781498981" defer></script>
-    <script src="/weblogic-image-tool/js/theme.min.js?1781498981" defer></script>
+    <script src="/weblogic-image-tool/js/perfect-scrollbar/perfect-scrollbar.min.js?1781728544" defer></script>
+    <script src="/weblogic-image-tool/js/theme.min.js?1781728544" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

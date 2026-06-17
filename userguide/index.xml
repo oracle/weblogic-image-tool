@@ -3,7 +3,7 @@
   <channel>
     <title>User Guide :: WebLogic Image Tool</title>
     <link>https://oracle.github.io/weblogic-image-tool/userguide/index.html</link>
-    <description>The User Guide provides detailed usage information for the WebLogic Image Tool, including typical use case scenarios.&#xA;PrerequisitesLearn about the Image Tool&#39;s prerequisites.&#xA;SetupInstall the WebLogic Image Tool.&#xA;Image Tool CommandsLearn about the commands supported by the Image Tool.&#xA;CleanupLearn how to clean up temporary directories created by the Image Tool.&#xA;ConfigurationLearn about advanced configuration of the Image Tool.&#xA;LoggingLearn how to configure the Image Tool logging framework.</description>
+    <description>The User Guide provides detailed usage information for the WebLogic Image Tool, including typical use case scenarios.&#xA;Prerequisites Learn about the Image Tool&#39;s prerequisites.&#xA;Setup Install the WebLogic Image Tool.&#xA;Image Tool Commands Learn about the commands supported by the Image Tool.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 16 Apr 2024 08:00:00 -0500</lastBuildDate>

@@ -3,7 +3,7 @@
   <channel>
     <title>Quick Start Guide :: WebLogic Image Tool</title>
     <link>https://oracle.github.io/weblogic-image-tool/quickstart/index.html</link>
-    <description>Use this Quick Start guide to create a Linux based WebLogic container image.&#xA;StepsHow to run the quickstart sample.</description>
+    <description>Use this Quick Start guide to create a Linux based WebLogic container image.&#xA;Steps How to run the quickstart sample.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>
