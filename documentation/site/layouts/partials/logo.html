@@ -1,0 +1,8 @@
+{{- $title := .Site.Title }}
+{{- $src := .Site.Params.logo.src | default "images/logo.png" }}
+{{- $src = strings.TrimPrefix "/" $src }}
+
+<a id="logo" href="{{ partial "permalink.gotmpl" (dict "to" site.Home) }}">
+  <img src="{{ $src | relURL }}" height="90" alt="WebLogic Image Tool logo"><br/>
+  {{ $title }}
+</a>
