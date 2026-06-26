@@ -20,5 +20,8 @@
   "optionalDependencies": {
     "canvas": "^2.11.2"
   },
+  "overrides": {
+    "tar": "7.5.11"
+  },
   "license": "MIT"
 }
