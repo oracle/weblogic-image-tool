@@ -22,6 +22,7 @@ import com.oracle.weblogic.imagetool.aru.AruUtil;
 import com.oracle.weblogic.imagetool.aru.InstalledPatch;
 import com.oracle.weblogic.imagetool.aru.InvalidCredentialException;
 import com.oracle.weblogic.imagetool.aru.InvalidPatchNumberException;
+import com.oracle.weblogic.imagetool.aru.NoPatchesFoundException;
 import com.oracle.weblogic.imagetool.cachestore.OPatchFile;
 import com.oracle.weblogic.imagetool.cachestore.PatchFile;
 import com.oracle.weblogic.imagetool.installer.FmwInstallerType;
@@ -144,7 +145,12 @@ public abstract class CommonPatchingOptions extends CommonOptions {
         // add user-provided patch list to any patches that were found for latestPsu or recommendedPatches
         aruPatches.addAll(resolveUserRequestedPatches(psuVersion));
 
-        AruUtil.rest().validatePatches(installedPatches, aruPatches, userId, password);
+        // Cached patches that are not yet available from ARU do not have an ARU release ID and cannot be
+        // checked by the ARU conflict service. OPatch will check the complete patch set during the image build.
+        List<AruPatch> patchesKnownToAru = aruPatches.stream()
+            .filter(patch -> !Utils.isEmptyString(patch.release()))
+            .collect(Collectors.toList());
+        AruUtil.rest().validatePatches(installedPatches, patchesKnownToAru, userId, password);
 
         String patchesFolderName = createPatchesTempDirectory().toAbsolutePath().toString();
         // copy the patch JARs to the Docker build context directory from the local cache, downloading them if needed
@@ -227,9 +233,23 @@ public abstract class CommonPatchingOptions extends CommonOptions {
                 providedVersion = patchId.substring(split + 1);
                 patchId = patchId.substring(0, split);
             }
-            List<AruPatch> patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
-                .filter(p -> p.isApplicableToTarget(getTargetArchitecture().getAruPlatform()))
-                .collect(Collectors.toList());
+            List<AruPatch> patchVersions;
+            try {
+                patchVersions = AruUtil.rest().getPatches(patchId, userId, password)
+                    .filter(p -> p.isApplicableToTarget(getTargetArchitecture().getAruPlatform()))
+                    .collect(Collectors.toList());
+            } catch (NoPatchesFoundException patchEx) {
+                // The patch may be an unreleased patch that an internal user has already added to the cache.
+                String requestedPatchId = patchId;
+                patchVersions = AruUtil.rest().getPatches(patchId, null, null)
+                    .filter(p -> requestedPatchId.equals(p.patchId()))
+                    .filter(p -> p.isApplicableToTarget(getTargetArchitecture().getAruPlatform()))
+                    .collect(Collectors.toList());
+                if (patchVersions.isEmpty()) {
+                    throw patchEx;
+                }
+                logger.warning("IMG-0124", patchId);
+            }
 
             // Stack Patch Bundle (SPB) is not a traditional patch.  Patches in SPB are duplicates of recommended.
             if (patchVersions.stream().anyMatch(AruPatch::isStackPatchBundle)) {
